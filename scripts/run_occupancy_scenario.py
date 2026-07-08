@@ -1,12 +1,31 @@
 #!/usr/bin/env python3
-"""Run the Sprint 2 Occupancy Detection scenario."""
+"""Run the Occupancy Detection baseline scenario with full run tracking.
+
+This script executes the Occupancy Detection *baseline scenario*: a single
+scenario run composed of two simulation runs (a real-data arm and a
+Gaussian-anchored arm). Every execution is tracked in two global registries and
+written to dedicated, id-stamped folders so that re-running never overwrites a
+previous execution:
+
+    output/reports/
+      scenario_runs.json
+      simulation_runs.json
+      scenarios/000000_occupancy_baseline_smoke/
+      simulations/000000_occupancy_real_data_smoke/
+      simulations/000001_occupancy_gaussian_anchored_smoke/
+
+Reports can also be regenerated from persisted run data without rerunning Monte
+Carlo (``--report-from-scenario-run ID``).
+"""
 
 from __future__ import annotations
 
 import argparse
 import json
+import os
 import time
 from pathlib import Path
+from typing import Any, Callable, Dict, Optional
 
 from coinfosim.datasets.occupancy import load_occupancy_data
 from coinfosim.reports.occupancy_dataset import generate_occupancy_dataset_report
@@ -15,175 +34,582 @@ from coinfosim.reports.occupancy_monte_carlo import (
     generate_occupancy_real_monte_carlo_report,
 )
 from coinfosim.reports.occupancy_scenario import generate_occupancy_scenario_report
+from coinfosim.results.persistence import (
+    load_simulation_result,
+    save_simulation_result,
+)
+from coinfosim.runs.registry import ScenarioRunRegistry, SimulationRunRegistry
+from coinfosim.runs.report_data import (
+    scenario_report_data,
+    simulation_report_data,
+    simulation_summary_snapshot,
+)
 from coinfosim.samplers.gaussian import GaussianClassConditionalSampler
 from coinfosim.samplers.real import RealDatasetSampler
-from coinfosim.scenarios.occupancy import build_gaussian_anchored_occupancy_model
-from coinfosim.simulation.config import VALID_MODES, get_mode_config
+from coinfosim.scenarios.occupancy import (
+    OCCUPANCY_SCENARIO_QUESTION,
+    build_gaussian_anchored_occupancy_model,
+)
+from coinfosim.simulation.config import MonteCarloConfig, VALID_MODES, get_mode_config
 from coinfosim.simulation.monte_carlo import CooperativeMonteCarloSimulator
 from coinfosim.simulation.progress import CooperativeProgressReporter
 
+SCENARIO_SLUG = "occupancy_baseline"
+SCENARIO_NAME = "Occupancy Detection Baseline"
+SCENARIO_FAMILY = "dataset"
 
+REAL_SLUG = "occupancy_real_data"
+REAL_FAMILY = "real_dataset"
+GAUSSIAN_SLUG = "occupancy_gaussian_anchored"
+GAUSSIAN_FAMILY = "gaussian_anchored"
+
+
+# --------------------------------------------------------------------------- #
+# Small helpers
+# --------------------------------------------------------------------------- #
+def _config_dict(config: MonteCarloConfig) -> Dict[str, Any]:
+    return {
+        "mode": config.mode,
+        "sample_sizes": list(config.sample_sizes),
+        "min_replications": config.min_replications,
+        "max_replications": config.max_replications,
+        "replication_batch_size": config.replication_batch_size,
+        "test_samples_per_class": config.test_samples_per_class,
+        "ci_half_width_target": config.ci_half_width_target,
+        "base_seed": config.base_seed,
+    }
+
+
+def _relpath(target: Path | str, start: Path | str) -> str:
+    return os.path.relpath(str(target), str(start))
+
+
+def _write_json(path: Path | str, payload: Dict[str, Any]) -> Path:
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    return path
+
+
+def _sim_report_filename(slug: str, mode: str, rid: int) -> str:
+    return f"{slug}_monte_carlo_report_{mode}_{rid:06d}.html"
+
+
+def _scenario_report_filename(mode: str, sid: int) -> str:
+    return f"{SCENARIO_SLUG}_scenario_report_{mode}_{sid:06d}.html"
+
+
+def _dataset_report_filename(mode: str, sid: int) -> str:
+    return f"occupancy_dataset_report_{mode}_{sid:06d}.html"
+
+
+def _persist_simulation(
+    sim_registry: SimulationRunRegistry,
+    record,
+    result,
+    report_fn: Callable[[Path, str], Path],
+    model_metadata: Dict[str, Any],
+    sampler_metadata: Dict[str, Any],
+):
+    """Generate the report, persist full result + summary, and finalize the run."""
+    sim_dir = Path(record.run_dir)
+    rid = record.simulation_run_id
+    mode = record.mode
+
+    report_filename = _sim_report_filename(record.simulation_slug, mode, rid)
+    report_path = report_fn(sim_dir, report_filename)
+
+    result_gz = sim_dir / f"result_data_{mode}_{rid:06d}.json.gz"
+    save_simulation_result(result, result_gz)
+
+    summary_snapshot = simulation_summary_snapshot(result)
+    summary_path = sim_dir / f"summary_{mode}_{rid:06d}.json"
+    _write_json(summary_path, summary_snapshot)
+
+    report_data = simulation_report_data(result)
+    artifacts = {
+        "monte_carlo_report": str(report_path),
+        "result_data": str(result_gz),
+        "summary": str(summary_path),
+        "simulation_json": record.simulation_json_path,
+    }
+    completed = sim_registry.complete_run(
+        rid,
+        runtime_seconds=result.runtime_seconds,
+        model_metadata=model_metadata,
+        sampler_metadata=sampler_metadata,
+        summary_data=summary_snapshot,
+        result_data=report_data,
+        artifacts=artifacts,
+    )
+    # simulation.json is the self-contained run record (control metadata +
+    # report-ready data + pointer to the full persisted result payload).
+    _write_json(record.simulation_json_path, completed.to_dict())
+    return completed, report_path, result_gz, summary_path
+
+
+def _fail_simulation(sim_registry: SimulationRunRegistry, record, error: str) -> None:
+    """Mark a started simulation run failed and persist a failed simulation.json."""
+    try:
+        failed = sim_registry.fail_run(record.simulation_run_id, error=error)
+        _write_json(record.simulation_json_path, failed.to_dict())
+    except Exception:  # noqa: BLE001 - never mask the original failure
+        pass
+
+
+# --------------------------------------------------------------------------- #
+# Scenario execution
+# --------------------------------------------------------------------------- #
 def run_scenario(
     mode: str = "smoke",
     raw_dir: str = "data/raw/occupancy",
     output_dir: str = "output/reports",
-    reporter: CooperativeProgressReporter | None = None,
-) -> dict:
-    """Run the Occupancy scenario end to end.
+    reporter: Optional[CooperativeProgressReporter] = None,
+    config: Optional[MonteCarloConfig] = None,
+) -> Dict[str, Any]:
+    """Run the Occupancy baseline scenario with full run tracking.
 
-    Returns a dict of the generated output paths. ``reporter`` controls console
-    output; when ``None`` the run is silent (useful for tests).
+    Creates one scenario run and two simulation runs (real-data and
+    Gaussian-anchored). ``config`` overrides the mode preset (used by tests to
+    keep runs tiny). Returns a dict with the allocated ids and output paths.
     """
     if reporter is None:
         reporter = CooperativeProgressReporter(verbose=False)
+    if config is None:
+        config = get_mode_config(mode)
+    mode = config.mode
 
-    start = time.time()
-    out_dir = Path(output_dir)
-    out_dir.mkdir(parents=True, exist_ok=True)
+    base_dir = Path(output_dir)
+    base_dir.mkdir(parents=True, exist_ok=True)
 
-    config = get_mode_config(mode)
+    scenario_registry = ScenarioRunRegistry(base_output_dir=base_dir)
+    sim_registry = SimulationRunRegistry(base_output_dir=base_dir)
+    scenario_registry.ensure_registry()
+    sim_registry.ensure_registry()
+
     reporter.scenario_start(
-        scenario_name="Occupancy Detection",
-        mode=config.mode,
+        scenario_name=SCENARIO_NAME,
+        mode=mode,
         raw_dir=raw_dir,
-        output_dir=out_dir,
+        output_dir=base_dir,
         config=config,
     )
 
-    reporter.scenario_step_start("Loading Occupancy dataset", detail=raw_dir)
-    step = time.time()
-    data = load_occupancy_data(raw_dir)
+    scenario_run = scenario_registry.start_run(
+        scenario_slug=SCENARIO_SLUG,
+        scenario_name=SCENARIO_NAME,
+        scenario_family=SCENARIO_FAMILY,
+        question=OCCUPANCY_SCENARIO_QUESTION,
+        mode=mode,
+        config=_config_dict(config),
+    )
+    sid = scenario_run.scenario_run_id
+    scenario_dir = Path(scenario_run.run_dir)
+
+    reporter.info(f"scenario_run_id={sid}")
+    reporter.info(f"scenario run dir: {scenario_dir}")
+    reporter.info(f"scenario registry: {scenario_registry.registry_path}")
+    reporter.info(f"simulation registry: {sim_registry.registry_path}")
+
+    start = time.time()
+    real_record = None
+    gaussian_record = None
+
+    try:
+        # -- dataset (scenario-level artifact) ---------------------------- #
+        reporter.scenario_step_start("Loading Occupancy dataset", detail=raw_dir)
+        step = time.time()
+        data = load_occupancy_data(raw_dir)
+        reporter.scenario_step_finish(
+            "Loading Occupancy dataset", elapsed=time.time() - step
+        )
+
+        # The dataset report describes the shared raw dataset, so it is a
+        # scenario-level artifact stored in the scenario folder.
+        reporter.scenario_step_start("Generating dataset report")
+        step = time.time()
+        dataset_report = generate_occupancy_dataset_report(
+            data, scenario_dir, filename=_dataset_report_filename(mode, sid)
+        )
+        reporter.scenario_step_finish(
+            "Generating dataset report",
+            elapsed=time.time() - step,
+            detail=str(dataset_report),
+        )
+
+        # -- real-data arm ------------------------------------------------- #
+        reporter.scenario_step_start("Real-data Monte Carlo (real-data arm)")
+        step = time.time()
+        real_record = sim_registry.start_run(
+            simulation_slug=REAL_SLUG,
+            simulation_family=REAL_FAMILY,
+            mode=mode,
+            scenario_run_id_origin=sid,
+            config=_config_dict(config),
+        )
+        reporter.info(
+            f"simulation_run_id={real_record.simulation_run_id} "
+            f"({REAL_SLUG}) dir: {real_record.run_dir}"
+        )
+        real_sampler = RealDatasetSampler(
+            data.train_dataset,
+            data.test_dataset,
+            base_seed=config.base_seed,
+            channel_names=data.channel_names,
+            name="occupancy_real_data",
+        )
+        real_result = CooperativeMonteCarloSimulator(
+            real_sampler.model,
+            config,
+            sampler=real_sampler,
+            metadata={
+                "scenario_name": SCENARIO_NAME,
+                "experiment_arm": "real_data",
+                "channel_names": list(data.channel_names),
+                "standardization": "train_pool_only",
+            },
+            progress=reporter,
+        ).run()
+        real_completed, real_report, real_result_gz, real_summary_path = (
+            _persist_simulation(
+                sim_registry,
+                real_record,
+                real_result,
+                report_fn=lambda d, f: generate_occupancy_real_monte_carlo_report(
+                    real_result, d, filename=f
+                ),
+                model_metadata=dict(real_result.metadata),
+                sampler_metadata={
+                    "type": "RealDatasetSampler",
+                    "base_seed": config.base_seed,
+                    "fixed_test_description": (
+                        "standardized datatest.txt + datatest2.txt"
+                    ),
+                },
+            )
+        )
+        reporter.scenario_step_finish(
+            "Real-data Monte Carlo (real-data arm)",
+            elapsed=time.time() - step,
+            detail=str(real_report),
+        )
+
+        # -- Gaussian-anchored arm ---------------------------------------- #
+        reporter.scenario_step_start("Building Gaussian-anchored model")
+        step = time.time()
+        anchored = build_gaussian_anchored_occupancy_model(data)
+        reporter.scenario_step_finish(
+            "Building Gaussian-anchored model", elapsed=time.time() - step
+        )
+
+        reporter.scenario_step_start(
+            "Gaussian-anchored Monte Carlo (Gaussian-anchored arm)"
+        )
+        step = time.time()
+        gaussian_record = sim_registry.start_run(
+            simulation_slug=GAUSSIAN_SLUG,
+            simulation_family=GAUSSIAN_FAMILY,
+            mode=mode,
+            scenario_run_id_origin=sid,
+            config=_config_dict(config),
+        )
+        reporter.info(
+            f"simulation_run_id={gaussian_record.simulation_run_id} "
+            f"({GAUSSIAN_SLUG}) dir: {gaussian_record.run_dir}"
+        )
+        gaussian_sampler = GaussianClassConditionalSampler(
+            anchored.model,
+            base_seed=config.base_seed,
+            test_samples_per_class=config.test_samples_per_class,
+        )
+        gaussian_result = CooperativeMonteCarloSimulator(
+            anchored.model,
+            config,
+            sampler=gaussian_sampler,
+            metadata={
+                "scenario_name": SCENARIO_NAME,
+                "experiment_arm": "gaussian_anchored",
+                "channel_names": list(data.channel_names),
+                "standardization": "train_pool_only",
+                "gaussian_ridge_by_class": dict(anchored.ridge_by_class),
+            },
+            progress=reporter,
+        ).run()
+        (
+            gaussian_completed,
+            gaussian_report,
+            gaussian_result_gz,
+            gaussian_summary_path,
+        ) = _persist_simulation(
+            sim_registry,
+            gaussian_record,
+            gaussian_result,
+            report_fn=lambda d, f: (
+                generate_occupancy_gaussian_anchored_monte_carlo_report(
+                    gaussian_result, data.channel_names, d, filename=f
+                )
+            ),
+            model_metadata=dict(gaussian_result.metadata),
+            sampler_metadata={
+                "type": "GaussianClassConditionalSampler",
+                "base_seed": config.base_seed,
+                "test_samples_per_class": config.test_samples_per_class,
+            },
+        )
+        reporter.scenario_step_finish(
+            "Gaussian-anchored Monte Carlo (Gaussian-anchored arm)",
+            elapsed=time.time() - step,
+            detail=str(gaussian_report),
+        )
+
+        # -- scenario report ----------------------------------------------- #
+        reporter.scenario_step_start("Generating scenario report")
+        step = time.time()
+        scenario_report = generate_occupancy_scenario_report(
+            real_result,
+            gaussian_result,
+            output_dir=scenario_dir,
+            dataset_report=_relpath(dataset_report, scenario_dir),
+            real_report=_relpath(real_report, scenario_dir),
+            gaussian_report=_relpath(gaussian_report, scenario_dir),
+            filename=_scenario_report_filename(mode, sid),
+            channel_names=data.channel_names,
+        )
+        reporter.scenario_step_finish(
+            "Generating scenario report",
+            elapsed=time.time() - step,
+            detail=str(scenario_report),
+        )
+
+        runtime = time.time() - start
+
+        simulation_refs = {
+            REAL_SLUG: {
+                "simulation_run_id": real_completed.simulation_run_id,
+                "simulation_family": REAL_FAMILY,
+                "run_dir": real_completed.run_dir,
+                "simulation_json_path": real_completed.simulation_json_path,
+                "report_path": str(real_report),
+                "result_data_path": str(real_result_gz),
+                "summary_data": real_completed.summary_data,
+            },
+            GAUSSIAN_SLUG: {
+                "simulation_run_id": gaussian_completed.simulation_run_id,
+                "simulation_family": GAUSSIAN_FAMILY,
+                "run_dir": gaussian_completed.run_dir,
+                "simulation_json_path": gaussian_completed.simulation_json_path,
+                "report_path": str(gaussian_report),
+                "result_data_path": str(gaussian_result_gz),
+                "summary_data": gaussian_completed.summary_data,
+            },
+        }
+        artifacts = {
+            "scenario_report": str(scenario_report),
+            "dataset_report": str(dataset_report),
+            "scenario_json": scenario_run.scenario_json_path,
+        }
+        report_data = scenario_report_data(
+            real_result, gaussian_result, data.channel_names
+        )
+
+        completed_scenario = scenario_registry.complete_run(
+            sid,
+            runtime_seconds=runtime,
+            simulation_run_ids=[
+                real_completed.simulation_run_id,
+                gaussian_completed.simulation_run_id,
+            ],
+            simulation_refs=simulation_refs,
+            artifacts=artifacts,
+            report_data=report_data,
+        )
+        _write_json(scenario_run.scenario_json_path, completed_scenario.to_dict())
+
+        outputs = {
+            "scenario_report": scenario_report,
+            "dataset_report": dataset_report,
+            "real_report": real_report,
+            "gaussian_report": gaussian_report,
+            "scenario_json": Path(scenario_run.scenario_json_path),
+            "real_simulation_json": Path(real_completed.simulation_json_path),
+            "gaussian_simulation_json": Path(
+                gaussian_completed.simulation_json_path
+            ),
+            "real_result_data": real_result_gz,
+            "gaussian_result_data": gaussian_result_gz,
+            "scenario_runs.json": scenario_registry.registry_path,
+            "simulation_runs.json": sim_registry.registry_path,
+        }
+        reporter.scenario_finish(runtime=runtime, outputs=outputs)
+
+        return {
+            "scenario_run_id": sid,
+            "real_simulation_run_id": real_completed.simulation_run_id,
+            "gaussian_simulation_run_id": gaussian_completed.simulation_run_id,
+            "scenario_run_dir": str(scenario_dir),
+            "real_run_dir": real_completed.run_dir,
+            "gaussian_run_dir": gaussian_completed.run_dir,
+            "scenario_registry": str(scenario_registry.registry_path),
+            "simulation_registry": str(sim_registry.registry_path),
+            "runtime_seconds": runtime,
+            **{k: str(v) for k, v in outputs.items()},
+        }
+
+    except Exception as exc:  # noqa: BLE001 - surface failure, mark runs failed
+        error = f"{type(exc).__name__}: {exc}"
+        if real_record is not None:
+            current = sim_registry.get_run(real_record.simulation_run_id)
+            if current is not None and current.status == "running":
+                _fail_simulation(sim_registry, real_record, error)
+        if gaussian_record is not None:
+            current = sim_registry.get_run(gaussian_record.simulation_run_id)
+            if current is not None and current.status == "running":
+                _fail_simulation(sim_registry, gaussian_record, error)
+        try:
+            failed_scenario = scenario_registry.fail_run(sid, error=error)
+            _write_json(scenario_run.scenario_json_path, failed_scenario.to_dict())
+        except Exception:  # noqa: BLE001
+            pass
+        reporter.error(
+            f"Occupancy scenario run failed (scenario_run_id={sid}, "
+            f"run_dir={scenario_dir})",
+            exc,
+        )
+        raise
+
+
+# --------------------------------------------------------------------------- #
+# Report regeneration (no Monte Carlo rerun)
+# --------------------------------------------------------------------------- #
+def regenerate_from_scenario_run(
+    scenario_run_id: int,
+    output_dir: str = "output/reports",
+    reporter: Optional[CooperativeProgressReporter] = None,
+) -> Dict[str, Any]:
+    """Regenerate Occupancy reports from a persisted scenario run.
+
+    Loads the persisted simulation results and re-renders the simulation and
+    scenario reports in place. Monte Carlo is *not* rerun. The dataset report is
+    a scenario artifact that depends on the raw data pool (not persisted with a
+    result), so the existing dataset report file is reused as-is for links.
+    """
+    if reporter is None:
+        reporter = CooperativeProgressReporter(verbose=True)
+
+    scenario_registry = ScenarioRunRegistry(base_output_dir=output_dir)
+    record = scenario_registry.get_run(scenario_run_id)
+    if record is None:
+        raise KeyError(
+            f"scenario_run_id {scenario_run_id} not found in "
+            f"{scenario_registry.registry_path}"
+        )
+
+    scenario_json = json.loads(
+        Path(record.scenario_json_path).read_text(encoding="utf-8")
+    )
+    refs = scenario_json.get("simulation_refs", {})
+    scenario_dir = Path(record.run_dir)
+    channel_names = scenario_json.get("report_data", {}).get("channel_names", [])
+
+    reporter.info(f"Regenerating reports for scenario_run_id={scenario_run_id}")
+    reporter.info(f"scenario run dir: {scenario_dir}")
+
+    regenerated: Dict[str, Any] = {}
+
+    # Real-data arm.
+    real_ref = refs[REAL_SLUG]
+    real_result = load_simulation_result(real_ref["result_data_path"])
+    real_dir = Path(real_ref["run_dir"])
+    real_report = generate_occupancy_real_monte_carlo_report(
+        real_result, real_dir, filename=Path(real_ref["report_path"]).name
+    )
+    regenerated["real_report"] = str(real_report)
     reporter.scenario_step_finish(
-        "Loading Occupancy dataset", elapsed=time.time() - step
+        "Regenerated real-data report", detail=str(real_report)
     )
 
-    reporter.scenario_step_start("Generating dataset report")
-    step = time.time()
-    dataset_report = generate_occupancy_dataset_report(data, out_dir)
-    reporter.scenario_step_finish(
-        "Generating dataset report",
-        elapsed=time.time() - step,
-        detail=str(dataset_report),
-    )
-
-    reporter.scenario_step_start("Real-data Monte Carlo (real-data arm)")
-    step = time.time()
-    real_sampler = RealDatasetSampler(
-        data.train_dataset,
-        data.test_dataset,
-        base_seed=config.base_seed,
-        channel_names=data.channel_names,
-        name="occupancy_real_data",
-    )
-    real_result = CooperativeMonteCarloSimulator(
-        real_sampler.model,
-        config,
-        sampler=real_sampler,
-        metadata={
-            "scenario_name": "Occupancy Detection",
-            "experiment_arm": "real_data",
-            "channel_names": list(data.channel_names),
-            "standardization": "train_pool_only",
-        },
-        progress=reporter,
-    ).run()
-    real_report = generate_occupancy_real_monte_carlo_report(real_result, out_dir)
-    reporter.scenario_step_finish(
-        "Real-data Monte Carlo (real-data arm)",
-        elapsed=time.time() - step,
-        detail=str(real_report),
-    )
-
-    reporter.scenario_step_start("Building Gaussian-anchored model")
-    step = time.time()
-    anchored = build_gaussian_anchored_occupancy_model(data)
-    reporter.scenario_step_finish(
-        "Building Gaussian-anchored model", elapsed=time.time() - step
-    )
-
-    reporter.scenario_step_start(
-        "Gaussian-anchored Monte Carlo (Gaussian-anchored arm)"
-    )
-    step = time.time()
-    gaussian_sampler = GaussianClassConditionalSampler(
-        anchored.model,
-        base_seed=config.base_seed,
-        test_samples_per_class=config.test_samples_per_class,
-    )
-    gaussian_result = CooperativeMonteCarloSimulator(
-        anchored.model,
-        config,
-        sampler=gaussian_sampler,
-        metadata={
-            "scenario_name": "Occupancy Detection",
-            "experiment_arm": "gaussian_anchored",
-            "channel_names": list(data.channel_names),
-            "standardization": "train_pool_only",
-            "gaussian_ridge_by_class": dict(anchored.ridge_by_class),
-        },
-        progress=reporter,
-    ).run()
+    # Gaussian-anchored arm.
+    gaussian_ref = refs[GAUSSIAN_SLUG]
+    gaussian_result = load_simulation_result(gaussian_ref["result_data_path"])
+    gaussian_dir = Path(gaussian_ref["run_dir"])
     gaussian_report = generate_occupancy_gaussian_anchored_monte_carlo_report(
         gaussian_result,
-        data.channel_names,
-        out_dir,
+        channel_names or gaussian_result.metadata.get("channel_names", []),
+        gaussian_dir,
+        filename=Path(gaussian_ref["report_path"]).name,
     )
+    regenerated["gaussian_report"] = str(gaussian_report)
     reporter.scenario_step_finish(
-        "Gaussian-anchored Monte Carlo (Gaussian-anchored arm)",
-        elapsed=time.time() - step,
-        detail=str(gaussian_report),
+        "Regenerated Gaussian-anchored report", detail=str(gaussian_report)
     )
 
-    reporter.scenario_step_start("Generating scenario report")
-    step = time.time()
+    # Scenario report (dataset report reused as-is).
+    dataset_report = record.artifacts.get("dataset_report", "")
     scenario_report = generate_occupancy_scenario_report(
         real_result,
         gaussian_result,
-        output_dir=out_dir,
-        channel_names=data.channel_names,
+        output_dir=scenario_dir,
+        dataset_report=(
+            _relpath(dataset_report, scenario_dir)
+            if dataset_report
+            else "occupancy_dataset_report.html"
+        ),
+        real_report=_relpath(real_report, scenario_dir),
+        gaussian_report=_relpath(gaussian_report, scenario_dir),
+        filename=Path(
+            record.artifacts.get(
+                "scenario_report",
+                _scenario_report_filename(record.mode, scenario_run_id),
+            )
+        ).name,
+        channel_names=channel_names or real_result.metadata.get("channel_names", []),
     )
+    regenerated["scenario_report"] = str(scenario_report)
     reporter.scenario_step_finish(
-        "Generating scenario report",
-        elapsed=time.time() - step,
-        detail=str(scenario_report),
+        "Regenerated scenario report", detail=str(scenario_report)
     )
-
-    reporter.scenario_step_start("Writing JSON summaries")
-    step = time.time()
-    real_summary = _result_summary(real_result, real_report)
-    gaussian_summary = _result_summary(gaussian_result, gaussian_report)
-    real_summary_path = out_dir / "occupancy_real_monte_carlo_summary.json"
-    gaussian_summary_path = (
-        out_dir / "occupancy_gaussian_anchored_monte_carlo_summary.json"
-    )
-    real_summary_path.write_text(json.dumps(real_summary, indent=2), encoding="utf-8")
-    gaussian_summary_path.write_text(
-        json.dumps(gaussian_summary, indent=2), encoding="utf-8"
-    )
-    reporter.scenario_step_finish(
-        "Writing JSON summaries", elapsed=time.time() - step
-    )
-
-    runtime = time.time() - start
-    outputs = {
-        "dataset_report": dataset_report,
-        "scenario_report": scenario_report,
-        "real_report": real_report,
-        "gaussian_report": gaussian_report,
-        "real_summary": real_summary_path,
-        "gaussian_summary": gaussian_summary_path,
-    }
-    reporter.scenario_finish(runtime=runtime, outputs=outputs)
-
-    return {
-        "runtime_seconds": runtime,
-        "config": config,
-        "real_summary": real_summary,
-        "gaussian_summary": gaussian_summary,
-        **{k: str(v) for k, v in outputs.items()},
-    }
+    reporter.info("Regeneration complete (Monte Carlo was not rerun).")
+    return regenerated
 
 
+# --------------------------------------------------------------------------- #
+# Listing
+# --------------------------------------------------------------------------- #
+def list_scenario_runs(output_dir: str = "output/reports") -> None:
+    registry = ScenarioRunRegistry(base_output_dir=output_dir)
+    runs = registry.list_runs()
+    print(f"Scenario runs registry: {registry.registry_path}")
+    if not runs:
+        print("  (no scenario runs)")
+        return
+    for r in runs:
+        report = r.artifacts.get("scenario_report", "-")
+        print(
+            f"  id={r.scenario_run_id} slug={r.scenario_slug} "
+            f"family={r.scenario_family} mode={r.mode} status={r.status} "
+            f"started={r.started_at} runtime={r.runtime_seconds} report={report}"
+        )
+
+
+def list_simulation_runs(output_dir: str = "output/reports") -> None:
+    registry = SimulationRunRegistry(base_output_dir=output_dir)
+    runs = registry.list_runs()
+    print(f"Simulation runs registry: {registry.registry_path}")
+    if not runs:
+        print("  (no simulation runs)")
+        return
+    for r in runs:
+        report = r.artifacts.get("monte_carlo_report", "-")
+        print(
+            f"  id={r.simulation_run_id} slug={r.simulation_slug} "
+            f"family={r.simulation_family} mode={r.mode} status={r.status} "
+            f"started={r.started_at} runtime={r.runtime_seconds} report={report}"
+        )
+
+
+# --------------------------------------------------------------------------- #
+# CLI
+# --------------------------------------------------------------------------- #
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--mode", choices=VALID_MODES, default="smoke")
@@ -199,12 +625,48 @@ def main() -> int:
         action="store_true",
         help="Disable colored output (useful for redirected logs and CI).",
     )
+    parser.add_argument(
+        "--report-from-scenario-run",
+        type=int,
+        default=None,
+        metavar="ID",
+        help="Regenerate reports from an existing scenario run id (no rerun).",
+    )
+    parser.add_argument(
+        "--list-scenario-runs",
+        action="store_true",
+        help="List tracked scenario runs and exit.",
+    )
+    parser.add_argument(
+        "--list-simulation-runs",
+        action="store_true",
+        help="List tracked simulation runs and exit.",
+    )
     args = parser.parse_args()
+
+    if args.list_scenario_runs:
+        list_scenario_runs(args.output_dir)
+        return 0
+    if args.list_simulation_runs:
+        list_simulation_runs(args.output_dir)
+        return 0
 
     reporter = CooperativeProgressReporter(
         verbose=not args.quiet,
         no_color=args.no_color,
     )
+
+    if args.report_from_scenario_run is not None:
+        try:
+            regenerate_from_scenario_run(
+                args.report_from_scenario_run,
+                output_dir=args.output_dir,
+                reporter=reporter,
+            )
+        except Exception as exc:  # noqa: BLE001
+            reporter.error("Report regeneration failed", exc)
+            return 1
+        return 0
 
     try:
         run_scenario(
@@ -220,31 +682,9 @@ def main() -> int:
             exc,
         )
         return 1
-    except Exception as exc:  # noqa: BLE001 - surface any failure clearly
-        reporter.error("Occupancy scenario run failed", exc)
+    except Exception:  # noqa: BLE001 - already reported inside run_scenario
         return 1
     return 0
-
-
-def _result_summary(result, report_path: Path) -> dict:
-    return {
-        "report_path": str(report_path),
-        "mode": result.config.mode,
-        "sample_sizes": list(result.sample_sizes),
-        "number_of_subsets": len(result.subsets),
-        "number_of_classifiers": len(result.classifier_names),
-        "classifier_names": list(result.classifier_names),
-        "fixed_test_size": result.metadata.get("fixed_test_size"),
-        "metadata": result.metadata,
-        "stopping_info": {
-            str(n): {
-                "replications": result.stopping_info[n].replications,
-                "reason": result.stopping_info[n].reason,
-                "max_ci_half_width": result.stopping_info[n].max_ci_half_width,
-            }
-            for n in result.sample_sizes
-        },
-    }
 
 
 if __name__ == "__main__":
