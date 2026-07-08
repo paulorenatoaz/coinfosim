@@ -26,6 +26,7 @@ from coinfosim.samplers.dataset import Dataset
 from coinfosim.samplers.gaussian import GaussianClassConditionalSampler
 from coinfosim.simulation.config import MonteCarloConfig
 from coinfosim.simulation.metrics import empirical_test_loss
+from coinfosim.simulation.progress import CooperativeProgressReporter
 from coinfosim.simulation.stopping import StandardErrorStoppingRule
 from coinfosim.simulation.subsets import all_nonempty_subsets
 
@@ -84,10 +85,14 @@ class CooperativeMonteCarloSimulator:
         stopping_rule: Optional[StandardErrorStoppingRule] = None,
         sampler: Optional[MonteCarloSampler] = None,
         metadata: Optional[Mapping[str, object]] = None,
+        progress: Optional[CooperativeProgressReporter] = None,
     ) -> None:
         self.model = model
         self.config = config
         self.extra_metadata = dict(metadata or {})
+        # Optional console progress reporter. When ``None`` the simulator is
+        # completely silent, which keeps tests and programmatic use quiet.
+        self.progress = progress
 
         if subsets is None:
             subsets = all_nonempty_subsets(model.d)
@@ -134,7 +139,24 @@ class CooperativeMonteCarloSimulator:
             subset: test_dataset.select_channels(subset) for subset in self.subsets
         }
 
-        for n_per_class in self.config.sample_sizes:
+        if self.progress is not None:
+            self.progress.simulation_start(
+                arm=str(self.extra_metadata.get("experiment_arm", "unknown")),
+                n_sample_sizes=len(self.config.sample_sizes),
+                n_subsets=len(self.subsets),
+                n_classifiers=len(self.classifier_names),
+                n_cells=len(cells),
+                fixed_test_size=test_dataset.n_samples,
+                sample_sizes=list(self.config.sample_sizes),
+            )
+
+        total_sample_sizes = len(self.config.sample_sizes)
+        for size_index, n_per_class in enumerate(self.config.sample_sizes, start=1):
+            size_start = time.time()
+            if self.progress is not None:
+                self.progress.sample_size_start(
+                    n_per_class, size_index, total_sample_sizes
+                )
             replication_id = 0
             last_decision = None
 
@@ -161,6 +183,12 @@ class CooperativeMonteCarloSimulator:
                 last_decision = self.stopping_rule.evaluate(
                     accumulator, n_per_class, cells
                 )
+                if self.progress is not None:
+                    self.progress.batch_finish(
+                        n_per_class,
+                        last_decision.replications,
+                        last_decision.max_ci_half_width,
+                    )
                 if last_decision.should_stop:
                     break
 
@@ -170,8 +198,18 @@ class CooperativeMonteCarloSimulator:
                 reason=last_decision.reason,
                 max_ci_half_width=last_decision.max_ci_half_width,
             )
+            if self.progress is not None:
+                self.progress.sample_size_finish(
+                    n_per_class,
+                    last_decision.replications,
+                    last_decision.reason,
+                    last_decision.max_ci_half_width,
+                    elapsed=time.time() - size_start,
+                )
 
         runtime = time.time() - start
+        if self.progress is not None:
+            self.progress.simulation_finish(runtime)
 
         channel_names = getattr(self.model, "channel_names", None)
         metadata = {
