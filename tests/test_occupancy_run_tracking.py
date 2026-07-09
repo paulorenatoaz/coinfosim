@@ -57,7 +57,7 @@ def test_occupancy_run_creates_one_scenario_two_simulations(tmp_path):
 
     assert out["scenario_run_id"] == 0
     assert out["real_simulation_run_id"] == 0
-    assert out["gaussian_simulation_run_id"] == 1
+    assert out["single_gaussian_to_real_simulation_run_id"] == 1
 
     # Global registries exist.
     assert (tmp_path / "scenario_runs.json").exists()
@@ -67,7 +67,9 @@ def test_occupancy_run_creates_one_scenario_two_simulations(tmp_path):
     scenario_dir = tmp_path / "scenarios" / "000000_occupancy_baseline_smoke"
     real_dir = tmp_path / "simulations" / "000000_occupancy_real_data_smoke"
     gaussian_dir = (
-        tmp_path / "simulations" / "000001_occupancy_gaussian_anchored_smoke"
+        tmp_path
+        / "simulations"
+        / "000001_occupancy_single_gaussian_to_real_smoke"
     )
     assert scenario_dir.is_dir()
     assert real_dir.is_dir()
@@ -86,7 +88,7 @@ def test_occupancy_run_creates_one_scenario_two_simulations(tmp_path):
     assert (real_dir / "simulation.json").exists()
     assert (
         gaussian_dir
-        / "occupancy_gaussian_anchored_monte_carlo_report_smoke_000001.html"
+        / "occupancy_single_gaussian_to_real_monte_carlo_report_smoke_000001.html"
     ).exists()
     assert (gaussian_dir / "result_data_smoke_000001.json.gz").exists()
     assert (gaussian_dir / "simulation.json").exists()
@@ -109,18 +111,27 @@ def test_scenario_json_has_question_and_simulation_refs(tmp_path):
         ).read_text(encoding="utf-8")
     )
 
-    assert "cooperative advantage" in scenario_json["question"]
+    assert "cooperative structure" in scenario_json["question"]
     assert scenario_json["scenario_family"] == "dataset"
     assert scenario_json["status"] == "completed"
     assert scenario_json["simulation_run_ids"] == [0, 1]
     refs = scenario_json["simulation_refs"]
     assert "occupancy_real_data" in refs
-    assert "occupancy_gaussian_anchored" in refs
-    # Scenario-level report data snapshots both arms.
+    assert "occupancy_single_gaussian_to_real" in refs
+    assert refs["occupancy_single_gaussian_to_real"]["simulation_family"] == (
+        "single_gaussian_to_real"
+    )
+    # Scenario-level report data snapshots both main arms with clear semantics.
     assert set(scenario_json["report_data"]["arms"]) == {
-        "real_data",
-        "gaussian_anchored",
+        "real_to_real",
+        "single_gaussian_to_real",
     }
+    sgr_arm = scenario_json["report_data"]["arms"]["single_gaussian_to_real"]
+    assert sgr_arm["train_source"] == "single_gaussian_synthetic"
+    assert sgr_arm["test_source"] == "real_occupancy_evaluation_split"
+    real_arm = scenario_json["report_data"]["arms"]["real_to_real"]
+    assert real_arm["train_source"] == "real_occupancy_training_pool"
+    assert real_arm["test_source"] == "real_occupancy_evaluation_split"
 
 
 def test_simulation_json_has_report_ready_data(tmp_path):
@@ -204,7 +215,7 @@ def test_regeneration_does_not_rerun_monte_carlo(tmp_path, monkeypatch):
 
     assert Path(regenerated["scenario_report"]).exists()
     assert Path(regenerated["real_report"]).exists()
-    assert Path(regenerated["gaussian_report"]).exists()
+    assert Path(regenerated["single_gaussian_to_real_report"]).exists()
 
     # Registries were not extended by regeneration.
     scenario_runs = json.loads(
@@ -247,7 +258,7 @@ def test_visualization_panels_written_and_registered(tmp_path):
     # Loss-vs-N graphs are generated and registered.
     graphs = scenario_json["report_data"]["graphs"]
     assert "graph_best_comparison_real" in graphs
-    assert "graph_best_comparison_gaussian" in graphs
+    assert "graph_best_comparison_sgr" in graphs
     assert any(k.startswith("graph_topranked_") for k in graphs)
     assert any(k.startswith("graph_nstar_") for k in graphs)
     assert "graph_images" in scenario_json["artifacts"]

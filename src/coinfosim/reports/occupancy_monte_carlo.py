@@ -63,3 +63,42 @@ def generate_occupancy_gaussian_anchored_monte_carlo_report(
             )
         },
     )
+
+
+def generate_occupancy_single_gaussian_to_real_monte_carlo_report(
+    result: SimulationResult,
+    channel_names: Sequence[str],
+    output_dir: Path | str = "output/reports",
+    filename: str = "occupancy_single_gaussian_to_real_monte_carlo_report.html",
+) -> Path:
+    """Generate the detailed single-Gaussian-to-real Monte Carlo report.
+
+    Training samples are drawn from a single class-conditional Gaussian model
+    estimated from the standardized Occupancy training pool, while evaluation is
+    performed on the fixed real Occupancy evaluation split.
+    """
+
+    return generate_monte_carlo_report(
+        result=result,
+        output_dir=output_dir,
+        filename=filename,
+        title="CoInfoSim - Occupancy Single Gaussian to Real Monte Carlo Report",
+        experiment_arm="Single Gaussian → Real Monte Carlo",
+        description=(
+            "Class-conditional Gaussian parameters are estimated from the "
+            "standardized datatraining.txt pool. Balanced training samples are "
+            "generated synthetically from that single Gaussian model, while "
+            "evaluation uses the fixed real Occupancy evaluation split "
+            "(standardized datatest.txt + datatest2.txt)."
+        ),
+        channel_names=channel_names,
+        fixed_test_description=(
+            "fixed real Occupancy evaluation split "
+            "(standardized datatest.txt + datatest2.txt)"
+        ),
+        extra_sections={
+            "Estimated Gaussian training parameters": gaussian_parameters_section(
+                result.model, channel_names
+            )
+        },
+    )

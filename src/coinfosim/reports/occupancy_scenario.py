@@ -1,10 +1,12 @@
-"""Occupancy Detection baseline scenario report (academic layout).
+"""Occupancy Detection scenario report (academic layout).
 
-Renders a self-contained, academic-style HTML scenario report comparing the
-real-data arm and the Gaussian-anchored arm of the Occupancy Detection baseline
-scenario. Channels are referred to with mathematical labels ``X_i`` and a
-sticky channel legend; sensor names are used only in the legend and in explicit
-"reference subset" annotations, never as primary table/plot labels.
+Renders a self-contained, academic-style HTML scenario report comparing the two
+main Occupancy arms — ``Real → Real`` (real training pool, real evaluation
+split) and ``Single Gaussian → Real`` (single-Gaussian synthetic training, real
+evaluation split). Both main arms are evaluated on the same fixed real Occupancy
+evaluation split. Channels are referred to with mathematical labels ``X_i`` and
+a sticky channel legend; sensor names are used only in the legend and in
+explicit "reference subset" annotations, never as primary table/plot labels.
 """
 
 from __future__ import annotations
@@ -161,8 +163,9 @@ def _competitor_plan(
 ) -> Tuple[Optional[Subset], List[Tuple[str, Subset]]]:
     """Return the reference subset and ordered competitor ``(label, subset)`` list.
 
-    Reference and competitor subsets are selected on the real-data arm at the
-    largest evaluated ``N`` so that both arms are compared on the same subsets.
+    Reference and competitor subsets are selected on the ``Real → Real`` arm at
+    the largest evaluated ``N`` so that both arms are compared on the same
+    subsets.
     """
     ref_ranked = _ranked_cardinality(real_result, classifier, n, k)
     if not ref_ranked:
@@ -327,8 +330,8 @@ def _nstar_section(
         "subset at the largest evaluated sample size is used as a reference "
         "and compared against the best subset of every other cardinality and, "
         "when it exists, the second-best subset of the same cardinality. "
-        "Reference and competitor subsets are selected on the real-data arm so "
-        "that both arms are compared on the same subsets.</p>"
+        "Reference and competitor subsets are selected on the Real → Real arm "
+        "so that both arms are compared on the same subsets.</p>"
     )
     parts.append(
         "<p class='muted'>A dash indicates that no crossing was detected within "
@@ -357,8 +360,8 @@ def _nstar_section(
                 f"{html.escape(_subset_sensors(reference, channel_names))}</p>"
             )
             for arm_key, arm_name, arm_result in (
-                ("real", "Real-data", real_result),
-                ("gaussian", "Gaussian-anchored", gaussian_result),
+                ("real", "Real → Real", real_result),
+                ("sgr", "Single Gaussian → Real", gaussian_result),
             ):
                 analysis = _nstar_analysis(
                     arm_result, clf, reference, competitors, n
@@ -431,12 +434,14 @@ def _summary_table(
         ("Scenario family", html.escape(str(meta.get("scenario_family", "dataset")))),
         ("Scenario mode", html.escape(str(real_result.config.mode))),
         ("Dataset", html.escape(str(meta.get("dataset", "Occupancy Detection")))),
+        ("Main arms", "Real → Real; Single Gaussian → Real"),
         ("Number of channels", str(len(channel_names))),
         ("Non-empty channel subsets", str(len(real_result.subsets))),
         ("Classifiers", html.escape(classifiers)),
         ("Metric", "Empirical test loss (0–1 misclassification)"),
         ("Sample sizes", html.escape(str(list(real_result.sample_sizes)))),
         ("Largest evaluated sample size", f"N = {n_max} samples per class"),
+        ("Evaluation split", "Fixed real Occupancy evaluation split"),
     ]
     body = "".join(
         f"<tr><th class='key'>{html.escape(k)}</th><td>{v}</td></tr>"
@@ -464,19 +469,19 @@ def _protocol_html(real_result: SimulationResult) -> str:
     )
     return (
         "<h2>3. Experimental protocol</h2>"
-        "<h3>3.1 Real-data arm</h3>"
-        "<p>The real-data arm draws balanced training samples from the "
+        "<h3>3.1 Real → Real arm (real-data baseline)</h3>"
+        "<p>The real-data baseline draws balanced training samples from the "
         "standardized Occupancy training pool and evaluates all channel "
         "subsets and classifiers using the fixed real Occupancy evaluation "
         "split.</p>"
-        "<h3>3.2 Gaussian-anchored arm</h3>"
-        "<p>The Gaussian-anchored arm estimates class-conditional Gaussian "
-        "parameters from the standardized Occupancy training pool. Synthetic "
-        "training samples are generated deterministically by replication id "
-        "and are prefix-nested across sample sizes. The Gaussian-anchored "
-        "evaluation set is fixed within the simulation run and is generated "
-        "with the same class counts as the real Occupancy evaluation "
-        "split.</p>"
+        "<h3>3.2 Single Gaussian → Real arm</h3>"
+        "<p>The single-Gaussian-to-real arm estimates one class-conditional "
+        "Gaussian distribution per Occupancy class from the standardized "
+        "training pool. Training samples are generated synthetically from these "
+        "Gaussian distributions, while evaluation is performed on the fixed "
+        "real Occupancy evaluation split.</p>"
+        "<p>Both main arms are evaluated on the same fixed real Occupancy "
+        "evaluation split.</p>"
         "<h3>3.3 Monte Carlo stopping rule</h3>"
         f"{stopping}"
     )
@@ -495,7 +500,7 @@ def _carousel_html(visualization: Optional[Dict]) -> str:
         ("Visualization sample size", meta.get("visualization_sample_size")),
         ("Class balance", meta.get("class_balance")),
         ("Real-data source", meta.get("real_data_source")),
-        ("Synthetic source", meta.get("synthetic_source")),
+        ("Synthetic training source", meta.get("synthetic_source")),
         ("Visualization seed", meta.get("visualization_seed")),
     ]
     meta_html = "".join(
@@ -516,9 +521,9 @@ def _carousel_html(visualization: Optional[Dict]) -> str:
 
     def _caption(arm: str, dim: str) -> str:
         who = (
-            "Real-data sample"
+            "Real training sample"
             if arm == "real"
-            else "Gaussian-anchored synthetic sample"
+            else "Single Gaussian synthetic training sample"
         )
         return f"{who} — {dim.upper()} projections"
 
@@ -535,8 +540,8 @@ def _carousel_html(visualization: Optional[Dict]) -> str:
     controls = (
         "<div class='carousel-controls'>"
         "<div class='ctrl-group'>"
-        "<button type='button' data-arm='real' class='active'>Real-data</button>"
-        "<button type='button' data-arm='gaussian'>Gaussian-anchored</button>"
+        "<button type='button' data-arm='real' class='active'>Real data</button>"
+        "<button type='button' data-arm='gaussian'>Single Gaussian</button>"
         "</div>"
         "<div class='ctrl-group'>"
         "<button type='button' data-dim='1d' class='active'>1D</button>"
@@ -627,10 +632,10 @@ def _best_comparison_html(
     table = _table(
         [
             "Classifier",
-            "Real-data best subset",
-            "Real loss",
-            "Gaussian-anchored best subset",
-            "Gaussian loss",
+            "Real → Real best subset",
+            "Real → Real loss",
+            "Single Gaussian → Real best subset",
+            "Single Gaussian → Real loss",
             "Same subset",
         ],
         rows,
@@ -638,8 +643,8 @@ def _best_comparison_html(
 
     graphs: List[str] = []
     for arm_key, arm_name, arm_result in (
-        ("real", "Real-data", real_result),
-        ("gaussian", "Gaussian-anchored", gaussian_result),
+        ("real", "Real → Real", real_result),
+        ("sgr", "Single Gaussian → Real", gaussian_result),
     ):
         sizes = arm_result.sample_sizes
         series = []
@@ -700,8 +705,8 @@ def _top_ranked_html(
     for i, clf in enumerate(real_result.classifier_names, start=1):
         parts.append(f"<h3>6.{i} {html.escape(classifier_label(clf))}</h3>")
         for arm_key, arm_name, arm_result in (
-            ("real", "Real-data arm", real_result),
-            ("gaussian", "Gaussian-anchored arm", gaussian_result),
+            ("real", "Real → Real", real_result),
+            ("sgr", "Single Gaussian → Real", gaussian_result),
         ):
             ranked = _ranked(arm_result, clf, n)[:top_k]
             rows = [
@@ -739,14 +744,15 @@ def _top_ranked_html(
 def _interpretation_html() -> str:
     return (
         "<h2>8. Interpretation notes</h2>"
-        "<h3>Agreement between real-data and Gaussian-anchored arms</h3>"
+        "<h3>Agreement between the Real → Real and Single Gaussian → Real arms</h3>"
         "<p>Where the two arms select the same best subsets and show similar "
-        "cooperative thresholds, the Gaussian surrogate captures the "
-        "cooperative structure of the real channels.</p>"
-        "<h3>Divergences between real-data and Gaussian-anchored arms</h3>"
+        "cooperative thresholds under real-data evaluation, training on "
+        "single-Gaussian synthetic data preserves the cooperative advantages "
+        "observed when classifiers are evaluated on real Occupancy data.</p>"
+        "<h3>Divergences between the arms</h3>"
         "<p>Differences in best subsets or in N* availability indicate "
-        "structure in the real data that a class-conditional Gaussian model "
-        "does not reproduce.</p>"
+        "structure in the real Occupancy data that single-Gaussian synthetic "
+        "training does not reproduce under real-data evaluation.</p>"
         "<h3>Classifier-specific behavior</h3>"
         "<p>Linear SVM, Logistic Regression, and Gaussian Naive Bayes may rank "
         "subsets differently; comparisons should be read per classifier.</p>"
@@ -830,7 +836,7 @@ def generate_occupancy_scenario_report(
     output_dir: Path | str = "output/reports",
     dataset_report: str = "occupancy_dataset_report.html",
     real_report: str = "occupancy_real_monte_carlo_report.html",
-    gaussian_report: str = "occupancy_gaussian_anchored_monte_carlo_report.html",
+    sg_real_report: str = "occupancy_single_gaussian_to_real_monte_carlo_report.html",
     filename: str = "occupancy_scenario_report.html",
     channel_names: Sequence[str] | None = None,
     visualization: Optional[Dict] = None,
@@ -839,11 +845,14 @@ def generate_occupancy_scenario_report(
     graphs_out: Optional[Dict] = None,
     generate_graphs: bool = True,
 ) -> Path:
-    """Generate the academic Occupancy baseline scenario report.
+    """Generate the academic Occupancy scenario report.
 
-    Loss-vs-N graphs are rendered into ``output_dir`` during generation; their
-    filenames are recorded in ``graphs_out`` (if provided) so callers can
-    register them in ``scenario.json``.
+    The two main arms are ``Real → Real`` (``real_result``) and
+    ``Single Gaussian → Real`` (``gaussian_result``); both are evaluated on the
+    fixed real Occupancy evaluation split. Loss-vs-N graphs are rendered into
+    ``output_dir`` during generation; their filenames are recorded in
+    ``graphs_out`` (if provided) so callers can register them in
+    ``scenario.json``.
     """
 
     output_dir = Path(output_dir)
@@ -860,16 +869,18 @@ def generate_occupancy_scenario_report(
     n_max = max(real_result.sample_sizes)
 
     question = (
-        "Does the cooperative advantage among real information channels in the "
-        "Occupancy Detection dataset resemble the cooperative advantage "
-        "predicted by a Gaussian model parameterized from the same real data?"
+        "Does training on single-Gaussian synthetic data preserve the "
+        "cooperative advantages observed when classifiers are evaluated on real "
+        "Occupancy data? Equivalently: which training distribution best "
+        "preserves the cooperative structure observed under real-data "
+        "evaluation in the Occupancy Detection dataset?"
     )
 
     related = (
         "<p class='related'>Detailed reports: "
         f"<a href='{html.escape(dataset_report)}'>dataset</a> &middot; "
-        f"<a href='{html.escape(real_report)}'>real-data Monte Carlo</a> &middot; "
-        f"<a href='{html.escape(gaussian_report)}'>Gaussian-anchored Monte Carlo</a>"
+        f"<a href='{html.escape(real_report)}'>Real → Real Monte Carlo</a> &middot; "
+        f"<a href='{html.escape(sg_real_report)}'>Single Gaussian → Real Monte Carlo</a>"
         "</p>"
     )
 

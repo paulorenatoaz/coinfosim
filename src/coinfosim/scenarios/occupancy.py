@@ -10,11 +10,13 @@ import numpy as np
 from coinfosim.datasets.occupancy import OccupancyData
 from coinfosim.models.gaussian import GaussianSimulationModel
 
-OCCUPANCY_SCENARIO_NAME = "Occupancy Detection — Real-Data Anchored Scenario"
+OCCUPANCY_SCENARIO_NAME = "Occupancy Detection — Synthetic-to-Real Transfer Scenario"
 OCCUPANCY_SCENARIO_QUESTION = (
-    "Does the cooperative advantage among real information channels in the "
-    "Occupancy Detection dataset resemble the cooperative advantage predicted "
-    "by a Gaussian model parameterized from the same real data?"
+    "Does training on single-Gaussian synthetic data preserve the cooperative "
+    "advantages observed when classifiers are evaluated on real Occupancy data? "
+    "Equivalently: which training distribution best preserves the cooperative "
+    "structure observed under real-data evaluation in the Occupancy Detection "
+    "dataset?"
 )
 
 

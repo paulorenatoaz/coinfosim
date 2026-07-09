@@ -35,7 +35,12 @@ SCHEMA_VERSION = 1
 # Recognized family vocabularies (kept open; values are not enforced so future
 # families can be added without touching this module).
 SCENARIO_FAMILIES = ("dataset", "synthetic")
-SIMULATION_FAMILIES = ("real_dataset", "gaussian_anchored", "synthetic_gaussian")
+SIMULATION_FAMILIES = (
+    "real_dataset",
+    "single_gaussian_to_real",
+    "gaussian_anchored",
+    "synthetic_gaussian",
+)
 
 
 def _utcnow() -> str:

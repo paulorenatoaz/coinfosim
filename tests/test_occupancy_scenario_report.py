@@ -67,7 +67,7 @@ def test_occupancy_scenario_report_academic_layout(tmp_path):
             "visualization_sample_size": 1024,
             "class_balance": "balanced (equal samples per class)",
             "real_data_source": "standardized Occupancy training pool",
-            "synthetic_source": "Gaussian-anchored model",
+            "synthetic_source": "single Gaussian model",
             "visualization_seed": 20240501,
         },
     }
@@ -97,7 +97,22 @@ def test_occupancy_scenario_report_academic_layout(tmp_path):
     assert "1. Scientific question" in text
     assert "2. Scenario summary" in text
     assert "Channel notation" not in text
-    assert "cooperative advantage among real information channels" in text
+    assert "single-Gaussian synthetic data preserve the cooperative" in text
+    assert "cooperative structure observed under real-data" in text
+
+    # Main arms use the new transfer semantics; demoted arm is not a main arm.
+    assert "Real → Real" in text
+    assert "Single Gaussian → Real" in text
+    assert "Single Gaussian → Synthetic" not in text
+    assert "Gaussian-anchored" not in text
+
+    # Scenario summary carries the main-arm list and real-data evaluation split.
+    assert "Main arms" in text
+    assert "Real → Real; Single Gaussian → Real" in text
+    assert "Fixed real Occupancy evaluation split" in text
+
+    # Detailed report links point to the correct main-arm simulations.
+    assert "Single Gaussian → Real Monte Carlo" in text
 
     # Sticky channel legend retained.
     assert "class='legend'" in text
@@ -118,7 +133,7 @@ def test_occupancy_scenario_report_academic_layout(tmp_path):
     # Best subset comparison includes two loss-vs-N graphs, one per arm.
     assert "5. Best subset comparison at largest N" in text
     assert "graph_best_comparison_real" in graphs
-    assert "graph_best_comparison_gaussian" in graphs
+    assert "graph_best_comparison_sgr" in graphs
 
     # Top-ranked subsets grouped classifier-first, then arm; each has a graph.
     assert "6. Top-ranked subsets" in text
@@ -128,7 +143,7 @@ def test_occupancy_scenario_report_academic_layout(tmp_path):
     assert "<th>Rank</th><th>Subset</th><th>Loss</th><th>SE</th>" in text
     assert any(k.startswith("graph_topranked_") and k.endswith("_real") for k in graphs)
     assert any(
-        k.startswith("graph_topranked_") and k.endswith("_gaussian") for k in graphs
+        k.startswith("graph_topranked_") and k.endswith("_sgr") for k in graphs
     )
 
     # N-star availability: columns, dash rule, and one graph per table.

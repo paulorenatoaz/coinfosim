@@ -108,16 +108,28 @@ def scenario_report_data(
     gaussian_result: SimulationResult,
     channel_names: Sequence[str],
 ) -> Dict[str, Any]:
-    """Scenario-level report-ready tables and per-arm summary snapshots."""
+    """Scenario-level report-ready tables and per-arm summary snapshots.
+
+    The two main Occupancy arms are ``real_to_real`` (real training pool,
+    real evaluation split) and ``single_gaussian_to_real`` (single-Gaussian
+    synthetic training, real evaluation split). Each arm records its train/test
+    semantics alongside its summary and report-ready tables.
+    """
     return {
         "channel_names": [str(c) for c in channel_names],
         "sample_sizes": [int(n) for n in real_result.sample_sizes],
         "arms": {
-            "real_data": {
+            "real_to_real": {
+                "arm_id": "real_to_real",
+                "train_source": "real_occupancy_training_pool",
+                "test_source": "real_occupancy_evaluation_split",
                 "summary": simulation_summary_snapshot(real_result),
                 "report_data": simulation_report_data(real_result),
             },
-            "gaussian_anchored": {
+            "single_gaussian_to_real": {
+                "arm_id": "single_gaussian_to_real",
+                "train_source": "single_gaussian_synthetic",
+                "test_source": "real_occupancy_evaluation_split",
                 "summary": simulation_summary_snapshot(gaussian_result),
                 "report_data": simulation_report_data(gaussian_result),
             },
