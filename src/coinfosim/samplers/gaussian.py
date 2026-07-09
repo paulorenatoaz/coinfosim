@@ -19,7 +19,7 @@ Key Sprint 1 semantics
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Mapping, Optional
 
 import numpy as np
 
@@ -79,6 +79,15 @@ class GaussianClassConditionalSampler:
         Base random seed controlling all deterministic derivations.
     test_samples_per_class:
         Number of test samples generated per class for the fixed test set.
+        Used for every class unless ``test_samples_per_class_by_label`` is given.
+    test_samples_per_class_by_label:
+        Optional per-class override mapping ``class_label -> count``. When
+        provided, the fixed test set uses these exact class counts instead of a
+        single uniform ``test_samples_per_class``. This supports scenarios (such
+        as the Occupancy Gaussian-anchored arm) whose synthetic evaluation set
+        must match the class counts of a real evaluation split. Generic
+        synthetic Gaussian simulations may ignore this parameter and keep the
+        uniform behavior.
     """
 
     def __init__(
@@ -86,6 +95,7 @@ class GaussianClassConditionalSampler:
         model: GaussianSimulationModel,
         base_seed: int = 0,
         test_samples_per_class: int = 1000,
+        test_samples_per_class_by_label: Optional[Mapping[int, int]] = None,
     ) -> None:
         if test_samples_per_class <= 0:
             raise ValueError("test_samples_per_class must be a positive integer")
@@ -94,6 +104,31 @@ class GaussianClassConditionalSampler:
         self._base_seed = int(base_seed)
         self._test_samples_per_class = int(test_samples_per_class)
         self._test_dataset: Optional[Dataset] = None
+
+        if test_samples_per_class_by_label is None:
+            self._test_counts_by_label: Optional[dict] = None
+        else:
+            counts = {
+                int(label): int(count)
+                for label, count in test_samples_per_class_by_label.items()
+            }
+            missing = [
+                label for label in model.class_labels if label not in counts
+            ]
+            if missing:
+                raise ValueError(
+                    f"test_samples_per_class_by_label is missing class labels {missing}"
+                )
+            if any(count <= 0 for count in counts.values()):
+                raise ValueError(
+                    "test_samples_per_class_by_label counts must be positive"
+                )
+            self._test_counts_by_label = counts
+
+    def _test_count(self, label: int) -> int:
+        if self._test_counts_by_label is not None:
+            return self._test_counts_by_label[int(label)]
+        return self._test_samples_per_class
 
     @property
     def model(self) -> GaussianSimulationModel:
@@ -149,9 +184,10 @@ class GaussianClassConditionalSampler:
             label_blocks = []
             for label in self._model.class_labels:
                 seed = derive_seed(self._base_seed, label, split="test")
-                samples = self._draw(label, self._test_samples_per_class, seed)
+                count = self._test_count(label)
+                samples = self._draw(label, count, seed)
                 feature_blocks.append(samples)
-                label_blocks.append(np.full(self._test_samples_per_class, label))
+                label_blocks.append(np.full(count, label))
 
             X = np.vstack(feature_blocks)
             y = np.concatenate(label_blocks)

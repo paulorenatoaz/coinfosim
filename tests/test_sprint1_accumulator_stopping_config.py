@@ -105,9 +105,9 @@ def test_sprint2_mode_sample_sizes_and_smoke_budget():
     fast = get_mode_config("fast")
     full = get_mode_config("full")
 
-    assert smoke.sample_sizes == (1, 2, 4, 8, 16, 32)
-    assert fast.sample_sizes == (1, 2, 4, 8, 16, 32, 64, 128)
-    assert full.sample_sizes == (1, 2, 4, 8, 16, 32, 64, 128, 256, 512)
+    assert smoke.sample_sizes == (2, 4, 8, 16, 32)
+    assert fast.sample_sizes == (2, 4, 8, 16, 32, 64, 128)
+    assert full.sample_sizes == (2, 4, 8, 16, 32, 64, 128, 256, 512)
 
     assert smoke.min_replications == 10
     assert smoke.max_replications == 40

@@ -52,6 +52,7 @@ def test_occupancy_run_creates_one_scenario_two_simulations(tmp_path):
         raw_dir=str(RAW_DIR),
         output_dir=str(tmp_path),
         config=_tiny_config(),
+        visualize=False,
     )
 
     assert out["scenario_run_id"] == 0
@@ -94,7 +95,10 @@ def test_occupancy_run_creates_one_scenario_two_simulations(tmp_path):
 def test_scenario_json_has_question_and_simulation_refs(tmp_path):
     mod = _load_script_module()
     mod.run_scenario(
-        raw_dir=str(RAW_DIR), output_dir=str(tmp_path), config=_tiny_config()
+        raw_dir=str(RAW_DIR),
+        output_dir=str(tmp_path),
+        config=_tiny_config(),
+        visualize=False,
     )
     scenario_json = json.loads(
         (
@@ -122,7 +126,10 @@ def test_scenario_json_has_question_and_simulation_refs(tmp_path):
 def test_simulation_json_has_report_ready_data(tmp_path):
     mod = _load_script_module()
     mod.run_scenario(
-        raw_dir=str(RAW_DIR), output_dir=str(tmp_path), config=_tiny_config()
+        raw_dir=str(RAW_DIR),
+        output_dir=str(tmp_path),
+        config=_tiny_config(),
+        visualize=False,
     )
     sim_json = json.loads(
         (
@@ -148,10 +155,16 @@ def test_simulation_json_has_report_ready_data(tmp_path):
 def test_second_run_does_not_overwrite_first(tmp_path):
     mod = _load_script_module()
     first = mod.run_scenario(
-        raw_dir=str(RAW_DIR), output_dir=str(tmp_path), config=_tiny_config()
+        raw_dir=str(RAW_DIR),
+        output_dir=str(tmp_path),
+        config=_tiny_config(),
+        visualize=False,
     )
     second = mod.run_scenario(
-        raw_dir=str(RAW_DIR), output_dir=str(tmp_path), config=_tiny_config()
+        raw_dir=str(RAW_DIR),
+        output_dir=str(tmp_path),
+        config=_tiny_config(),
+        visualize=False,
     )
 
     assert first["scenario_run_id"] == 0
@@ -175,7 +188,10 @@ def test_second_run_does_not_overwrite_first(tmp_path):
 def test_regeneration_does_not_rerun_monte_carlo(tmp_path, monkeypatch):
     mod = _load_script_module()
     mod.run_scenario(
-        raw_dir=str(RAW_DIR), output_dir=str(tmp_path), config=_tiny_config()
+        raw_dir=str(RAW_DIR),
+        output_dir=str(tmp_path),
+        config=_tiny_config(),
+        visualize=False,
     )
 
     # Any attempt to build a simulator during regeneration must fail loudly.
@@ -195,3 +211,56 @@ def test_regeneration_does_not_rerun_monte_carlo(tmp_path, monkeypatch):
         (tmp_path / "scenario_runs.json").read_text(encoding="utf-8")
     )
     assert scenario_runs["next_scenario_run_id"] == 1
+
+
+def test_visualization_panels_written_and_registered(tmp_path):
+    mod = _load_script_module()
+    mod.run_scenario(
+        raw_dir=str(RAW_DIR),
+        output_dir=str(tmp_path),
+        config=_tiny_config(),
+        visualize=True,
+    )
+    scenario_dir = tmp_path / "scenarios" / "000000_occupancy_baseline_smoke"
+
+    # Six visualization PNGs are written in the scenario folder.
+    expected = [
+        "viz_1d_real_smoke_000000.png",
+        "viz_1d_gaussian_smoke_000000.png",
+        "viz_2d_real_smoke_000000.png",
+        "viz_2d_gaussian_smoke_000000.png",
+        "viz_3d_real_smoke_000000.png",
+        "viz_3d_gaussian_smoke_000000.png",
+    ]
+    for name in expected:
+        assert (scenario_dir / name).exists(), name
+
+    # scenario.json registers the visualization metadata and image paths.
+    scenario_json = json.loads(
+        (scenario_dir / "scenario.json").read_text(encoding="utf-8")
+    )
+    viz = scenario_json["report_data"]["visualization"]
+    assert viz["metadata"]["visualization_seed"] == mod.VIZ_SEED
+    assert set(viz["images"]) == set(scenario_json["report_data"]["visualization"]["images"])
+    assert "visualization_images" in scenario_json["artifacts"]
+
+    # Loss-vs-N graphs are generated and registered.
+    graphs = scenario_json["report_data"]["graphs"]
+    assert "graph_best_comparison_real" in graphs
+    assert "graph_best_comparison_gaussian" in graphs
+    assert any(k.startswith("graph_topranked_") for k in graphs)
+    assert any(k.startswith("graph_nstar_") for k in graphs)
+    assert "graph_images" in scenario_json["artifacts"]
+    for fname in graphs.values():
+        assert (scenario_dir / fname).exists(), fname
+
+    # The scenario report links the PNGs.
+    report_text = (
+        scenario_dir / "occupancy_baseline_scenario_report_smoke_000000.html"
+    ).read_text(encoding="utf-8")
+    assert "viz_1d_real_smoke_000000.png" in report_text
+    assert "viz_3d_gaussian_smoke_000000.png" in report_text
+    assert "class='carousel'" in report_text
+    assert "graph_best_comparison_real_smoke_000000.png" in report_text
+
+

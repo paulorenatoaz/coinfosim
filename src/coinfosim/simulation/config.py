@@ -64,7 +64,7 @@ class MonteCarloConfig:
 # Preset definitions for each execution mode.
 _MODE_PRESETS: Dict[str, dict] = {
     "smoke": dict(
-        sample_sizes=(1, 2, 4, 8, 16, 32),
+        sample_sizes=(2, 4, 8, 16, 32),
         min_replications=10,
         max_replications=40,
         replication_batch_size=5,
@@ -73,7 +73,7 @@ _MODE_PRESETS: Dict[str, dict] = {
         base_seed=0,
     ),
     "fast": dict(
-        sample_sizes=(1, 2, 4, 8, 16, 32, 64, 128),
+        sample_sizes=(2, 4, 8, 16, 32, 64, 128),
         min_replications=30,
         max_replications=300,
         replication_batch_size=10,
@@ -82,7 +82,7 @@ _MODE_PRESETS: Dict[str, dict] = {
         base_seed=0,
     ),
     "full": dict(
-        sample_sizes=(1, 2, 4, 8, 16, 32, 64, 128, 256, 512),
+        sample_sizes=(2, 4, 8, 16, 32, 64, 128, 256, 512),
         min_replications=100,
         max_replications=2000,
         replication_batch_size=20,

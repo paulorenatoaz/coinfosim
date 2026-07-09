@@ -34,6 +34,10 @@ from coinfosim.reports.occupancy_monte_carlo import (
     generate_occupancy_real_monte_carlo_report,
 )
 from coinfosim.reports.occupancy_scenario import generate_occupancy_scenario_report
+from coinfosim.reports.scenario_visualization import (
+    build_balanced_sample,
+    generate_scenario_visualizations,
+)
 from coinfosim.results.persistence import (
     load_simulation_result,
     save_simulation_result,
@@ -62,6 +66,10 @@ REAL_SLUG = "occupancy_real_data"
 REAL_FAMILY = "real_dataset"
 GAUSSIAN_SLUG = "occupancy_gaussian_anchored"
 GAUSSIAN_FAMILY = "gaussian_anchored"
+
+# Deterministic seed for the (separate) data-visualization sample.
+VIZ_SEED = 20240501
+VIZ_PER_CLASS = 512
 
 
 # --------------------------------------------------------------------------- #
@@ -101,6 +109,48 @@ def _scenario_report_filename(mode: str, sid: int) -> str:
 
 def _dataset_report_filename(mode: str, sid: int) -> str:
     return f"occupancy_dataset_report_{mode}_{sid:06d}.html"
+
+
+def _class_counts(y) -> Dict[int, int]:
+    import numpy as np
+
+    labels, counts = np.unique(np.asarray(y), return_counts=True)
+    return {int(label): int(count) for label, count in zip(labels, counts)}
+
+
+def _build_visualizations(data, gaussian_model, scenario_dir: Path, mode: str, sid: int) -> Dict[str, Any]:
+    """Render the six data-visualization panels and return their descriptor.
+
+    A separate, deterministic visualization sample is used (documented in the
+    returned metadata): a balanced draw from the standardized real training
+    pool, and an equally sized synthetic draw from the Gaussian-anchored model.
+    """
+    real_X, real_y, per_class = build_balanced_sample(
+        data.train_dataset.X, data.train_dataset.y, VIZ_PER_CLASS, seed=VIZ_SEED
+    )
+    gaussian_sampler = GaussianClassConditionalSampler(
+        gaussian_model, base_seed=VIZ_SEED, test_samples_per_class=per_class
+    )
+    gaussian_sample = gaussian_sampler.sample_test()
+
+    images = generate_scenario_visualizations(
+        real_X,
+        real_y,
+        gaussian_sample.X,
+        gaussian_sample.y,
+        scenario_dir,
+        filename_suffix=f"{mode}_{sid:06d}",
+        seed=VIZ_SEED,
+    )
+    metadata = {
+        "visualization_sample_size": int(real_X.shape[0]),
+        "per_class": int(per_class),
+        "class_balance": "balanced (equal samples per class)",
+        "real_data_source": "standardized Occupancy training pool",
+        "synthetic_source": "Gaussian-anchored model",
+        "visualization_seed": VIZ_SEED,
+    }
+    return {"images": images, "metadata": metadata}
 
 
 def _persist_simulation(
@@ -166,12 +216,15 @@ def run_scenario(
     output_dir: str = "output/reports",
     reporter: Optional[CooperativeProgressReporter] = None,
     config: Optional[MonteCarloConfig] = None,
+    visualize: bool = True,
 ) -> Dict[str, Any]:
     """Run the Occupancy baseline scenario with full run tracking.
 
     Creates one scenario run and two simulation runs (real-data and
     Gaussian-anchored). ``config`` overrides the mode preset (used by tests to
-    keep runs tiny). Returns a dict with the allocated ids and output paths.
+    keep runs tiny). ``visualize`` toggles the data-visualization panels
+    (disabled by tests that do not need them). Returns a dict with the
+    allocated ids and output paths.
     """
     if reporter is None:
         reporter = CooperativeProgressReporter(verbose=False)
@@ -302,6 +355,21 @@ def run_scenario(
             "Building Gaussian-anchored model", elapsed=time.time() - step
         )
 
+        # Data-visualization panels (separate deterministic sample; documented
+        # in the visualization metadata). Real sample is drawn from the
+        # standardized training pool; synthetic sample from the anchored model.
+        visualization = None
+        if visualize:
+            reporter.scenario_step_start("Rendering data visualization panels")
+            step = time.time()
+            visualization = _build_visualizations(
+                data, anchored.model, scenario_dir, mode, sid
+            )
+            reporter.scenario_step_finish(
+                "Rendering data visualization panels",
+                elapsed=time.time() - step,
+            )
+
         reporter.scenario_step_start(
             "Gaussian-anchored Monte Carlo (Gaussian-anchored arm)"
         )
@@ -317,10 +385,14 @@ def run_scenario(
             f"simulation_run_id={gaussian_record.simulation_run_id} "
             f"({GAUSSIAN_SLUG}) dir: {gaussian_record.run_dir}"
         )
+        # The Gaussian-anchored evaluation set matches the class counts of the
+        # real Occupancy evaluation split (Occupancy-specific rule).
+        real_test_counts = _class_counts(data.test_dataset.y)
         gaussian_sampler = GaussianClassConditionalSampler(
             anchored.model,
             base_seed=config.base_seed,
             test_samples_per_class=config.test_samples_per_class,
+            test_samples_per_class_by_label=real_test_counts,
         )
         gaussian_result = CooperativeMonteCarloSimulator(
             anchored.model,
@@ -353,7 +425,8 @@ def run_scenario(
             sampler_metadata={
                 "type": "GaussianClassConditionalSampler",
                 "base_seed": config.base_seed,
-                "test_samples_per_class": config.test_samples_per_class,
+                "test_samples_per_class_by_label": real_test_counts,
+                "evaluation_class_counts": "matched_to_real_test_split",
             },
         )
         reporter.scenario_step_finish(
@@ -365,6 +438,13 @@ def run_scenario(
         # -- scenario report ----------------------------------------------- #
         reporter.scenario_step_start("Generating scenario report")
         step = time.time()
+        scenario_meta = {
+            "scenario_run_id": sid,
+            "scenario_family": SCENARIO_FAMILY,
+            "mode": mode,
+            "dataset": "Occupancy Detection",
+        }
+        graphs: Dict[str, Any] = {}
         scenario_report = generate_occupancy_scenario_report(
             real_result,
             gaussian_result,
@@ -374,6 +454,11 @@ def run_scenario(
             gaussian_report=_relpath(gaussian_report, scenario_dir),
             filename=_scenario_report_filename(mode, sid),
             channel_names=data.channel_names,
+            visualization=visualization,
+            scenario_meta=scenario_meta,
+            graph_suffix=f"{mode}_{sid:06d}",
+            graphs_out=graphs,
+            generate_graphs=visualize,
         )
         reporter.scenario_step_finish(
             "Generating scenario report",
@@ -408,9 +493,22 @@ def run_scenario(
             "dataset_report": str(dataset_report),
             "scenario_json": scenario_run.scenario_json_path,
         }
+        if visualization:
+            artifacts["visualization_images"] = {
+                key: str(scenario_dir / fname)
+                for key, fname in visualization["images"].items()
+            }
+        if graphs:
+            artifacts["graph_images"] = {
+                key: str(scenario_dir / fname) for key, fname in graphs.items()
+            }
         report_data = scenario_report_data(
             real_result, gaussian_result, data.channel_names
         )
+        if visualization:
+            report_data["visualization"] = visualization
+        if graphs:
+            report_data["graphs"] = graphs
 
         completed_scenario = scenario_registry.complete_run(
             sid,
@@ -543,8 +641,15 @@ def regenerate_from_scenario_run(
         "Regenerated Gaussian-anchored report", detail=str(gaussian_report)
     )
 
-    # Scenario report (dataset report reused as-is).
+    # Scenario report (dataset report and visualization panels reused as-is).
     dataset_report = record.artifacts.get("dataset_report", "")
+    visualization = scenario_json.get("report_data", {}).get("visualization")
+    scenario_meta = {
+        "scenario_run_id": scenario_run_id,
+        "scenario_family": record.scenario_family,
+        "mode": record.mode,
+        "dataset": "Occupancy Detection",
+    }
     scenario_report = generate_occupancy_scenario_report(
         real_result,
         gaussian_result,
@@ -563,6 +668,9 @@ def regenerate_from_scenario_run(
             )
         ).name,
         channel_names=channel_names or real_result.metadata.get("channel_names", []),
+        visualization=visualization,
+        scenario_meta=scenario_meta,
+        graph_suffix=f"{record.mode}_{scenario_run_id:06d}",
     )
     regenerated["scenario_report"] = str(scenario_report)
     reporter.scenario_step_finish(
