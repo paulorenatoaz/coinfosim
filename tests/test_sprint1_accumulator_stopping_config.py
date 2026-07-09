@@ -83,7 +83,7 @@ def test_summary_dataframe():
 
 # --- Mode config --------------------------------------------------------------
 
-@pytest.mark.parametrize("mode", ["smoke", "fast", "full"])
+@pytest.mark.parametrize("mode", ["smoke", "fast", "full", "strict"])
 def test_get_mode_config_valid(mode):
     cfg = get_mode_config(mode)
     assert isinstance(cfg, MonteCarloConfig)
@@ -97,23 +97,32 @@ def test_get_mode_config_valid(mode):
 
 
 def test_valid_modes_constant():
-    assert set(VALID_MODES) == {"smoke", "fast", "full"}
+    assert set(VALID_MODES) == {"smoke", "fast", "full", "strict"}
 
 
 def test_sprint2_mode_sample_sizes_and_smoke_budget():
     smoke = get_mode_config("smoke")
     fast = get_mode_config("fast")
     full = get_mode_config("full")
+    strict = get_mode_config("strict")
 
     assert smoke.sample_sizes == (2, 4, 8, 16, 32)
     assert fast.sample_sizes == (2, 4, 8, 16, 32, 64, 128)
     assert full.sample_sizes == (2, 4, 8, 16, 32, 64, 128, 256, 512)
+    assert strict.sample_sizes == (2, 4, 8, 16, 32, 64, 128, 256, 512)
 
     assert smoke.min_replications == 10
     assert smoke.max_replications == 40
     assert smoke.replication_batch_size == 5
     assert smoke.test_samples_per_class == 200
     assert smoke.ci_half_width_target == 0.05
+
+    assert fast.ci_half_width_target == 0.03
+    assert full.ci_half_width_target == 0.01
+    assert strict.ci_half_width_target == 0.005
+    assert strict.min_replications == 100
+    assert strict.max_replications == 2000
+    assert strict.test_samples_per_class == 5000
 
 
 def test_get_mode_config_invalid():

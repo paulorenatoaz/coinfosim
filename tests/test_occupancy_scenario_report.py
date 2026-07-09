@@ -1,8 +1,13 @@
 from coinfosim.datasets.occupancy import load_occupancy_data
 from coinfosim.reports.occupancy_scenario import generate_occupancy_scenario_report
 from coinfosim.samplers.gaussian import GaussianClassConditionalSampler
+from coinfosim.samplers.gmm import GMMClassConditionalSampler
 from coinfosim.samplers.real import RealDatasetSampler
-from coinfosim.scenarios.occupancy import build_gaussian_anchored_occupancy_model
+from coinfosim.samplers.transfer import SyntheticTrainRealTestSampler
+from coinfosim.scenarios.occupancy import (
+    build_gaussian_anchored_occupancy_model,
+    build_gmm_anchored_occupancy_model,
+)
 from coinfosim.simulation.config import MonteCarloConfig
 from coinfosim.simulation.monte_carlo import CooperativeMonteCarloSimulator
 
@@ -49,25 +54,45 @@ def _results():
         sampler=gaussian_sampler,
         metadata={"channel_names": list(data.channel_names)},
     ).run()
-    return data, real_result, gaussian_result
+
+    gmm_anchored = build_gmm_anchored_occupancy_model(data)
+    gmm_sampler = SyntheticTrainRealTestSampler(
+        GMMClassConditionalSampler(
+            gmm_anchored.model,
+            base_seed=config.base_seed,
+            test_samples_per_class=config.test_samples_per_class,
+        ),
+        data.test_dataset,
+    )
+    gmm_result = CooperativeMonteCarloSimulator(
+        gmm_anchored.model,
+        config,
+        sampler=gmm_sampler,
+        metadata={"channel_names": list(data.channel_names)},
+    ).run()
+    return data, real_result, gaussian_result, gmm_result
 
 
 def test_occupancy_scenario_report_academic_layout(tmp_path):
-    data, real_result, gaussian_result = _results()
+    data, real_result, gaussian_result, gmm_result = _results()
     visualization = {
         "images": {
             "viz_1d_real": "viz_1d_real_smoke_000000.png",
             "viz_1d_gaussian": "viz_1d_gaussian_smoke_000000.png",
+            "viz_1d_gmm": "viz_1d_gmm_smoke_000000.png",
             "viz_2d_real": "viz_2d_real_smoke_000000.png",
             "viz_2d_gaussian": "viz_2d_gaussian_smoke_000000.png",
+            "viz_2d_gmm": "viz_2d_gmm_smoke_000000.png",
             "viz_3d_real": "viz_3d_real_smoke_000000.png",
             "viz_3d_gaussian": "viz_3d_gaussian_smoke_000000.png",
+            "viz_3d_gmm": "viz_3d_gmm_smoke_000000.png",
         },
         "metadata": {
             "visualization_sample_size": 1024,
             "class_balance": "balanced (equal samples per class)",
             "real_data_source": "standardized Occupancy training pool",
-            "synthetic_source": "single Gaussian model",
+            "single_gaussian_source": "single Gaussian model",
+            "gmm_source": "class-conditional GMM",
             "visualization_seed": 20240501,
         },
     }
@@ -75,6 +100,7 @@ def test_occupancy_scenario_report_academic_layout(tmp_path):
     out = generate_occupancy_scenario_report(
         real_result,
         gaussian_result,
+        gmm_result,
         output_dir=tmp_path,
         channel_names=data.channel_names,
         visualization=visualization,
@@ -97,22 +123,25 @@ def test_occupancy_scenario_report_academic_layout(tmp_path):
     assert "1. Scientific question" in text
     assert "2. Scenario summary" in text
     assert "Channel notation" not in text
-    assert "single-Gaussian synthetic data preserve the cooperative" in text
     assert "cooperative structure observed under real-data" in text
+    assert "GMM synthetic data" in text
 
-    # Main arms use the new transfer semantics; demoted arm is not a main arm.
+    # Main arms use the new transfer semantics across all three arms.
     assert "Real → Real" in text
     assert "Single Gaussian → Real" in text
+    assert "GMM → Real" in text
     assert "Single Gaussian → Synthetic" not in text
+    assert "GMM → Synthetic" not in text
     assert "Gaussian-anchored" not in text
 
     # Scenario summary carries the main-arm list and real-data evaluation split.
     assert "Main arms" in text
-    assert "Real → Real; Single Gaussian → Real" in text
+    assert "Real → Real; Single Gaussian → Real; GMM → Real" in text
     assert "Fixed real Occupancy evaluation split" in text
 
     # Detailed report links point to the correct main-arm simulations.
     assert "Single Gaussian → Real Monte Carlo" in text
+    assert "GMM → Real Monte Carlo" in text
 
     # Sticky channel legend retained.
     assert "class='legend'" in text
@@ -120,20 +149,22 @@ def test_occupancy_scenario_report_academic_layout(tmp_path):
     assert "X₁" in text
     assert "Temperature" in text
 
-    # Data visualization is an interactive carousel referencing all six images.
+    # Data visualization is an interactive carousel referencing all nine images.
     assert "4. Data visualization" in text
     assert "4.1 Projection carousel" in text
     assert "class='carousel'" in text
     assert "data-arm='real'" in text
+    assert "data-arm='gmm'" in text
     assert "data-dim='3d'" in text
     assert "viz-toggle" in text
     for name in visualization["images"].values():
         assert name in text
 
-    # Best subset comparison includes two loss-vs-N graphs, one per arm.
+    # Best subset comparison includes three loss-vs-N graphs, one per arm.
     assert "5. Best subset comparison at largest N" in text
     assert "graph_best_comparison_real" in graphs
     assert "graph_best_comparison_sgr" in graphs
+    assert "graph_best_comparison_gmm" in graphs
 
     # Top-ranked subsets grouped classifier-first, then arm; each has a graph.
     assert "6. Top-ranked subsets" in text
@@ -144,6 +175,9 @@ def test_occupancy_scenario_report_academic_layout(tmp_path):
     assert any(k.startswith("graph_topranked_") and k.endswith("_real") for k in graphs)
     assert any(
         k.startswith("graph_topranked_") and k.endswith("_sgr") for k in graphs
+    )
+    assert any(
+        k.startswith("graph_topranked_") and k.endswith("_gmm") for k in graphs
     )
 
     # N-star availability: columns, dash rule, and one graph per table.
@@ -168,10 +202,11 @@ def test_occupancy_scenario_report_academic_layout(tmp_path):
 
 
 def test_occupancy_scenario_report_without_visualization(tmp_path):
-    data, real_result, gaussian_result = _results()
+    data, real_result, gaussian_result, gmm_result = _results()
     out = generate_occupancy_scenario_report(
         real_result,
         gaussian_result,
+        gmm_result,
         output_dir=tmp_path,
         channel_names=data.channel_names,
     )
@@ -179,6 +214,7 @@ def test_occupancy_scenario_report_without_visualization(tmp_path):
     assert "Visualization panels were not generated" in text
     assert "7. N-star availability" in text
     assert "1. Scientific question" in text
+    assert "GMM → Real" in text
 
 
 def test_smoke_config_starts_at_n2():
@@ -240,11 +276,12 @@ def test_nstar_multiple_crossings_stores_all_reports_last(tmp_path):
 
 def test_nstar_no_crossing_shows_dash(tmp_path):
     """Test that no-crossing comparison shows dashes in the table."""
-    data, real_result, gaussian_result = _results()
+    data, real_result, gaussian_result, gmm_result = _results()
     graphs: dict = {}
     out = generate_occupancy_scenario_report(
         real_result,
         gaussian_result,
+        gmm_result,
         output_dir=tmp_path,
         channel_names=data.channel_names,
         graphs_out=graphs,

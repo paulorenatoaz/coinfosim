@@ -8,6 +8,7 @@ from typing import Sequence
 from coinfosim.reports.monte_carlo import (
     gaussian_parameters_section,
     generate_monte_carlo_report,
+    gmm_parameters_section,
 )
 from coinfosim.simulation.monte_carlo import SimulationResult
 
@@ -98,6 +99,44 @@ def generate_occupancy_single_gaussian_to_real_monte_carlo_report(
         ),
         extra_sections={
             "Estimated Gaussian training parameters": gaussian_parameters_section(
+                result.model, channel_names
+            )
+        },
+    )
+
+
+def generate_occupancy_gmm_to_real_monte_carlo_report(
+    result: SimulationResult,
+    channel_names: Sequence[str],
+    output_dir: Path | str = "output/reports",
+    filename: str = "occupancy_gmm_to_real_monte_carlo_report.html",
+) -> Path:
+    """Generate the detailed GMM-to-real Monte Carlo report.
+
+    Training samples are drawn from class-conditional Gaussian mixture models
+    fitted to the standardized Occupancy training pool, while evaluation is
+    performed on the fixed real Occupancy evaluation split.
+    """
+
+    return generate_monte_carlo_report(
+        result=result,
+        output_dir=output_dir,
+        filename=filename,
+        title="CoInfoSim - Occupancy GMM to Real Monte Carlo Report",
+        experiment_arm="GMM → Real Monte Carlo",
+        description=(
+            "Class-conditional Gaussian mixture models are fitted to the "
+            "standardized Occupancy training pool. Balanced training samples are "
+            "generated synthetically from these GMMs, while evaluation uses the "
+            "fixed real Occupancy evaluation split."
+        ),
+        channel_names=channel_names,
+        fixed_test_description=(
+            "fixed real Occupancy evaluation split "
+            "(standardized datatest.txt + datatest2.txt)"
+        ),
+        extra_sections={
+            "Estimated GMM training model": gmm_parameters_section(
                 result.model, channel_names
             )
         },

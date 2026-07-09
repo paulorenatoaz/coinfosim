@@ -6,7 +6,7 @@ import base64
 import html
 import io
 from pathlib import Path
-from typing import Dict, Mapping, Optional, Sequence, Tuple
+from typing import Dict, List, Mapping, Optional, Sequence, Tuple
 
 import matplotlib
 
@@ -260,6 +260,92 @@ def gaussian_parameters_section(model, channel_names: Sequence[str]) -> str:
             + _matrix_html(model.covariance(label), channel_names)
         )
     return "".join(rows)
+
+
+def gmm_parameters_section(model, channel_names: Sequence[str]) -> str:
+    """Return HTML for class-conditional GMM parameter estimates and selection.
+
+    Includes the model-selection configuration, per-class selected number of
+    components, a per-class BIC/AIC table over candidate component counts, and,
+    per class, the mixture weights, component means and component covariance
+    matrices.
+    """
+    parts: List[str] = []
+
+    # Model-selection configuration (shared; read from the first class if any).
+    any_selection = next(
+        (model.model_selection(label) for label in model.class_labels
+         if model.model_selection(label)),
+        {},
+    )
+    if any_selection:
+        cfg_rows = [
+            ("Criterion", any_selection.get("criterion")),
+            ("Covariance type", any_selection.get("covariance_type")),
+            ("reg_covar", any_selection.get("reg_covar")),
+            ("n_init", any_selection.get("n_init")),
+        ]
+        cfg_html = "".join(
+            f"<tr><th>{html.escape(str(k))}</th>"
+            f"<td>{html.escape(str(v))}</td></tr>"
+            for k, v in cfg_rows
+            if v is not None
+        )
+        parts.append(
+            "<h3>Model-selection configuration</h3>"
+            f"<table class='data'><tbody>{cfg_html}</tbody></table>"
+        )
+
+    for label in model.class_labels:
+        selection = model.model_selection(label)
+        weights = model.component_weights(label)
+        means = model.component_means(label)
+        covs = model.component_covariances(label)
+        k = model.selected_components(label)
+
+        parts.append(f"<h3>Class {html.escape(str(label))}</h3>")
+        parts.append(
+            f"<p><strong>Selected components:</strong> {k}"
+            + (
+                f" (of candidates {selection.get('candidate_components')})"
+                if selection
+                else ""
+            )
+            + (
+                f" &middot; fitted on {selection.get('n_samples')} samples"
+                if selection
+                else ""
+            )
+            + "</p>"
+        )
+
+        scores = (selection or {}).get("scores") or {}
+        if scores:
+            header = "<tr><th>K</th><th>BIC</th><th>AIC</th></tr>"
+            body = "".join(
+                f"<tr><td>{html.escape(str(kk))}</td>"
+                f"<td>{float(sc.get('bic', float('nan'))):.2f}</td>"
+                f"<td>{float(sc.get('aic', float('nan'))):.2f}</td></tr>"
+                for kk, sc in sorted(scores.items(), key=lambda kv: int(kv[0]))
+            )
+            parts.append(
+                "<p><strong>Model-selection scores:</strong></p>"
+                f"<table class='data'><thead>{header}</thead>"
+                f"<tbody>{body}</tbody></table>"
+            )
+
+        weight_text = ", ".join(f"{float(w):.4f}" for w in weights)
+        parts.append(f"<p><strong>Mixture weights:</strong> [{weight_text}]</p>")
+
+        for j in range(k):
+            parts.append(
+                f"<p><strong>Component {j} mean:</strong> "
+                + html.escape(_vector_text(means[j], channel_names))
+                + "</p>"
+                + f"<p><strong>Component {j} covariance:</strong></p>"
+                + _matrix_html(covs[j], channel_names)
+            )
+    return "".join(parts)
 
 
 def _loss_curve_image(

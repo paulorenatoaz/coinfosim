@@ -106,15 +106,27 @@ def simulation_report_data(result: SimulationResult) -> Dict[str, Any]:
 def scenario_report_data(
     real_result: SimulationResult,
     gaussian_result: SimulationResult,
+    gmm_result: SimulationResult,
     channel_names: Sequence[str],
+    gmm_model_selection: Any = None,
 ) -> Dict[str, Any]:
     """Scenario-level report-ready tables and per-arm summary snapshots.
 
-    The two main Occupancy arms are ``real_to_real`` (real training pool,
-    real evaluation split) and ``single_gaussian_to_real`` (single-Gaussian
+    The three main Occupancy arms are ``real_to_real`` (real training pool, real
+    evaluation split), ``single_gaussian_to_real`` (single-Gaussian synthetic
+    training, real evaluation split) and ``gmm_to_real`` (class-conditional GMM
     synthetic training, real evaluation split). Each arm records its train/test
     semantics alongside its summary and report-ready tables.
     """
+    gmm_arm: Dict[str, Any] = {
+        "arm_id": "gmm_to_real",
+        "train_source": "gmm_synthetic",
+        "test_source": "real_occupancy_evaluation_split",
+        "summary": simulation_summary_snapshot(gmm_result),
+        "report_data": simulation_report_data(gmm_result),
+    }
+    if gmm_model_selection is not None:
+        gmm_arm["gmm_model_selection"] = _clean(gmm_model_selection)
     return {
         "channel_names": [str(c) for c in channel_names],
         "sample_sizes": [int(n) for n in real_result.sample_sizes],
@@ -133,5 +145,6 @@ def scenario_report_data(
                 "summary": simulation_summary_snapshot(gaussian_result),
                 "report_data": simulation_report_data(gaussian_result),
             },
+            "gmm_to_real": gmm_arm,
         },
     }

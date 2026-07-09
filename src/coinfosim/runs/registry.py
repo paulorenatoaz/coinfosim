@@ -38,6 +38,7 @@ SCENARIO_FAMILIES = ("dataset", "synthetic")
 SIMULATION_FAMILIES = (
     "real_dataset",
     "single_gaussian_to_real",
+    "gmm_to_real",
     "gaussian_anchored",
     "synthetic_gaussian",
 )

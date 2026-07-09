@@ -2,7 +2,18 @@
 Monte Carlo budget and execution-mode configuration for CoInfoSim.
 
 Provides :class:`MonteCarloConfig` and :func:`get_mode_config` for the
-``smoke``, ``fast``, and ``full`` execution modes.
+``smoke``, ``fast``, ``full``, and ``strict`` execution modes.
+
+Mode CI half-width targets
+--------------------------
+=======  =======================  ====================================
+Mode     ci_half_width_target     Intended use
+=======  =======================  ====================================
+smoke    0.05                     Quick pipeline check / validation
+fast     0.03                     Exploratory run with moderate precision
+full     0.01                     Serious analysis
+strict   0.005                    High-precision / paper-grade run
+=======  =======================  ====================================
 """
 
 from __future__ import annotations
@@ -78,10 +89,19 @@ _MODE_PRESETS: Dict[str, dict] = {
         max_replications=300,
         replication_batch_size=10,
         test_samples_per_class=1000,
-        ci_half_width_target=0.01,
+        ci_half_width_target=0.03,
         base_seed=0,
     ),
     "full": dict(
+        sample_sizes=(2, 4, 8, 16, 32, 64, 128, 256, 512),
+        min_replications=100,
+        max_replications=2000,
+        replication_batch_size=20,
+        test_samples_per_class=5000,
+        ci_half_width_target=0.01,
+        base_seed=0,
+    ),
+    "strict": dict(
         sample_sizes=(2, 4, 8, 16, 32, 64, 128, 256, 512),
         min_replications=100,
         max_replications=2000,
@@ -101,7 +121,7 @@ def get_mode_config(mode: str) -> MonteCarloConfig:
     Raises
     ------
     ValueError
-        If ``mode`` is not one of ``smoke``, ``fast``, ``full``.
+        If ``mode`` is not one of ``smoke``, ``fast``, ``full``, ``strict``.
     """
     if mode not in _MODE_PRESETS:
         raise ValueError(

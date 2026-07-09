@@ -35,6 +35,7 @@ from typing import Any, Dict, List
 import numpy as np
 
 from coinfosim.models.gaussian import GaussianSimulationModel
+from coinfosim.models.gmm import GMMSimulationModel
 from coinfosim.results.accumulator import LossAccumulator
 from coinfosim.samplers.real import RealDatasetModel
 from coinfosim.simulation.config import MonteCarloConfig
@@ -63,6 +64,36 @@ def _serialize_model(model: Any) -> Dict[str, Any]:
     other models are treated as finite real-dataset models exposing only
     metadata.
     """
+    is_gmm = (
+        hasattr(model, "component_weights")
+        and hasattr(model, "component_means")
+        and hasattr(model, "component_covariances")
+        and hasattr(model, "class_labels")
+    )
+    if is_gmm:
+        labels = [int(label) for label in model.class_labels]
+        return {
+            "kind": "gmm",
+            "d": int(model.d),
+            "class_labels": labels,
+            "weights": {
+                str(label): model.component_weights(label).tolist()
+                for label in labels
+            },
+            "means": {
+                str(label): model.component_means(label).tolist()
+                for label in labels
+            },
+            "covariances": {
+                str(label): model.component_covariances(label).tolist()
+                for label in labels
+            },
+            "model_selection": {
+                str(label): model.model_selection(label) for label in labels
+            },
+            "channel_names": [str(c) for c in getattr(model, "channel_names", ())],
+            "name": str(getattr(model, "name", "gmm")),
+        }
     is_gaussian = (
         hasattr(model, "mean")
         and hasattr(model, "covariance")
@@ -101,6 +132,31 @@ def _deserialize_model(spec: Dict[str, Any]) -> Any:
             for label, mat in spec["covariances"].items()
         }
         return GaussianSimulationModel(means=means, covariances=covariances)
+    if kind == "gmm":
+        weights = {
+            int(label): np.asarray(vec, dtype=float)
+            for label, vec in spec["weights"].items()
+        }
+        means = {
+            int(label): np.asarray(mat, dtype=float)
+            for label, mat in spec["means"].items()
+        }
+        covariances = {
+            int(label): np.asarray(arr, dtype=float)
+            for label, arr in spec["covariances"].items()
+        }
+        model_selection = {
+            int(label): dict(info)
+            for label, info in spec.get("model_selection", {}).items()
+        }
+        return GMMSimulationModel(
+            weights=weights,
+            means=means,
+            covariances=covariances,
+            model_selection=model_selection,
+            channel_names=tuple(spec.get("channel_names", ())) or None,
+            name=str(spec.get("name", "gmm")),
+        )
     if kind == "real_dataset":
         return RealDatasetModel(
             d=int(spec["d"]),

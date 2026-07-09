@@ -1,12 +1,13 @@
 """Occupancy Detection scenario report (academic layout).
 
-Renders a self-contained, academic-style HTML scenario report comparing the two
-main Occupancy arms — ``Real → Real`` (real training pool, real evaluation
-split) and ``Single Gaussian → Real`` (single-Gaussian synthetic training, real
-evaluation split). Both main arms are evaluated on the same fixed real Occupancy
-evaluation split. Channels are referred to with mathematical labels ``X_i`` and
-a sticky channel legend; sensor names are used only in the legend and in
-explicit "reference subset" annotations, never as primary table/plot labels.
+Renders a self-contained, academic-style HTML scenario report comparing the
+three main Occupancy arms — ``Real → Real`` (real training pool, real evaluation
+split), ``Single Gaussian → Real`` (single-Gaussian synthetic training, real
+evaluation split) and ``GMM → Real`` (class-conditional GMM synthetic training,
+real evaluation split). All three main arms are evaluated on the same fixed real
+Occupancy evaluation split. Channels are referred to with mathematical labels
+``X_i`` and a sticky channel legend; sensor names are used only in the legend and
+in explicit "reference subset" annotations, never as primary table/plot labels.
 """
 
 from __future__ import annotations
@@ -316,6 +317,7 @@ def _nstar_rows(analysis: List[Dict]) -> List[List[str]]:
 def _nstar_section(
     real_result: SimulationResult,
     gaussian_result: SimulationResult,
+    gmm_result: SimulationResult,
     channel_names: Sequence[str],
     n: int,
     output_dir: Path,
@@ -331,7 +333,7 @@ def _nstar_section(
         "and compared against the best subset of every other cardinality and, "
         "when it exists, the second-best subset of the same cardinality. "
         "Reference and competitor subsets are selected on the Real → Real arm "
-        "so that both arms are compared on the same subsets.</p>"
+        "so that all three arms are compared on the same subsets.</p>"
     )
     parts.append(
         "<p class='muted'>A dash indicates that no crossing was detected within "
@@ -362,6 +364,7 @@ def _nstar_section(
             for arm_key, arm_name, arm_result in (
                 ("real", "Real → Real", real_result),
                 ("sgr", "Single Gaussian → Real", gaussian_result),
+                ("gmm", "GMM → Real", gmm_result),
             ):
                 analysis = _nstar_analysis(
                     arm_result, clf, reference, competitors, n
@@ -434,7 +437,7 @@ def _summary_table(
         ("Scenario family", html.escape(str(meta.get("scenario_family", "dataset")))),
         ("Scenario mode", html.escape(str(real_result.config.mode))),
         ("Dataset", html.escape(str(meta.get("dataset", "Occupancy Detection")))),
-        ("Main arms", "Real → Real; Single Gaussian → Real"),
+        ("Main arms", "Real → Real; Single Gaussian → Real; GMM → Real"),
         ("Number of channels", str(len(channel_names))),
         ("Non-empty channel subsets", str(len(real_result.subsets))),
         ("Classifiers", html.escape(classifiers)),
@@ -480,9 +483,16 @@ def _protocol_html(real_result: SimulationResult) -> str:
         "training pool. Training samples are generated synthetically from these "
         "Gaussian distributions, while evaluation is performed on the fixed "
         "real Occupancy evaluation split.</p>"
-        "<p>Both main arms are evaluated on the same fixed real Occupancy "
+        "<h3>3.3 GMM → Real arm</h3>"
+        "<p>The GMM-to-real arm fits one class-conditional Gaussian mixture "
+        "model per Occupancy class using the standardized training pool. The "
+        "number of components is selected per class by BIC under a conservative "
+        "component cap. Training samples are generated synthetically from the "
+        "fitted GMMs, while evaluation is performed on the fixed real Occupancy "
         "evaluation split.</p>"
-        "<h3>3.3 Monte Carlo stopping rule</h3>"
+        "<p>All three main arms are evaluated on the same fixed real Occupancy "
+        "evaluation split.</p>"
+        "<h3>3.4 Monte Carlo stopping rule</h3>"
         f"{stopping}"
     )
 
@@ -500,7 +510,11 @@ def _carousel_html(visualization: Optional[Dict]) -> str:
         ("Visualization sample size", meta.get("visualization_sample_size")),
         ("Class balance", meta.get("class_balance")),
         ("Real-data source", meta.get("real_data_source")),
-        ("Synthetic training source", meta.get("synthetic_source")),
+        (
+            "Single Gaussian synthetic training source",
+            meta.get("single_gaussian_source") or meta.get("synthetic_source"),
+        ),
+        ("GMM synthetic training source", meta.get("gmm_source")),
         ("Visualization seed", meta.get("visualization_seed")),
     ]
     meta_html = "".join(
@@ -513,18 +527,21 @@ def _carousel_html(visualization: Optional[Dict]) -> str:
     order = [
         ("real", "1d"),
         ("gaussian", "1d"),
+        ("gmm", "1d"),
         ("real", "2d"),
         ("gaussian", "2d"),
+        ("gmm", "2d"),
         ("real", "3d"),
         ("gaussian", "3d"),
+        ("gmm", "3d"),
     ]
 
     def _caption(arm: str, dim: str) -> str:
-        who = (
-            "Real training sample"
-            if arm == "real"
-            else "Single Gaussian synthetic training sample"
-        )
+        who = {
+            "real": "Real training sample",
+            "gaussian": "Single Gaussian synthetic training sample",
+            "gmm": "GMM synthetic training sample",
+        }.get(arm, arm)
         return f"{who} — {dim.upper()} projections"
 
     data = {}
@@ -542,6 +559,7 @@ def _carousel_html(visualization: Optional[Dict]) -> str:
         "<div class='ctrl-group'>"
         "<button type='button' data-arm='real' class='active'>Real data</button>"
         "<button type='button' data-arm='gaussian'>Single Gaussian</button>"
+        "<button type='button' data-arm='gmm'>GMM</button>"
         "</div>"
         "<div class='ctrl-group'>"
         "<button type='button' data-dim='1d' class='active'>1D</button>"
@@ -608,6 +626,7 @@ def _carousel_html(visualization: Optional[Dict]) -> str:
 def _best_comparison_html(
     real_result: SimulationResult,
     gaussian_result: SimulationResult,
+    gmm_result: SimulationResult,
     n: int,
     output_dir: Path,
     graph_suffix: str,
@@ -618,7 +637,9 @@ def _best_comparison_html(
     for clf in real_result.classifier_names:
         real_best = _ranked(real_result, clf, n)[0]
         gauss_best = _ranked(gaussian_result, clf, n)[0]
-        same = "yes" if real_best[0] == gauss_best[0] else "no"
+        gmm_best = _ranked(gmm_result, clf, n)[0]
+        sg_same = "yes" if real_best[0] == gauss_best[0] else "no"
+        gmm_same = "yes" if real_best[0] == gmm_best[0] else "no"
         rows.append(
             [
                 html.escape(classifier_label(clf)),
@@ -626,7 +647,10 @@ def _best_comparison_html(
                 _fmt_loss(real_best[1]),
                 _subset_notation(gauss_best[0]),
                 _fmt_loss(gauss_best[1]),
-                same,
+                _subset_notation(gmm_best[0]),
+                _fmt_loss(gmm_best[1]),
+                sg_same,
+                gmm_same,
             ]
         )
     table = _table(
@@ -636,7 +660,10 @@ def _best_comparison_html(
             "Real → Real loss",
             "Single Gaussian → Real best subset",
             "Single Gaussian → Real loss",
-            "Same subset",
+            "GMM → Real best subset",
+            "GMM → Real loss",
+            "SG same as real",
+            "GMM same as real",
         ],
         rows,
     )
@@ -645,6 +672,7 @@ def _best_comparison_html(
     for arm_key, arm_name, arm_result in (
         ("real", "Real → Real", real_result),
         ("sgr", "Single Gaussian → Real", gaussian_result),
+        ("gmm", "GMM → Real", gmm_result),
     ):
         sizes = arm_result.sample_sizes
         series = []
@@ -690,6 +718,7 @@ def _best_comparison_html(
 def _top_ranked_html(
     real_result: SimulationResult,
     gaussian_result: SimulationResult,
+    gmm_result: SimulationResult,
     n: int,
     output_dir: Path,
     graph_suffix: str,
@@ -707,6 +736,7 @@ def _top_ranked_html(
         for arm_key, arm_name, arm_result in (
             ("real", "Real → Real", real_result),
             ("sgr", "Single Gaussian → Real", gaussian_result),
+            ("gmm", "GMM → Real", gmm_result),
         ):
             ranked = _ranked(arm_result, clf, n)[:top_k]
             rows = [
@@ -744,15 +774,21 @@ def _top_ranked_html(
 def _interpretation_html() -> str:
     return (
         "<h2>8. Interpretation notes</h2>"
-        "<h3>Agreement between the Real → Real and Single Gaussian → Real arms</h3>"
-        "<p>Where the two arms select the same best subsets and show similar "
-        "cooperative thresholds under real-data evaluation, training on "
-        "single-Gaussian synthetic data preserves the cooperative advantages "
-        "observed when classifiers are evaluated on real Occupancy data.</p>"
-        "<h3>Divergences between the arms</h3>"
+        "<h3>Agreement among the three arms</h3>"
+        "<p>Where the Real → Real, Single Gaussian → Real and GMM → Real arms "
+        "select the same best subsets and show similar cooperative thresholds "
+        "under real-data evaluation, synthetic training preserves the "
+        "cooperative advantages observed when classifiers are evaluated on real "
+        "Occupancy data.</p>"
+        "<h3>Single Gaussian vs GMM under real-data evaluation</h3>"
+        "<p>If the GMM → Real arm aligns more closely with Real → Real than "
+        "Single Gaussian → Real, this suggests that multimodal class-conditional "
+        "structure is important for preserving cooperative behavior under "
+        "real-data evaluation.</p>"
+        "<h3>Divergences from the Real → Real baseline</h3>"
         "<p>Differences in best subsets or in N* availability indicate "
-        "structure in the real Occupancy data that single-Gaussian synthetic "
-        "training does not reproduce under real-data evaluation.</p>"
+        "structure in the real Occupancy data that a given synthetic training "
+        "distribution does not reproduce under real-data evaluation.</p>"
         "<h3>Classifier-specific behavior</h3>"
         "<p>Linear SVM, Logistic Regression, and Gaussian Naive Bayes may rank "
         "subsets differently; comparisons should be read per classifier.</p>"
@@ -833,10 +869,12 @@ figure.graph img { max-width:100%; height:auto; border:1px solid var(--line);
 def generate_occupancy_scenario_report(
     real_result: SimulationResult,
     gaussian_result: SimulationResult,
+    gmm_result: SimulationResult,
     output_dir: Path | str = "output/reports",
     dataset_report: str = "occupancy_dataset_report.html",
     real_report: str = "occupancy_real_monte_carlo_report.html",
     sg_real_report: str = "occupancy_single_gaussian_to_real_monte_carlo_report.html",
+    gmm_real_report: str = "occupancy_gmm_to_real_monte_carlo_report.html",
     filename: str = "occupancy_scenario_report.html",
     channel_names: Sequence[str] | None = None,
     visualization: Optional[Dict] = None,
@@ -847,12 +885,12 @@ def generate_occupancy_scenario_report(
 ) -> Path:
     """Generate the academic Occupancy scenario report.
 
-    The two main arms are ``Real → Real`` (``real_result``) and
-    ``Single Gaussian → Real`` (``gaussian_result``); both are evaluated on the
-    fixed real Occupancy evaluation split. Loss-vs-N graphs are rendered into
-    ``output_dir`` during generation; their filenames are recorded in
-    ``graphs_out`` (if provided) so callers can register them in
-    ``scenario.json``.
+    The three main arms are ``Real → Real`` (``real_result``),
+    ``Single Gaussian → Real`` (``gaussian_result``) and ``GMM → Real``
+    (``gmm_result``); all are evaluated on the fixed real Occupancy evaluation
+    split. Loss-vs-N graphs are rendered into ``output_dir`` during generation;
+    their filenames are recorded in ``graphs_out`` (if provided) so callers can
+    register them in ``scenario.json``.
     """
 
     output_dir = Path(output_dir)
@@ -869,18 +907,17 @@ def generate_occupancy_scenario_report(
     n_max = max(real_result.sample_sizes)
 
     question = (
-        "Does training on single-Gaussian synthetic data preserve the "
-        "cooperative advantages observed when classifiers are evaluated on real "
-        "Occupancy data? Equivalently: which training distribution best "
-        "preserves the cooperative structure observed under real-data "
-        "evaluation in the Occupancy Detection dataset?"
+        "Which training distribution best preserves the cooperative structure "
+        "observed under real-data evaluation in the Occupancy Detection dataset: "
+        "real data, single-Gaussian synthetic data, or GMM synthetic data?"
     )
 
     related = (
         "<p class='related'>Detailed reports: "
         f"<a href='{html.escape(dataset_report)}'>dataset</a> &middot; "
         f"<a href='{html.escape(real_report)}'>Real → Real Monte Carlo</a> &middot; "
-        f"<a href='{html.escape(sg_real_report)}'>Single Gaussian → Real Monte Carlo</a>"
+        f"<a href='{html.escape(sg_real_report)}'>Single Gaussian → Real Monte Carlo</a> &middot; "
+        f"<a href='{html.escape(gmm_real_report)}'>GMM → Real Monte Carlo</a>"
         "</p>"
     )
 
@@ -909,11 +946,11 @@ def generate_occupancy_scenario_report(
 
 {_carousel_html(visualization)}
 
-{_best_comparison_html(real_result, gaussian_result, n_max, output_dir, graph_suffix, graphs_out, generate_graphs)}
+{_best_comparison_html(real_result, gaussian_result, gmm_result, n_max, output_dir, graph_suffix, graphs_out, generate_graphs)}
 
-{_top_ranked_html(real_result, gaussian_result, n_max, output_dir, graph_suffix, graphs_out, generate_graphs=generate_graphs)}
+{_top_ranked_html(real_result, gaussian_result, gmm_result, n_max, output_dir, graph_suffix, graphs_out, generate_graphs=generate_graphs)}
 
-{_nstar_section(real_result, gaussian_result, channel_names, n_max, output_dir, graph_suffix, graphs_out, generate_graphs)}
+{_nstar_section(real_result, gaussian_result, gmm_result, channel_names, n_max, output_dir, graph_suffix, graphs_out, generate_graphs)}
 
 {_interpretation_html()}
 

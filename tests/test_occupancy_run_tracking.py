@@ -58,6 +58,7 @@ def test_occupancy_run_creates_one_scenario_two_simulations(tmp_path):
     assert out["scenario_run_id"] == 0
     assert out["real_simulation_run_id"] == 0
     assert out["single_gaussian_to_real_simulation_run_id"] == 1
+    assert out["gmm_to_real_simulation_run_id"] == 2
 
     # Global registries exist.
     assert (tmp_path / "scenario_runs.json").exists()
@@ -71,9 +72,13 @@ def test_occupancy_run_creates_one_scenario_two_simulations(tmp_path):
         / "simulations"
         / "000001_occupancy_single_gaussian_to_real_smoke"
     )
+    gmm_dir = (
+        tmp_path / "simulations" / "000002_occupancy_gmm_to_real_smoke"
+    )
     assert scenario_dir.is_dir()
     assert real_dir.is_dir()
     assert gaussian_dir.is_dir()
+    assert gmm_dir.is_dir()
 
     # Filenames include mode and zero-padded id.
     assert (
@@ -92,6 +97,12 @@ def test_occupancy_run_creates_one_scenario_two_simulations(tmp_path):
     ).exists()
     assert (gaussian_dir / "result_data_smoke_000001.json.gz").exists()
     assert (gaussian_dir / "simulation.json").exists()
+    assert (
+        gmm_dir
+        / "occupancy_gmm_to_real_monte_carlo_report_smoke_000002.html"
+    ).exists()
+    assert (gmm_dir / "result_data_smoke_000002.json.gz").exists()
+    assert (gmm_dir / "simulation.json").exists()
 
 
 def test_scenario_json_has_question_and_simulation_refs(tmp_path):
@@ -114,21 +125,28 @@ def test_scenario_json_has_question_and_simulation_refs(tmp_path):
     assert "cooperative structure" in scenario_json["question"]
     assert scenario_json["scenario_family"] == "dataset"
     assert scenario_json["status"] == "completed"
-    assert scenario_json["simulation_run_ids"] == [0, 1]
+    assert scenario_json["simulation_run_ids"] == [0, 1, 2]
     refs = scenario_json["simulation_refs"]
     assert "occupancy_real_data" in refs
     assert "occupancy_single_gaussian_to_real" in refs
+    assert "occupancy_gmm_to_real" in refs
     assert refs["occupancy_single_gaussian_to_real"]["simulation_family"] == (
         "single_gaussian_to_real"
     )
-    # Scenario-level report data snapshots both main arms with clear semantics.
+    assert refs["occupancy_gmm_to_real"]["simulation_family"] == "gmm_to_real"
+    # Scenario-level report data snapshots all three main arms with semantics.
     assert set(scenario_json["report_data"]["arms"]) == {
         "real_to_real",
         "single_gaussian_to_real",
+        "gmm_to_real",
     }
     sgr_arm = scenario_json["report_data"]["arms"]["single_gaussian_to_real"]
     assert sgr_arm["train_source"] == "single_gaussian_synthetic"
     assert sgr_arm["test_source"] == "real_occupancy_evaluation_split"
+    gmm_arm = scenario_json["report_data"]["arms"]["gmm_to_real"]
+    assert gmm_arm["train_source"] == "gmm_synthetic"
+    assert gmm_arm["test_source"] == "real_occupancy_evaluation_split"
+    assert "gmm_model_selection" in gmm_arm
     real_arm = scenario_json["report_data"]["arms"]["real_to_real"]
     assert real_arm["train_source"] == "real_occupancy_training_pool"
     assert real_arm["test_source"] == "real_occupancy_evaluation_split"
@@ -159,6 +177,51 @@ def test_simulation_json_has_report_ready_data(tmp_path):
     assert sim_json["result_data"]["summary_table"]
     assert sim_json["result_data"]["best_subset_rankings"]
     assert sim_json["result_data"]["threshold_comparisons"]
+    # Pointer to full persisted result payload.
+    assert sim_json["artifacts"]["result_data"].endswith(".json.gz")
+
+
+def test_gmm_simulation_json_has_model_selection(tmp_path):
+    mod = _load_script_module()
+    mod.run_scenario(
+        raw_dir=str(RAW_DIR),
+        output_dir=str(tmp_path),
+        config=_tiny_config(),
+        visualize=False,
+    )
+    sim_json = json.loads(
+        (
+            tmp_path
+            / "simulations"
+            / "000002_occupancy_gmm_to_real_smoke"
+            / "simulation.json"
+        ).read_text(encoding="utf-8")
+    )
+
+    assert sim_json["simulation_family"] == "gmm_to_real"
+    assert sim_json["status"] == "completed"
+    # Report-ready tables are embedded.
+    assert sim_json["summary_data"]["number_of_subsets"] == 31
+    assert sim_json["result_data"]["summary_table"]
+    assert sim_json["result_data"]["best_subset_rankings"]
+    # GMM train/test semantics and model-selection metadata are recorded.
+    assert sim_json["model_metadata"]["experiment_arm"] == "gmm_to_real"
+    assert sim_json["model_metadata"]["train_source"] == "gmm_synthetic"
+    assert sim_json["model_metadata"]["test_source"] == (
+        "real_occupancy_evaluation_split"
+    )
+    model_selection = sim_json["model_metadata"]["gmm_model_selection"]
+    # One entry per class, each with a BIC-based selected component count.
+    assert len(model_selection) >= 2
+    for info in model_selection.values():
+        assert info["criterion"] == "bic"
+        assert info["selected_components"] >= 1
+        assert "scores" in info
+    # Sampler metadata makes the transfer wrapper explicit.
+    assert sim_json["sampler_metadata"]["type"] == "SyntheticTrainRealTestSampler"
+    assert sim_json["sampler_metadata"]["train_sampler"] == (
+        "GMMClassConditionalSampler"
+    )
     # Pointer to full persisted result payload.
     assert sim_json["artifacts"]["result_data"].endswith(".json.gz")
 
@@ -216,6 +279,7 @@ def test_regeneration_does_not_rerun_monte_carlo(tmp_path, monkeypatch):
     assert Path(regenerated["scenario_report"]).exists()
     assert Path(regenerated["real_report"]).exists()
     assert Path(regenerated["single_gaussian_to_real_report"]).exists()
+    assert Path(regenerated["gmm_to_real_report"]).exists()
 
     # Registries were not extended by regeneration.
     scenario_runs = json.loads(
@@ -234,14 +298,17 @@ def test_visualization_panels_written_and_registered(tmp_path):
     )
     scenario_dir = tmp_path / "scenarios" / "000000_occupancy_baseline_smoke"
 
-    # Six visualization PNGs are written in the scenario folder.
+    # Nine visualization PNGs are written in the scenario folder.
     expected = [
         "viz_1d_real_smoke_000000.png",
         "viz_1d_gaussian_smoke_000000.png",
+        "viz_1d_gmm_smoke_000000.png",
         "viz_2d_real_smoke_000000.png",
         "viz_2d_gaussian_smoke_000000.png",
+        "viz_2d_gmm_smoke_000000.png",
         "viz_3d_real_smoke_000000.png",
         "viz_3d_gaussian_smoke_000000.png",
+        "viz_3d_gmm_smoke_000000.png",
     ]
     for name in expected:
         assert (scenario_dir / name).exists(), name
@@ -253,12 +320,16 @@ def test_visualization_panels_written_and_registered(tmp_path):
     viz = scenario_json["report_data"]["visualization"]
     assert viz["metadata"]["visualization_seed"] == mod.VIZ_SEED
     assert set(viz["images"]) == set(scenario_json["report_data"]["visualization"]["images"])
+    assert len(viz["images"]) == 9
     assert "visualization_images" in scenario_json["artifacts"]
 
     # Loss-vs-N graphs are generated and registered.
     graphs = scenario_json["report_data"]["graphs"]
     assert "graph_best_comparison_real" in graphs
     assert "graph_best_comparison_sgr" in graphs
+    assert "graph_best_comparison_gmm" in graphs
+    assert any(k.startswith("graph_topranked_") and k.endswith("_gmm") for k in graphs)
+    assert any(k.startswith("graph_nstar_") and k.endswith("_gmm") for k in graphs)
     assert any(k.startswith("graph_topranked_") for k in graphs)
     assert any(k.startswith("graph_nstar_") for k in graphs)
     assert "graph_images" in scenario_json["artifacts"]
@@ -271,6 +342,7 @@ def test_visualization_panels_written_and_registered(tmp_path):
     ).read_text(encoding="utf-8")
     assert "viz_1d_real_smoke_000000.png" in report_text
     assert "viz_3d_gaussian_smoke_000000.png" in report_text
+    assert "viz_3d_gmm_smoke_000000.png" in report_text
     assert "class='carousel'" in report_text
     assert "graph_best_comparison_real_smoke_000000.png" in report_text
 

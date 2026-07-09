@@ -2,7 +2,7 @@
 """Run the Occupancy Detection scenario with full run tracking.
 
 This script executes the Occupancy Detection *scenario*: a single scenario run
-composed of two simulation runs. The two main arms are:
+composed of three simulation runs. The three main arms are:
 
     real_to_real            train on the real Occupancy training pool,
                             test on the fixed real Occupancy evaluation split.
@@ -10,6 +10,10 @@ composed of two simulation runs. The two main arms are:
                             class-conditional Gaussian model estimated from the
                             Occupancy training pool, test on the same fixed real
                             Occupancy evaluation split.
+    gmm_to_real             train on synthetic samples from class-conditional
+                            Gaussian mixture models fitted to the Occupancy
+                            training pool, test on the same fixed real Occupancy
+                            evaluation split.
 
 Both main arms are evaluated on the fixed real Occupancy evaluation split. Every
 execution is tracked in two global registries and written to dedicated,
@@ -21,6 +25,7 @@ id-stamped folders so that re-running never overwrites a previous execution:
       scenarios/000000_occupancy_baseline_smoke/
       simulations/000000_occupancy_real_data_smoke/
       simulations/000001_occupancy_single_gaussian_to_real_smoke/
+      simulations/000002_occupancy_gmm_to_real_smoke/
 
 Reports can also be regenerated from persisted run data without rerunning Monte
 Carlo (``--report-from-scenario-run ID``).
@@ -38,6 +43,7 @@ from typing import Any, Callable, Dict, Optional
 from coinfosim.datasets.occupancy import load_occupancy_data
 from coinfosim.reports.occupancy_dataset import generate_occupancy_dataset_report
 from coinfosim.reports.occupancy_monte_carlo import (
+    generate_occupancy_gmm_to_real_monte_carlo_report,
     generate_occupancy_real_monte_carlo_report,
     generate_occupancy_single_gaussian_to_real_monte_carlo_report,
 )
@@ -57,11 +63,13 @@ from coinfosim.runs.report_data import (
     simulation_summary_snapshot,
 )
 from coinfosim.samplers.gaussian import GaussianClassConditionalSampler
+from coinfosim.samplers.gmm import GMMClassConditionalSampler
 from coinfosim.samplers.real import RealDatasetSampler
 from coinfosim.samplers.transfer import SyntheticTrainRealTestSampler
 from coinfosim.scenarios.occupancy import (
     OCCUPANCY_SCENARIO_QUESTION,
     build_gaussian_anchored_occupancy_model,
+    build_gmm_anchored_occupancy_model,
 )
 from coinfosim.simulation.config import MonteCarloConfig, VALID_MODES, get_mode_config
 from coinfosim.simulation.monte_carlo import CooperativeMonteCarloSimulator
@@ -75,6 +83,8 @@ REAL_SLUG = "occupancy_real_data"
 REAL_FAMILY = "real_dataset"
 SG2R_SLUG = "occupancy_single_gaussian_to_real"
 SG2R_FAMILY = "single_gaussian_to_real"
+GMM2R_SLUG = "occupancy_gmm_to_real"
+GMM2R_FAMILY = "gmm_to_real"
 
 # Deterministic seed for the (separate) data-visualization sample.
 VIZ_SEED = 20240501
@@ -120,12 +130,15 @@ def _dataset_report_filename(mode: str, sid: int) -> str:
     return f"occupancy_dataset_report_{mode}_{sid:06d}.html"
 
 
-def _build_visualizations(data, gaussian_model, scenario_dir: Path, mode: str, sid: int) -> Dict[str, Any]:
-    """Render the six data-visualization panels and return their descriptor.
+def _build_visualizations(
+    data, gaussian_model, gmm_model, scenario_dir: Path, mode: str, sid: int
+) -> Dict[str, Any]:
+    """Render the nine data-visualization panels and return their descriptor.
 
     A separate, deterministic visualization sample is used (documented in the
     returned metadata): a balanced draw from the standardized real training
-    pool, and an equally sized synthetic draw from the single Gaussian model.
+    pool, an equally sized synthetic draw from the single Gaussian model, and an
+    equally sized synthetic draw from the class-conditional GMM.
     """
     real_X, real_y, per_class = build_balanced_sample(
         data.train_dataset.X, data.train_dataset.y, VIZ_PER_CLASS, seed=VIZ_SEED
@@ -134,22 +147,50 @@ def _build_visualizations(data, gaussian_model, scenario_dir: Path, mode: str, s
         gaussian_model, base_seed=VIZ_SEED, test_samples_per_class=per_class
     )
     gaussian_sample = gaussian_sampler.sample_test()
+    gmm_sampler = GMMClassConditionalSampler(
+        gmm_model, base_seed=VIZ_SEED, test_samples_per_class=per_class
+    )
+    gmm_sample = gmm_sampler.sample_test()
+
+    # Build per-class component list for the GMM visualization.
+    gmm_components = {
+        label: [
+            (
+                float(gmm_model.component_weights(label)[j]),
+                gmm_model.component_means(label)[j],
+                gmm_model.component_covariances(label)[j],
+            )
+            for j in range(gmm_model.selected_components(label))
+        ]
+        for label in gmm_model.class_labels
+    }
 
     images = generate_scenario_visualizations(
-        real_X,
-        real_y,
-        gaussian_sample.X,
-        gaussian_sample.y,
+        {
+            "real": (real_X, real_y, "Real training sample", None),
+            "gaussian": (
+                gaussian_sample.X,
+                gaussian_sample.y,
+                "Single Gaussian synthetic training sample",
+                None,
+            ),
+            "gmm": (
+                gmm_sample.X,
+                gmm_sample.y,
+                "GMM synthetic training sample",
+                gmm_components,
+            ),
+        },
         scenario_dir,
         filename_suffix=f"{mode}_{sid:06d}",
-        seed=VIZ_SEED,
     )
     metadata = {
         "visualization_sample_size": int(real_X.shape[0]),
         "per_class": int(per_class),
         "class_balance": "balanced (equal samples per class)",
         "real_data_source": "standardized Occupancy training pool",
-        "synthetic_source": "single Gaussian model",
+        "single_gaussian_source": "single Gaussian model",
+        "gmm_source": "class-conditional Gaussian mixture models",
         "visualization_seed": VIZ_SEED,
     }
     return {"images": images, "metadata": metadata}
@@ -269,6 +310,7 @@ def run_scenario(
     start = time.time()
     real_record = None
     gaussian_record = None
+    gmm_record = None
 
     try:
         # -- dataset (scenario-level artifact) ---------------------------- #
@@ -357,15 +399,23 @@ def run_scenario(
             "Building single Gaussian model", elapsed=time.time() - step
         )
 
+        reporter.scenario_step_start("Building class-conditional GMM model")
+        step = time.time()
+        gmm_anchored = build_gmm_anchored_occupancy_model(data)
+        reporter.scenario_step_finish(
+            "Building class-conditional GMM model", elapsed=time.time() - step
+        )
+
         # Data-visualization panels (separate deterministic sample; documented
         # in the visualization metadata). Real sample is drawn from the
-        # standardized training pool; synthetic sample from the anchored model.
+        # standardized training pool; synthetic samples from the single Gaussian
+        # and GMM models.
         visualization = None
         if visualize:
             reporter.scenario_step_start("Rendering data visualization panels")
             step = time.time()
             visualization = _build_visualizations(
-                data, anchored.model, scenario_dir, mode, sid
+                data, anchored.model, gmm_anchored.model, scenario_dir, mode, sid
             )
             reporter.scenario_step_finish(
                 "Rendering data visualization panels",
@@ -446,6 +496,81 @@ def run_scenario(
             detail=str(gaussian_report),
         )
 
+        # -- GMM -> real arm ---------------------------------------------- #
+        reporter.scenario_step_start(
+            "GMM \u2192 Real Monte Carlo (gmm_to_real arm)"
+        )
+        step = time.time()
+        gmm_record = sim_registry.start_run(
+            simulation_slug=GMM2R_SLUG,
+            simulation_family=GMM2R_FAMILY,
+            mode=mode,
+            scenario_run_id_origin=sid,
+            config=_config_dict(config),
+        )
+        reporter.info(
+            f"simulation_run_id={gmm_record.simulation_run_id} "
+            f"({GMM2R_SLUG}) dir: {gmm_record.run_dir}"
+        )
+        # Training samples are synthetic (class-conditional GMMs); evaluation
+        # uses the fixed real Occupancy evaluation split (same split as above).
+        gmm_train_sampler = GMMClassConditionalSampler(
+            gmm_anchored.model,
+            base_seed=config.base_seed,
+            test_samples_per_class=config.test_samples_per_class,
+        )
+        gmm_sampler = SyntheticTrainRealTestSampler(
+            gmm_train_sampler,
+            data.test_dataset,
+            name="occupancy_gmm_to_real",
+        )
+        gmm_result = CooperativeMonteCarloSimulator(
+            gmm_anchored.model,
+            config,
+            sampler=gmm_sampler,
+            metadata={
+                "scenario_name": SCENARIO_NAME,
+                "experiment_arm": "gmm_to_real",
+                "train_source": "gmm_synthetic",
+                "test_source": "real_occupancy_evaluation_split",
+                "channel_names": list(data.channel_names),
+                "standardization": "train_pool_only",
+                "gmm_model_selection": gmm_anchored.model_selection,
+            },
+            progress=reporter,
+        ).run()
+        (
+            gmm_completed,
+            gmm_report,
+            gmm_result_gz,
+            gmm_summary_path,
+        ) = _persist_simulation(
+            sim_registry,
+            gmm_record,
+            gmm_result,
+            report_fn=lambda d, f: (
+                generate_occupancy_gmm_to_real_monte_carlo_report(
+                    gmm_result, data.channel_names, d, filename=f
+                )
+            ),
+            model_metadata=dict(gmm_result.metadata),
+            sampler_metadata={
+                "type": "SyntheticTrainRealTestSampler",
+                "train_sampler": "GMMClassConditionalSampler",
+                "base_seed": config.base_seed,
+                "train_source": "gmm_synthetic",
+                "test_source": "real_occupancy_evaluation_split",
+                "fixed_test_description": (
+                    "standardized datatest.txt + datatest2.txt"
+                ),
+            },
+        )
+        reporter.scenario_step_finish(
+            "GMM \u2192 Real Monte Carlo (gmm_to_real arm)",
+            elapsed=time.time() - step,
+            detail=str(gmm_report),
+        )
+
         # -- scenario report ----------------------------------------------- #
         reporter.scenario_step_start("Generating scenario report")
         step = time.time()
@@ -459,10 +584,12 @@ def run_scenario(
         scenario_report = generate_occupancy_scenario_report(
             real_result,
             gaussian_result,
+            gmm_result,
             output_dir=scenario_dir,
             dataset_report=_relpath(dataset_report, scenario_dir),
             real_report=_relpath(real_report, scenario_dir),
             sg_real_report=_relpath(gaussian_report, scenario_dir),
+            gmm_real_report=_relpath(gmm_report, scenario_dir),
             filename=_scenario_report_filename(mode, sid),
             channel_names=data.channel_names,
             visualization=visualization,
@@ -498,6 +625,15 @@ def run_scenario(
                 "result_data_path": str(gaussian_result_gz),
                 "summary_data": gaussian_completed.summary_data,
             },
+            GMM2R_SLUG: {
+                "simulation_run_id": gmm_completed.simulation_run_id,
+                "simulation_family": GMM2R_FAMILY,
+                "run_dir": gmm_completed.run_dir,
+                "simulation_json_path": gmm_completed.simulation_json_path,
+                "report_path": str(gmm_report),
+                "result_data_path": str(gmm_result_gz),
+                "summary_data": gmm_completed.summary_data,
+            },
         }
         artifacts = {
             "scenario_report": str(scenario_report),
@@ -514,7 +650,11 @@ def run_scenario(
                 key: str(scenario_dir / fname) for key, fname in graphs.items()
             }
         report_data = scenario_report_data(
-            real_result, gaussian_result, data.channel_names
+            real_result,
+            gaussian_result,
+            gmm_result,
+            data.channel_names,
+            gmm_model_selection=gmm_anchored.model_selection,
         )
         if visualization:
             report_data["visualization"] = visualization
@@ -527,6 +667,7 @@ def run_scenario(
             simulation_run_ids=[
                 real_completed.simulation_run_id,
                 gaussian_completed.simulation_run_id,
+                gmm_completed.simulation_run_id,
             ],
             simulation_refs=simulation_refs,
             artifacts=artifacts,
@@ -539,13 +680,18 @@ def run_scenario(
             "dataset_report": dataset_report,
             "real_report": real_report,
             "single_gaussian_to_real_report": gaussian_report,
+            "gmm_to_real_report": gmm_report,
             "scenario_json": Path(scenario_run.scenario_json_path),
             "real_simulation_json": Path(real_completed.simulation_json_path),
             "single_gaussian_to_real_simulation_json": Path(
                 gaussian_completed.simulation_json_path
             ),
+            "gmm_to_real_simulation_json": Path(
+                gmm_completed.simulation_json_path
+            ),
             "real_result_data": real_result_gz,
             "single_gaussian_to_real_result_data": gaussian_result_gz,
+            "gmm_to_real_result_data": gmm_result_gz,
             "scenario_runs.json": scenario_registry.registry_path,
             "simulation_runs.json": sim_registry.registry_path,
         }
@@ -557,9 +703,11 @@ def run_scenario(
             "single_gaussian_to_real_simulation_run_id": (
                 gaussian_completed.simulation_run_id
             ),
+            "gmm_to_real_simulation_run_id": gmm_completed.simulation_run_id,
             "scenario_run_dir": str(scenario_dir),
             "real_run_dir": real_completed.run_dir,
             "single_gaussian_to_real_run_dir": gaussian_completed.run_dir,
+            "gmm_to_real_run_dir": gmm_completed.run_dir,
             "scenario_registry": str(scenario_registry.registry_path),
             "simulation_registry": str(sim_registry.registry_path),
             "runtime_seconds": runtime,
@@ -576,6 +724,10 @@ def run_scenario(
             current = sim_registry.get_run(gaussian_record.simulation_run_id)
             if current is not None and current.status == "running":
                 _fail_simulation(sim_registry, gaussian_record, error)
+        if gmm_record is not None:
+            current = sim_registry.get_run(gmm_record.simulation_run_id)
+            if current is not None and current.status == "running":
+                _fail_simulation(sim_registry, gmm_record, error)
         try:
             failed_scenario = scenario_registry.fail_run(sid, error=error)
             _write_json(scenario_run.scenario_json_path, failed_scenario.to_dict())
@@ -654,6 +806,21 @@ def regenerate_from_scenario_run(
         "Regenerated Single Gaussian → Real report", detail=str(gaussian_report)
     )
 
+    # GMM -> Real arm.
+    gmm_ref = refs[GMM2R_SLUG]
+    gmm_result = load_simulation_result(gmm_ref["result_data_path"])
+    gmm_dir = Path(gmm_ref["run_dir"])
+    gmm_report = generate_occupancy_gmm_to_real_monte_carlo_report(
+        gmm_result,
+        channel_names or gmm_result.metadata.get("channel_names", []),
+        gmm_dir,
+        filename=Path(gmm_ref["report_path"]).name,
+    )
+    regenerated["gmm_to_real_report"] = str(gmm_report)
+    reporter.scenario_step_finish(
+        "Regenerated GMM → Real report", detail=str(gmm_report)
+    )
+
     # Scenario report (dataset report and visualization panels reused as-is).
     dataset_report = record.artifacts.get("dataset_report", "")
     visualization = scenario_json.get("report_data", {}).get("visualization")
@@ -666,6 +833,7 @@ def regenerate_from_scenario_run(
     scenario_report = generate_occupancy_scenario_report(
         real_result,
         gaussian_result,
+        gmm_result,
         output_dir=scenario_dir,
         dataset_report=(
             _relpath(dataset_report, scenario_dir)
@@ -674,6 +842,7 @@ def regenerate_from_scenario_run(
         ),
         real_report=_relpath(real_report, scenario_dir),
         sg_real_report=_relpath(gaussian_report, scenario_dir),
+        gmm_real_report=_relpath(gmm_report, scenario_dir),
         filename=Path(
             record.artifacts.get(
                 "scenario_report",
