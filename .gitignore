@@ -73,7 +73,7 @@ docs/_build/
 docs/build/
 
 # Project-generated artifacts
-output/
+# output/
 
 # Local virtual environments
 .venv/

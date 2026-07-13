@@ -1,0 +1,195 @@
+{
+  "mode": "smoke",
+  "sample_sizes": [
+    2,
+    4,
+    8,
+    16,
+    32
+  ],
+  "number_of_subsets": 31,
+  "number_of_classifiers": 3,
+  "classifier_names": [
+    "linear_svm",
+    "logistic_regression",
+    "gaussian_nb"
+  ],
+  "subsets": [
+    [
+      0
+    ],
+    [
+      1
+    ],
+    [
+      2
+    ],
+    [
+      3
+    ],
+    [
+      4
+    ],
+    [
+      0,
+      1
+    ],
+    [
+      0,
+      2
+    ],
+    [
+      0,
+      3
+    ],
+    [
+      0,
+      4
+    ],
+    [
+      1,
+      2
+    ],
+    [
+      1,
+      3
+    ],
+    [
+      1,
+      4
+    ],
+    [
+      2,
+      3
+    ],
+    [
+      2,
+      4
+    ],
+    [
+      3,
+      4
+    ],
+    [
+      0,
+      1,
+      2
+    ],
+    [
+      0,
+      1,
+      3
+    ],
+    [
+      0,
+      1,
+      4
+    ],
+    [
+      0,
+      2,
+      3
+    ],
+    [
+      0,
+      2,
+      4
+    ],
+    [
+      0,
+      3,
+      4
+    ],
+    [
+      1,
+      2,
+      3
+    ],
+    [
+      1,
+      2,
+      4
+    ],
+    [
+      1,
+      3,
+      4
+    ],
+    [
+      2,
+      3,
+      4
+    ],
+    [
+      0,
+      1,
+      2,
+      3
+    ],
+    [
+      0,
+      1,
+      2,
+      4
+    ],
+    [
+      0,
+      1,
+      3,
+      4
+    ],
+    [
+      0,
+      2,
+      3,
+      4
+    ],
+    [
+      1,
+      2,
+      3,
+      4
+    ],
+    [
+      0,
+      1,
+      2,
+      3,
+      4
+    ]
+  ],
+  "fixed_test_size": 12417,
+  "runtime_seconds": 36.171961545944214,
+  "stopping_info": {
+    "2": {
+      "n_per_class": 2,
+      "replications": 40,
+      "reason": "max_budget",
+      "max_ci_half_width": 0.07977726081151142
+    },
+    "4": {
+      "n_per_class": 4,
+      "replications": 40,
+      "reason": "converged",
+      "max_ci_half_width": 0.04969468051838879
+    },
+    "8": {
+      "n_per_class": 8,
+      "replications": 35,
+      "reason": "converged",
+      "max_ci_half_width": 0.048955254432486155
+    },
+    "16": {
+      "n_per_class": 16,
+      "replications": 25,
+      "reason": "converged",
+      "max_ci_half_width": 0.047407101635690785
+    },
+    "32": {
+      "n_per_class": 32,
+      "replications": 20,
+      "reason": "converged",
+      "max_ci_half_width": 0.04752618675720001
+    }
+  }
+}
