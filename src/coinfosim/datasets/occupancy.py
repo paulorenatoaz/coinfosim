@@ -11,7 +11,8 @@ applied to both splits.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+import hashlib
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, Mapping, Tuple
 
@@ -64,6 +65,7 @@ class OccupancyData:
     standardization: StandardizationParameters
     channel_names: Tuple[str, ...] = OCCUPANCY_CHANNELS
     target_name: str = OCCUPANCY_TARGET
+    file_hashes: Mapping[str, str] = field(default_factory=dict)
 
     @property
     def class_labels(self) -> Tuple[int, ...]:
@@ -95,6 +97,26 @@ class OccupancyData:
     def train_correlation(self, standardized: bool = True) -> pd.DataFrame:
         frame = self.standardized_train if standardized else self.raw_train
         return frame.loc[:, self.channel_names].corr()
+
+
+def compute_file_hashes(
+    source_files: Mapping[str, Path],
+) -> Dict[str, str]:
+    """Return a dict mapping each filename to its SHA-256 hex digest.
+
+    Only files that exist are hashed; missing files map to the empty string.
+    """
+    hashes: Dict[str, str] = {}
+    for name, path in source_files.items():
+        if path.exists():
+            sha = hashlib.sha256()
+            with open(path, "rb") as fh:
+                for chunk in iter(lambda: fh.read(65536), b""):
+                    sha.update(chunk)
+            hashes[name] = sha.hexdigest()
+        else:
+            hashes[name] = ""
+    return hashes
 
 
 def load_occupancy_data(raw_dir: Path | str = "data/raw/occupancy") -> OccupancyData:
@@ -148,6 +170,8 @@ def load_occupancy_data(raw_dir: Path | str = "data/raw/occupancy") -> Occupancy
         standardized_test[OCCUPANCY_TARGET].to_numpy(dtype=int),
     )
 
+    file_hashes = compute_file_hashes(source_files)
+
     return OccupancyData(
         raw_dir=raw_dir,
         source_files=source_files,
@@ -159,6 +183,7 @@ def load_occupancy_data(raw_dir: Path | str = "data/raw/occupancy") -> Occupancy
         train_dataset=train_dataset,
         test_dataset=test_dataset,
         standardization=standardization,
+        file_hashes=file_hashes,
     )
 
 

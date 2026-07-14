@@ -373,7 +373,7 @@ def run_scenario(
                 real_record,
                 real_result,
                 report_fn=lambda d, f: generate_occupancy_real_monte_carlo_report(
-                    real_result, d, filename=f
+                    real_result, d, filename=f, nstar_selection_result=real_result
                 ),
                 model_metadata=dict(real_result.metadata),
                 sampler_metadata={
@@ -475,7 +475,11 @@ def run_scenario(
             gaussian_result,
             report_fn=lambda d, f: (
                 generate_occupancy_single_gaussian_to_real_monte_carlo_report(
-                    gaussian_result, data.channel_names, d, filename=f
+                    gaussian_result,
+                    data.channel_names,
+                    d,
+                    filename=f,
+                    nstar_selection_result=real_result,
                 )
             ),
             model_metadata=dict(gaussian_result.metadata),
@@ -550,7 +554,11 @@ def run_scenario(
             gmm_result,
             report_fn=lambda d, f: (
                 generate_occupancy_gmm_to_real_monte_carlo_report(
-                    gmm_result, data.channel_names, d, filename=f
+                    gmm_result,
+                    data.channel_names,
+                    d,
+                    filename=f,
+                    nstar_selection_result=real_result,
                 )
             ),
             model_metadata=dict(gmm_result.metadata),
@@ -784,7 +792,10 @@ def regenerate_from_scenario_run(
     real_result = load_simulation_result(real_ref["result_data_path"])
     real_dir = Path(real_ref["run_dir"])
     real_report = generate_occupancy_real_monte_carlo_report(
-        real_result, real_dir, filename=Path(real_ref["report_path"]).name
+        real_result,
+        real_dir,
+        filename=Path(real_ref["report_path"]).name,
+        nstar_selection_result=real_result,
     )
     regenerated["real_report"] = str(real_report)
     reporter.scenario_step_finish(
@@ -800,6 +811,7 @@ def regenerate_from_scenario_run(
         channel_names or gaussian_result.metadata.get("channel_names", []),
         gaussian_dir,
         filename=Path(gaussian_ref["report_path"]).name,
+        nstar_selection_result=real_result,
     )
     regenerated["single_gaussian_to_real_report"] = str(gaussian_report)
     reporter.scenario_step_finish(
@@ -815,6 +827,7 @@ def regenerate_from_scenario_run(
         channel_names or gmm_result.metadata.get("channel_names", []),
         gmm_dir,
         filename=Path(gmm_ref["report_path"]).name,
+        nstar_selection_result=real_result,
     )
     regenerated["gmm_to_real_report"] = str(gmm_report)
     reporter.scenario_step_finish(
@@ -932,6 +945,14 @@ def main() -> int:
         action="store_true",
         help="List tracked simulation runs and exit.",
     )
+    parser.add_argument(
+        "--dataset-report-only",
+        action="store_true",
+        help=(
+            "Generate (or regenerate) only the Occupancy dataset report "
+            "from the raw data files. No Monte Carlo simulation is run."
+        ),
+    )
     args = parser.parse_args()
 
     if args.list_scenario_runs:
@@ -945,6 +966,27 @@ def main() -> int:
         verbose=not args.quiet,
         no_color=args.no_color,
     )
+
+    if args.dataset_report_only:
+        try:
+            data = load_occupancy_data(args.raw_dir)
+            out_dir = Path(args.output_dir)
+            out_dir.mkdir(parents=True, exist_ok=True)
+            report = generate_occupancy_dataset_report(
+                data, out_dir, filename="occupancy_dataset_report.html"
+            )
+            reporter.info(f"Dataset report written: {report}")
+        except FileNotFoundError as exc:
+            reporter.error(
+                "Occupancy raw data not found. Expected files under "
+                f"{args.raw_dir!r} (datatraining.txt, datatest.txt, datatest2.txt)",
+                exc,
+            )
+            return 1
+        except Exception as exc:  # noqa: BLE001
+            reporter.error("Dataset report generation failed", exc)
+            return 1
+        return 0
 
     if args.report_from_scenario_run is not None:
         try:

@@ -80,12 +80,16 @@ def test_real_monte_carlo_report_generated(tmp_path):
     text = out.read_text(encoding="utf-8")
 
     assert out.name == "occupancy_real_monte_carlo_report.html"
-    assert "Occupancy Real-Data Monte Carlo Report" in text
-    assert "Real-data Monte Carlo" in text
+    assert "Real \u2192 Real" in text
+    assert "Real-data" in text or "Real \u2192 Real" in text
     assert "Loss curves" in text
-    assert "Final ranking at largest sample size" in text
-    assert "Interpolated N-star" in text
-    assert "Temperature+Humidity" in text
+    assert "Nested cardinality" in text
+    assert "1-channel + full reference" in text
+    assert "Subset ranking by sample size" in text
+    assert "Best 1-channel reference" in text
+    assert "<th>VS</th><th>N*</th><th>Interpolated N*</th><th>Winner</th>" in text
+    assert "N-star" in text
+    assert "Temperature" in text  # channel legend
     assert "data:image/png;base64," in text
     assert "Bayes error" not in text
     assert "theoretical loss" not in text.lower()
@@ -111,6 +115,7 @@ def test_gaussian_anchored_monte_carlo_report_generated(tmp_path):
     assert "Bayes error" not in text
     assert "theoretical loss" not in text.lower()
     assert "train loss" not in text.lower()
+    # The gaussian_anchored report uses the old generate_monte_carlo_report (legacy).
 
 
 def _single_gaussian_to_real_result():
@@ -160,13 +165,17 @@ def test_single_gaussian_to_real_monte_carlo_report_generated(tmp_path):
     assert out.name == (
         "occupancy_single_gaussian_to_real_monte_carlo_report.html"
     )
-    assert "Single Gaussian to Real Monte Carlo Report" in text
-    assert "Single Gaussian → Real Monte Carlo" in text
+    assert "Single Gaussian" in text
+    assert "Single Gaussian \u2192 Real" in text
     # Training source is the estimated Gaussian; evaluation is the real split.
     assert "Estimated Gaussian training parameters" in text
     assert "fixed real Occupancy evaluation split" in text
     assert "Loss curves" in text
-    assert "Final ranking at largest sample size" in text
+    assert "Nested cardinality" in text
+    assert "Subset ranking by sample size" in text
+    assert "Best 1-channel reference" in text
+    assert "N-star" in text
+    assert "Monte Carlo precision diagnostics" in text
 
 
 def _gmm_to_real_result():
@@ -212,13 +221,19 @@ def test_gmm_to_real_monte_carlo_report_generated(tmp_path):
     text = out.read_text(encoding="utf-8")
 
     assert out.name == "occupancy_gmm_to_real_monte_carlo_report.html"
-    assert "GMM to Real Monte Carlo Report" in text
-    assert "GMM → Real Monte Carlo" in text
+    assert "GMM" in text
+    assert "GMM \u2192 Real" in text
     # GMM training-model section with model-selection details is present.
     assert "Estimated GMM training model" in text
     assert "Model-selection configuration" in text
+    assert "Model-selection summary" in text
+    assert "Component 0" in text
     assert "Selected components" in text
     assert "Mixture weights" in text
     assert "fixed real Occupancy evaluation split" in text
     assert "Loss curves" in text
-    assert "Final ranking at largest sample size" in text
+    assert "Nested cardinality" in text
+    assert "Subset ranking by sample size" in text
+    assert "Best 1-channel reference" in text
+    assert "N-star" in text
+    assert "Monte Carlo precision diagnostics" in text
