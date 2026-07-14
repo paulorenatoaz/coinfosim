@@ -36,6 +36,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import tempfile
 import time
 from pathlib import Path
 from typing import Any, Callable, Dict, Optional
@@ -114,7 +115,18 @@ def _relpath(target: Path | str, start: Path | str) -> str:
 def _write_json(path: Path | str, payload: Dict[str, Any]) -> Path:
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    fd, tmp_name = tempfile.mkstemp(
+        dir=str(path.parent), prefix=path.name + ".", suffix=".tmp"
+    )
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as handle:
+            json.dump(payload, handle, indent=2, allow_nan=False)
+            handle.write("\n")
+        os.replace(tmp_name, path)
+    except BaseException:
+        if os.path.exists(tmp_name):
+            os.unlink(tmp_name)
+        raise
     return path
 
 
@@ -768,6 +780,7 @@ def regenerate_from_scenario_run(
         reporter = CooperativeProgressReporter(verbose=True)
 
     scenario_registry = ScenarioRunRegistry(base_output_dir=output_dir)
+    simulation_registry = SimulationRunRegistry(base_output_dir=output_dir)
     record = scenario_registry.get_run(scenario_run_id)
     if record is None:
         raise KeyError(
@@ -843,6 +856,7 @@ def regenerate_from_scenario_run(
         "mode": record.mode,
         "dataset": "Occupancy Detection",
     }
+    graphs: Dict[str, str] = {}
     scenario_report = generate_occupancy_scenario_report(
         real_result,
         gaussian_result,
@@ -866,11 +880,62 @@ def regenerate_from_scenario_run(
         visualization=visualization,
         scenario_meta=scenario_meta,
         graph_suffix=f"{record.mode}_{scenario_run_id:06d}",
+        graphs_out=graphs,
     )
     regenerated["scenario_report"] = str(scenario_report)
     reporter.scenario_step_finish(
         "Regenerated scenario report", detail=str(scenario_report)
     )
+
+    # Finalize all derived data before mutating standalone or registry JSON.
+    simulation_updates = [
+        (real_ref, real_result),
+        (gaussian_ref, gaussian_result),
+        (gmm_ref, gmm_result),
+    ]
+    prepared_simulation_data = [
+        (ref, simulation_report_data(result))
+        for ref, result in simulation_updates
+    ]
+    old_report_data = scenario_json.get("report_data", {})
+    old_gmm_selection = (
+        old_report_data.get("arms", {})
+        .get("gmm_to_real", {})
+        .get("gmm_model_selection")
+    )
+    prepared_scenario_data = scenario_report_data(
+        real_result,
+        gaussian_result,
+        gmm_result,
+        channel_names or real_result.metadata.get("channel_names", []),
+        gmm_model_selection=old_gmm_selection,
+    )
+    if visualization:
+        prepared_scenario_data["visualization"] = visualization
+    prepared_scenario_data["graphs"] = graphs
+    prepared_artifacts = dict(record.artifacts)
+    prepared_artifacts["scenario_report"] = str(scenario_report)
+    prepared_artifacts["graph_images"] = {
+        key: str(scenario_dir / filename) for key, filename in graphs.items()
+    }
+
+    for ref, result_data in prepared_simulation_data:
+        simulation_run_id = int(ref["simulation_run_id"])
+        updated = simulation_registry.update_run(
+            simulation_run_id, result_data=result_data
+        )
+        _write_json(ref["simulation_json_path"], updated.to_dict())
+    updated_scenario = scenario_registry.update_run(
+        scenario_run_id,
+        artifacts=prepared_artifacts,
+        report_data=prepared_scenario_data,
+    )
+    _write_json(record.scenario_json_path, updated_scenario.to_dict())
+
+    regenerated["scenario_json"] = str(record.scenario_json_path)
+    regenerated["simulation_jsons"] = [
+        str(ref["simulation_json_path"]) for ref, _ in simulation_updates
+    ]
     reporter.info("Regeneration complete (Monte Carlo was not rerun).")
     return regenerated
 

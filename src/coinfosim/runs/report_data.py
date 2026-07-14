@@ -16,7 +16,7 @@ The snapshots reuse the exact same analysis functions the HTML reports use
 from __future__ import annotations
 
 import math
-from typing import Any, Dict, List, Sequence
+from typing import Any, Dict, List, Mapping, Sequence
 
 import pandas as pd
 
@@ -25,6 +25,10 @@ from coinfosim.results.analysis import (
     standard_threshold_comparisons,
 )
 from coinfosim.results.summary import summary_dataframe
+from coinfosim.results.structural import (
+    scenario_structural_fidelity,
+    simulation_structural_dynamics,
+)
 from coinfosim.simulation.monte_carlo import SimulationResult
 
 
@@ -100,6 +104,7 @@ def simulation_report_data(result: SimulationResult) -> Dict[str, Any]:
         "summary_table": _records(summary_df),
         "best_subset_rankings": _records(rankings_df),
         "threshold_comparisons": _records(thresholds_df),
+        "structural_dynamics": _clean(simulation_structural_dynamics(result)),
     }
 
 
@@ -127,6 +132,16 @@ def scenario_report_data(
     }
     if gmm_model_selection is not None:
         gmm_arm["gmm_model_selection"] = _clean(gmm_model_selection)
+    arm_results = {
+        "real_to_real": real_result,
+        "single_gaussian_to_real": gaussian_result,
+        "gmm_to_real": gmm_result,
+    }
+    arm_labels = {
+        "real_to_real": "Real → Real",
+        "single_gaussian_to_real": "Single Gaussian → Real",
+        "gmm_to_real": "GMM → Real",
+    }
     return {
         "channel_names": [str(c) for c in channel_names],
         "sample_sizes": [int(n) for n in real_result.sample_sizes],
@@ -147,4 +162,19 @@ def scenario_report_data(
             },
             "gmm_to_real": gmm_arm,
         },
+        "structural_fidelity": generic_scenario_structural_report_data(
+            arm_results, "real_to_real", arm_labels
+        ),
     }
+
+
+def generic_scenario_structural_report_data(
+    arm_results: Mapping[str, SimulationResult],
+    reference_arm: str,
+    arm_labels: Mapping[str, str],
+) -> Dict[str, Any]:
+    """Return strict-JSON-safe structural data for an arbitrary arm mapping."""
+
+    return _clean(
+        scenario_structural_fidelity(arm_results, reference_arm, arm_labels)
+    )

@@ -149,14 +149,13 @@ def test_occupancy_scenario_report_academic_layout(tmp_path):
     assert "X₁" in text
     assert "Temperature" in text
 
-    # Data visualization is an interactive carousel referencing all nine images.
+    # Data visualization uses nested source/model and projection tabs.
     assert "4. Data visualization" in text
-    assert "4.1 Projection carousel" in text
-    assert "class='carousel'" in text
-    assert "data-arm='real'" in text
-    assert "data-arm='gmm'" in text
-    assert "data-dim='3d'" in text
-    assert "viz-toggle" in text
+    assert "4.1 Projection panels" in text
+    assert "data-group='scenario-visualization-source'" in text
+    assert "data-group='scenario-visualization-real-projection'" in text
+    assert "viz-toggle" not in text
+    assert "<select" not in text.lower()
     for name in visualization["images"].values():
         assert name in text
 
@@ -165,6 +164,7 @@ def test_occupancy_scenario_report_academic_layout(tmp_path):
     assert "graph_best_comparison_real" in graphs
     assert "graph_best_comparison_sgr" in graphs
     assert "graph_best_comparison_gmm" in graphs
+    assert "data-group='scenario-best-comparison-arm'" in text
 
     # Top-ranked subsets grouped classifier-first, then arm; each has a graph.
     assert "6. Top-ranked subsets" in text
@@ -179,9 +179,24 @@ def test_occupancy_scenario_report_academic_layout(tmp_path):
     assert any(
         k.startswith("graph_topranked_") and k.endswith("_gmm") for k in graphs
     )
+    assert "data-group='scenario-top-ranked-classifier'" in text
+    assert "data-group='scenario-top-ranked-linear_svm-arm'" in text
+
+    # Structural fidelity is additive and keeps both metrics separate.
+    assert "7. Structural fidelity metrics" in text
+    assert "Ranking Structural Fidelity" in text
+    assert "Winner Agreement" in text
+    assert "Progressive N-star Similarity" in text
+    assert "no composite index is reported" in text
+    assert any(k.startswith("graph_structural_metric_") for k in graphs)
+    assert any(k.startswith("graph_structural_winner_") for k in graphs)
+    assert any(k.startswith("graph_structural_nstar_") for k in graphs)
+    assert "unavailable_first_prefix" in text
+    assert "no_crossings_in_either" in text
+    assert "no_shared_crossings" in text
 
     # N-star availability: columns, dash rule, and one graph per table.
-    assert "7. N-star availability" in text
+    assert "8. N-star availability" in text
     assert "<th>VS</th><th>N*</th><th>Interpolated N*</th><th>Winner</th>" in text
     assert "N_before" not in text
     assert "threshold_status" not in text
@@ -189,9 +204,12 @@ def test_occupancy_scenario_report_academic_layout(tmp_path):
     assert "A dash indicates that no crossing was detected" in text
     assert "&mdash;" in text  # no-crossing cases render a dash
     assert any(k.startswith("graph_nstar_") for k in graphs)
+    assert "data-group='scenario-nstar-classifier'" in text
+    assert "data-group='scenario-nstar-linear_svm-cardinality'" in text
+    assert "data-group='scenario-nstar-linear_svm-k1-arm'" in text
 
-    # Interpretation notes renumbered to section 8.
-    assert "8. Interpretation notes" in text
+    # Interpretation notes renumbered to section 9.
+    assert "9. Interpretation notes" in text
 
     # Subset set-notation used in tables.
     assert "{X" in text
@@ -212,7 +230,8 @@ def test_occupancy_scenario_report_without_visualization(tmp_path):
     )
     text = out.read_text(encoding="utf-8")
     assert "Visualization panels were not generated" in text
-    assert "7. N-star availability" in text
+    assert "7. Structural fidelity metrics" in text
+    assert "8. N-star availability" in text
     assert "1. Scientific question" in text
     assert "GMM → Real" in text
 

@@ -13,13 +13,24 @@ in explicit "reference subset" annotations, never as primary table/plot labels.
 from __future__ import annotations
 
 import html
-import json
 from pathlib import Path
-from typing import Dict, List, Optional, Sequence, Tuple
+from typing import Dict, List, Mapping, Optional, Sequence, Tuple
 
 from coinfosim.classifiers.registry import classifier_label
+from coinfosim.reports.html_tabs import TAB_CSS, TAB_JS, tab_group
 from coinfosim.reports.scenario_visualization import save_loss_vs_n
+from coinfosim.reports.structural_visualization import (
+    metric_series_figure,
+    progressive_nstar_matrix_figure,
+    save_figure,
+    winner_matrix_figure,
+)
 from coinfosim.results.analysis import cooperative_threshold_interpolated
+from coinfosim.results.structural import (
+    progressive_directed_nstar,
+    scenario_structural_fidelity,
+    winner_matrix,
+)
 from coinfosim.simulation.monte_carlo import SimulationResult
 
 Subset = Tuple[int, ...]
@@ -154,6 +165,299 @@ def _fmt_num(value: Optional[float], fmt: str) -> str:
     if value is None or not _finite(float(value)):
         return "&mdash;"
     return f"{float(value):{fmt}}"
+
+
+def _emit_structural_graph(
+    fig,
+    output_dir: Path,
+    graph_suffix: str,
+    graphs_out: Optional[Dict],
+    key: str,
+    enabled: bool,
+) -> str:
+    if not enabled:
+        return ""
+    filename = f"{key}_{graph_suffix}.png" if graph_suffix else f"{key}.png"
+    save_figure(fig, output_dir, filename)
+    if graphs_out is not None:
+        graphs_out[key] = filename
+    return (
+        f"<figure class='graph'><img src='{html.escape(filename, quote=True)}' "
+        f"alt='{html.escape(key, quote=True)}'/></figure>"
+    )
+
+
+# --------------------------------------------------------------------------- #
+# Structural fidelity and N-star availability
+# --------------------------------------------------------------------------- #
+def _structural_fidelity_section(
+    arm_results: Mapping[str, SimulationResult],
+    reference_arm: str,
+    arm_labels: Mapping[str, str],
+    output_dir: Path,
+    graph_suffix: str,
+    graphs_out: Optional[Dict],
+    generate_graphs: bool,
+) -> str:
+    structural = scenario_structural_fidelity(
+        arm_results, reference_arm, arm_labels
+    )
+    sample_sizes = [int(n) for n in structural["sample_sizes"]]
+    n_max = sample_sizes[-1]
+    ranking = structural["ranking_fidelity_series"]
+    agreements = structural["winner_agreement_series"]
+    nstar_similarities = structural["nstar_similarity_series"]
+    summaries = [
+        row for row in structural["final_summary"] if row["arm"] != reference_arm
+    ]
+    rows = [
+        [
+            html.escape(classifier_label(str(row["classifier"]))),
+            html.escape(arm_labels[str(row["arm"])]),
+            _fmt_num(row["rho_rank"], ".4f"),
+            html.escape(str(row["ranking_status"])),
+            _fmt_num(row["winner_agreement"], ".4f"),
+            str(row["n_pairs_valid"]),
+            str(row["n_pairs_skipped_tie"]),
+            html.escape(str(row["winner_status"])),
+            _fmt_num(row["nstar_similarity"], ".4f"),
+            str(row["n_reference_crossings"]),
+            str(row["n_arm_crossings"]),
+            str(row["n_shared_crossings"]),
+            _fmt_num(row["crossing_jaccard"], ".4f"),
+            _fmt_num(row["timing_similarity"], ".4f"),
+            html.escape(str(row["nstar_status"])),
+        ]
+        for row in summaries
+    ]
+
+    classifiers = list(arm_results[reference_arm].classifier_names)
+    metric_classifier_tabs = []
+    for classifier in classifiers:
+        metric_tabs = []
+        for metric, label in (
+            ("rho_rank", "Ranking fidelity"),
+            ("winner_agreement", "Winner agreement"),
+            ("nstar_similarity", "Progressive N-star similarity"),
+        ):
+            source_rows = {
+                "rho_rank": ranking,
+                "winner_agreement": agreements,
+                "nstar_similarity": nstar_similarities,
+            }[metric]
+            metric_rows = [
+                row
+                for row in source_rows
+                if row["classifier"] == classifier and row["arm"] != reference_arm
+            ]
+            key = f"graph_structural_metric_{classifier}_{metric}"
+            figure_html = ""
+            if generate_graphs:
+                fig = metric_series_figure(
+                    metric_rows,
+                    metric,
+                    arm_labels,
+                    f"{classifier_label(classifier)} — {label}",
+                )
+                figure_html = _emit_structural_graph(
+                    fig,
+                    output_dir,
+                    graph_suffix,
+                    graphs_out,
+                    key,
+                    True,
+                )
+            metric_tabs.append((metric, label, figure_html))
+        metric_classifier_tabs.append(
+            (
+                classifier,
+                classifier_label(classifier),
+                tab_group(
+                    f"scenario-structural-metrics-{classifier}",
+                    metric_tabs,
+                    "rho_rank",
+                ),
+            )
+        )
+    default_classifier = (
+        "linear_svm" if "linear_svm" in classifiers else classifiers[0]
+    )
+
+    display_by_classifier = structural["reference_display_subsets_by_classifier"]
+    winner_classifier_tabs = []
+    nstar_classifier_tabs = []
+    for classifier in classifiers:
+        display_subsets = [
+            tuple(subset) for subset in display_by_classifier[classifier]
+        ]
+        subset_labels = [_subset_notation(subset) for subset in display_subsets]
+        arm_tabs = []
+        for arm, result in arm_results.items():
+            n_tabs = []
+            for n in sample_sizes:
+                key = f"graph_structural_winner_{classifier}_{arm}_n{n}"
+                figure_html = ""
+                if generate_graphs:
+                    matrix = winner_matrix(
+                        result, classifier, n, subsets=display_subsets
+                    )
+                    fig = winner_matrix_figure(
+                        matrix,
+                        subset_labels,
+                        f"{classifier_label(classifier)} — {arm_labels[arm]} — N={n}",
+                    )
+                    figure_html = _emit_structural_graph(
+                        fig,
+                        output_dir,
+                        graph_suffix,
+                        graphs_out,
+                        key,
+                        True,
+                    )
+                n_tabs.append((str(n), f"N = {n}", figure_html))
+            arm_tabs.append(
+                (
+                    arm,
+                    arm_labels[arm],
+                    tab_group(
+                        f"scenario-structural-winner-{classifier}-{arm}-n",
+                        n_tabs,
+                        str(sample_sizes[0]),
+                    ),
+                )
+            )
+        selection_text = ", ".join(subset_labels)
+        winner_classifier_tabs.append(
+            (
+                classifier,
+                classifier_label(classifier),
+                "<p class='refsubset'>Fixed Real → Real display subsets selected "
+                f"at Nmax: {html.escape(selection_text)}</p>"
+                + tab_group(
+                    f"scenario-structural-winner-{classifier}-arm",
+                    arm_tabs,
+                    reference_arm,
+                ),
+            )
+        )
+
+        nstar_arm_tabs = []
+        for arm, result in arm_results.items():
+            progressive = progressive_directed_nstar(
+                result, classifier, display_subsets
+            )
+            prefix_tabs = []
+            for item in progressive:
+                n_prefix = int(item["n_prefix"])
+                key = (
+                    f"graph_structural_nstar_{classifier}_{arm}_prefix{n_prefix}"
+                )
+                figure_html = ""
+                if generate_graphs:
+                    fig = progressive_nstar_matrix_figure(
+                        item["matrix"],
+                        subset_labels,
+                        f"{classifier_label(classifier)} — {arm_labels[arm]} "
+                        f"— prefix N={n_prefix}",
+                    )
+                    figure_html = _emit_structural_graph(
+                        fig,
+                        output_dir,
+                        graph_suffix,
+                        graphs_out,
+                        key,
+                        True,
+                    )
+                prefix_tabs.append(
+                    (str(n_prefix), f"Prefix N = {n_prefix}", figure_html)
+                )
+            nstar_arm_tabs.append(
+                (
+                    arm,
+                    arm_labels[arm],
+                    tab_group(
+                        f"scenario-structural-nstar-{classifier}-{arm}-prefix",
+                        prefix_tabs,
+                        str(sample_sizes[1]),
+                    ),
+                )
+            )
+        nstar_classifier_tabs.append(
+            (
+                classifier,
+                classifier_label(classifier),
+                "<p class='refsubset'>The same fixed Real → Real display "
+                f"subsets are used: {html.escape(selection_text)}</p>"
+                + tab_group(
+                    f"scenario-structural-nstar-{classifier}-arm",
+                    nstar_arm_tabs,
+                    reference_arm,
+                ),
+            )
+        )
+
+    return (
+        "<h2>7. Structural fidelity metrics</h2>"
+        "<p>Ranking Structural Fidelity compares complete all-subset loss "
+        "rankings using Spearman correlation with average-rank tie handling. "
+        "Winner Agreement compares exact pairwise winners after excluding pairs "
+        "tied in either arm. Progressive N-star Similarity compares directed "
+        "crossing-cell sets and their latest observed-grid timing through the "
+        "current sample-size prefix. These metrics remain separate; no composite "
+        "index is reported.</p>"
+        "<p class='muted'><code>constant_ranking</code> means a non-reference "
+        "ranking has no variation; <code>no_valid_pairs</code> means every "
+        "unordered pair was tied in at least one arm; "
+        "<code>unavailable_first_prefix</code> marks N1; "
+        "<code>no_crossings_in_either</code> and "
+        "<code>no_shared_crossings</code> distinguish empty crossing cases; "
+        "<code>ok</code> means the corresponding metric is available.</p>"
+        f"<h3>7.1 Summary at N = {n_max}</h3>"
+        + _table(
+            [
+                "Classifier",
+                "Comparison arm",
+                "rho_rank(Nmax)",
+                "Ranking status",
+                "A_W(Nmax)",
+                "Valid winner pairs",
+                "Skipped tie pairs",
+                "Winner status",
+                "S_N*(<=Nmax)",
+                "Reference crossings",
+                "Arm crossings",
+                "Shared crossings",
+                "Crossing Jaccard",
+                "Timing similarity",
+                "N-star status",
+            ],
+            rows,
+        )
+        + "<h3>7.2 Metric curves</h3>"
+        + tab_group(
+            "scenario-structural-metric-classifier",
+            metric_classifier_tabs,
+            default_classifier,
+        )
+        + "<h3>7.3 Directed winner matrices</h3>"
+        "<p>Matrix values are +1 when the row subset has lower loss, -1 when "
+        "it has higher loss, 0 for an exact tie, and unavailable on the diagonal. "
+        "The fixed display reduction does not affect either numerical metric.</p>"
+        + tab_group(
+            "scenario-structural-winner-classifier",
+            winner_classifier_tabs,
+            default_classifier,
+        )
+        + "<h3>7.4 Progressive directed N-star matrices</h3>"
+        "<p>Each directed cell shows the latest observed-grid crossing in that "
+        "direction through the selected prefix. Missing cells are unavailable, "
+        "not zero, and prefix tabs begin at N2.</p>"
+        + tab_group(
+            "scenario-structural-nstar-classifier",
+            nstar_classifier_tabs,
+            default_classifier,
+        )
+    )
 
 
 # --------------------------------------------------------------------------- #
@@ -326,7 +630,7 @@ def _nstar_section(
     generate_graphs: bool = True,
 ) -> str:
     d = len(channel_names)
-    parts: List[str] = ["<h2>7. N-star availability</h2>"]
+    parts: List[str] = ["<h2>8. N-star availability</h2>"]
     parts.append(
         "<p>For each classifier and channel-subset cardinality, the best "
         "subset at the largest evaluated sample size is used as a reference "
@@ -347,20 +651,14 @@ def _nstar_section(
         "Dashed vertical lines on the graphs mark the reported interpolated N* "
         "values.</p>"
     )
-    sub = 1
-    for clf in real_result.classifier_names:
-        parts.append(f"<h3>7.{sub} {html.escape(classifier_label(clf))}</h3>")
-        sub += 1
+    classifier_tabs = []
+    for sub, clf in enumerate(real_result.classifier_names, start=1):
+        cardinality_tabs = []
         for k in range(1, d + 1):
             reference, competitors = _competitor_plan(real_result, clf, n, k, d)
             if reference is None:
                 continue
-            parts.append(f"<h4>Best {k}-channel subset</h4>")
-            parts.append(
-                "<p class='refsubset'>Reference subset: "
-                f"{html.escape(_subset_notation(reference))} = "
-                f"{html.escape(_subset_sensors(reference, channel_names))}</p>"
-            )
+            arm_tabs = []
             for arm_key, arm_name, arm_result in (
                 ("real", "Real → Real", real_result),
                 ("sgr", "Single Gaussian → Real", gaussian_result),
@@ -369,9 +667,12 @@ def _nstar_section(
                 analysis = _nstar_analysis(
                     arm_result, clf, reference, competitors, n
                 )
-                parts.append(f"<h5>{arm_name}</h5>")
-                parts.append(
-                    _table(
+                panel = (
+                    "<p class='refsubset'>Reference subset: "
+                    f"{html.escape(_subset_notation(reference))} = "
+                    f"{html.escape(_subset_sensors(reference, channel_names))}</p>"
+                    f"<h5>{html.escape(arm_name)}</h5>"
+                    + _table(
                         ["VS", "N*", "Interpolated N*", "Winner"],
                         _nstar_rows(analysis),
                     )
@@ -390,7 +691,7 @@ def _nstar_section(
                     f"{_subset_notation(reference)} — {arm_name} (loss vs N)"
                 )
                 key = f"graph_nstar_{clf}_k{k}_{arm_key}"
-                parts.append(
+                panel += (
                     _emit_graph(
                         output_dir,
                         graph_suffix,
@@ -404,6 +705,39 @@ def _nstar_section(
                         nstar_style=True,
                     )
                 )
+                arm_tabs.append((arm_key, arm_name, panel))
+            cardinality_tabs.append(
+                (
+                    f"k{k}",
+                    f"Best {k}-channel reference",
+                    f"<h4>Best {k}-channel subset</h4>"
+                    + tab_group(
+                        f"scenario-nstar-{clf}-k{k}-arm", arm_tabs, "real"
+                    ),
+                )
+            )
+        if cardinality_tabs:
+            classifier_tabs.append(
+                (
+                    clf,
+                    classifier_label(clf),
+                    f"<h3>8.{sub} {html.escape(classifier_label(clf))}</h3>"
+                    + tab_group(
+                        f"scenario-nstar-{clf}-cardinality",
+                        cardinality_tabs,
+                        cardinality_tabs[0][0],
+                    ),
+                )
+            )
+    if classifier_tabs:
+        default_clf = (
+            "linear_svm"
+            if any(key == "linear_svm" for key, _, _ in classifier_tabs)
+            else classifier_tabs[0][0]
+        )
+        parts.append(
+            tab_group("scenario-nstar-classifier", classifier_tabs, default_clf)
+        )
     return "".join(parts)
 
 
@@ -524,18 +858,6 @@ def _carousel_html(visualization: Optional[Dict]) -> str:
         if v is not None
     )
 
-    order = [
-        ("real", "1d"),
-        ("gaussian", "1d"),
-        ("gmm", "1d"),
-        ("real", "2d"),
-        ("gaussian", "2d"),
-        ("gmm", "2d"),
-        ("real", "3d"),
-        ("gaussian", "3d"),
-        ("gmm", "3d"),
-    ]
-
     def _caption(arm: str, dim: str) -> str:
         who = {
             "real": "Real training sample",
@@ -544,82 +866,43 @@ def _carousel_html(visualization: Optional[Dict]) -> str:
         }.get(arm, arm)
         return f"{who} — {dim.upper()} projections"
 
-    data = {}
-    for arm, dim in order:
-        key = f"viz_{dim}_{arm}"
-        data[f"{arm}_{dim}"] = {
-            "src": images.get(key, ""),
-            "caption": _caption(arm, dim),
-        }
-    order_keys = [f"{a}_{d}" for a, d in order]
-    first = data[order_keys[0]]
-
-    controls = (
-        "<div class='carousel-controls'>"
-        "<div class='ctrl-group'>"
-        "<button type='button' data-arm='real' class='active'>Real data</button>"
-        "<button type='button' data-arm='gaussian'>Single Gaussian</button>"
-        "<button type='button' data-arm='gmm'>GMM</button>"
-        "</div>"
-        "<div class='ctrl-group'>"
-        "<button type='button' data-dim='1d' class='active'>1D</button>"
-        "<button type='button' data-dim='2d'>2D</button>"
-        "<button type='button' data-dim='3d'>3D</button>"
-        "</div>"
-        "<button type='button' id='viz-toggle' class='toggle'>Pause</button>"
-        "</div>"
-    )
-    stage = (
-        "<figure class='carousel-stage'>"
-        f"<img id='viz-img' src='{html.escape(first['src'])}' "
-        "alt='data visualization'/>"
-        f"<figcaption id='viz-caption'>{html.escape(first['caption'])}</figcaption>"
-        "</figure>"
-    )
-    # Static JS (no framework); safe in a locally-opened static HTML file.
-    script = (
-        "<script>(function(){"
-        "var DATA=" + json.dumps(data) + ";"
-        "var ORDER=" + json.dumps(order_keys) + ";"
-        "var idx=0,timer=null,playing=false;"
-        "var img=document.getElementById('viz-img');"
-        "var cap=document.getElementById('viz-caption');"
-        "var toggle=document.getElementById('viz-toggle');"
-        "function render(){var k=ORDER[idx];var it=DATA[k];if(!it){return;}"
-        "if(it.src){img.setAttribute('src',it.src);}cap.textContent=it.caption;"
-        "var p=k.split('_');"
-        "document.querySelectorAll('[data-arm]').forEach(function(b){"
-        "b.classList.toggle('active',b.getAttribute('data-arm')===p[0]);});"
-        "document.querySelectorAll('[data-dim]').forEach(function(b){"
-        "b.classList.toggle('active',b.getAttribute('data-dim')===p[1]);});}"
-        "function setState(arm,dim){var i=ORDER.indexOf(arm+'_'+dim);"
-        "if(i>-1){idx=i;}render();}"
-        "function next(){idx=(idx+1)%ORDER.length;render();}"
-        "document.querySelectorAll('[data-arm]').forEach(function(b){"
-        "b.addEventListener('click',function(){var c=ORDER[idx].split('_');"
-        "setState(b.getAttribute('data-arm'),c[1]);});});"
-        "document.querySelectorAll('[data-dim]').forEach(function(b){"
-        "b.addEventListener('click',function(){var c=ORDER[idx].split('_');"
-        "setState(c[0],b.getAttribute('data-dim'));});});"
-        "function start(){timer=setInterval(next,3000);playing=true;"
-        "toggle.textContent='Pause';}"
-        "function stop(){if(timer){clearInterval(timer);}playing=false;"
-        "toggle.textContent='Play';}"
-        "toggle.addEventListener('click',function(){"
-        "if(playing){stop();}else{start();}});"
-        "render();start();"
-        "})();</script>"
-    )
+    source_tabs = []
+    for arm, arm_label in (
+        ("real", "Real data"),
+        ("gaussian", "Single Gaussian"),
+        ("gmm", "GMM"),
+    ):
+        projection_tabs = []
+        for dim in ("1d", "2d", "3d"):
+            caption = _caption(arm, dim)
+            src = images.get(f"viz_{dim}_{arm}", "")
+            projection_tabs.append(
+                (
+                    dim,
+                    dim.upper(),
+                    "<figure class='carousel-stage'>"
+                    f"<img src='{html.escape(src, quote=True)}' "
+                    f"alt='{html.escape(caption, quote=True)}'/>"
+                    f"<figcaption>{html.escape(caption)}</figcaption></figure>",
+                )
+            )
+        source_tabs.append(
+            (
+                arm,
+                arm_label,
+                tab_group(
+                    f"scenario-visualization-{arm}-projection",
+                    projection_tabs,
+                    "1d",
+                ),
+            )
+        )
 
     return (
         "<h2>4. Data visualization</h2>"
         f"<table class='meta'>{meta_html}</table>"
-        "<h3>4.1 Projection carousel</h3>"
-        "<div class='carousel' id='viz-carousel'>"
-        + controls
-        + stage
-        + "</div>"
-        + script
+        "<h3>4.1 Projection panels</h3>"
+        + tab_group("scenario-visualization-source", source_tabs, "real")
     )
 
 
@@ -668,7 +951,7 @@ def _best_comparison_html(
         rows,
     )
 
-    graphs: List[str] = []
+    graph_tabs = []
     for arm_key, arm_name, arm_result in (
         ("real", "Real → Real", real_result),
         ("sgr", "Single Gaussian → Real", gaussian_result),
@@ -692,9 +975,12 @@ def _best_comparison_html(
                 }
             )
         title = f"{arm_name} arm — best subset per classifier (loss vs N)"
-        graphs.append(f"<h4>{arm_name} arm</h4>")
-        graphs.append(
-            _emit_graph(
+        graph_tabs.append(
+            (
+                arm_key,
+                arm_name,
+                f"<h4>{html.escape(arm_name)} arm</h4>"
+                + _emit_graph(
                 output_dir,
                 graph_suffix,
                 graphs_out,
@@ -703,6 +989,7 @@ def _best_comparison_html(
                 series,
                 title,
                 enabled=generate_graphs,
+                ),
             )
         )
 
@@ -711,7 +998,7 @@ def _best_comparison_html(
         f"<p>Largest evaluated sample size: <b>N = {n} samples per class</b>.</p>"
         f"{table}"
         "<h3>5.1 Loss vs N for the best subsets</h3>"
-        + "".join(graphs)
+        + tab_group("scenario-best-comparison-arm", graph_tabs, "real")
     )
 
 
@@ -731,8 +1018,9 @@ def _top_ranked_html(
         f"<p>Subsets are ranked by empirical test loss at the largest evaluated "
         f"N = {n} samples per class.</p>",
     ]
+    classifier_tabs = []
     for i, clf in enumerate(real_result.classifier_names, start=1):
-        parts.append(f"<h3>6.{i} {html.escape(classifier_label(clf))}</h3>")
+        arm_tabs = []
         for arm_key, arm_name, arm_result in (
             ("real", "Real → Real", real_result),
             ("sgr", "Single Gaussian → Real", gaussian_result),
@@ -748,15 +1036,17 @@ def _top_ranked_html(
                 ]
                 for rank, (subset, loss, se) in enumerate(ranked, start=1)
             ]
-            parts.append(f"<h4>{arm_name}</h4>")
-            parts.append(_table(["Rank", "Subset", "Loss", "SE"], rows))
+            panel = (
+                f"<h4>{html.escape(arm_name)}</h4>"
+                + _table(["Rank", "Subset", "Loss", "SE"], rows)
+            )
             subsets = [subset for subset, _, _ in ranked]
             series = _series(arm_result, clf, subsets)
             title = (
                 f"{classifier_label(clf)} — {arm_name}: "
                 f"top-{len(subsets)} subsets (loss vs N)"
             )
-            parts.append(
+            panel += (
                 _emit_graph(
                     output_dir,
                     graph_suffix,
@@ -768,12 +1058,38 @@ def _top_ranked_html(
                     enabled=generate_graphs,
                 )
             )
+            arm_tabs.append((arm_key, arm_name, panel))
+        classifier_tabs.append(
+            (
+                clf,
+                classifier_label(clf),
+                f"<h3>6.{i} {html.escape(classifier_label(clf))}</h3>"
+                + tab_group(
+                    f"scenario-top-ranked-{clf}-arm", arm_tabs, "real"
+                ),
+            )
+        )
+    if classifier_tabs:
+        default_clf = (
+            "linear_svm"
+            if any(key == "linear_svm" for key, _, _ in classifier_tabs)
+            else classifier_tabs[0][0]
+        )
+        parts.append(
+            tab_group(
+                "scenario-top-ranked-classifier", classifier_tabs, default_clf
+            )
+        )
     return "".join(parts)
 
 
 def _interpretation_html() -> str:
     return (
-        "<h2>8. Interpretation notes</h2>"
+        "<h2>9. Interpretation notes</h2>"
+        "<h3>Structural fidelity metrics</h3>"
+        "<p>Ranking fidelity, pairwise winner agreement, and progressive "
+        "N-star similarity describe distinct aspects of preservation and should "
+        "be interpreted separately alongside their availability statuses.</p>"
         "<h3>Agreement among the three arms</h3>"
         "<p>Where the Real → Real, Single Gaussian → Real and GMM → Real arms "
         "select the same best subsets and show similar cooperative thresholds "
@@ -835,17 +1151,6 @@ figure.viz img { max-width:100%; height:auto; border:1px solid var(--line);
 figure.graph { margin: .5rem 0 1.4rem; text-align:center; }
 figure.graph img { max-width:100%; height:auto; border:1px solid var(--line);
              border-radius:4px; }
-.carousel { border:1px solid var(--line); border-radius:8px; padding:1rem;
-            margin:.5rem 0 1.6rem; }
-.carousel-controls { display:flex; flex-wrap:wrap; gap:.5rem 1.1rem;
-            align-items:center; margin-bottom:.9rem;
-            font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; }
-.carousel-controls .ctrl-group { display:flex; gap:.3rem; }
-.carousel button { border:1px solid var(--accent); background:#fff;
-            color:var(--accent); border-radius:4px; padding:.25rem .75rem;
-            cursor:pointer; font-size:.82rem; }
-.carousel button.active { background:var(--accent); color:#fff; }
-.carousel button.toggle { border-color:var(--muted); color:var(--muted); }
 .carousel-stage { margin:0; text-align:center; }
 .carousel-stage img { max-width:100%; height:auto; border:1px solid var(--line);
             border-radius:4px; }
@@ -899,6 +1204,17 @@ def generate_occupancy_scenario_report(
     if graphs_out is None:
         graphs_out = {}
 
+    arm_results = {
+        "real_to_real": real_result,
+        "single_gaussian_to_real": gaussian_result,
+        "gmm_to_real": gmm_result,
+    }
+    arm_labels = {
+        "real_to_real": "Real → Real",
+        "single_gaussian_to_real": "Single Gaussian → Real",
+        "gmm_to_real": "GMM → Real",
+    }
+
     channel_names = tuple(
         channel_names
         or real_result.metadata.get("channel_names", [])
@@ -927,7 +1243,7 @@ def generate_occupancy_scenario_report(
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>CoInfoSim — Occupancy Detection Baseline Scenario</title>
-<style>{_STYLE}</style>
+<style>{_STYLE}{TAB_CSS}</style>
 </head>
 <body>
 
@@ -950,10 +1266,13 @@ def generate_occupancy_scenario_report(
 
 {_top_ranked_html(real_result, gaussian_result, gmm_result, n_max, output_dir, graph_suffix, graphs_out, generate_graphs=generate_graphs)}
 
+{_structural_fidelity_section(arm_results, "real_to_real", arm_labels, output_dir, graph_suffix, graphs_out, generate_graphs)}
+
 {_nstar_section(real_result, gaussian_result, gmm_result, channel_names, n_max, output_dir, graph_suffix, graphs_out, generate_graphs)}
 
 {_interpretation_html()}
 
+{TAB_JS}
 </body>
 </html>"""
 

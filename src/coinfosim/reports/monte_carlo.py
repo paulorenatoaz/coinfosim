@@ -16,6 +16,16 @@ import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
 
 from coinfosim.classifiers.registry import classifier_label
+from coinfosim.reports.html_tabs import (
+    TAB_CSS as _TAB_CSS,
+    TAB_JS as _TAB_JS,
+    tab_group as _tab_group,
+)
+from coinfosim.reports.structural_visualization import (
+    figure_to_data_uri,
+    progressive_nstar_matrix_figure,
+    winner_matrix_figure,
+)
 from coinfosim.reports.report_tables import (
     compact_precision_diagnostics,
     full_loss_table,
@@ -27,6 +37,11 @@ from coinfosim.results.analysis import (
     standard_threshold_comparisons,
 )
 from coinfosim.results.summary import summary_dataframe
+from coinfosim.results.structural import (
+    progressive_directed_nstar,
+    select_display_subsets_by_cardinality,
+    winner_matrix,
+)
 from coinfosim.simulation.monte_carlo import SimulationResult
 
 
@@ -597,18 +612,6 @@ _STRUCTURED_CSS = """
     margin: 0 0 1.2rem 0; box-shadow: 0 2px 6px rgba(0,0,0,.10); }
   .channel-legend .leg-item { margin-right: 1.2rem; white-space: nowrap; }
 
-  /* Static tab selectors (buttons switch panels; no external JS libs). */
-  .tab-bar { display: flex; flex-wrap: wrap; gap: .3rem; margin: .7rem 0 0 0;
-             border-bottom: 2px solid #ddd; }
-  .tab-btn { border: 1px solid #c9d4e0; background: #eef2f7; color: #234;
-    padding: .35rem .95rem; border-radius: 6px 6px 0 0; cursor: pointer;
-    font-size: .9rem; }
-  .tab-btn:hover { background: #dde7f1; }
-  .tab-btn.active { background: #1f77b4; color: #fff; border-color: #1f77b4;
-                    font-weight: 600; }
-  .tab-panel { padding: .5rem 0; }
-  .selector-caption { color: #555; font-size: .9rem; margin: .35rem 0 .7rem; }
-
   /* Yellow reference highlight for the full-subset row / baseline. */
   tr.ref-row td { background: #fff2b8; font-weight: 600; }
   .ref-note { color: #8a6d00; font-size: .85rem; }
@@ -643,51 +646,6 @@ def _sticky_legend_html(channel_names: Sequence[str]) -> str:
         "<div class='channel-legend' id='sticky-legend'>"
         "<strong>Channels:</strong> " + items + "</div>"
     )
-
-
-# --------------------------------------------------------------------------- #
-# Tab-group builder + shared JS
-# --------------------------------------------------------------------------- #
-
-def _tab_group(group_id: str, tabs: Sequence[Tuple[str, str, str]], default_key: str) -> str:
-    """Return a static tabbed selector.
-
-    ``tabs`` is a sequence of ``(key, label, panel_html)``. Buttons switch the
-    visible panel via the shared JS at the end of the document. The panel whose
-    key matches ``default_key`` is shown first (Linear SVM by convention).
-    """
-    btns = "".join(
-        f"<button type='button' class='tab-btn{' active' if key == default_key else ''}' "
-        f"data-group='{html.escape(group_id)}' data-key='{html.escape(key)}'>"
-        f"{html.escape(label)}</button>"
-        for key, label, _ in tabs
-    )
-    panels = "".join(
-        f"<div class='tab-panel' data-group='{html.escape(group_id)}' "
-        f"data-key='{html.escape(key)}' "
-        f"style='display:{'block' if key == default_key else 'none'}'>{panel}</div>"
-        for key, _, panel in tabs
-    )
-    return f"<div class='tabs'><div class='tab-bar'>{btns}</div>{panels}</div>"
-
-
-_TAB_JS = """
-<script>(function(){
-  var btns = document.querySelectorAll('.tab-btn');
-  btns.forEach(function(btn){
-    btn.addEventListener('click', function(){
-      var g = btn.getAttribute('data-group');
-      var k = btn.getAttribute('data-key');
-      document.querySelectorAll('.tab-btn[data-group="' + g + '"]').forEach(function(b){
-        b.classList.toggle('active', b.getAttribute('data-key') === k);
-      });
-      document.querySelectorAll('.tab-panel[data-group="' + g + '"]').forEach(function(p){
-        p.style.display = (p.getAttribute('data-key') === k) ? 'block' : 'none';
-      });
-    });
-  });
-})();</script>
-"""
 
 
 # --------------------------------------------------------------------------- #
@@ -1103,6 +1061,87 @@ def _nstar_diagnostics_panel(
     return _tab_group(f"nstar-ref-{classifier}", tabs, "k1")
 
 
+def _structural_dynamics_panel(
+    result: SimulationResult,
+    classifier: str,
+) -> str:
+    """Render one classifier's arm-local structural matrix selectors."""
+
+    display_subsets = select_display_subsets_by_cardinality(
+        result, [classifier]
+    )[classifier]
+    labels = [_compact_sub(subset) for subset in display_subsets]
+    winner_tabs = []
+    for n in result.sample_sizes:
+        matrix = winner_matrix(result, classifier, n, display_subsets)
+        figure = winner_matrix_figure(
+            matrix,
+            labels,
+            f"{classifier_label(classifier)} — arm-local winner matrix — N={n}",
+        )
+        uri = figure_to_data_uri(figure)
+        winner_tabs.append(
+            (
+                str(n),
+                f"N = {n}",
+                f"<div class='figure'><img src='{uri}' "
+                f"alt='winner matrix {html.escape(classifier_label(classifier))} N={n}'/></div>",
+            )
+        )
+
+    progressive_tabs = []
+    for item in progressive_directed_nstar(result, classifier, display_subsets):
+        n_prefix = int(item["n_prefix"])
+        figure = progressive_nstar_matrix_figure(
+            item["matrix"],
+            labels,
+            f"{classifier_label(classifier)} — arm-local progressive N-star "
+            f"— prefix N={n_prefix}",
+        )
+        uri = figure_to_data_uri(figure)
+        progressive_tabs.append(
+            (
+                str(n_prefix),
+                f"Prefix N = {n_prefix}",
+                f"<div class='figure'><img src='{uri}' "
+                f"alt='progressive N-star matrix "
+                f"{html.escape(classifier_label(classifier))} prefix N={n_prefix}'/></div>",
+            )
+        )
+
+    structures = [
+        (
+            "winner",
+            "Winner matrix",
+            _tab_group(
+                f"structural-{classifier}-winner-n",
+                winner_tabs,
+                str(result.sample_sizes[0]),
+            ),
+        )
+    ]
+    if progressive_tabs:
+        structures.append(
+            (
+                "nstar",
+                "Progressive N-star matrix",
+                _tab_group(
+                    f"structural-{classifier}-nstar-prefix",
+                    progressive_tabs,
+                    str(result.sample_sizes[1]),
+                ),
+            )
+        )
+    selection = ", ".join(labels)
+    return (
+        "<p class='ref-note'><strong>Arm-local display selection at Nmax:</strong> "
+        f"{html.escape(selection)}. Numerical structures use all subsets.</p>"
+        + _tab_group(
+            f"structural-{classifier}-structure", structures, "winner"
+        )
+    )
+
+
 def generate_structured_monte_carlo_report(
     result: SimulationResult,
     output_dir: Path | str,
@@ -1123,7 +1162,7 @@ def generate_structured_monte_carlo_report(
     nstar_selection_result: Optional[SimulationResult] = None,
     export_csvs: bool = True,
 ) -> Path:
-    """Generate a structured, navigable 16-section Monte Carlo HTML report.
+    """Generate a structured, navigable 17-section Monte Carlo HTML report.
 
     Used for the three Occupancy arm reports (Real → Real,
     Single Gaussian → Real, GMM → Real). The report uses a single sticky
@@ -1207,7 +1246,14 @@ def generate_structured_monte_carlo_report(
     ]
     finalrank_html = _tab_group("finalrank", finalrank_tabs, default_clf)
 
-    # --- Section 13: N-star, tabs by classifier --------------------------- #
+    # --- Section 13: arm-local structural dynamics ------------------------ #
+    structural_tabs = [
+        (c, classifier_label(c), _structural_dynamics_panel(result, c))
+        for c in present
+    ]
+    structural_html = _tab_group("structural", structural_tabs, default_clf)
+
+    # --- Section 14: N-star, tabs by classifier --------------------------- #
     selection_result = nstar_selection_result or result
     nstar_tabs = [
         (c, classifier_label(c), _nstar_diagnostics_panel(result, selection_result, c))
@@ -1220,7 +1266,10 @@ def generate_structured_monte_carlo_report(
 
     def _section(num: int, title_text: str, body: str) -> str:
         if not body.strip():
-            return ""
+            body = (
+                "<p class='selector-caption'>No additional arm-specific "
+                "content is configured for this section.</p>"
+            )
         return f"<h2>{num}. {html.escape(title_text)}</h2>\n{body}\n"
 
     doc = f"""<!DOCTYPE html>
@@ -1228,7 +1277,7 @@ def generate_structured_monte_carlo_report(
 <head>
 <meta charset="utf-8"/>
 <title>{html.escape(title)}</title>
-<style>{_STRUCTURED_CSS}</style>
+<style>{_STRUCTURED_CSS}{_TAB_CSS}</style>
 </head>
 <body>
 
@@ -1311,7 +1360,15 @@ rankings for all evaluated <code>n_per_class</code> values are available through
 the selector. The full-channel reference row is highlighted.</p>
 {finalrank_html}
 
-<h2>13. N-star diagnostics</h2>
+<h2>13. Structural dynamics</h2>
+<p>This arm-local view shows directed winner matrices over sample size and
+progressive directed N-star matrices from the second evaluated prefix onward.
+One best subset per cardinality is selected using this arm at the largest N and
+frozen across all displayed panels. This display reduction does not change the
+all-subset structural data persisted for the run.</p>
+{structural_html}
+
+<h2>14. N-star diagnostics</h2>
 <p>For comparability, reference and competitor subsets are selected using the
 Real → Real arm at the largest evaluated <code>n_per_class</code>; the table and
 graph then show this report arm's own empirical test-loss curves. Select a
@@ -1319,11 +1376,11 @@ classifier and reference-cardinality panel below. Dashed vertical markers show
 detected crossings when available.</p>
 {nstar_html}
 
-{_section(14, "Robustness notes", robustness_html)}
+{_section(15, "Robustness notes", robustness_html)}
 
-{_section(15, "Validity and limitations for this arm", validity_html)}
+{_section(16, "Validity and limitations for this arm", validity_html)}
 
-<h2>16. Technical appendix / exported tables</h2>
+<h2>17. Technical appendix / exported tables</h2>
 {full_table_details}
 <p>Clean technical tables are also exported as CSV next to this report:</p>
 {csv_links}

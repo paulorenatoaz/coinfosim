@@ -86,6 +86,10 @@ def test_real_monte_carlo_report_generated(tmp_path):
     assert "Nested cardinality" in text
     assert "1-channel + full reference" in text
     assert "Subset ranking by sample size" in text
+    assert "13. Structural dynamics" in text
+    assert "14. N-star diagnostics" in text
+    assert "Winner matrix" in text
+    assert "Progressive N-star matrix" in text
     assert "Best 1-channel reference" in text
     assert "<th>VS</th><th>N*</th><th>Interpolated N*</th><th>Winner</th>" in text
     assert "N-star" in text
@@ -173,6 +177,8 @@ def test_single_gaussian_to_real_monte_carlo_report_generated(tmp_path):
     assert "Loss curves" in text
     assert "Nested cardinality" in text
     assert "Subset ranking by sample size" in text
+    assert "13. Structural dynamics" in text
+    assert "14. N-star diagnostics" in text
     assert "Best 1-channel reference" in text
     assert "N-star" in text
     assert "Monte Carlo precision diagnostics" in text
@@ -234,6 +240,8 @@ def test_gmm_to_real_monte_carlo_report_generated(tmp_path):
     assert "Loss curves" in text
     assert "Nested cardinality" in text
     assert "Subset ranking by sample size" in text
+    assert "13. Structural dynamics" in text
+    assert "14. N-star diagnostics" in text
     assert "Best 1-channel reference" in text
     assert "N-star" in text
     assert "Monte Carlo precision diagnostics" in text

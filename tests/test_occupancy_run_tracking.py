@@ -150,6 +150,7 @@ def test_scenario_json_has_question_and_simulation_refs(tmp_path):
     real_arm = scenario_json["report_data"]["arms"]["real_to_real"]
     assert real_arm["train_source"] == "real_occupancy_training_pool"
     assert real_arm["test_source"] == "real_occupancy_evaluation_split"
+    assert "structural_fidelity" in scenario_json["report_data"]
 
 
 def test_simulation_json_has_report_ready_data(tmp_path):
@@ -177,6 +178,7 @@ def test_simulation_json_has_report_ready_data(tmp_path):
     assert sim_json["result_data"]["summary_table"]
     assert sim_json["result_data"]["best_subset_rankings"]
     assert sim_json["result_data"]["threshold_comparisons"]
+    assert sim_json["result_data"]["structural_dynamics"]["schema_version"] == 1
     # Pointer to full persisted result payload.
     assert sim_json["artifacts"]["result_data"].endswith(".json.gz")
 
@@ -280,6 +282,13 @@ def test_regeneration_does_not_rerun_monte_carlo(tmp_path, monkeypatch):
     assert Path(regenerated["real_report"]).exists()
     assert Path(regenerated["single_gaussian_to_real_report"]).exists()
     assert Path(regenerated["gmm_to_real_report"]).exists()
+    regenerated_scenario = json.loads(
+        Path(regenerated["scenario_json"]).read_text(encoding="utf-8")
+    )
+    assert "structural_fidelity" in regenerated_scenario["report_data"]
+    for simulation_json in regenerated["simulation_jsons"]:
+        simulation = json.loads(Path(simulation_json).read_text(encoding="utf-8"))
+        assert "structural_dynamics" in simulation["result_data"]
 
     # Registries were not extended by regeneration.
     scenario_runs = json.loads(
@@ -345,5 +354,3 @@ def test_visualization_panels_written_and_registered(tmp_path):
     assert "viz_3d_gmm_smoke_000000.png" in report_text
     assert "class='carousel'" in report_text
     assert "graph_best_comparison_real_smoke_000000.png" in report_text
-
-
