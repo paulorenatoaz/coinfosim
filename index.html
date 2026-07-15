@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="coinfosim-published-at" content="2026-07-15T06:13:11Z">
+  <title>CoInfoSim — Published Research Reports</title>
+  <style>
+    :root {
+      --accent: #1f77b4;
+      --ink: #1a1a1a;
+      --muted: #666;
+      --line: #dcdcdc;
+      --soft: #f7f9fb;
+      --question: #eef5fb;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: Georgia, "Times New Roman", serif;
+      color: var(--ink);
+      background: white;
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 2.4rem 1.6rem 4rem;
+      line-height: 1.6;
+    }
+    h1 { border-bottom: 3px solid var(--accent); padding-bottom: .55rem; line-height: 1.2; }
+    h2 { border-bottom: 1px solid var(--line); padding-bottom: .35rem; margin-top: 2.4rem; }
+    h3 { line-height: 1.3; }
+    a { color: var(--accent); }
+    .lede { font-size: 1.08rem; }
+    .question { background: var(--question); border-left: 5px solid var(--accent); padding: 1rem 1.2rem; margin: 1.6rem 0; }
+    .dataset-grid, .report-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+    .dataset-card, .report-card { border: 1px solid var(--line); background: var(--soft); padding: 1rem 1.15rem; }
+    .dataset-card h3, .report-card h3 { margin-top: 0; }
+    .report-group > h3 { margin-top: 1.6rem; color: #333; }
+    .dataset-label { color: var(--muted); margin-bottom: .25rem; }
+    .path, .metadata { color: var(--muted); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .86rem; overflow-wrap: anywhere; }
+    footer { border-top: 1px solid var(--line); margin-top: 3rem; padding-top: 1rem; color: var(--muted); font-size: .92rem; }
+    @media (max-width: 700px) {
+      body { padding: 1.4rem 1rem 3rem; }
+      .dataset-grid, .report-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>CoInfoSim — Published Research Reports</h1>
+    <p class="lede">CoInfoSim is a research simulator for evaluating cooperative advantage among information channels in supervised classification. It studies when channel subsets outperform isolated or simpler subsets and how many labeled samples are needed before those gains emerge.</p>
+    <div class="question"><strong>Scientific question:</strong> When does cooperation among information channels improve supervised classification?</div>
+  </header>
+  <main>
+    <section aria-labelledby="protocol-heading">
+      <h2 id="protocol-heading">Dataset-anchored protocol</h2>
+      <p>Dataset-anchored scenarios compare <strong>Real → Real</strong>, <strong>Single Gaussian → Real</strong>, and <strong>GMM → Real</strong>. All three arms are evaluated on the same fixed real test set.</p>
+      <p>The reports examine classification loss, channel-subset rankings, cooperative thresholds N*, ranking fidelity, winner agreement, and progressive N-star similarity.</p>
+    </section>
+    <section aria-labelledby="datasets-heading">
+      <h2 id="datasets-heading">Implemented datasets</h2>
+      <div class="dataset-grid">
+        <article class="dataset-card">
+          <h3>Occupancy Detection</h3>
+          <p>A five-channel room-occupancy classification study using Temperature, Humidity, Light, CO₂, and Humidity Ratio.</p>
+        </article>
+        <article class="dataset-card">
+          <h3>UCI Air Quality</h3>
+          <p>A five-channel study based on the UCI Air Quality PT08 metal-oxide sensor responses. The C6H6(GT) benzene reference defines the binary target and is excluded from classifier input.</p>
+          <p>Dataset DOI: <a href="https://doi.org/10.24432/C59K5F">10.24432/C59K5F</a></p>
+        </article>
+      </div>
+    </section>
+    <section aria-labelledby="reports-heading">
+      <h2 id="reports-heading">Published scenario reports</h2>
+      <p><strong>6</strong> published scenario reports.</p>
+      <section class="report-group"><h3>Occupancy Detection</h3><div class="report-grid"><article class="report-card"><h3>CoInfoSim — Occupancy Detection Baseline Scenario</h3><p class="dataset-label">Dataset: Occupancy Detection</p><p class="path">scenarios/000000_occupancy_baseline_smoke/occupancy_baseline_scenario_report_smoke_000000.html</p><p><a href="reports/scenarios/000000_occupancy_baseline_smoke/occupancy_baseline_scenario_report_smoke_000000.html">Open scenario report</a></p></article><article class="report-card"><h3>CoInfoSim — Occupancy Detection Baseline Scenario</h3><p class="dataset-label">Dataset: Occupancy Detection</p><p class="path">scenarios/000001_occupancy_baseline_fast/occupancy_baseline_scenario_report_fast_000001.html</p><p><a href="reports/scenarios/000001_occupancy_baseline_fast/occupancy_baseline_scenario_report_fast_000001.html">Open scenario report</a></p></article><article class="report-card"><h3>CoInfoSim — Occupancy Detection Baseline Scenario</h3><p class="dataset-label">Dataset: Occupancy Detection</p><p class="path">scenarios/000002_occupancy_baseline_full/occupancy_baseline_scenario_report_full_000002.html</p><p><a href="reports/scenarios/000002_occupancy_baseline_full/occupancy_baseline_scenario_report_full_000002.html">Open scenario report</a></p></article></div></section><section class="report-group"><h3>UCI Air Quality</h3><div class="report-grid"><article class="report-card"><h3>CoInfoSim — UCI Air Quality Dataset-Anchored Scenario</h3><p class="dataset-label">Dataset: UCI Air Quality</p><p class="path">scenarios/000003_air_quality_baseline_smoke/air_quality_scenario_report_smoke_000003.html</p><p><a href="reports/scenarios/000003_air_quality_baseline_smoke/air_quality_scenario_report_smoke_000003.html">Open scenario report</a></p></article><article class="report-card"><h3>CoInfoSim — UCI Air Quality Dataset-Anchored Scenario</h3><p class="dataset-label">Dataset: UCI Air Quality</p><p class="path">scenarios/000004_air_quality_baseline_smoke/air_quality_scenario_report_smoke_000004.html</p><p><a href="reports/scenarios/000004_air_quality_baseline_smoke/air_quality_scenario_report_smoke_000004.html">Open scenario report</a></p></article><article class="report-card"><h3>CoInfoSim — UCI Air Quality Dataset-Anchored Scenario</h3><p class="dataset-label">Dataset: UCI Air Quality</p><p class="path">scenarios/000005_air_quality_baseline_full/air_quality_scenario_report_full_000005.html</p><p><a href="reports/scenarios/000005_air_quality_baseline_full/air_quality_scenario_report_full_000005.html">Open scenario report</a></p></article></div></section>
+    </section>
+  </main>
+  <footer>
+    <p class="metadata">Published (UTC): 2026-07-15T06:13:11Z · Source commit: 89f5e320</p>
+    <p><a href="https://github.com/paulorenatoaz/coinfosim">CoInfoSim source repository</a>. These reports are computational artifacts of the research project.</p>
+    <p>Smoke-mode results represent pipeline validation and preliminary evidence, not final inferential conclusions.</p>
+  </footer>
+</body>
+</html>
