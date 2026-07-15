@@ -27,6 +27,7 @@ from coinfosim.samplers.gaussian import GaussianClassConditionalSampler
 from coinfosim.simulation.config import MonteCarloConfig
 from coinfosim.simulation.execution import (
     ExecutionConfig,
+    build_execution_metadata,
     make_replication_executor,
 )
 from coinfosim.simulation.progress import CooperativeProgressReporter
@@ -143,6 +144,12 @@ class CooperativeMonteCarloSimulator:
         test_by_subset = {
             subset: test_dataset.select_channels(subset) for subset in self.subsets
         }
+        execution_metadata = build_execution_metadata(
+            execution_config=self.execution_config,
+            replication_batch_size=self.config.replication_batch_size,
+            test_dataset=test_dataset,
+            subsets=self.subsets,
+        )
         executor = make_replication_executor(
             execution_config=self.execution_config,
             sampler=self.sampler,
@@ -162,6 +169,7 @@ class CooperativeMonteCarloSimulator:
                     n_cells=len(cells),
                     fixed_test_size=test_dataset.n_samples,
                     sample_sizes=list(self.config.sample_sizes),
+                    execution=execution_metadata,
                 )
 
             total_sample_sizes = len(self.config.sample_sizes)
@@ -249,6 +257,7 @@ class CooperativeMonteCarloSimulator:
         if model_name is not None:
             metadata["model_name"] = model_name
         metadata.update(self.extra_metadata)
+        metadata["execution"] = execution_metadata
 
         return SimulationResult(
             model=self.model,

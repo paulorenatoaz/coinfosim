@@ -48,6 +48,27 @@ from coinfosim.simulation.monte_carlo import SimulationResult
 Subset = Tuple[int, ...]
 
 
+def _execution_configuration_html(result: SimulationResult) -> str:
+    """Return concise execution audit fields for a report configuration list."""
+
+    execution = result.metadata.get("execution")
+    if not isinstance(execution, Mapping):
+        return ""
+
+    def value(key: str) -> str:
+        return html.escape(str(execution.get(key, "unknown")))
+
+    return f"""
+  <dt>Execution backend</dt><dd><code>{value("backend")}</code></dd>
+  <dt>Workers requested / effective</dt>
+  <dd>{value("requested_workers")} / {value("effective_workers")}</dd>
+  <dt>Numeric threads per worker</dt><dd>{value("worker_inner_threads")}</dd>
+  <dt>Multiprocessing start method</dt><dd>{value("start_method")}</dd>
+  <dt>Detected logical CPUs</dt><dd>{value("logical_cpus")}</dd>
+  <dt>Fixed-test cache per worker</dt>
+  <dd>{value("fixed_test_cache_bytes_per_worker")} bytes</dd>"""
+
+
 def subset_display_label(
     subset: Sequence[int],
     channel_names: Optional[Sequence[str]] = None,
@@ -234,6 +255,7 @@ defined as the misclassification rate on the fixed test set.</div>
   <dt>Min / max replications</dt><dd>{result.config.min_replications} / {result.config.max_replications}</dd>
   <dt>Replication batch size</dt><dd>{result.config.replication_batch_size}</dd>
   <dt>Base seed</dt><dd>{result.config.base_seed}</dd>
+{_execution_configuration_html(result)}
   <dt>Runtime</dt><dd>{result.runtime_seconds:.2f} s</dd>
 </dl>
 
@@ -1312,6 +1334,7 @@ full sensor names appear in metadata and appendices.</div>
   <dt>Replication batch size</dt><dd>{result.config.replication_batch_size}</dd>
   <dt>Target CI95 half-width</dt><dd>{result.config.ci_half_width_target}</dd>
   <dt>Base seed</dt><dd>{result.config.base_seed}</dd>
+{_execution_configuration_html(result)}
   <dt>Runtime</dt><dd>{result.runtime_seconds:.2f} s</dd>
 </dl>
 <details><summary>List all evaluated channel subsets</summary>

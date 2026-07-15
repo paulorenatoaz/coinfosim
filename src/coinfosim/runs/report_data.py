@@ -74,6 +74,7 @@ def simulation_summary_snapshot(result: SimulationResult) -> Dict[str, Any]:
         "classifier_names": list(result.classifier_names),
         "subsets": [list(s) for s in result.subsets],
         "fixed_test_size": result.metadata.get("fixed_test_size"),
+        "execution": _clean(result.metadata.get("execution", {})),
         "runtime_seconds": float(result.runtime_seconds),
         "stopping_info": stopping_info_snapshot(result),
     }

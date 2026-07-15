@@ -146,6 +146,7 @@ def test_save_and_load_simulation_result_roundtrip(tmp_path):
     assert loaded.subsets == result.subsets
     assert loaded.classifier_names == result.classifier_names
     assert loaded.metadata["experiment_arm"] == "gaussian_anchored"
+    assert loaded.metadata["execution"] == result.metadata["execution"]
     assert set(loaded.stopping_info.keys()) == set(result.stopping_info.keys())
 
     for n in result.sample_sizes:

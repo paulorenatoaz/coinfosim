@@ -121,6 +121,10 @@ def test_reporter_receives_lifecycle_events():
     assert "batch_finish" in kinds
     assert "sample_size_finish" in kinds
 
+    start_event = reporter.events[0]
+    assert start_event[1]["execution"]["backend"] == "sequential"
+    assert start_event[1]["execution"]["effective_workers"] == 1
+
     finishes = [e for e in reporter.events if e[0] == "sample_size_finish"]
     assert {e[1] for e in finishes} == {4, 8}
     for _, _, reason in finishes:
@@ -138,12 +142,24 @@ def test_verbose_reporter_emits_output(capsys):
         n_cells=9,
         fixed_test_size=100,
         sample_sizes=[4, 8],
+        execution={
+            "backend": "process",
+            "requested_workers": 5,
+            "effective_workers": 2,
+            "worker_inner_threads": 1,
+            "start_method": "forkserver",
+            "logical_cpus": 8,
+            "fixed_test_cache_bytes_per_worker": 1024,
+        },
     )
     reporter.sample_size_finish(4, 10, "converged", 0.01, elapsed=0.5)
     out = capsys.readouterr().out
     assert "Loading Occupancy dataset" in out
     assert "real_data" in out
     assert "empirical test loss" in out
+    assert "process" in out
+    assert "5 / 2" in out
+    assert "1024 bytes" in out
     assert "converged" in out
 
 

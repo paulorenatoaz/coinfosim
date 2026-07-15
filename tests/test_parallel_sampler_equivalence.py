@@ -173,7 +173,13 @@ def test_sampler_sequential_and_process_results_are_exactly_equal(kind):
     assert sequential.subsets == process.subsets
     assert sequential.classifier_names == process.classifier_names
     assert sequential.stopping_info == process.stopping_info
-    assert sequential.metadata == process.metadata
+    assert {
+        key: value
+        for key, value in sequential.metadata.items()
+        if key != "execution"
+    } == {
+        key: value for key, value in process.metadata.items() if key != "execution"
+    }
     for n_per_class in sequential.sample_sizes:
         for subset in sequential.subsets:
             for classifier_name in sequential.classifier_names:

@@ -73,6 +73,7 @@ from coinfosim.scenarios.occupancy import (
     build_gmm_anchored_occupancy_model,
 )
 from coinfosim.simulation.config import MonteCarloConfig, VALID_MODES, get_mode_config
+from coinfosim.simulation.execution import ExecutionConfig
 from coinfosim.simulation.monte_carlo import CooperativeMonteCarloSimulator
 from coinfosim.simulation.progress import CooperativeProgressReporter
 
@@ -271,6 +272,7 @@ def run_scenario(
     output_dir: str = "output/reports",
     reporter: Optional[CooperativeProgressReporter] = None,
     config: Optional[MonteCarloConfig] = None,
+    execution_config: Optional[ExecutionConfig] = None,
     visualize: bool = True,
 ) -> Dict[str, Any]:
     """Run the Occupancy baseline scenario with full run tracking.
@@ -285,6 +287,8 @@ def run_scenario(
         reporter = CooperativeProgressReporter(verbose=False)
     if config is None:
         config = get_mode_config(mode)
+    if execution_config is None:
+        execution_config = ExecutionConfig()
     mode = config.mode
 
     base_dir = Path(output_dir)
@@ -378,6 +382,7 @@ def run_scenario(
                 "standardization": "train_pool_only",
             },
             progress=reporter,
+            execution_config=execution_config,
         ).run()
         real_completed, real_report, real_result_gz, real_summary_path = (
             _persist_simulation(
@@ -475,6 +480,7 @@ def run_scenario(
                 "gaussian_ridge_by_class": dict(anchored.ridge_by_class),
             },
             progress=reporter,
+            execution_config=execution_config,
         ).run()
         (
             gaussian_completed,
@@ -554,6 +560,7 @@ def run_scenario(
                 "gmm_model_selection": gmm_anchored.model_selection,
             },
             progress=reporter,
+            execution_config=execution_config,
         ).run()
         (
             gmm_completed,
@@ -984,6 +991,32 @@ def main() -> int:
     parser.add_argument("--raw-dir", default="data/raw/occupancy")
     parser.add_argument("--output-dir", default="output/reports")
     parser.add_argument(
+        "--execution-backend",
+        choices=("sequential", "process"),
+        default="sequential",
+        help="Replication execution backend (default: sequential).",
+    )
+    parser.add_argument(
+        "--n-jobs",
+        type=int,
+        default=1,
+        metavar="N",
+        help="Requested process workers (default: 1).",
+    )
+    parser.add_argument(
+        "--worker-inner-threads",
+        type=int,
+        default=1,
+        metavar="N",
+        help="Numeric-library threads allowed per worker (default: 1).",
+    )
+    parser.add_argument(
+        "--multiprocessing-start-method",
+        choices=("forkserver", "fork"),
+        default="forkserver",
+        help="Multiprocessing start method (default: forkserver).",
+    )
+    parser.add_argument(
         "--quiet",
         action="store_true",
         help="Suppress progress output (errors are still shown).",
@@ -1066,11 +1099,22 @@ def main() -> int:
         return 0
 
     try:
+        execution_config = ExecutionConfig(
+            backend=args.execution_backend,
+            n_jobs=args.n_jobs,
+            worker_inner_threads=args.worker_inner_threads,
+            start_method=args.multiprocessing_start_method,
+        )
+    except ValueError as exc:
+        parser.error(str(exc))
+
+    try:
         run_scenario(
             mode=args.mode,
             raw_dir=args.raw_dir,
             output_dir=args.output_dir,
             reporter=reporter,
+            execution_config=execution_config,
         )
     except FileNotFoundError as exc:
         reporter.error(

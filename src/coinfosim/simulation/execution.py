@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import multiprocessing as mp
+import os
 from concurrent.futures import Future, ProcessPoolExecutor, as_completed
 from dataclasses import dataclass
 from typing import Any, Mapping, Optional, Protocol, Sequence
@@ -19,6 +20,54 @@ from coinfosim.simulation.replication import (
 )
 
 SUPPORTED_BACKENDS = ("sequential", "process")
+
+
+def effective_worker_count(
+    execution_config: "ExecutionConfig",
+    replication_batch_size: int,
+) -> int:
+    """Return the number of workers that can execute one replication batch."""
+
+    if execution_config.backend == "sequential":
+        return 1
+    return min(execution_config.n_jobs, int(replication_batch_size))
+
+
+def estimate_fixed_test_cache_bytes(
+    test_dataset: Dataset,
+    subsets: Sequence[Sequence[int]],
+) -> int:
+    """Estimate bytes copied by pre-materializing every fixed-test subset."""
+
+    values_per_row = sum(len(tuple(subset)) for subset in subsets)
+    return int(
+        test_dataset.n_samples
+        * values_per_row
+        * test_dataset.X.dtype.itemsize
+    )
+
+
+def build_execution_metadata(
+    execution_config: "ExecutionConfig",
+    replication_batch_size: int,
+    test_dataset: Dataset,
+    subsets: Sequence[Sequence[int]],
+) -> dict[str, object]:
+    """Build auditable execution metadata for one simulation arm."""
+
+    return {
+        "backend": execution_config.backend,
+        "requested_workers": execution_config.n_jobs,
+        "effective_workers": effective_worker_count(
+            execution_config, replication_batch_size
+        ),
+        "worker_inner_threads": execution_config.worker_inner_threads,
+        "start_method": execution_config.start_method,
+        "logical_cpus": os.cpu_count(),
+        "fixed_test_cache_bytes_per_worker": estimate_fixed_test_cache_bytes(
+            test_dataset, subsets
+        ),
+    }
 
 
 @dataclass
@@ -174,9 +223,9 @@ class ProcessReplicationExecutor:
     ) -> None:
         if execution_config.backend != "process":
             raise ValueError("ProcessReplicationExecutor requires process backend")
-        self.effective_workers = min(
-            execution_config.n_jobs,
-            int(replication_batch_size),
+        self.effective_workers = effective_worker_count(
+            execution_config,
+            replication_batch_size,
         )
         self._closed = False
         self._pool = ProcessPoolExecutor(
