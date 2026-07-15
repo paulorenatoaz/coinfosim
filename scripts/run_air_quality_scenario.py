@@ -4,11 +4,18 @@
 from __future__ import annotations
 
 import argparse
-import html
-from pathlib import Path
 from typing import Any, Dict, Optional
 
 from coinfosim.datasets.air_quality import load_air_quality_data
+from coinfosim.reports.air_quality_dataset import generate_air_quality_dataset_report
+from coinfosim.reports.air_quality_monte_carlo import (
+    generate_air_quality_gmm_to_real_monte_carlo_report,
+    generate_air_quality_real_monte_carlo_report,
+    generate_air_quality_single_gaussian_to_real_monte_carlo_report,
+)
+from coinfosim.reports.air_quality_scenario import (
+    generate_air_quality_scenario_report,
+)
 from coinfosim.scenarios.air_quality import (
     AIR_QUALITY_SCENARIO_QUESTION,
     build_gaussian_anchored_air_quality_model,
@@ -31,75 +38,6 @@ SG2R_SLUG = "air_quality_single_gaussian_to_real"
 SG2R_FAMILY = "single_gaussian_to_real"
 GMM2R_SLUG = "air_quality_gmm_to_real"
 GMM2R_FAMILY = "gmm_to_real"
-
-
-def _write_temporary_report(output_dir: Path | str, filename: str, title: str, body: str) -> Path:
-    """Write the minimal callback report used until Blocks 4 and 5."""
-
-    output_dir = Path(output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
-    path = output_dir / filename
-    path.write_text(
-        "<!doctype html><html><head><meta charset='utf-8'>"
-        f"<title>{html.escape(title)}</title></head><body>"
-        f"<h1>{html.escape(title)}</h1>{body}</body></html>\n",
-        encoding="utf-8",
-    )
-    return path
-
-
-def _dataset_report(data, output_dir, *, filename):
-    counts = data.row_counts()
-    body = (
-        "<p>Temporary Air Quality dataset report callback for runner validation.</p>"
-        f"<p>Complete-case cohort: {counts['complete_case_cohort']}; "
-        f"threshold: {data.threshold_value:g}.</p>"
-    )
-    return _write_temporary_report(
-        output_dir, filename, "UCI Air Quality Dataset Report", body
-    )
-
-
-def _arm_report(title):
-    def callback(result, channel_names, output_dir, *, filename, nstar_selection_result):
-        body = (
-            "<p>Temporary structured-report callback for runner validation.</p>"
-            f"<p>Channels: {html.escape(', '.join(channel_names))}; "
-            f"subsets: {len(result.subsets)}; fixed future real test.</p>"
-        )
-        return _write_temporary_report(output_dir, filename, title, body)
-
-    return callback
-
-
-def _scenario_report(
-    real_result,
-    gaussian_result,
-    gmm_result,
-    *,
-    output_dir,
-    dataset_report,
-    real_report,
-    sg_real_report,
-    gmm_real_report,
-    filename,
-    channel_names,
-    visualization,
-    scenario_meta,
-    graph_suffix,
-    graphs_out,
-    generate_graphs,
-):
-    links = (dataset_report, real_report, sg_real_report, gmm_real_report)
-    body = (
-        "<p>Temporary scenario-report callback for runner validation.</p>"
-        "<p>Real → Real; Single Gaussian → Real; GMM → Real; fixed future real test.</p>"
-        + "".join(
-            f"<p><a href='{html.escape(link)}'>{html.escape(link)}</a></p>"
-            for link in links
-        )
-    )
-    return _write_temporary_report(output_dir, filename, SCENARIO_NAME, body)
 
 
 def _report_context(data) -> Dict[str, Dict[str, Any]]:
@@ -162,11 +100,11 @@ AIR_QUALITY_SPEC = DatasetAnchoredExecutionSpec(
     loader=load_air_quality_data,
     gaussian_builder=build_gaussian_anchored_air_quality_model,
     gmm_builder=build_gmm_anchored_air_quality_model,
-    dataset_report_callback=_dataset_report,
-    real_report_callback=_arm_report("Air Quality Real → Real"),
-    gaussian_report_callback=_arm_report("Air Quality Single Gaussian → Real"),
-    gmm_report_callback=_arm_report("Air Quality GMM → Real"),
-    scenario_report_callback=_scenario_report,
+    dataset_report_callback=generate_air_quality_dataset_report,
+    real_report_callback=generate_air_quality_real_monte_carlo_report,
+    gaussian_report_callback=generate_air_quality_single_gaussian_to_real_monte_carlo_report,
+    gmm_report_callback=generate_air_quality_gmm_to_real_monte_carlo_report,
+    scenario_report_callback=generate_air_quality_scenario_report,
     report_context_callback=_report_context,
     real_experiment_arm="real_to_real",
 )
