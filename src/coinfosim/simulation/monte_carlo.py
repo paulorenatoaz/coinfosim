@@ -25,8 +25,11 @@ from coinfosim.results.accumulator import LossAccumulator
 from coinfosim.samplers.dataset import Dataset
 from coinfosim.samplers.gaussian import GaussianClassConditionalSampler
 from coinfosim.simulation.config import MonteCarloConfig
+from coinfosim.simulation.execution import (
+    ExecutionConfig,
+    SequentialReplicationExecutor,
+)
 from coinfosim.simulation.progress import CooperativeProgressReporter
-from coinfosim.simulation.replication import ReplicationTask, evaluate_replication
 from coinfosim.simulation.stopping import StandardErrorStoppingRule
 from coinfosim.simulation.subsets import all_nonempty_subsets
 
@@ -86,9 +89,11 @@ class CooperativeMonteCarloSimulator:
         sampler: Optional[MonteCarloSampler] = None,
         metadata: Optional[Mapping[str, object]] = None,
         progress: Optional[CooperativeProgressReporter] = None,
+        execution_config: Optional[ExecutionConfig] = None,
     ) -> None:
         self.model = model
         self.config = config
+        self.execution_config = execution_config or ExecutionConfig()
         self.extra_metadata = dict(metadata or {})
         # Optional console progress reporter. When ``None`` the simulator is
         # completely silent, which keeps tests and programmatic use quiet.
@@ -127,6 +132,11 @@ class CooperativeMonteCarloSimulator:
 
     def run(self) -> SimulationResult:
         """Execute the full experiment and return a :class:`SimulationResult`."""
+        if self.execution_config.backend != "sequential":
+            raise NotImplementedError(
+                "process execution is not implemented until Block 4"
+            )
+
         start = time.time()
         accumulator = LossAccumulator()
         stopping_info: Dict[int, StoppingInfo] = {}
@@ -138,6 +148,11 @@ class CooperativeMonteCarloSimulator:
         test_by_subset = {
             subset: test_dataset.select_channels(subset) for subset in self.subsets
         }
+        executor = SequentialReplicationExecutor(
+            sampler=self.sampler,
+            cells=cells,
+            test_by_subset=test_by_subset,
+        )
 
         if self.progress is not None:
             self.progress.simulation_start(
@@ -164,23 +179,16 @@ class CooperativeMonteCarloSimulator:
                 # Run one batch of replications.
                 batch_start = replication_id
                 batch_end = replication_id + self.config.replication_batch_size
-                batch_results = []
-                while replication_id < batch_end:
-                    result = evaluate_replication(
-                        sampler=self.sampler,
-                        cells=cells,
-                        test_by_subset=test_by_subset,
-                        task=ReplicationTask(
-                            n_per_class=n_per_class,
-                            replication_id=replication_id,
-                        ),
-                    )
-                    batch_results.append(result)
-                    replication_id += 1
+                replication_ids = range(batch_start, batch_end)
+                batch_results = executor.run_batch(
+                    n_per_class=n_per_class,
+                    replication_ids=replication_ids,
+                )
+                replication_id = batch_end
 
                 accumulator.add_batch(
                     n_per_class=n_per_class,
-                    expected_replication_ids=range(batch_start, batch_end),
+                    expected_replication_ids=replication_ids,
                     cells=cells,
                     results=batch_results,
                 )
