@@ -1696,7 +1696,18 @@ feat: add SUPPORT2 smoke CLI workflow
 
 # Block 14 — Structural-result scalability check
 
-**Status:** `[ ] Pending`
+**Status:** `[x] Complete`
+
+**Completion note (2026-07-15):** The initial smoke revealed an actual duplication
+problem: `scenario.json` was 70.32 MB and simulation JSON files were 18.36–18.60
+MB. Added an opt-in, backward-compatible policy that omits only duplicated
+precomputed structural snapshots for SUPPORT2 and regenerates them from persisted
+compressed results. The retained smoke produced a 3.01 MB `scenario.json` and
+0.789–0.790 MB simulation JSON files; compressed result payloads were 54–61 KB,
+arm reports 9.79–9.87 MB, and the scenario report 171 KB. Scenario execution was
+419.67 s; timed report-only regeneration was 177.88 s. HTML parsing and all report
+links passed. Size regression tests are included. Commit: `32da88dd` plus the
+feature artifact/finalization commit.
 
 **Depends on:** Block 13
 
@@ -1743,7 +1754,8 @@ Smoke artifacts are usable, or a narrowly scoped compatibility-preserving fix is
 test-side `MonteCarloConfig`; all executable simulations use `mode="smoke"`.
 SUPPORT2 modules passed 18, 2, 1, 2, 1, and 3 tests respectively. The targeted
 Air Quality/Occupancy/generic regression set passed 79 tests; the Air Quality
-runner passed 4 tests; the full repository suite passed 317 tests in 1,288.90 s.
+runner passed 4 tests; the final post-scalability full repository suite passed
+317 tests in 1,330.71 s.
 Only existing Matplotlib pending-deprecation warnings were reported. Commits:
 `78385cf0`, `1b69887e`, `9642fa09`; documentation test record committed in the
 feature-finalization commit.
@@ -1801,7 +1813,17 @@ If an existing test attempts `fast`, `full`, or `strict`, do not run that test w
 
 # Block 16 — Execute one end-to-end smoke scenario on the feature branch
 
-**Status:** `[ ] Pending`
+**Status:** `[x] Complete`
+
+**Completion note (2026-07-15):** Ran the required retained CLI smoke scenario
+after replacing one superseded run that exposed the Block 14 size defect. Scenario
+run `6` completed in 419.67 s with simulation runs `18`, `19`, and `20`; each has
+127 subsets, all three classifiers, and fixed test size 1,775. Dataset, three arm,
+scenario, split-manifest, target, preprocessing, result, summary, registry, and
+run JSON artifacts exist and are non-empty. All scenario links resolve. Timed
+regeneration (`--report-from-scenario-run 6`) completed in 177.88 s and explicitly
+reported that Monte Carlo was not rerun. Artifacts committed in the feature
+artifact/finalization commit.
 
 **Depends on:** Block 15
 
@@ -1882,7 +1904,7 @@ Do not proceed to merge if:
 
 # Block 17 — Documentation and feature-branch finalization
 
-**Status:** `[ ] Pending`
+**Status:** `[~] In progress`
 
 **Depends on:** Block 16
 

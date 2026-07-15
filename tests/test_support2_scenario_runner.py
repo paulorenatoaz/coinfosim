@@ -89,6 +89,7 @@ def test_support2_runner_persists_three_arms_shared_test_and_protocol(tmp_path, 
         "structural_dynamics" not in arm["report_data"]
         for arm in report_data["arms"].values()
     )
+    assert Path(output["scenario_json"]).stat().st_size < 5_000_000
     assert report_data["target"]["name"] == "death_180d"
     assert report_data["target"]["raw_class_counts"] == {"0": 4840, "1": 4265}
     assert report_data["target"]["cohort_class_counts"] == {"0": 4711, "1": 4162}
@@ -109,6 +110,7 @@ def test_support2_runner_persists_three_arms_shared_test_and_protocol(tmp_path, 
     assert len(manifest["test_ids"]) == 1775
 
     for slug, ref in scenario["simulation_refs"].items():
+        assert Path(ref["simulation_json_path"]).stat().st_size < 2_000_000
         result = load_simulation_result(ref["result_data_path"])
         assert len(result.subsets) == 127
         assert result.classifier_names == ["linear_svm", "logistic_regression", "gaussian_nb"]
