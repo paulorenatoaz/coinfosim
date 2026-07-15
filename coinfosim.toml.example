@@ -39,15 +39,10 @@ file = null
 quiet = false
 
 [publishing]
-# Enable automatic publishing to GitHub Pages
-enabled = false
-
-# Target directory for published reports
-# Should point to your *-pages repository
-target_dir = "../coinfosim-reports-pages"
-
-# Automatically git push after publishing
-auto_push = false
+branch = "gh-pages"
+remote = "origin"
+site_title = "CoInfoSim — Published Research Reports"
+include_data = true
 
 # ============================================================================
 # USAGE EXAMPLES
