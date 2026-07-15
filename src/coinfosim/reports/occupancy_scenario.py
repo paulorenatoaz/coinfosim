@@ -371,16 +371,20 @@ def _structural_fidelity_section(
                 prefix_tabs.append(
                     (str(n_prefix), f"Prefix N = {n_prefix}", figure_html)
                 )
-            nstar_arm_tabs.append(
-                (
-                    arm,
-                    arm_labels[arm],
-                    tab_group(
-                        f"scenario-structural-nstar-{classifier}-{arm}-prefix",
-                        prefix_tabs,
-                        str(sample_sizes[1]),
-                    ),
+            prefix_content = (
+                tab_group(
+                    f"scenario-structural-nstar-{classifier}-{arm}-prefix",
+                    prefix_tabs,
+                    str(sample_sizes[1]),
                 )
+                if prefix_tabs
+                else (
+                    "<p>Progressive N-star requires at least two sample "
+                    "sizes.</p>"
+                )
+            )
+            nstar_arm_tabs.append(
+                (arm, arm_labels[arm], prefix_content)
             )
         nstar_classifier_tabs.append(
             (
@@ -902,7 +906,9 @@ def _carousel_html(visualization: Optional[Dict]) -> str:
         "<h2>4. Data visualization</h2>"
         f"<table class='meta'>{meta_html}</table>"
         "<h3>4.1 Projection panels</h3>"
+        "<div class='carousel'>"
         + tab_group("scenario-visualization-source", source_tabs, "real")
+        + "</div>"
     )
 
 
