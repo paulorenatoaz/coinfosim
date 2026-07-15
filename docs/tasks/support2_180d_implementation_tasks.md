@@ -627,7 +627,7 @@ Stop if:
 
 # Block 3 — Implement explicit SUPPORT2 ingestion
 
-**Status:** `[ ] Pending`
+**Status:** `[~] In progress`
 
 **Depends on:** Block 2
 
@@ -731,7 +731,7 @@ Add tests for:
 
 # Block 4 — Implement and validate `death_180d`
 
-**Status:** `[ ] Pending`
+**Status:** `[~] In progress`
 
 **Depends on:** Block 3
 
@@ -846,7 +846,7 @@ Add focused tests for:
 
 # Block 5 — Build the complete cohort and fixed split
 
-**Status:** `[ ] Pending`
+**Status:** `[~] In progress`
 
 **Depends on:** Block 4
 
@@ -973,7 +973,7 @@ Stop if any expected count or fingerprint differs. Do not compensate by changing
 
 # Block 6 — Implement training-only preprocessing
 
-**Status:** `[ ] Pending`
+**Status:** `[~] In progress`
 
 **Depends on:** Block 5
 
@@ -1046,7 +1046,7 @@ The returned `Support2Data` satisfies the existing dataset-anchored data contrac
 
 # Block 7 — Export the SUPPORT2 dataset API
 
-**Status:** `[ ] Pending`
+**Status:** `[~] In progress`
 
 **Depends on:** Block 6
 
