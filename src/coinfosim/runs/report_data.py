@@ -154,6 +154,8 @@ def dataset_anchored_scenario_report_data(
     dataset_metadata: Mapping[str, Any] | None = None,
     target_metadata: Mapping[str, Any] | None = None,
     split_metadata: Mapping[str, Any] | None = None,
+    preprocessing_metadata: Mapping[str, Any] | None = None,
+    exclusion_metadata: Mapping[str, Any] | None = None,
     scenario_metadata: Mapping[str, Any] | None = None,
     gmm_model_selection: Any = None,
 ) -> Dict[str, Any]:
@@ -201,6 +203,10 @@ def dataset_anchored_scenario_report_data(
         payload["target"] = _clean(dict(target_metadata))
     if split_metadata is not None:
         payload["split"] = _clean(dict(split_metadata))
+    if preprocessing_metadata is not None:
+        payload["preprocessing"] = _clean(dict(preprocessing_metadata))
+    if exclusion_metadata is not None:
+        payload["exclusions"] = _clean(dict(exclusion_metadata))
     if scenario_metadata is not None:
         payload["scenario"] = _clean(dict(scenario_metadata))
     return payload

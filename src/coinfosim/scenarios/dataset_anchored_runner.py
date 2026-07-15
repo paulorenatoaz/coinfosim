@@ -82,6 +82,9 @@ class DatasetAnchoredExecutionSpec:
     scenario_report_callback: Callable[..., Path]
     report_context_callback: Callable[[Any], Mapping[str, Mapping[str, Any]]]
     real_experiment_arm: str = "real_data"
+    dataset_artifacts_callback: Optional[
+        Callable[[Any, Path], Mapping[str, Path | str]]
+    ] = None
 
 
 def _config_dict(config: MonteCarloConfig) -> Dict[str, Any]:
@@ -351,6 +354,7 @@ def run_dataset_anchored_scenario(
         step = time.time()
         data = spec.loader(raw_dir)
         _validate_sample_sizes(data, config)
+        context = dict(spec.report_context_callback(data))
         reporter.scenario_step_finish(
             f"Loading {spec.dataset_name} dataset", elapsed=time.time() - step
         )
@@ -362,6 +366,11 @@ def run_dataset_anchored_scenario(
             filename=_dataset_report_filename(spec, mode, scenario_run_id),
         )
         reporter.scenario_step_finish("Generating dataset report", detail=str(dataset_report))
+        dataset_artifacts: Dict[str, Path | str] = {}
+        if spec.dataset_artifacts_callback is not None:
+            dataset_artifacts = dict(
+                spec.dataset_artifacts_callback(data, scenario_dir)
+            )
 
         reporter.scenario_step_start("Building single Gaussian model")
         gaussian_anchored = spec.gaussian_builder(data)
@@ -610,6 +619,7 @@ def run_dataset_anchored_scenario(
             "scenario_report": str(scenario_report),
             "dataset_report": str(dataset_report),
             "scenario_json": scenario_run.scenario_json_path,
+            **{key: str(value) for key, value in dataset_artifacts.items()},
         }
         if visualization:
             artifacts["visualization_images"] = {
@@ -620,7 +630,6 @@ def run_dataset_anchored_scenario(
             artifacts["graph_images"] = {
                 key: str(scenario_dir / filename) for key, filename in graphs.items()
             }
-        context = dict(spec.report_context_callback(data))
         report_data = dataset_anchored_scenario_report_data(
             real_result,
             gaussian_result,
@@ -638,6 +647,8 @@ def run_dataset_anchored_scenario(
             dataset_metadata=context.get("dataset"),
             target_metadata=context.get("target"),
             split_metadata=context.get("split"),
+            preprocessing_metadata=context.get("preprocessing"),
+            exclusion_metadata=context.get("exclusions"),
             scenario_metadata=_scenario_report_metadata(spec),
             gmm_model_selection=gmm_anchored.model_selection,
         )
@@ -824,6 +835,8 @@ def regenerate_dataset_anchored_scenario(
         dataset_metadata=old_report_data.get("dataset"),
         target_metadata=old_report_data.get("target"),
         split_metadata=old_report_data.get("split"),
+        preprocessing_metadata=old_report_data.get("preprocessing"),
+        exclusion_metadata=old_report_data.get("exclusions"),
         scenario_metadata=(
             old_report_data.get("scenario") or _scenario_report_metadata(spec)
         ),
