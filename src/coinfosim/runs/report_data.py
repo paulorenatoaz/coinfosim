@@ -116,57 +116,94 @@ def scenario_report_data(
     channel_names: Sequence[str],
     gmm_model_selection: Any = None,
 ) -> Dict[str, Any]:
-    """Scenario-level report-ready tables and per-arm summary snapshots.
+    """Compatibility wrapper for Occupancy scenario report data."""
 
-    The three main Occupancy arms are ``real_to_real`` (real training pool, real
-    evaluation split), ``single_gaussian_to_real`` (single-Gaussian synthetic
-    training, real evaluation split) and ``gmm_to_real`` (class-conditional GMM
-    synthetic training, real evaluation split). Each arm records its train/test
-    semantics alongside its summary and report-ready tables.
-    """
-    gmm_arm: Dict[str, Any] = {
-        "arm_id": "gmm_to_real",
-        "train_source": "gmm_synthetic",
-        "test_source": "real_occupancy_evaluation_split",
-        "summary": simulation_summary_snapshot(gmm_result),
-        "report_data": simulation_report_data(gmm_result),
+    return dataset_anchored_scenario_report_data(
+        real_result,
+        gaussian_result,
+        gmm_result,
+        channel_names=channel_names,
+        real_arm_id="real_to_real",
+        gaussian_arm_id="single_gaussian_to_real",
+        gmm_arm_id="gmm_to_real",
+        real_train_source="real_occupancy_training_pool",
+        gaussian_train_source="single_gaussian_synthetic",
+        gmm_train_source="gmm_synthetic",
+        real_test_source="real_occupancy_evaluation_split",
+        gaussian_test_source="real_occupancy_evaluation_split",
+        gmm_test_source="real_occupancy_evaluation_split",
+        gmm_model_selection=gmm_model_selection,
+    )
+
+
+def dataset_anchored_scenario_report_data(
+    real_result: SimulationResult,
+    gaussian_result: SimulationResult,
+    gmm_result: SimulationResult,
+    *,
+    channel_names: Sequence[str],
+    real_arm_id: str,
+    gaussian_arm_id: str,
+    gmm_arm_id: str,
+    real_train_source: str,
+    gaussian_train_source: str,
+    gmm_train_source: str,
+    real_test_source: str,
+    gaussian_test_source: str,
+    gmm_test_source: str,
+    dataset_metadata: Mapping[str, Any] | None = None,
+    target_metadata: Mapping[str, Any] | None = None,
+    split_metadata: Mapping[str, Any] | None = None,
+    scenario_metadata: Mapping[str, Any] | None = None,
+    gmm_model_selection: Any = None,
+) -> Dict[str, Any]:
+    """Generic report-ready snapshot for the standard dataset three-arm protocol."""
+
+    results = {
+        real_arm_id: real_result,
+        gaussian_arm_id: gaussian_result,
+        gmm_arm_id: gmm_result,
     }
+    sources = {
+        real_arm_id: (real_train_source, real_test_source),
+        gaussian_arm_id: (gaussian_train_source, gaussian_test_source),
+        gmm_arm_id: (gmm_train_source, gmm_test_source),
+    }
+    arms: Dict[str, Dict[str, Any]] = {}
+    for arm_id, result in results.items():
+        train_source, test_source = sources[arm_id]
+        arms[arm_id] = {
+            "arm_id": arm_id,
+            "train_source": train_source,
+            "test_source": test_source,
+            "summary": simulation_summary_snapshot(result),
+            "report_data": simulation_report_data(result),
+        }
     if gmm_model_selection is not None:
-        gmm_arm["gmm_model_selection"] = _clean(gmm_model_selection)
-    arm_results = {
-        "real_to_real": real_result,
-        "single_gaussian_to_real": gaussian_result,
-        "gmm_to_real": gmm_result,
-    }
+        arms[gmm_arm_id]["gmm_model_selection"] = _clean(gmm_model_selection)
+
     arm_labels = {
-        "real_to_real": "Real → Real",
-        "single_gaussian_to_real": "Single Gaussian → Real",
-        "gmm_to_real": "GMM → Real",
+        real_arm_id: "Real → Real",
+        gaussian_arm_id: "Single Gaussian → Real",
+        gmm_arm_id: "GMM → Real",
     }
-    return {
-        "channel_names": [str(c) for c in channel_names],
+    payload: Dict[str, Any] = {
+        "channel_names": [str(channel) for channel in channel_names],
         "sample_sizes": [int(n) for n in real_result.sample_sizes],
-        "arms": {
-            "real_to_real": {
-                "arm_id": "real_to_real",
-                "train_source": "real_occupancy_training_pool",
-                "test_source": "real_occupancy_evaluation_split",
-                "summary": simulation_summary_snapshot(real_result),
-                "report_data": simulation_report_data(real_result),
-            },
-            "single_gaussian_to_real": {
-                "arm_id": "single_gaussian_to_real",
-                "train_source": "single_gaussian_synthetic",
-                "test_source": "real_occupancy_evaluation_split",
-                "summary": simulation_summary_snapshot(gaussian_result),
-                "report_data": simulation_report_data(gaussian_result),
-            },
-            "gmm_to_real": gmm_arm,
-        },
+        "arms": arms,
         "structural_fidelity": generic_scenario_structural_report_data(
-            arm_results, "real_to_real", arm_labels
+            results, real_arm_id, arm_labels
         ),
     }
+    if dataset_metadata is not None:
+        payload["dataset"] = _clean(dict(dataset_metadata))
+    if target_metadata is not None:
+        payload["target"] = _clean(dict(target_metadata))
+    if split_metadata is not None:
+        payload["split"] = _clean(dict(split_metadata))
+    if scenario_metadata is not None:
+        payload["scenario"] = _clean(dict(scenario_metadata))
+    return payload
 
 
 def generic_scenario_structural_report_data(

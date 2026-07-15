@@ -23,9 +23,9 @@ from coinfosim.simulation.monte_carlo import CooperativeMonteCarloSimulator
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
 
-def _load_script_module():
-    script = REPO_ROOT / "scripts" / "run_occupancy_scenario.py"
-    module_name = "run_occupancy_scenario_execution_metadata_test"
+def _load_script_module(dataset="occupancy"):
+    script = REPO_ROOT / "scripts" / f"run_{dataset}_scenario.py"
+    module_name = f"run_{dataset}_scenario_execution_metadata_test"
     spec = importlib.util.spec_from_file_location(module_name, script)
     module = importlib.util.module_from_spec(spec)
     sys.modules[module_name] = module
@@ -128,8 +128,11 @@ def test_execution_metadata_is_in_result_summary_and_report(tiny_result):
         ),
     ],
 )
-def test_cli_builds_execution_configuration(monkeypatch, arguments, expected):
-    module = _load_script_module()
+@pytest.mark.parametrize("dataset", ["occupancy", "air_quality"])
+def test_cli_builds_execution_configuration(
+    monkeypatch, arguments, expected, dataset
+):
+    module = _load_script_module(dataset)
     captured = {}
 
     def fake_run_scenario(**kwargs):
@@ -140,7 +143,7 @@ def test_cli_builds_execution_configuration(monkeypatch, arguments, expected):
     monkeypatch.setattr(
         sys,
         "argv",
-        ["run_occupancy_scenario.py", "--quiet", *arguments],
+        [f"run_{dataset}_scenario.py", "--quiet", *arguments],
     )
 
     assert module.main() == 0

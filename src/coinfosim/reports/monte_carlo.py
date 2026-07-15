@@ -596,7 +596,7 @@ def _matrix_html(matrix: np.ndarray, channel_names: Sequence[str]) -> str:
 
 
 # --------------------------------------------------------------------------- #
-# Structured 16-section Monte Carlo report (Occupancy arm reports)
+# Structured dataset-anchored Monte Carlo report
 # --------------------------------------------------------------------------- #
 
 _STRUCTURED_CSS = """
@@ -739,11 +739,13 @@ def _loss_curve_nested_cardinality_image(
     result: SimulationResult,
     classifier: str,
     cardinality: int,
+    full_reference_label: Optional[str] = None,
 ) -> str:
     """Loss vs N for every subset of one cardinality plus the full reference."""
     sizes = result.sample_sizes
     d = max(len(s) for s in result.subsets)
     full_subset = tuple(range(d))
+    reference_label = full_reference_label or f"Full-{d} reference"
     subsets = sorted(tuple(s) for s in result.subsets if len(s) == cardinality)
     plot_subsets = [s for s in subsets if s != full_subset]
 
@@ -762,7 +764,7 @@ def _loss_curve_nested_cardinality_image(
     errs = [result.accumulator.standard_error(n, full_subset, classifier) for n in sizes]
     ax.plot(
         sizes, means, color="#e6b800", linewidth=4.0, zorder=3, alpha=0.95,
-        label=f"Full-5 reference: {_compact_sub(full_subset)}",
+        label=f"{reference_label}: {_compact_sub(full_subset)}",
     )
     ax.errorbar(
         sizes, means, yerr=errs, fmt="o", color="#a8830a", markersize=4,
@@ -783,6 +785,7 @@ def _loss_curves_panel(
     result: SimulationResult,
     classifier: str,
     channel_names: Optional[Sequence[str]],
+    full_reference_label: Optional[str] = None,
 ) -> str:
     best_panel = (
         "<div class='figure'><img src='"
@@ -795,7 +798,9 @@ def _loss_curves_panel(
             f"k{k}",
             f"{k}-channel + full reference",
             "<div class='figure'><img src='"
-            + _loss_curve_nested_cardinality_image(result, classifier, k)
+            + _loss_curve_nested_cardinality_image(
+                result, classifier, k, full_reference_label
+            )
             + f"' alt='{k}-channel nested loss curves {html.escape(classifier_label(classifier))}'/></div>",
         ))
     nested_panel = _tab_group(f"losscurve-nested-{classifier}", nested_tabs, "k1")
@@ -1154,6 +1159,15 @@ def _structural_dynamics_panel(
                 ),
             )
         )
+    else:
+        structures.append(
+            (
+                "nstar",
+                "Progressive N-star matrix",
+                "<p>Progressive N-star matrices require at least two sample "
+                "sizes.</p>",
+            )
+        )
     selection = ", ".join(labels)
     return (
         "<p class='ref-note'><strong>Arm-local display selection at Nmax:</strong> "
@@ -1176,6 +1190,9 @@ def generate_structured_monte_carlo_report(
     channel_names: Optional[Sequence[str]] = None,
     fixed_test_description: str = "fixed real Occupancy evaluation split",
     dataset_provenance_html: str = _DATASET_PROVENANCE_DEFAULT,
+    dataset_name: str = "UCI Occupancy Detection",
+    target_description: str = "binary Occupancy label",
+    full_reference_label: Optional[str] = None,
     training_protocol_html: str = "",
     model_section_html: str = "",
     reproducibility_html: str = "",
@@ -1186,8 +1203,8 @@ def generate_structured_monte_carlo_report(
 ) -> Path:
     """Generate a structured, navigable 17-section Monte Carlo HTML report.
 
-    Used for the three Occupancy arm reports (Real → Real,
-    Single Gaussian → Real, GMM → Real). The report uses a single sticky
+    Used for the standard dataset-anchored arms (Real → Real, Single Gaussian
+    → Real, GMM → Real). The report uses a single sticky
     channel legend, compact subscript variable notation (``{X₁, X₃}``), static
     per-classifier tab selectors (Linear SVM default), a yellow full-subset
     reference highlight, and expandable full tables. The old
@@ -1205,6 +1222,8 @@ def generate_structured_monte_carlo_report(
     ch: Optional[Sequence[str]] = tuple(
         channel_names or result.metadata.get("channel_names", []) or []
     ) or None
+    dimension = max(len(subset) for subset in result.subsets)
+    reference_label = full_reference_label or f"Full-{dimension} reference"
 
     if export_csvs:
         _export_csv_tables(result, output_dir, arm_id, ch)
@@ -1242,7 +1261,11 @@ def generate_structured_monte_carlo_report(
 
     # --- Section 10: loss curves by dimension, tabs by classifier --------- #
     losscurve_tabs = [
-        (c, classifier_label(c), _loss_curves_panel(result, c, ch))
+        (
+            c,
+            classifier_label(c),
+            _loss_curves_panel(result, c, ch, reference_label),
+        )
         for c in present
     ]
     losscurve_html = _tab_group("losscurve", losscurve_tabs, default_clf)
@@ -1322,6 +1345,8 @@ full sensor names appear in metadata and appendices.</div>
 <h2>4. Run configuration</h2>
 <dl class="meta">
   <dt>Arm</dt><dd>{html.escape(arm_label)}</dd>
+  <dt>Dataset</dt><dd>{html.escape(dataset_name)}</dd>
+  <dt>Target</dt><dd>{html.escape(target_description)}</dd>
   <dt>Mode</dt><dd><code>{html.escape(str(result.config.mode))}</code></dd>
   <dt>Sample sizes (n_per_class)</dt><dd>{list(result.config.sample_sizes)}</dd>
   <dt>Classifiers</dt><dd>{html.escape(classifiers_str)}</dd>
@@ -1364,16 +1389,18 @@ scale). All quantities preserve the empirical test-loss scale.</p>
 
 <h2>10. Loss curves</h2>
 <p>Loss curves are available in two complementary views. <strong>Best by
-cardinality</strong> shows the best 1-, 2-, 3-, and 4-channel subsets plus the
-full 5-channel reference. <strong>Nested cardinality</strong> shows all subsets
-of one selected cardinality against the same full 5-channel reference. Linear
-SVM is shown by default; error bars show &plusmn;1 SE.</p>
+cardinality</strong> shows the best subset for every available dimension from
+1 through {dimension}, including the {html.escape(reference_label)}.
+<strong>Nested cardinality</strong> shows all subsets of one selected
+cardinality against the same {dimension}-channel reference. Linear SVM is shown
+by default; error bars show &plusmn;1 SE.</p>
 {losscurve_html}
 
 <h2>11. Best subset comparison</h2>
-<p>Interpretable comparison of the best single channel, best pair, best triple,
-best four-channel subset and the full subset. The full-channel reference row is
-highlighted. Select a classifier below (Linear SVM default).</p>
+<p>Interpretable comparison of the best subset at every available dimension
+from 1 through {dimension}, including the full {dimension}-channel subset.
+The full-channel reference row is highlighted. Select a classifier below
+(Linear SVM default).</p>
 {bestsub_html}
 
 <h2>12. Subset ranking by sample size</h2>

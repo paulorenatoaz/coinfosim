@@ -11,7 +11,6 @@ applied to both splits.
 
 from __future__ import annotations
 
-import hashlib
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, Mapping, Tuple
@@ -19,6 +18,10 @@ from typing import Dict, Mapping, Tuple
 import numpy as np
 import pandas as pd
 
+from coinfosim.datasets.common import (
+    StandardizationParameters,
+    compute_file_hashes,
+)
 from coinfosim.samplers.dataset import Dataset
 
 OCCUPANCY_CHANNELS: Tuple[str, ...] = (
@@ -36,17 +39,6 @@ OCCUPANCY_RAW_FILENAMES: Tuple[str, ...] = (
 )
 
 _RAW_COLUMNS = ("row_id", "date", *OCCUPANCY_CHANNELS, OCCUPANCY_TARGET)
-
-
-@dataclass(frozen=True)
-class StandardizationParameters:
-    """Per-channel standardization parameters learned from training data."""
-
-    means: pd.Series
-    stds: pd.Series
-
-    def as_dataframe(self) -> pd.DataFrame:
-        return pd.DataFrame({"mean": self.means, "std": self.stds})
 
 
 @dataclass(frozen=True)
@@ -97,26 +89,6 @@ class OccupancyData:
     def train_correlation(self, standardized: bool = True) -> pd.DataFrame:
         frame = self.standardized_train if standardized else self.raw_train
         return frame.loc[:, self.channel_names].corr()
-
-
-def compute_file_hashes(
-    source_files: Mapping[str, Path],
-) -> Dict[str, str]:
-    """Return a dict mapping each filename to its SHA-256 hex digest.
-
-    Only files that exist are hashed; missing files map to the empty string.
-    """
-    hashes: Dict[str, str] = {}
-    for name, path in source_files.items():
-        if path.exists():
-            sha = hashlib.sha256()
-            with open(path, "rb") as fh:
-                for chunk in iter(lambda: fh.read(65536), b""):
-                    sha.update(chunk)
-            hashes[name] = sha.hexdigest()
-        else:
-            hashes[name] = ""
-    return hashes
 
 
 def load_occupancy_data(raw_dir: Path | str = "data/raw/occupancy") -> OccupancyData:
