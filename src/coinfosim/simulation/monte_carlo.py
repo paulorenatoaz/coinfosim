@@ -19,14 +19,14 @@ import time
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Mapping, Optional, Protocol, Sequence, Tuple
 
-from coinfosim.classifiers.registry import available_classifiers, make_classifier
+from coinfosim.classifiers.registry import available_classifiers
 from coinfosim.models.gaussian import GaussianSimulationModel
 from coinfosim.results.accumulator import LossAccumulator
 from coinfosim.samplers.dataset import Dataset
 from coinfosim.samplers.gaussian import GaussianClassConditionalSampler
 from coinfosim.simulation.config import MonteCarloConfig
-from coinfosim.simulation.metrics import empirical_test_loss
 from coinfosim.simulation.progress import CooperativeProgressReporter
+from coinfosim.simulation.replication import ReplicationTask, evaluate_replication
 from coinfosim.simulation.stopping import StandardErrorStoppingRule
 from coinfosim.simulation.subsets import all_nonempty_subsets
 
@@ -164,19 +164,23 @@ class CooperativeMonteCarloSimulator:
                 # Run one batch of replications.
                 batch_end = replication_id + self.config.replication_batch_size
                 while replication_id < batch_end:
-                    train = self.sampler.sample_train(
-                        n_per_class=n_per_class, replication_id=replication_id
+                    result = evaluate_replication(
+                        sampler=self.sampler,
+                        cells=cells,
+                        test_by_subset=test_by_subset,
+                        task=ReplicationTask(
+                            n_per_class=n_per_class,
+                            replication_id=replication_id,
+                        ),
                     )
-                    for subset in self.subsets:
-                        train_sub = train.select_channels(subset)
-                        test_sub = test_by_subset[subset]
-                        for clf_name in self.classifier_names:
-                            estimator = make_classifier(clf_name)
-                            estimator.fit(train_sub.X, train_sub.y)
-                            loss = empirical_test_loss(estimator, test_sub)
-                            accumulator.add(
-                                n_per_class, subset, clf_name, replication_id, loss
-                            )
+                    for (subset, clf_name), loss in zip(cells, result.losses):
+                        accumulator.add(
+                            result.n_per_class,
+                            subset,
+                            clf_name,
+                            result.replication_id,
+                            loss,
+                        )
                     replication_id += 1
 
                 # Evaluate stopping rule at the batch boundary.
