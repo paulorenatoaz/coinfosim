@@ -30,7 +30,11 @@ from coinfosim.samplers.gaussian import GaussianClassConditionalSampler
 from coinfosim.samplers.gmm import GMMClassConditionalSampler
 from coinfosim.samplers.real import RealDatasetSampler
 from coinfosim.samplers.transfer import SyntheticTrainRealTestSampler
-from coinfosim.simulation.config import MonteCarloConfig, get_mode_config
+from coinfosim.simulation.config import (
+    MonteCarloConfig,
+    get_mode_config,
+    resolve_sample_sizes_for_training_capacity,
+)
 from coinfosim.simulation.execution import ExecutionConfig
 from coinfosim.simulation.monte_carlo import CooperativeMonteCarloSimulator
 from coinfosim.simulation.progress import CooperativeProgressReporter
@@ -84,8 +88,13 @@ class DatasetAnchoredExecutionSpec:
     real_experiment_arm: str = "real_data"
 
 
-def _config_dict(config: MonteCarloConfig) -> Dict[str, Any]:
-    return {
+def _config_dict(
+    config: MonteCarloConfig,
+    *,
+    requested_sample_sizes: Optional[tuple[int, ...]] = None,
+    training_class_counts: Optional[Mapping[str, int]] = None,
+) -> Dict[str, Any]:
+    payload = {
         "mode": config.mode,
         "sample_sizes": list(config.sample_sizes),
         "min_replications": config.min_replications,
@@ -95,6 +104,30 @@ def _config_dict(config: MonteCarloConfig) -> Dict[str, Any]:
         "ci_half_width_target": config.ci_half_width_target,
         "base_seed": config.base_seed,
     }
+    if config.mode == "full-scale":
+        requested = requested_sample_sizes or config.sample_sizes
+        payload.update(
+            {
+                "sample_size_strategy": (
+                    "powers_of_two_up_to_training_minority"
+                ),
+                "requested_sample_sizes": list(requested),
+            }
+        )
+        if training_class_counts is not None:
+            normalized_counts = {
+                str(label): int(count)
+                for label, count in sorted(training_class_counts.items())
+            }
+            minority_count = min(normalized_counts.values())
+            payload.update(
+                {
+                    "training_class_counts": normalized_counts,
+                    "training_minority_class_count": minority_count,
+                    "resolved_max_n_per_class": max(config.sample_sizes),
+                }
+            )
+    return payload
 
 
 def _scenario_report_metadata(spec: DatasetAnchoredExecutionSpec) -> Dict[str, Any]:
@@ -159,11 +192,23 @@ def _dataset_report_filename(
     return f"{spec.dataset_report_prefix}_{mode}_{run_id:06d}.html"
 
 
-def _validate_sample_sizes(data: Any, config: MonteCarloConfig) -> None:
+def _training_class_counts(data: Any) -> Dict[str, int]:
     labels, counts = np.unique(data.train_dataset.y, return_counts=True)
     if len(labels) < 2:
         raise ValueError("training reservoir must contain at least two classes")
-    minority_count = int(counts.min())
+    return {
+        label: count
+        for label, count in sorted(
+            ((str(label), int(count)) for label, count in zip(labels, counts)),
+            key=lambda item: item[0],
+        )
+    }
+
+
+def _validate_sample_sizes(
+    training_class_counts: Mapping[str, int], config: MonteCarloConfig
+) -> None:
+    minority_count = min(training_class_counts.values())
     infeasible = [int(n) for n in config.sample_sizes if int(n) > minority_count]
     if infeasible:
         raise ValueError(
@@ -315,6 +360,7 @@ def run_dataset_anchored_scenario(
         reporter = CooperativeProgressReporter(verbose=False)
     if config is None:
         config = get_mode_config(mode)
+    requested_sample_sizes = tuple(config.sample_sizes)
     if execution_config is None:
         execution_config = ExecutionConfig()
     mode = config.mode
@@ -337,7 +383,9 @@ def run_dataset_anchored_scenario(
         scenario_family=spec.scenario_family,
         question=spec.question,
         mode=mode,
-        config=_config_dict(config),
+        config=_config_dict(
+            config, requested_sample_sizes=requested_sample_sizes
+        ),
     )
     scenario_run_id = scenario_run.scenario_run_id
     scenario_dir = Path(scenario_run.run_dir)
@@ -350,7 +398,28 @@ def run_dataset_anchored_scenario(
         reporter.scenario_step_start(f"Loading {spec.dataset_name} dataset", detail=raw_dir)
         step = time.time()
         data = spec.loader(raw_dir)
-        _validate_sample_sizes(data, config)
+        training_class_counts = _training_class_counts(data)
+        minority_count = min(training_class_counts.values())
+        config = resolve_sample_sizes_for_training_capacity(
+            config, minority_count
+        )
+        _validate_sample_sizes(training_class_counts, config)
+        config_payload = _config_dict(
+            config,
+            requested_sample_sizes=requested_sample_sizes,
+            training_class_counts=training_class_counts,
+        )
+        scenario_registry.update_run(
+            scenario_run_id, config=config_payload
+        )
+        if mode == "full-scale":
+            reporter.info(
+                f"training class counts: {training_class_counts}"
+            )
+            reporter.info(f"training minority-class count: {minority_count}")
+            reporter.info(
+                f"effective sample sizes: {config.sample_sizes}"
+            )
         reporter.scenario_step_finish(
             f"Loading {spec.dataset_name} dataset", elapsed=time.time() - step
         )
@@ -421,7 +490,7 @@ def run_dataset_anchored_scenario(
             simulation_family=spec.real_simulation_family,
             mode=mode,
             scenario_run_id_origin=scenario_run_id,
-            config=_config_dict(config),
+            config=config_payload,
         )
         real_result = CooperativeMonteCarloSimulator(
             real_sampler.model,
@@ -463,7 +532,7 @@ def run_dataset_anchored_scenario(
             simulation_family=spec.gaussian_simulation_family,
             mode=mode,
             scenario_run_id_origin=scenario_run_id,
-            config=_config_dict(config),
+            config=config_payload,
         )
         gaussian_result = CooperativeMonteCarloSimulator(
             gaussian_anchored.model,
@@ -506,7 +575,7 @@ def run_dataset_anchored_scenario(
             simulation_family=spec.gmm_simulation_family,
             mode=mode,
             scenario_run_id_origin=scenario_run_id,
-            config=_config_dict(config),
+            config=config_payload,
         )
         gmm_result = CooperativeMonteCarloSimulator(
             gmm_anchored.model,

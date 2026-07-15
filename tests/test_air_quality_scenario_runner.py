@@ -12,7 +12,7 @@ from coinfosim.samplers.real import RealDatasetSampler
 from coinfosim.samplers.transfer import SyntheticTrainRealTestSampler
 from coinfosim.scenarios import dataset_anchored_runner as runner
 from coinfosim.scenarios.air_quality import build_gmm_anchored_air_quality_model
-from coinfosim.simulation.config import MonteCarloConfig
+from coinfosim.simulation.config import MonteCarloConfig, get_mode_config
 from coinfosim.simulation.execution import ExecutionConfig
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -172,6 +172,77 @@ def test_air_quality_runner_tracks_three_arms_and_shared_fixed_test(
 
     for path in tmp_path.rglob("*.json"):
         _strict_json(path)
+
+
+def test_full_scale_resolves_once_and_persists_shared_config(
+    tmp_path, monkeypatch
+):
+    module = _load_script_module()
+    monkeypatch.setattr(module, "AIR_QUALITY_SPEC", _fast_spec(module))
+    config = replace(
+        get_mode_config("full-scale"),
+        min_replications=2,
+        max_replications=2,
+        replication_batch_size=2,
+        test_samples_per_class=20,
+    )
+    original_resolver = runner.resolve_sample_sizes_for_training_capacity
+    resolver_calls = []
+
+    def resolving_spy(observed_config, minority_class_count):
+        assert observed_config.mode == "full-scale"
+        assert minority_class_count == 1818
+        resolver_calls.append((observed_config, minority_class_count))
+        resolved = original_resolver(observed_config, minority_class_count)
+        return replace(resolved, sample_sizes=(2, 4))
+
+    captured_configs = []
+    original_simulator = runner.CooperativeMonteCarloSimulator
+
+    class CapturingSimulator(original_simulator):
+        def __init__(self, *args, **kwargs):
+            captured_configs.append(args[1])
+            super().__init__(*args, **kwargs)
+
+    monkeypatch.setattr(
+        runner, "resolve_sample_sizes_for_training_capacity", resolving_spy
+    )
+    monkeypatch.setattr(
+        runner, "CooperativeMonteCarloSimulator", CapturingSimulator
+    )
+
+    output = module.run_scenario(
+        raw_dir=str(RAW_DIR),
+        output_dir=str(tmp_path),
+        config=config,
+        visualize=False,
+    )
+
+    assert len(resolver_calls) == 1
+    assert len(captured_configs) == 3
+    assert all(item.mode == "full-scale" for item in captured_configs)
+    assert all(item.sample_sizes == (2, 4) for item in captured_configs)
+    expected_requested = [2, 4, 8, 16, 32, 64, 128, 256, 512]
+    json_paths = [
+        Path(output["scenario_json"]),
+        Path(output["real_simulation_json"]),
+        Path(output["single_gaussian_to_real_simulation_json"]),
+        Path(output["gmm_to_real_simulation_json"]),
+    ]
+    for path in json_paths:
+        persisted = _strict_json(path)["config"]
+        assert persisted["mode"] == "full-scale"
+        assert persisted["sample_sizes"] == [2, 4]
+        assert persisted["requested_sample_sizes"] == expected_requested
+        assert persisted["training_class_counts"] == {
+            "0": 5374,
+            "1": 1818,
+        }
+        assert persisted["training_minority_class_count"] == 1818
+        assert persisted["resolved_max_n_per_class"] == 4
+        assert persisted["sample_size_strategy"] == (
+            "powers_of_two_up_to_training_minority"
+        )
 
 
 def test_same_seed_reproduces_losses_and_rerun_never_overwrites(tmp_path, monkeypatch):

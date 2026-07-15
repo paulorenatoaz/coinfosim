@@ -197,9 +197,10 @@ Dataset-anchored scenarios are run through their dataset-specific scripts. The s
 | `smoke` | `2, 4, 8, 16, 32` |
 | `fast` | `2, 4, 8, 16, 32, 64, 128` |
 | `full` | `2, 4, 8, 16, 32, 64, 128, 256, 512` |
+| `full-scale` | Powers of two from 2 through the largest power of two not exceeding the training minority-class count; same Monte Carlo precision/budget as `full` |
 | `strict` | `2, 4, 8, 16, 32, 64, 128, 256, 512` |
 
-Only `smoke` is used by the documented validation workflow. `fast`, `full`, and `strict` are never run automatically; use them only after explicit scientific review and after checking the real training reservoir's minority-class capacity.
+Only `smoke` is used by the documented validation workflow. `fast`, `full`, `full-scale`, and `strict` are never run automatically; use them only after explicit scientific review and after checking the real training reservoir's minority-class capacity. `full-scale` may be substantially more expensive than `full`, and all three dataset-anchored arms share its single resolved sample-size grid.
 
 ## UCI Air Quality scenario
 

@@ -100,6 +100,29 @@ def test_registry_appends_and_json_valid_after_updates(tmp_path):
     assert failed.error == "boom"
 
 
+def test_full_scale_mode_directory_and_config_update_roundtrip(tmp_path):
+    reg = ScenarioRunRegistry(base_output_dir=tmp_path)
+    record = reg.start_run(
+        scenario_slug="dataset_baseline",
+        scenario_name="Dataset Baseline",
+        scenario_family="dataset",
+        question="Q?",
+        mode="full-scale",
+        config={"sample_sizes": [2, 4, 8]},
+    )
+
+    assert record.run_dir.endswith("_full-scale")
+
+    updated_config = {
+        "mode": "full-scale",
+        "sample_sizes": [2, 4, 8, 16],
+        "training_minority_class_count": 20,
+    }
+    reg.update_run(record.scenario_run_id, config=updated_config)
+
+    assert reg.get_run(record.scenario_run_id).config == updated_config
+
+
 def test_simulation_fail_run_marks_failed(tmp_path):
     reg = SimulationRunRegistry(base_output_dir=tmp_path)
     r = reg.start_run(
