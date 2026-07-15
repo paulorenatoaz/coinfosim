@@ -1,10 +1,11 @@
-"""Publishing utilities for coinfosim.
+"""Publishing utilities for coinfosim."""
 
-Generates an index.html linking Scenario reports (HTML) and JSON data
-intended to live on a dedicated gh-pages branch. Main stays code-only.
-"""
+__all__ = ["publish_to_pages"]
 
-from .publisher import publish_to_pages
 
-__all__ = ['publish_to_pages']
+def __getattr__(name):
+    if name == "publish_to_pages":
+        from .publisher import publish_to_pages
 
+        return publish_to_pages
+    raise AttributeError(name)

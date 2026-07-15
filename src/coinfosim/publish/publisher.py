@@ -1,21 +1,97 @@
 import argparse
 import datetime as dt
 import html
+import json
 import os
 import subprocess
 from pathlib import Path
 
 
 def discover_scenarios(reports_root: Path):
+    registry = reports_root / "scenario_runs.json"
+    if registry.exists():
+        with registry.open(encoding="utf-8") as fh:
+            data = json.load(fh)
+        items = []
+        for run in data.get("runs", []):
+            if run.get("status") != "completed":
+                continue
+            scenario_path = run.get("artifacts", {}).get("scenario_report")
+            if not scenario_path:
+                scenario_path = _find_scenario_report_for_run(reports_root, run)
+            rel_path = _reports_relative_path(reports_root, scenario_path) if scenario_path else None
+            if rel_path is None:
+                continue
+            items.append(
+                {
+                    "path": rel_path,
+                    "title": _scenario_title(run),
+                    "dataset": _dataset_name(run),
+                    "question": run.get("question", ""),
+                }
+            )
+        items.sort(key=lambda item: (item["dataset"], item["title"], item["path"].as_posix()))
+        return items
+
     items = []
     if not reports_root.exists():
         return []
     for p in reports_root.rglob("*.html"):
         name = p.name
-        if name.startswith("scenario_") and name.endswith("_report.html"):
-            items.append(p)
-    items.sort(key=lambda x: x.name)
-    return [x.relative_to(reports_root) for x in items]
+        if "scenario_report" in name:
+            items.append(
+                {
+                    "path": p.relative_to(reports_root),
+                    "title": p.stem.replace("_", " ").title(),
+                    "dataset": "Scenario",
+                    "question": "",
+                }
+            )
+    items.sort(key=lambda item: item["path"].as_posix())
+    return items
+
+
+def _find_scenario_report_for_run(reports_root: Path, run: dict):
+    run_dir = run.get("run_dir")
+    if not run_dir:
+        return None
+    rel_run_dir = _reports_relative_path(reports_root, run_dir)
+    if rel_run_dir is None:
+        return None
+    reports = sorted((reports_root / rel_run_dir).glob("*scenario_report*.html"))
+    return reports[0] if reports else None
+
+
+def _reports_relative_path(reports_root: Path, path_value):
+    path = Path(path_value)
+    marker = Path("output") / "reports"
+    parts = path.parts
+    for index in range(len(parts) - len(marker.parts) + 1):
+        if parts[index : index + len(marker.parts)] == marker.parts:
+            return Path(*parts[index + len(marker.parts) :])
+    try:
+        return path.resolve().relative_to(reports_root.resolve())
+    except (OSError, ValueError):
+        if not path.is_absolute():
+            return path
+    return None
+
+
+def _scenario_title(run: dict):
+    name = run.get("scenario_name") or run.get("scenario_slug") or "Scenario"
+    mode = run.get("mode")
+    return f"{name} ({mode})" if mode else name
+
+
+def _dataset_name(run: dict):
+    scenario_slug = run.get("scenario_slug", "")
+    if scenario_slug.startswith("occupancy"):
+        return "Occupancy Detection"
+    if scenario_slug.startswith("air_quality"):
+        return "UCI Air Quality"
+    if scenario_slug.startswith("support2"):
+        return "SUPPORT2"
+    return run.get("scenario_family", "Scenario").replace("_", " ").title()
 
 
 def discover_json(data_root: Path):
@@ -30,12 +106,29 @@ def discover_json(data_root: Path):
 
 def write_index(site_dir: Path, reports_rel: Path, data_rel: Path, scenarios, json_files, title: str):
     site_dir.mkdir(parents=True, exist_ok=True)
-    ts = dt.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%SZ")
+    ts = dt.datetime.now(dt.UTC).strftime("%Y-%m-%d %H:%M:%SZ")
 
     def list_html(items):
         return "\n".join(
-            f'<li><a href="{html.escape(str(reports_rel / p))}">{html.escape(p.name)}</a></li>'
-            for p in items
+            _scenario_card(item)
+            for item in items
+        )
+
+    def _scenario_card(item):
+        href = html.escape(str(reports_rel / item["path"]))
+        title_text = html.escape(item["title"])
+        dataset = html.escape(item["dataset"])
+        path_text = html.escape(item["path"].as_posix())
+        question = html.escape(item["question"])
+        question_html = f"<p>{question}</p>" if question else ""
+        return (
+            "<article class=\"report-card\">"
+            f"<h3>{title_text}</h3>"
+            f"<p class=\"dataset-label\">Dataset: {dataset}</p>"
+            f"{question_html}"
+            f"<p class=\"path\">{path_text}</p>"
+            f"<p><a href=\"{href}\">Open scenario report</a></p>"
+            "</article>"
         )
 
     def list_json(items):
@@ -49,29 +142,31 @@ def write_index(site_dir: Path, reports_rel: Path, data_rel: Path, scenarios, js
 <meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">
 <title>{html.escape(title)}</title>
 <style>
-:root {{ --bg:#0b1220; --fg:#e9eef6; --muted:#a8b0bf; --card:#121a2a; --link:#7cc4ff; }}
-html,body {{ margin:0; padding:0; background:var(--bg); color:var(--fg); font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial; }}
-.wrap {{ max-width:1100px; margin:0 auto; padding:24px; }}
-h1 {{ font-size:1.8rem; margin:0 0 8px; }}
-.muted {{ color:var(--muted); font-size:.9rem; margin-bottom:16px; }}
-.grid {{ display:grid; grid-template-columns: repeat(auto-fill, minmax(320px,1fr)); gap:16px; }}
-.card {{ background:var(--card); border:1px solid #1f293b; border-radius:10px; padding:16px; }}
-.card h2 {{ margin:0 0 8px; font-size:1.2rem; }}
-a {{ color:var(--link); text-decoration:none; }} a:hover {{ text-decoration:underline; }}
-ul {{ margin:0; padding-left:18px; max-height:420px; overflow:auto; }}
-.counts {{ display:flex; gap:16px; margin:8px 0 16px; color:var(--muted); }}
-.counts span {{ background:#0e1728; border:1px solid #1f293b; padding:6px 10px; border-radius:999px; }}
-footer {{ margin-top:28px; color:var(--muted); font-size:.85rem; }}
+:root {{ --accent:#1f77b4; --ink:#1a1a1a; --muted:#666; --line:#dcdcdc; --soft:#f7f9fb; --question:#eef5fb; }}
+* {{ box-sizing:border-box; }}
+body {{ font-family:Georgia, "Times New Roman", serif; color:var(--ink); background:white; max-width:1040px; margin:0 auto; padding:2.4rem 1.6rem 4rem; line-height:1.6; }}
+h1 {{ border-bottom:3px solid var(--accent); padding-bottom:.55rem; line-height:1.2; }}
+h2 {{ border-bottom:1px solid var(--line); padding-bottom:.35rem; margin-top:2.4rem; }}
+h3 {{ line-height:1.3; }}
+a {{ color:var(--accent); }}
+.lede {{ font-size:1.08rem; }}
+.question {{ background:var(--question); border-left:5px solid var(--accent); padding:1rem 1.2rem; margin:1.6rem 0; }}
+.grid {{ display:grid; grid-template-columns:1fr; gap:1rem; }}
+.report-grid {{ display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:1rem; }}
+.report-card {{ border:1px solid var(--line); background:var(--soft); padding:1rem 1.15rem; }}
+.report-card h3 {{ margin-top:0; }}
+.dataset-label {{ color:var(--muted); margin-bottom:.25rem; }}
+.path, .metadata {{ color:var(--muted); font-family:ui-monospace, SFMono-Regular, Consolas, monospace; font-size:.86rem; overflow-wrap:anywhere; }}
+footer {{ border-top:1px solid var(--line); margin-top:3rem; padding-top:1rem; color:var(--muted); font-size:.92rem; }}
+@media (max-width:700px) {{ body {{ padding:1.4rem 1rem 3rem; }} .report-grid {{ grid-template-columns:1fr; }} }}
 </style></head><body><div class=\"wrap\">
 <h1>{html.escape(title)}</h1>
-<div class=\"muted\">Updated {ts}</div>
-<div class=\"counts\">
-  <span>Scenario reports: {len(scenarios)}</span>
-  <span>JSON files: {len(json_files)}</span>
-  </div>
+<p class=\"lede\">CoInfoSim is a research simulator for evaluating cooperative advantage among information channels in supervised classification.</p>
+<div class=\"question\"><strong>Scientific question:</strong> When does cooperation among information channels improve supervised classification?</div>
+<p class=\"metadata\">Updated {ts}</p>
 <div class=\"grid\">
-<section class=\"card\"><h2>Scenario Reports</h2><ul>{list_html(scenarios)}</ul></section>
-<section class=\"card\"><h2>Data (JSON)</h2><ul>{list_json(json_files)}</ul></section>
+<section><h2>Published Scenario Reports</h2><p><strong>{len(scenarios)}</strong> published scenario reports.</p><div class=\"report-grid\">{list_html(scenarios)}</div></section>
+<section><h2>Data (JSON)</h2><ul>{list_json(json_files)}</ul></section>
 </div>
 <footer>Served from <code>{html.escape(str(reports_rel))}</code> and <code>{html.escape(str(data_rel))}</code> on gh-pages.</footer>
 </div></body></html>"""

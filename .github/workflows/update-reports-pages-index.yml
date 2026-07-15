@@ -1,4 +1,4 @@
-name: Update reports-pages index
+name: Update gh-pages index
 on:
   push:
     branches: [ main ]
@@ -7,6 +7,8 @@ on:
 jobs:
   update-index:
     runs-on: ubuntu-latest
+    env:
+      PAGES_BRANCH: gh-pages
     steps:
       - name: Checkout main (full history)
         uses: actions/checkout@v4
@@ -23,20 +25,20 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Fetch reports-pages and add worktree
+      - name: Fetch Pages branch and add worktree
         run: |
-          git fetch origin reports-pages:reports-pages || true
-          git worktree add reports-pages reports-pages
+          git fetch origin "$PAGES_BRANCH:$PAGES_BRANCH" || true
+          git worktree add reports-pages "$PAGES_BRANCH"
 
-      - name: Generate index for reports-pages
+      - name: Generate index for Pages branch
         run: |
           python -m pip install --upgrade pip
-          python -m coinfosim.publish.publisher --reports-dir reports --data-dir data --site-dir reports-pages --title "coinfosim Reports"
+          PYTHONPATH=src python -m coinfosim.publish.publisher --reports-dir reports --data-dir data --site-dir reports-pages --title "CoInfoSim - Published Research Reports"
           cd reports-pages
           if [ -n "$(git status --porcelain)" ]; then
             git add -A
             git commit -m "chore(publish): update index [skip ci]"
-            git push origin HEAD:reports-pages
+            git push origin "HEAD:$PAGES_BRANCH"
           fi
 
       - name: Cleanup worktree

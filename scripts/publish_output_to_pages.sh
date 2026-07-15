@@ -28,6 +28,12 @@ else
   echo "Note: output/data not found; skipping data dir sync."
 fi
 
+PYTHONPATH="${PYTHONPATH:+$PYTHONPATH:}src" "${PYTHON:-python3}" -m coinfosim.publish.publisher \
+  --reports-dir "$REPORTS_DIR" \
+  --data-dir "$DATA_DIR" \
+  --site-dir reports-pages \
+  --title "CoInfoSim - Published Research Reports"
+
 touch reports-pages/.nojekyll
 
 pushd reports-pages >/dev/null
@@ -41,4 +47,4 @@ fi
 popd >/dev/null
 
 git worktree remove reports-pages --force || true
-echo "Published. Ensure GitHub Pages is set to branch: reports-pages, folder: /"
+echo "Published. Ensure GitHub Pages is set to branch: $PAGES, folder: /"
