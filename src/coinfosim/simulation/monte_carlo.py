@@ -162,7 +162,9 @@ class CooperativeMonteCarloSimulator:
 
             while True:
                 # Run one batch of replications.
+                batch_start = replication_id
                 batch_end = replication_id + self.config.replication_batch_size
+                batch_results = []
                 while replication_id < batch_end:
                     result = evaluate_replication(
                         sampler=self.sampler,
@@ -173,15 +175,15 @@ class CooperativeMonteCarloSimulator:
                             replication_id=replication_id,
                         ),
                     )
-                    for (subset, clf_name), loss in zip(cells, result.losses):
-                        accumulator.add(
-                            result.n_per_class,
-                            subset,
-                            clf_name,
-                            result.replication_id,
-                            loss,
-                        )
+                    batch_results.append(result)
                     replication_id += 1
+
+                accumulator.add_batch(
+                    n_per_class=n_per_class,
+                    expected_replication_ids=range(batch_start, batch_end),
+                    cells=cells,
+                    results=batch_results,
+                )
 
                 # Evaluate stopping rule at the batch boundary.
                 last_decision = self.stopping_rule.evaluate(

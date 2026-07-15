@@ -97,7 +97,16 @@ class StandardErrorStoppingRule:
         ``cells`` is a sequence of ``(subset, classifier_name)`` pairs that
         must all satisfy the CI target for convergence.
         """
-        replications = accumulator.replications_completed(n_per_class)
+        counts = [
+            accumulator.count(n_per_class, subset, classifier_name)
+            for subset, classifier_name in cells
+        ]
+        if len(set(counts)) > 1:
+            raise ValueError(
+                "cannot evaluate stopping with unequal replication counts "
+                f"across requested cells: {counts}"
+            )
+        replications = counts[0] if counts else 0
         max_width = self.max_ci_half_width(accumulator, n_per_class, cells)
 
         if replications < self.min_replications:
