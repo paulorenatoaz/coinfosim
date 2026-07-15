@@ -1904,7 +1904,17 @@ Do not proceed to merge if:
 
 # Block 17 — Documentation and feature-branch finalization
 
-**Status:** `[~] In progress`
+**Status:** `[x] Complete`
+
+**Completion note (2026-07-15):** Updated the root README, raw-data provenance,
+and this task document with the fixed endpoint, seven channels, cohort/split,
+three arms, smoke/regeneration commands, hierarchy, and owner-only later full-run
+policy. All intended source, tests, documentation, and retained feature smoke
+artifacts are tracked. Branch: `feature/support2-180d-scenario`; base:
+`c084f86e7a6f6ccde8bd2d430dca336a6074dfc6`. Ordered commits before this final
+status commit: `7fbf5a1d`, `78385cf0`, `1b69887e`, `9642fa09`, `c654a458`,
+`32da88dd`, `59d19ae5`. The exact feature tip (this final status commit) is
+recorded in the final handoff. No unresolved feature-branch issue remains.
 
 **Depends on:** Block 16
 
