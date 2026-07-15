@@ -85,6 +85,7 @@ class DatasetAnchoredExecutionSpec:
     dataset_artifacts_callback: Optional[
         Callable[[Any, Path], Mapping[str, Path | str]]
     ] = None
+    include_structural_snapshots: bool = True
 
 
 def _config_dict(config: MonteCarloConfig) -> Dict[str, Any]:
@@ -260,6 +261,8 @@ def _persist_simulation(
     report_callback: Callable[[Path, str], Path],
     model_metadata: Dict[str, Any],
     sampler_metadata: Dict[str, Any],
+    *,
+    include_structural_snapshots: bool = True,
 ):
     run_dir = Path(record.run_dir)
     run_id = record.simulation_run_id
@@ -279,7 +282,10 @@ def _persist_simulation(
         model_metadata=model_metadata,
         sampler_metadata=sampler_metadata,
         summary_data=summary,
-        result_data=simulation_report_data(result),
+        result_data=simulation_report_data(
+            result,
+            include_structural_dynamics=include_structural_snapshots,
+        ),
         artifacts={
             "monte_carlo_report": str(report_path),
             "result_data": str(result_path),
@@ -465,6 +471,7 @@ def run_dataset_anchored_scenario(
                 "test_source": spec.real_test_source_id,
                 "fixed_test_description": spec.fixed_test_description,
             },
+            include_structural_snapshots=spec.include_structural_snapshots,
         )
 
         records[GAUSSIAN_ARM_ID] = simulation_registry.start_run(
@@ -508,6 +515,7 @@ def run_dataset_anchored_scenario(
                 "test_source": spec.real_test_source_id,
                 "fixed_test_description": spec.fixed_test_description,
             },
+            include_structural_snapshots=spec.include_structural_snapshots,
         )
 
         records[GMM_ARM_ID] = simulation_registry.start_run(
@@ -551,6 +559,7 @@ def run_dataset_anchored_scenario(
                 "test_source": spec.real_test_source_id,
                 "fixed_test_description": spec.fixed_test_description,
             },
+            include_structural_snapshots=spec.include_structural_snapshots,
         )
 
         scenario_meta = {
@@ -651,6 +660,7 @@ def run_dataset_anchored_scenario(
             exclusion_metadata=context.get("exclusions"),
             scenario_metadata=_scenario_report_metadata(spec),
             gmm_model_selection=gmm_anchored.model_selection,
+            include_structural_snapshots=spec.include_structural_snapshots,
         )
         if visualization:
             report_data["visualization"] = visualization
@@ -841,6 +851,7 @@ def regenerate_dataset_anchored_scenario(
             old_report_data.get("scenario") or _scenario_report_metadata(spec)
         ),
         gmm_model_selection=old_gmm_selection,
+        include_structural_snapshots=spec.include_structural_snapshots,
     )
     if visualization:
         prepared_report_data["visualization"] = visualization
@@ -853,7 +864,11 @@ def regenerate_dataset_anchored_scenario(
     simulation_jsons = []
     for ref, result in simulation_updates:
         updated = simulation_registry.update_run(
-            int(ref["simulation_run_id"]), result_data=simulation_report_data(result)
+            int(ref["simulation_run_id"]),
+            result_data=simulation_report_data(
+                result,
+                include_structural_dynamics=spec.include_structural_snapshots,
+            ),
         )
         _write_json(ref["simulation_json_path"], updated.to_dict())
         simulation_jsons.append(str(ref["simulation_json_path"]))

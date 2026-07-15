@@ -174,6 +174,7 @@ SUPPORT2_SPEC = DatasetAnchoredExecutionSpec(
     report_context_callback=_report_context,
     real_experiment_arm="real_to_real",
     dataset_artifacts_callback=_dataset_artifacts,
+    include_structural_snapshots=False,
 )
 
 

@@ -80,7 +80,9 @@ def simulation_summary_snapshot(result: SimulationResult) -> Dict[str, Any]:
     }
 
 
-def simulation_report_data(result: SimulationResult) -> Dict[str, Any]:
+def simulation_report_data(
+    result: SimulationResult, *, include_structural_dynamics: bool = True
+) -> Dict[str, Any]:
     """Report-ready tables sufficient to understand the simulation report."""
     summary_df = summary_dataframe(
         result.accumulator,
@@ -100,13 +102,17 @@ def simulation_report_data(result: SimulationResult) -> Dict[str, Any]:
         result.sample_sizes,
         result.subsets,
     )
-    return {
+    payload = {
         "metric": "empirical_test_loss",
         "summary_table": _records(summary_df),
         "best_subset_rankings": _records(rankings_df),
         "threshold_comparisons": _records(thresholds_df),
-        "structural_dynamics": _clean(simulation_structural_dynamics(result)),
     }
+    if include_structural_dynamics:
+        payload["structural_dynamics"] = _clean(
+            simulation_structural_dynamics(result)
+        )
+    return payload
 
 
 def scenario_report_data(
@@ -115,6 +121,7 @@ def scenario_report_data(
     gmm_result: SimulationResult,
     channel_names: Sequence[str],
     gmm_model_selection: Any = None,
+    include_structural_snapshots: bool = True,
 ) -> Dict[str, Any]:
     """Compatibility wrapper for Occupancy scenario report data."""
 
@@ -133,6 +140,7 @@ def scenario_report_data(
         gaussian_test_source="real_occupancy_evaluation_split",
         gmm_test_source="real_occupancy_evaluation_split",
         gmm_model_selection=gmm_model_selection,
+        include_structural_snapshots=include_structural_snapshots,
     )
 
 
@@ -158,6 +166,7 @@ def dataset_anchored_scenario_report_data(
     exclusion_metadata: Mapping[str, Any] | None = None,
     scenario_metadata: Mapping[str, Any] | None = None,
     gmm_model_selection: Any = None,
+    include_structural_snapshots: bool = True,
 ) -> Dict[str, Any]:
     """Generic report-ready snapshot for the standard dataset three-arm protocol."""
 
@@ -179,7 +188,10 @@ def dataset_anchored_scenario_report_data(
             "train_source": train_source,
             "test_source": test_source,
             "summary": simulation_summary_snapshot(result),
-            "report_data": simulation_report_data(result),
+            "report_data": simulation_report_data(
+                result,
+                include_structural_dynamics=include_structural_snapshots,
+            ),
         }
     if gmm_model_selection is not None:
         arms[gmm_arm_id]["gmm_model_selection"] = _clean(gmm_model_selection)
@@ -193,10 +205,14 @@ def dataset_anchored_scenario_report_data(
         "channel_names": [str(channel) for channel in channel_names],
         "sample_sizes": [int(n) for n in real_result.sample_sizes],
         "arms": arms,
-        "structural_fidelity": generic_scenario_structural_report_data(
-            results, real_arm_id, arm_labels
+        "structural_snapshot_policy": (
+            "embedded" if include_structural_snapshots else "regenerate_from_result_data"
         ),
     }
+    if include_structural_snapshots:
+        payload["structural_fidelity"] = generic_scenario_structural_report_data(
+            results, real_arm_id, arm_labels
+        )
     if dataset_metadata is not None:
         payload["dataset"] = _clean(dict(dataset_metadata))
     if target_metadata is not None:

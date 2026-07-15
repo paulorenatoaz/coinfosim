@@ -83,6 +83,12 @@ def test_support2_runner_persists_three_arms_shared_test_and_protocol(tmp_path, 
     assert scenario["scenario_slug"] == "support2_baseline"
     assert scenario["status"] == "completed"
     report_data = scenario["report_data"]
+    assert report_data["structural_snapshot_policy"] == "regenerate_from_result_data"
+    assert "structural_fidelity" not in report_data
+    assert all(
+        "structural_dynamics" not in arm["report_data"]
+        for arm in report_data["arms"].values()
+    )
     assert report_data["target"]["name"] == "death_180d"
     assert report_data["target"]["raw_class_counts"] == {"0": 4840, "1": 4265}
     assert report_data["target"]["cohort_class_counts"] == {"0": 4711, "1": 4162}
