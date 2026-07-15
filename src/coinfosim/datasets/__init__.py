@@ -15,6 +15,13 @@ from coinfosim.datasets.occupancy import (
     OccupancyData,
     load_occupancy_data,
 )
+from coinfosim.datasets.support2 import (
+    SUPPORT2_CHANNELS,
+    SUPPORT2_RAW_FILENAME,
+    SUPPORT2_TARGET,
+    Support2Data,
+    load_support2_data,
+)
 
 __all__ = [
     "AIR_QUALITY_CHANNELS",
@@ -27,6 +34,11 @@ __all__ = [
     "OCCUPANCY_RAW_FILENAMES",
     "OccupancyData",
     "StandardizationParameters",
+    "SUPPORT2_CHANNELS",
+    "SUPPORT2_RAW_FILENAME",
+    "SUPPORT2_TARGET",
+    "Support2Data",
     "load_air_quality_data",
     "load_occupancy_data",
+    "load_support2_data",
 ]

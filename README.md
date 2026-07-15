@@ -4,7 +4,7 @@ CoInfoSim is a research simulator for evaluating **cooperative advantage among i
 
 CoInfoSim is a conceptual evolution of the earlier **SLACGS** and **CoSenSim** lines of work. It preserves their incremental Monte Carlo protocol, reproducible sample generation, adaptive repetition logic, and scenario-based reporting structure, while reformulating the scientific object from sensor-network dimensionality to multi-channel classification.
 
-> **Status:** Active research project. The repository supports idealized synthetic experiments and reproducible dataset-anchored scenarios for Occupancy Detection and UCI Air Quality. Dataset scenarios compare real, single-Gaussian synthetic, and class-conditional GMM synthetic training on one fixed real evaluation set.
+> **Status:** Active research project. The repository supports idealized synthetic experiments and reproducible dataset-anchored scenarios for Occupancy Detection, UCI Air Quality, and SUPPORT2 180-day mortality. Dataset scenarios compare real, single-Gaussian synthetic, and class-conditional GMM synthetic training on one fixed real evaluation set.
 
 ## Core research question
 
@@ -151,10 +151,11 @@ The dataset-anchored phase uses small, interpretable real-data studies with a fe
 
 - **Occupancy detection** — implemented with Temperature, Humidity, Light, CO₂, and HumidityRatio.
 - **Air quality** — implemented with five PT08 metal-oxide sensor responses and a benzene reference used only to construct the target.
+- **SUPPORT2 180-day mortality** — implemented with seven baseline physiologic channels and a fixed endpoint derived from `death` and `d.time`.
 - **Water potability** — channels such as pH, conductivity, and turbidity.
 - **Hydraulic systems / condition monitoring** — multiple physical or operational measurements for fault classification (future work).
 
-The first two pipelines are implemented; the remaining examples are motivations, not plug-and-play dataset support.
+The first three pipelines are implemented; the remaining examples are motivations, not plug-and-play dataset support.
 
 ## Relationship to SLACGS and CoSenSim
 
@@ -164,7 +165,7 @@ CoInfoSim evolves from SLACGS, which studied cooperative gains in synthetic Gaus
 
 ```
 docs/          # Documentation, design notes, and planned-architecture descriptions
-data/          # Raw dataset files and provenance; the Air Quality CSV is committed
+data/          # Raw dataset files and provenance; Air Quality and SUPPORT2 CSVs are committed
 experiments/   # Experiment manifests and scripts (planned)
 src/coinfosim/ # Main package (inherited functional code; reformulation in progress)
 tests/         # Smoke and unit tests
@@ -201,6 +202,48 @@ Dataset-anchored scenarios are run through their dataset-specific scripts. The s
 | `strict` | `2, 4, 8, 16, 32, 64, 128, 256, 512` |
 
 Only `smoke` is used by the documented validation workflow. `fast`, `full`, `full-scale`, and `strict` are never run automatically; use them only after explicit scientific review and after checking the real training reservoir's minority-class capacity. `full-scale` may be substantially more expensive than `full`, and all three dataset-anchored arms share its single resolved sample-size grid.
+
+## SUPPORT2 180-day mortality scenario
+
+The SUPPORT2 scenario predicts death within 180 days after study entry. Its
+fixed derived target is:
+
+```python
+death_180d = ((death == 1) & (d_time <= 180)).astype(int)
+```
+
+where the raw source field is `d.time` and day 180 is inclusive. `hospdead` is
+neither the primary target nor a predictor. Complete cases are required for
+`meanbp`, `hrt`, `resp`, `temp`, `wblc`, `crea`, `sod`, `death`, `d.time`, and
+`dzgroup`, yielding 8,873 patients. A fixed 80/20 split uses
+`random_state=0`, joint `death_180d × dzgroup` stratification, and ascending ID
+ordering within partitions. Z-score parameters use training rows only with
+`ddof=0`.
+
+All 127 non-empty subsets of the seven channels are evaluated with Linear SVM,
+Logistic Regression, and Gaussian Naive Bayes under Real → Real, Single
+Gaussian → Real, and GMM → Real. Every arm reuses the same fixed real test set.
+
+Run the approved smoke workflow:
+
+```bash
+.venv/bin/python scripts/run_support2_scenario.py --mode smoke
+```
+
+Regenerate the dataset-linked three-arm report hierarchy from persisted results
+without rerunning Monte Carlo:
+
+```bash
+.venv/bin/python scripts/run_support2_scenario.py \
+  --report-from-scenario-run <SCENARIO_RUN_ID>
+```
+
+The scenario directory contains the SUPPORT2 dataset report, consolidated
+scenario report, exact split manifest, target metadata, preprocessing metadata,
+and `scenario.json`. Each simulation directory contains its arm report,
+compressed result payload, summary, and `simulation.json`. Production/full-mode
+experiments are intentionally reserved for the repository owner after smoke
+validation.
 
 ## UCI Air Quality scenario
 

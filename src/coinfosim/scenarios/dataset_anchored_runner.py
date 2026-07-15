@@ -86,6 +86,10 @@ class DatasetAnchoredExecutionSpec:
     scenario_report_callback: Callable[..., Path]
     report_context_callback: Callable[[Any], Mapping[str, Mapping[str, Any]]]
     real_experiment_arm: str = "real_data"
+    dataset_artifacts_callback: Optional[
+        Callable[[Any, Path], Mapping[str, Path | str]]
+    ] = None
+    include_structural_snapshots: bool = True
 
 
 def _config_dict(
@@ -302,6 +306,8 @@ def _persist_simulation(
     report_callback: Callable[[Path, str], Path],
     model_metadata: Dict[str, Any],
     sampler_metadata: Dict[str, Any],
+    *,
+    include_structural_snapshots: bool = True,
 ):
     run_dir = Path(record.run_dir)
     run_id = record.simulation_run_id
@@ -321,7 +327,10 @@ def _persist_simulation(
         model_metadata=model_metadata,
         sampler_metadata=sampler_metadata,
         summary_data=summary,
-        result_data=simulation_report_data(result),
+        result_data=simulation_report_data(
+            result,
+            include_structural_dynamics=include_structural_snapshots,
+        ),
         artifacts={
             "monte_carlo_report": str(report_path),
             "result_data": str(result_path),
@@ -420,6 +429,7 @@ def run_dataset_anchored_scenario(
             reporter.info(
                 f"effective sample sizes: {config.sample_sizes}"
             )
+        context = dict(spec.report_context_callback(data))
         reporter.scenario_step_finish(
             f"Loading {spec.dataset_name} dataset", elapsed=time.time() - step
         )
@@ -431,6 +441,11 @@ def run_dataset_anchored_scenario(
             filename=_dataset_report_filename(spec, mode, scenario_run_id),
         )
         reporter.scenario_step_finish("Generating dataset report", detail=str(dataset_report))
+        dataset_artifacts: Dict[str, Path | str] = {}
+        if spec.dataset_artifacts_callback is not None:
+            dataset_artifacts = dict(
+                spec.dataset_artifacts_callback(data, scenario_dir)
+            )
 
         reporter.scenario_step_start("Building single Gaussian model")
         gaussian_anchored = spec.gaussian_builder(data)
@@ -525,6 +540,7 @@ def run_dataset_anchored_scenario(
                 "test_source": spec.real_test_source_id,
                 "fixed_test_description": spec.fixed_test_description,
             },
+            include_structural_snapshots=spec.include_structural_snapshots,
         )
 
         records[GAUSSIAN_ARM_ID] = simulation_registry.start_run(
@@ -568,6 +584,7 @@ def run_dataset_anchored_scenario(
                 "test_source": spec.real_test_source_id,
                 "fixed_test_description": spec.fixed_test_description,
             },
+            include_structural_snapshots=spec.include_structural_snapshots,
         )
 
         records[GMM_ARM_ID] = simulation_registry.start_run(
@@ -611,6 +628,7 @@ def run_dataset_anchored_scenario(
                 "test_source": spec.real_test_source_id,
                 "fixed_test_description": spec.fixed_test_description,
             },
+            include_structural_snapshots=spec.include_structural_snapshots,
         )
 
         scenario_meta = {
@@ -679,6 +697,7 @@ def run_dataset_anchored_scenario(
             "scenario_report": str(scenario_report),
             "dataset_report": str(dataset_report),
             "scenario_json": scenario_run.scenario_json_path,
+            **{key: str(value) for key, value in dataset_artifacts.items()},
         }
         if visualization:
             artifacts["visualization_images"] = {
@@ -689,7 +708,6 @@ def run_dataset_anchored_scenario(
             artifacts["graph_images"] = {
                 key: str(scenario_dir / filename) for key, filename in graphs.items()
             }
-        context = dict(spec.report_context_callback(data))
         report_data = dataset_anchored_scenario_report_data(
             real_result,
             gaussian_result,
@@ -707,8 +725,11 @@ def run_dataset_anchored_scenario(
             dataset_metadata=context.get("dataset"),
             target_metadata=context.get("target"),
             split_metadata=context.get("split"),
+            preprocessing_metadata=context.get("preprocessing"),
+            exclusion_metadata=context.get("exclusions"),
             scenario_metadata=_scenario_report_metadata(spec),
             gmm_model_selection=gmm_anchored.model_selection,
+            include_structural_snapshots=spec.include_structural_snapshots,
         )
         if visualization:
             report_data["visualization"] = visualization
@@ -893,10 +914,13 @@ def regenerate_dataset_anchored_scenario(
         dataset_metadata=old_report_data.get("dataset"),
         target_metadata=old_report_data.get("target"),
         split_metadata=old_report_data.get("split"),
+        preprocessing_metadata=old_report_data.get("preprocessing"),
+        exclusion_metadata=old_report_data.get("exclusions"),
         scenario_metadata=(
             old_report_data.get("scenario") or _scenario_report_metadata(spec)
         ),
         gmm_model_selection=old_gmm_selection,
+        include_structural_snapshots=spec.include_structural_snapshots,
     )
     if visualization:
         prepared_report_data["visualization"] = visualization
@@ -909,7 +933,11 @@ def regenerate_dataset_anchored_scenario(
     simulation_jsons = []
     for ref, result in simulation_updates:
         updated = simulation_registry.update_run(
-            int(ref["simulation_run_id"]), result_data=simulation_report_data(result)
+            int(ref["simulation_run_id"]),
+            result_data=simulation_report_data(
+                result,
+                include_structural_dynamics=spec.include_structural_snapshots,
+            ),
         )
         _write_json(ref["simulation_json_path"], updated.to_dict())
         simulation_jsons.append(str(ref["simulation_json_path"]))
