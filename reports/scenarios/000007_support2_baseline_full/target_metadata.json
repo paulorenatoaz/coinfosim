@@ -1,0 +1,23 @@
+{
+  "name": "death_180d",
+  "description": "Death within 180 days after SUPPORT2 study entry",
+  "type": "derived_binary_fixed_horizon",
+  "source_event_column": "death",
+  "source_time_column": "d.time",
+  "horizon_days": 180,
+  "positive_rule": "death == 1 and d.time <= 180",
+  "negative_rule": "death == 0 or d.time > 180",
+  "derived_before_split": true,
+  "class_labels": [
+    0,
+    1
+  ],
+  "raw_class_counts": {
+    "0": 4840,
+    "1": 4265
+  },
+  "cohort_class_counts": {
+    "0": 4711,
+    "1": 4162
+  }
+}

@@ -1,0 +1,128 @@
+subset_id,x_label,subset_label,subset_size,has_temperature,has_humidity,has_light,has_co2,has_humidity_ratio
+0,{X1},{meanbp},1,False,False,False,False,False
+1,{X2},{hrt},1,False,False,False,False,False
+2,{X3},{resp},1,False,False,False,False,False
+3,{X4},{temp},1,False,False,False,False,False
+4,{X5},{wblc},1,False,False,False,False,False
+5,{X6},{crea},1,False,False,False,False,False
+6,{X7},{sod},1,False,False,False,False,False
+7,"{X1, X2}","{meanbp, hrt}",2,False,False,False,False,False
+8,"{X1, X3}","{meanbp, resp}",2,False,False,False,False,False
+9,"{X1, X4}","{meanbp, temp}",2,False,False,False,False,False
+10,"{X1, X5}","{meanbp, wblc}",2,False,False,False,False,False
+11,"{X1, X6}","{meanbp, crea}",2,False,False,False,False,False
+12,"{X1, X7}","{meanbp, sod}",2,False,False,False,False,False
+13,"{X2, X3}","{hrt, resp}",2,False,False,False,False,False
+14,"{X2, X4}","{hrt, temp}",2,False,False,False,False,False
+15,"{X2, X5}","{hrt, wblc}",2,False,False,False,False,False
+16,"{X2, X6}","{hrt, crea}",2,False,False,False,False,False
+17,"{X2, X7}","{hrt, sod}",2,False,False,False,False,False
+18,"{X3, X4}","{resp, temp}",2,False,False,False,False,False
+19,"{X3, X5}","{resp, wblc}",2,False,False,False,False,False
+20,"{X3, X6}","{resp, crea}",2,False,False,False,False,False
+21,"{X3, X7}","{resp, sod}",2,False,False,False,False,False
+22,"{X4, X5}","{temp, wblc}",2,False,False,False,False,False
+23,"{X4, X6}","{temp, crea}",2,False,False,False,False,False
+24,"{X4, X7}","{temp, sod}",2,False,False,False,False,False
+25,"{X5, X6}","{wblc, crea}",2,False,False,False,False,False
+26,"{X5, X7}","{wblc, sod}",2,False,False,False,False,False
+27,"{X6, X7}","{crea, sod}",2,False,False,False,False,False
+28,"{X1, X2, X3}","{meanbp, hrt, resp}",3,False,False,False,False,False
+29,"{X1, X2, X4}","{meanbp, hrt, temp}",3,False,False,False,False,False
+30,"{X1, X2, X5}","{meanbp, hrt, wblc}",3,False,False,False,False,False
+31,"{X1, X2, X6}","{meanbp, hrt, crea}",3,False,False,False,False,False
+32,"{X1, X2, X7}","{meanbp, hrt, sod}",3,False,False,False,False,False
+33,"{X1, X3, X4}","{meanbp, resp, temp}",3,False,False,False,False,False
+34,"{X1, X3, X5}","{meanbp, resp, wblc}",3,False,False,False,False,False
+35,"{X1, X3, X6}","{meanbp, resp, crea}",3,False,False,False,False,False
+36,"{X1, X3, X7}","{meanbp, resp, sod}",3,False,False,False,False,False
+37,"{X1, X4, X5}","{meanbp, temp, wblc}",3,False,False,False,False,False
+38,"{X1, X4, X6}","{meanbp, temp, crea}",3,False,False,False,False,False
+39,"{X1, X4, X7}","{meanbp, temp, sod}",3,False,False,False,False,False
+40,"{X1, X5, X6}","{meanbp, wblc, crea}",3,False,False,False,False,False
+41,"{X1, X5, X7}","{meanbp, wblc, sod}",3,False,False,False,False,False
+42,"{X1, X6, X7}","{meanbp, crea, sod}",3,False,False,False,False,False
+43,"{X2, X3, X4}","{hrt, resp, temp}",3,False,False,False,False,False
+44,"{X2, X3, X5}","{hrt, resp, wblc}",3,False,False,False,False,False
+45,"{X2, X3, X6}","{hrt, resp, crea}",3,False,False,False,False,False
+46,"{X2, X3, X7}","{hrt, resp, sod}",3,False,False,False,False,False
+47,"{X2, X4, X5}","{hrt, temp, wblc}",3,False,False,False,False,False
+48,"{X2, X4, X6}","{hrt, temp, crea}",3,False,False,False,False,False
+49,"{X2, X4, X7}","{hrt, temp, sod}",3,False,False,False,False,False
+50,"{X2, X5, X6}","{hrt, wblc, crea}",3,False,False,False,False,False
+51,"{X2, X5, X7}","{hrt, wblc, sod}",3,False,False,False,False,False
+52,"{X2, X6, X7}","{hrt, crea, sod}",3,False,False,False,False,False
+53,"{X3, X4, X5}","{resp, temp, wblc}",3,False,False,False,False,False
+54,"{X3, X4, X6}","{resp, temp, crea}",3,False,False,False,False,False
+55,"{X3, X4, X7}","{resp, temp, sod}",3,False,False,False,False,False
+56,"{X3, X5, X6}","{resp, wblc, crea}",3,False,False,False,False,False
+57,"{X3, X5, X7}","{resp, wblc, sod}",3,False,False,False,False,False
+58,"{X3, X6, X7}","{resp, crea, sod}",3,False,False,False,False,False
+59,"{X4, X5, X6}","{temp, wblc, crea}",3,False,False,False,False,False
+60,"{X4, X5, X7}","{temp, wblc, sod}",3,False,False,False,False,False
+61,"{X4, X6, X7}","{temp, crea, sod}",3,False,False,False,False,False
+62,"{X5, X6, X7}","{wblc, crea, sod}",3,False,False,False,False,False
+63,"{X1, X2, X3, X4}","{meanbp, hrt, resp, temp}",4,False,False,False,False,False
+64,"{X1, X2, X3, X5}","{meanbp, hrt, resp, wblc}",4,False,False,False,False,False
+65,"{X1, X2, X3, X6}","{meanbp, hrt, resp, crea}",4,False,False,False,False,False
+66,"{X1, X2, X3, X7}","{meanbp, hrt, resp, sod}",4,False,False,False,False,False
+67,"{X1, X2, X4, X5}","{meanbp, hrt, temp, wblc}",4,False,False,False,False,False
+68,"{X1, X2, X4, X6}","{meanbp, hrt, temp, crea}",4,False,False,False,False,False
+69,"{X1, X2, X4, X7}","{meanbp, hrt, temp, sod}",4,False,False,False,False,False
+70,"{X1, X2, X5, X6}","{meanbp, hrt, wblc, crea}",4,False,False,False,False,False
+71,"{X1, X2, X5, X7}","{meanbp, hrt, wblc, sod}",4,False,False,False,False,False
+72,"{X1, X2, X6, X7}","{meanbp, hrt, crea, sod}",4,False,False,False,False,False
+73,"{X1, X3, X4, X5}","{meanbp, resp, temp, wblc}",4,False,False,False,False,False
+74,"{X1, X3, X4, X6}","{meanbp, resp, temp, crea}",4,False,False,False,False,False
+75,"{X1, X3, X4, X7}","{meanbp, resp, temp, sod}",4,False,False,False,False,False
+76,"{X1, X3, X5, X6}","{meanbp, resp, wblc, crea}",4,False,False,False,False,False
+77,"{X1, X3, X5, X7}","{meanbp, resp, wblc, sod}",4,False,False,False,False,False
+78,"{X1, X3, X6, X7}","{meanbp, resp, crea, sod}",4,False,False,False,False,False
+79,"{X1, X4, X5, X6}","{meanbp, temp, wblc, crea}",4,False,False,False,False,False
+80,"{X1, X4, X5, X7}","{meanbp, temp, wblc, sod}",4,False,False,False,False,False
+81,"{X1, X4, X6, X7}","{meanbp, temp, crea, sod}",4,False,False,False,False,False
+82,"{X1, X5, X6, X7}","{meanbp, wblc, crea, sod}",4,False,False,False,False,False
+83,"{X2, X3, X4, X5}","{hrt, resp, temp, wblc}",4,False,False,False,False,False
+84,"{X2, X3, X4, X6}","{hrt, resp, temp, crea}",4,False,False,False,False,False
+85,"{X2, X3, X4, X7}","{hrt, resp, temp, sod}",4,False,False,False,False,False
+86,"{X2, X3, X5, X6}","{hrt, resp, wblc, crea}",4,False,False,False,False,False
+87,"{X2, X3, X5, X7}","{hrt, resp, wblc, sod}",4,False,False,False,False,False
+88,"{X2, X3, X6, X7}","{hrt, resp, crea, sod}",4,False,False,False,False,False
+89,"{X2, X4, X5, X6}","{hrt, temp, wblc, crea}",4,False,False,False,False,False
+90,"{X2, X4, X5, X7}","{hrt, temp, wblc, sod}",4,False,False,False,False,False
+91,"{X2, X4, X6, X7}","{hrt, temp, crea, sod}",4,False,False,False,False,False
+92,"{X2, X5, X6, X7}","{hrt, wblc, crea, sod}",4,False,False,False,False,False
+93,"{X3, X4, X5, X6}","{resp, temp, wblc, crea}",4,False,False,False,False,False
+94,"{X3, X4, X5, X7}","{resp, temp, wblc, sod}",4,False,False,False,False,False
+95,"{X3, X4, X6, X7}","{resp, temp, crea, sod}",4,False,False,False,False,False
+96,"{X3, X5, X6, X7}","{resp, wblc, crea, sod}",4,False,False,False,False,False
+97,"{X4, X5, X6, X7}","{temp, wblc, crea, sod}",4,False,False,False,False,False
+98,"{X1, X2, X3, X4, X5}","{meanbp, hrt, resp, temp, wblc}",5,False,False,False,False,False
+99,"{X1, X2, X3, X4, X6}","{meanbp, hrt, resp, temp, crea}",5,False,False,False,False,False
+100,"{X1, X2, X3, X4, X7}","{meanbp, hrt, resp, temp, sod}",5,False,False,False,False,False
+101,"{X1, X2, X3, X5, X6}","{meanbp, hrt, resp, wblc, crea}",5,False,False,False,False,False
+102,"{X1, X2, X3, X5, X7}","{meanbp, hrt, resp, wblc, sod}",5,False,False,False,False,False
+103,"{X1, X2, X3, X6, X7}","{meanbp, hrt, resp, crea, sod}",5,False,False,False,False,False
+104,"{X1, X2, X4, X5, X6}","{meanbp, hrt, temp, wblc, crea}",5,False,False,False,False,False
+105,"{X1, X2, X4, X5, X7}","{meanbp, hrt, temp, wblc, sod}",5,False,False,False,False,False
+106,"{X1, X2, X4, X6, X7}","{meanbp, hrt, temp, crea, sod}",5,False,False,False,False,False
+107,"{X1, X2, X5, X6, X7}","{meanbp, hrt, wblc, crea, sod}",5,False,False,False,False,False
+108,"{X1, X3, X4, X5, X6}","{meanbp, resp, temp, wblc, crea}",5,False,False,False,False,False
+109,"{X1, X3, X4, X5, X7}","{meanbp, resp, temp, wblc, sod}",5,False,False,False,False,False
+110,"{X1, X3, X4, X6, X7}","{meanbp, resp, temp, crea, sod}",5,False,False,False,False,False
+111,"{X1, X3, X5, X6, X7}","{meanbp, resp, wblc, crea, sod}",5,False,False,False,False,False
+112,"{X1, X4, X5, X6, X7}","{meanbp, temp, wblc, crea, sod}",5,False,False,False,False,False
+113,"{X2, X3, X4, X5, X6}","{hrt, resp, temp, wblc, crea}",5,False,False,False,False,False
+114,"{X2, X3, X4, X5, X7}","{hrt, resp, temp, wblc, sod}",5,False,False,False,False,False
+115,"{X2, X3, X4, X6, X7}","{hrt, resp, temp, crea, sod}",5,False,False,False,False,False
+116,"{X2, X3, X5, X6, X7}","{hrt, resp, wblc, crea, sod}",5,False,False,False,False,False
+117,"{X2, X4, X5, X6, X7}","{hrt, temp, wblc, crea, sod}",5,False,False,False,False,False
+118,"{X3, X4, X5, X6, X7}","{resp, temp, wblc, crea, sod}",5,False,False,False,False,False
+119,"{X1, X2, X3, X4, X5, X6}","{meanbp, hrt, resp, temp, wblc, crea}",6,False,False,False,False,False
+120,"{X1, X2, X3, X4, X5, X7}","{meanbp, hrt, resp, temp, wblc, sod}",6,False,False,False,False,False
+121,"{X1, X2, X3, X4, X6, X7}","{meanbp, hrt, resp, temp, crea, sod}",6,False,False,False,False,False
+122,"{X1, X2, X3, X5, X6, X7}","{meanbp, hrt, resp, wblc, crea, sod}",6,False,False,False,False,False
+123,"{X1, X2, X4, X5, X6, X7}","{meanbp, hrt, temp, wblc, crea, sod}",6,False,False,False,False,False
+124,"{X1, X3, X4, X5, X6, X7}","{meanbp, resp, temp, wblc, crea, sod}",6,False,False,False,False,False
+125,"{X2, X3, X4, X5, X6, X7}","{hrt, resp, temp, wblc, crea, sod}",6,False,False,False,False,False
+126,"{X1, X2, X3, X4, X5, X6, X7}","{meanbp, hrt, resp, temp, wblc, crea, sod}",7,False,False,False,False,False
