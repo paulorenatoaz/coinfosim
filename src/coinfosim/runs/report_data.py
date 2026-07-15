@@ -153,6 +153,7 @@ def dataset_anchored_scenario_report_data(
     dataset_metadata: Mapping[str, Any] | None = None,
     target_metadata: Mapping[str, Any] | None = None,
     split_metadata: Mapping[str, Any] | None = None,
+    scenario_metadata: Mapping[str, Any] | None = None,
     gmm_model_selection: Any = None,
 ) -> Dict[str, Any]:
     """Generic report-ready snapshot for the standard dataset three-arm protocol."""
@@ -199,6 +200,8 @@ def dataset_anchored_scenario_report_data(
         payload["target"] = _clean(dict(target_metadata))
     if split_metadata is not None:
         payload["split"] = _clean(dict(split_metadata))
+    if scenario_metadata is not None:
+        payload["scenario"] = _clean(dict(scenario_metadata))
     return payload
 
 

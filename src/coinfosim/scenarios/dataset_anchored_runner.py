@@ -96,6 +96,28 @@ def _config_dict(config: MonteCarloConfig) -> Dict[str, Any]:
     }
 
 
+def _scenario_report_metadata(spec: DatasetAnchoredExecutionSpec) -> Dict[str, Any]:
+    """Return dataset-neutral scenario identity and source semantics."""
+
+    return {
+        "scenario_slug": spec.scenario_slug,
+        "scenario_name": spec.scenario_name,
+        "scenario_family": spec.scenario_family,
+        "scientific_question": spec.question,
+        "dataset_slug": spec.dataset_slug,
+        "dataset_name": spec.dataset_name,
+        "real_training_source_id": spec.real_training_source_id,
+        "real_test_source_id": spec.real_test_source_id,
+        "real_training_description": spec.real_training_description,
+        "fixed_test_description": spec.fixed_test_description,
+        "arm_labels": {
+            REAL_ARM_ID: "Real → Real",
+            GAUSSIAN_ARM_ID: "Single Gaussian → Real",
+            GMM_ARM_ID: "GMM → Real",
+        },
+    }
+
+
 def _relpath(target: Path | str, start: Path | str) -> str:
     return os.path.relpath(str(target), str(start))
 
@@ -609,6 +631,7 @@ def run_dataset_anchored_scenario(
             dataset_metadata=context.get("dataset"),
             target_metadata=context.get("target"),
             split_metadata=context.get("split"),
+            scenario_metadata=_scenario_report_metadata(spec),
             gmm_model_selection=gmm_anchored.model_selection,
         )
         if visualization:
@@ -794,6 +817,9 @@ def regenerate_dataset_anchored_scenario(
         dataset_metadata=old_report_data.get("dataset"),
         target_metadata=old_report_data.get("target"),
         split_metadata=old_report_data.get("split"),
+        scenario_metadata=(
+            old_report_data.get("scenario") or _scenario_report_metadata(spec)
+        ),
         gmm_model_selection=old_gmm_selection,
     )
     if visualization:
