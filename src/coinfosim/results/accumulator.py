@@ -12,9 +12,11 @@ theoretical loss, or Bayes error.
 
 from __future__ import annotations
 
-from typing import Dict, List, Tuple
+from typing import Dict, List, Sequence, Tuple
 
 import numpy as np
+
+from coinfosim.simulation.replication import Cell, ReplicationResult
 
 # A key identifying one (n_per_class, subset, classifier) cell.
 CellKey = Tuple[int, Tuple[int, ...], str]
@@ -42,6 +44,120 @@ class LossAccumulator:
         """Record one replication loss for a (n_per_class, subset, classifier) cell."""
         cell = self._cell(n_per_class, subset, classifier_name)
         self._losses.setdefault(cell, {})[int(replication_id)] = float(loss)
+
+    def add_replication(
+        self,
+        n_per_class: int,
+        replication_id: int,
+        cells: Sequence[Cell],
+        losses: Sequence[float],
+    ) -> None:
+        """Validate and atomically record one complete replication."""
+
+        result = ReplicationResult(
+            n_per_class=int(n_per_class),
+            replication_id=int(replication_id),
+            losses=tuple(float(loss) for loss in losses),
+        )
+        self.add_batch(
+            n_per_class=n_per_class,
+            expected_replication_ids=[replication_id],
+            cells=cells,
+            results=[result],
+        )
+
+    def add_batch(
+        self,
+        n_per_class: int,
+        expected_replication_ids: Sequence[int],
+        cells: Sequence[Cell],
+        results: Sequence[ReplicationResult],
+    ) -> None:
+        """Validate and atomically record a complete replication batch."""
+
+        n_per_class = int(n_per_class)
+        expected_ids = [
+            int(replication_id) for replication_id in expected_replication_ids
+        ]
+        normalized_cells = [
+            (tuple(subset), str(classifier_name))
+            for subset, classifier_name in cells
+        ]
+        if len(set(normalized_cells)) != len(normalized_cells):
+            raise ValueError("cells must not contain duplicates")
+
+        cell_keys = [
+            self._cell(n_per_class, subset, classifier_name)
+            for subset, classifier_name in normalized_cells
+        ]
+        counts = [len(self._losses.get(cell, {})) for cell in cell_keys]
+        if len(set(counts)) > 1:
+            raise ValueError(
+                "cannot add batch: requested cells have unequal existing "
+                f"replication counts {counts}"
+            )
+        completed_count = counts[0] if counts else 0
+
+        if len(set(expected_ids)) != len(expected_ids):
+            raise ValueError("expected replication IDs must not contain duplicates")
+
+        received_ids = [int(result.replication_id) for result in results]
+        if len(set(received_ids)) != len(received_ids):
+            raise ValueError("received replication IDs must not contain duplicates")
+        if sorted(received_ids) != sorted(expected_ids):
+            raise ValueError(
+                "received replication IDs do not match expected IDs: "
+                f"received={sorted(received_ids)}, expected={sorted(expected_ids)}"
+            )
+
+        pending = []
+        for result in results:
+            if int(result.n_per_class) != n_per_class:
+                raise ValueError(
+                    "replication result uses the wrong n_per_class: "
+                    f"received={result.n_per_class}, expected={n_per_class}"
+                )
+            if len(result.losses) != len(normalized_cells):
+                raise ValueError(
+                    "replication loss vector length does not match cells: "
+                    f"received={len(result.losses)}, expected={len(normalized_cells)}"
+                )
+
+            losses = np.asarray(result.losses, dtype=float)
+            if not np.all(np.isfinite(losses)):
+                raise ValueError("replication losses must all be finite")
+            if np.any(losses < 0.0) or np.any(losses > 1.0):
+                raise ValueError("replication losses must all be within [0, 1]")
+
+            replication_id = int(result.replication_id)
+            for cell, loss in zip(cell_keys, losses):
+                if replication_id in self._losses.get(cell, {}):
+                    raise ValueError(
+                        "replication already exists for cell: "
+                        f"cell={cell}, replication_id={replication_id}"
+                    )
+                pending.append((cell, replication_id, float(loss)))
+
+        required_ids = list(
+            range(completed_count, completed_count + len(expected_ids))
+        )
+        if expected_ids != required_ids:
+            raise ValueError(
+                "expected replication IDs must continue contiguously from "
+                f"{completed_count}: received={expected_ids}, required={required_ids}"
+            )
+
+        existing_ids = list(range(completed_count))
+        for cell in cell_keys:
+            actual_ids = sorted(self._losses.get(cell, {}))
+            if actual_ids != existing_ids:
+                raise ValueError(
+                    "existing replication IDs must be contiguous from zero: "
+                    f"cell={cell}, received={actual_ids}, required={existing_ids}"
+                )
+
+        for cell, replication_id, loss in sorted(pending, key=lambda item: item[1]):
+            self._losses.setdefault(cell, {})[replication_id] = loss
 
     def losses(self, n_per_class: int, subset, classifier_name: str) -> np.ndarray:
         """Return the recorded losses for a cell, ordered by replication id."""

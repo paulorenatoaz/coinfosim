@@ -7,55 +7,18 @@ leakage-control notes, and reproducibility metadata.
 
 from __future__ import annotations
 
-import base64
 import html
-import io
 from pathlib import Path
-from typing import Dict, Optional
 
-import matplotlib
-
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt  # noqa: E402
-import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
 
 from coinfosim.datasets.occupancy import OccupancyData
-
-
-# --------------------------------------------------------------------------- #
-# Shared rendering helpers
-# --------------------------------------------------------------------------- #
-
-def _fig_to_base64(fig) -> str:
-    buf = io.BytesIO()
-    fig.savefig(buf, format="png", dpi=110, bbox_inches="tight")
-    plt.close(fig)
-    buf.seek(0)
-    encoded = base64.b64encode(buf.read()).decode("ascii")
-    return f"data:image/png;base64,{encoded}"
-
-
-def _dataframe_html(df: pd.DataFrame, float_cols: Optional[Dict[str, str]] = None) -> str:
-    float_cols = float_cols or {}
-    headers = "".join(f"<th>{html.escape(str(c))}</th>" for c in df.columns)
-    rows = []
-    for _, row in df.iterrows():
-        cells = []
-        for col in df.columns:
-            val = row[col]
-            if col in float_cols and not pd.isna(val):
-                cells.append(f"<td>{float(val):{float_cols[col]}}</td>")
-            else:
-                cells.append(f"<td>{html.escape(str(val))}</td>")
-        rows.append(f"<tr>{''.join(cells)}</tr>")
-    return (
-        "<table class='data'><thead><tr>"
-        + headers
-        + "</tr></thead><tbody>"
-        + "".join(rows)
-        + "</tbody></table>"
-    )
+from coinfosim.reports.dataset_common import (
+    class_distribution_image,
+    correlation_heatmap_image,
+    dataframe_html as _dataframe_html,
+    standardized_mean_comparison_image,
+)
 
 
 # --------------------------------------------------------------------------- #
@@ -63,59 +26,26 @@ def _dataframe_html(df: pd.DataFrame, float_cols: Optional[Dict[str, str]] = Non
 # --------------------------------------------------------------------------- #
 
 def _class_distribution_image(data: OccupancyData) -> str:
-    counts = data.class_counts_by_file()
-    labels = sorted(data.class_labels)
-    files = list(counts)
-    x = np.arange(len(files))
-    width = 0.35
-
-    fig, ax = plt.subplots(figsize=(7, 4))
-    for i, label in enumerate(labels):
-        values = [counts[file].get(label, 0) for file in files]
-        ax.bar(x + (i - 0.5) * width, values, width, label=f"class {label}")
-    ax.set_xticks(x)
-    ax.set_xticklabels(files, rotation=20, ha="right")
-    ax.set_ylabel("Rows")
-    ax.set_title("Class distribution by source file")
-    ax.grid(axis="y", alpha=0.25)
-    ax.legend()
-    return _fig_to_base64(fig)
+    return class_distribution_image(
+        data.class_counts_by_file(),
+        sorted(data.class_labels),
+        title="Class distribution by source file",
+    )
 
 
 def _correlation_heatmap_image(data: OccupancyData) -> str:
-    corr = data.train_correlation(standardized=True)
-    fig, ax = plt.subplots(figsize=(6, 5))
-    im = ax.imshow(corr.to_numpy(), vmin=-1, vmax=1, cmap="coolwarm")
-    ax.set_xticks(np.arange(len(corr.columns)))
-    ax.set_yticks(np.arange(len(corr.index)))
-    ax.set_xticklabels(corr.columns, rotation=35, ha="right")
-    ax.set_yticklabels(corr.index)
-    ax.set_title("Training-pool channel correlation")
-    for i in range(corr.shape[0]):
-        for j in range(corr.shape[1]):
-            ax.text(j, i, f"{corr.iloc[i, j]:.2f}", ha="center", va="center", fontsize=8)
-    fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
-    return _fig_to_base64(fig)
+    return correlation_heatmap_image(
+        data.train_correlation(standardized=True),
+        title="Training-pool channel correlation",
+    )
 
 
 def _standardized_summary_image(data: OccupancyData) -> str:
-    summary = data.standardized_channel_summary()
-    fig, ax = plt.subplots(figsize=(7, 4))
-    channels = list(data.channel_names)
-    x = np.arange(len(channels))
-    train_means = summary[summary["split"] == "train_pool"].set_index("channel").loc[channels, "mean"]
-    test_means = summary[summary["split"] == "fixed_test"].set_index("channel").loc[channels, "mean"]
-    width = 0.35
-    ax.bar(x - width / 2, train_means, width, label="train pool")
-    ax.bar(x + width / 2, test_means, width, label="fixed test")
-    ax.axhline(0, color="#444", linewidth=0.8)
-    ax.set_xticks(x)
-    ax.set_xticklabels(channels, rotation=25, ha="right")
-    ax.set_ylabel("Standardized mean")
-    ax.set_title("Standardized channel means")
-    ax.grid(axis="y", alpha=0.25)
-    ax.legend()
-    return _fig_to_base64(fig)
+    return standardized_mean_comparison_image(
+        data.standardized_channel_summary(),
+        data.channel_names,
+        title="Standardized channel means",
+    )
 
 
 def generate_occupancy_dataset_report(

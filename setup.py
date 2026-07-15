@@ -20,6 +20,7 @@ setup(
         'ipython>=7.34.0',
         'scikit-learn>=1.2.2',
         'scipy>=1.10.1',
+        'threadpoolctl>=3.1.0',
         'Pillow>=8.1.0',
         'pandas>=1.5.3',
         'tabulate>=0.9.0',

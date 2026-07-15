@@ -19,13 +19,17 @@ import time
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Mapping, Optional, Protocol, Sequence, Tuple
 
-from coinfosim.classifiers.registry import available_classifiers, make_classifier
+from coinfosim.classifiers.registry import available_classifiers
 from coinfosim.models.gaussian import GaussianSimulationModel
 from coinfosim.results.accumulator import LossAccumulator
 from coinfosim.samplers.dataset import Dataset
 from coinfosim.samplers.gaussian import GaussianClassConditionalSampler
 from coinfosim.simulation.config import MonteCarloConfig
-from coinfosim.simulation.metrics import empirical_test_loss
+from coinfosim.simulation.execution import (
+    ExecutionConfig,
+    build_execution_metadata,
+    make_replication_executor,
+)
 from coinfosim.simulation.progress import CooperativeProgressReporter
 from coinfosim.simulation.stopping import StandardErrorStoppingRule
 from coinfosim.simulation.subsets import all_nonempty_subsets
@@ -86,9 +90,11 @@ class CooperativeMonteCarloSimulator:
         sampler: Optional[MonteCarloSampler] = None,
         metadata: Optional[Mapping[str, object]] = None,
         progress: Optional[CooperativeProgressReporter] = None,
+        execution_config: Optional[ExecutionConfig] = None,
     ) -> None:
         self.model = model
         self.config = config
+        self.execution_config = execution_config or ExecutionConfig()
         self.extra_metadata = dict(metadata or {})
         # Optional console progress reporter. When ``None`` the simulator is
         # completely silent, which keeps tests and programmatic use quiet.
@@ -138,74 +144,94 @@ class CooperativeMonteCarloSimulator:
         test_by_subset = {
             subset: test_dataset.select_channels(subset) for subset in self.subsets
         }
+        execution_metadata = build_execution_metadata(
+            execution_config=self.execution_config,
+            replication_batch_size=self.config.replication_batch_size,
+            test_dataset=test_dataset,
+            subsets=self.subsets,
+        )
+        executor = make_replication_executor(
+            execution_config=self.execution_config,
+            sampler=self.sampler,
+            cells=cells,
+            test_dataset=test_dataset,
+            test_by_subset=test_by_subset,
+            replication_batch_size=self.config.replication_batch_size,
+        )
 
-        if self.progress is not None:
-            self.progress.simulation_start(
-                arm=str(self.extra_metadata.get("experiment_arm", "unknown")),
-                n_sample_sizes=len(self.config.sample_sizes),
-                n_subsets=len(self.subsets),
-                n_classifiers=len(self.classifier_names),
-                n_cells=len(cells),
-                fixed_test_size=test_dataset.n_samples,
-                sample_sizes=list(self.config.sample_sizes),
-            )
-
-        total_sample_sizes = len(self.config.sample_sizes)
-        for size_index, n_per_class in enumerate(self.config.sample_sizes, start=1):
-            size_start = time.time()
+        try:
             if self.progress is not None:
-                self.progress.sample_size_start(
-                    n_per_class, size_index, total_sample_sizes
+                self.progress.simulation_start(
+                    arm=str(self.extra_metadata.get("experiment_arm", "unknown")),
+                    n_sample_sizes=len(self.config.sample_sizes),
+                    n_subsets=len(self.subsets),
+                    n_classifiers=len(self.classifier_names),
+                    n_cells=len(cells),
+                    fixed_test_size=test_dataset.n_samples,
+                    sample_sizes=list(self.config.sample_sizes),
+                    execution=execution_metadata,
                 )
-            replication_id = 0
-            last_decision = None
 
-            while True:
-                # Run one batch of replications.
-                batch_end = replication_id + self.config.replication_batch_size
-                while replication_id < batch_end:
-                    train = self.sampler.sample_train(
-                        n_per_class=n_per_class, replication_id=replication_id
+            total_sample_sizes = len(self.config.sample_sizes)
+            for size_index, n_per_class in enumerate(
+                self.config.sample_sizes, start=1
+            ):
+                size_start = time.time()
+                if self.progress is not None:
+                    self.progress.sample_size_start(
+                        n_per_class, size_index, total_sample_sizes
                     )
-                    for subset in self.subsets:
-                        train_sub = train.select_channels(subset)
-                        test_sub = test_by_subset[subset]
-                        for clf_name in self.classifier_names:
-                            estimator = make_classifier(clf_name)
-                            estimator.fit(train_sub.X, train_sub.y)
-                            loss = empirical_test_loss(estimator, test_sub)
-                            accumulator.add(
-                                n_per_class, subset, clf_name, replication_id, loss
-                            )
-                    replication_id += 1
+                replication_id = 0
+                last_decision = None
 
-                # Evaluate stopping rule at the batch boundary.
-                last_decision = self.stopping_rule.evaluate(
-                    accumulator, n_per_class, cells
+                while True:
+                    # Run one batch of replications.
+                    batch_start = replication_id
+                    batch_end = replication_id + self.config.replication_batch_size
+                    replication_ids = range(batch_start, batch_end)
+                    batch_results = executor.run_batch(
+                        n_per_class=n_per_class,
+                        replication_ids=replication_ids,
+                    )
+                    replication_id = batch_end
+                    batch_results.sort(key=lambda result: result.replication_id)
+
+                    accumulator.add_batch(
+                        n_per_class=n_per_class,
+                        expected_replication_ids=replication_ids,
+                        cells=cells,
+                        results=batch_results,
+                    )
+
+                    # Evaluate stopping rule at the batch boundary.
+                    last_decision = self.stopping_rule.evaluate(
+                        accumulator, n_per_class, cells
+                    )
+                    if self.progress is not None:
+                        self.progress.batch_finish(
+                            n_per_class,
+                            last_decision.replications,
+                            last_decision.max_ci_half_width,
+                        )
+                    if last_decision.should_stop:
+                        break
+
+                stopping_info[n_per_class] = StoppingInfo(
+                    n_per_class=n_per_class,
+                    replications=last_decision.replications,
+                    reason=last_decision.reason,
+                    max_ci_half_width=last_decision.max_ci_half_width,
                 )
                 if self.progress is not None:
-                    self.progress.batch_finish(
+                    self.progress.sample_size_finish(
                         n_per_class,
                         last_decision.replications,
+                        last_decision.reason,
                         last_decision.max_ci_half_width,
+                        elapsed=time.time() - size_start,
                     )
-                if last_decision.should_stop:
-                    break
-
-            stopping_info[n_per_class] = StoppingInfo(
-                n_per_class=n_per_class,
-                replications=last_decision.replications,
-                reason=last_decision.reason,
-                max_ci_half_width=last_decision.max_ci_half_width,
-            )
-            if self.progress is not None:
-                self.progress.sample_size_finish(
-                    n_per_class,
-                    last_decision.replications,
-                    last_decision.reason,
-                    last_decision.max_ci_half_width,
-                    elapsed=time.time() - size_start,
-                )
+        finally:
+            executor.close()
 
         runtime = time.time() - start
         if self.progress is not None:
@@ -231,6 +257,7 @@ class CooperativeMonteCarloSimulator:
         if model_name is not None:
             metadata["model_name"] = model_name
         metadata.update(self.extra_metadata)
+        metadata["execution"] = execution_metadata
 
         return SimulationResult(
             model=self.model,

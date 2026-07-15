@@ -1,14 +1,4 @@
-"""Occupancy Detection scenario report (academic layout).
-
-Renders a self-contained, academic-style HTML scenario report comparing the
-three main Occupancy arms — ``Real → Real`` (real training pool, real evaluation
-split), ``Single Gaussian → Real`` (single-Gaussian synthetic training, real
-evaluation split) and ``GMM → Real`` (class-conditional GMM synthetic training,
-real evaluation split). All three main arms are evaluated on the same fixed real
-Occupancy evaluation split. Channels are referred to with mathematical labels
-``X_i`` and a sticky channel legend; sensor names are used only in the legend and
-in explicit "reference subset" annotations, never as primary table/plot labels.
-"""
+"""Thin Occupancy wrapper and shared scenario-report rendering helpers."""
 
 from __future__ import annotations
 
@@ -41,8 +31,9 @@ _SENSOR_DISPLAY = {"CO2": "CO₂", "HumidityRatio": "Humidity Ratio"}
 _SUBSCRIPTS = str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉")
 
 
-def _sensor(name: str) -> str:
-    return _SENSOR_DISPLAY.get(str(name), str(name))
+def _sensor(name: str, display_mapping: Optional[Mapping[str, str]] = None) -> str:
+    mapping = _SENSOR_DISPLAY if display_mapping is None else display_mapping
+    return mapping.get(str(name), str(name))
 
 
 def _xsub(i0: int) -> str:
@@ -55,8 +46,14 @@ def _subset_notation(subset: Sequence[int]) -> str:
     return "{" + ", ".join(f"X{i + 1}" for i in subset) + "}"
 
 
-def _subset_sensors(subset: Sequence[int], channel_names: Sequence[str]) -> str:
-    return "{" + ", ".join(_sensor(channel_names[i]) for i in subset) + "}"
+def _subset_sensors(
+    subset: Sequence[int],
+    channel_names: Sequence[str],
+    display_mapping: Optional[Mapping[str, str]] = None,
+) -> str:
+    return "{" + ", ".join(
+        _sensor(channel_names[i], display_mapping) for i in subset
+    ) + "}"
 
 
 # --------------------------------------------------------------------------- #
@@ -371,16 +368,20 @@ def _structural_fidelity_section(
                 prefix_tabs.append(
                     (str(n_prefix), f"Prefix N = {n_prefix}", figure_html)
                 )
-            nstar_arm_tabs.append(
-                (
-                    arm,
-                    arm_labels[arm],
-                    tab_group(
-                        f"scenario-structural-nstar-{classifier}-{arm}-prefix",
-                        prefix_tabs,
-                        str(sample_sizes[1]),
-                    ),
+            prefix_content = (
+                tab_group(
+                    f"scenario-structural-nstar-{classifier}-{arm}-prefix",
+                    prefix_tabs,
+                    str(sample_sizes[1]),
                 )
+                if prefix_tabs
+                else (
+                    "<p>Progressive N-star requires at least two sample "
+                    "sizes.</p>"
+                )
+            )
+            nstar_arm_tabs.append(
+                (arm, arm_labels[arm], prefix_content)
             )
         nstar_classifier_tabs.append(
             (
@@ -628,7 +629,14 @@ def _nstar_section(
     graph_suffix: str,
     graphs_out: Optional[Dict],
     generate_graphs: bool = True,
+    channel_display_mapping: Optional[Mapping[str, str]] = None,
+    arm_labels: Optional[Mapping[str, str]] = None,
 ) -> str:
+    labels = arm_labels or {
+        "real_to_real": "Real → Real",
+        "single_gaussian_to_real": "Single Gaussian → Real",
+        "gmm_to_real": "GMM → Real",
+    }
     d = len(channel_names)
     parts: List[str] = ["<h2>8. N-star availability</h2>"]
     parts.append(
@@ -660,9 +668,9 @@ def _nstar_section(
                 continue
             arm_tabs = []
             for arm_key, arm_name, arm_result in (
-                ("real", "Real → Real", real_result),
-                ("sgr", "Single Gaussian → Real", gaussian_result),
-                ("gmm", "GMM → Real", gmm_result),
+                ("real", labels["real_to_real"], real_result),
+                ("sgr", labels["single_gaussian_to_real"], gaussian_result),
+                ("gmm", labels["gmm_to_real"], gmm_result),
             ):
                 analysis = _nstar_analysis(
                     arm_result, clf, reference, competitors, n
@@ -670,7 +678,7 @@ def _nstar_section(
                 panel = (
                     "<p class='refsubset'>Reference subset: "
                     f"{html.escape(_subset_notation(reference))} = "
-                    f"{html.escape(_subset_sensors(reference, channel_names))}</p>"
+                    f"{html.escape(_subset_sensors(reference, channel_names, channel_display_mapping))}</p>"
                     f"<h5>{html.escape(arm_name)}</h5>"
                     + _table(
                         ["VS", "N*", "Interpolated N*", "Winner"],
@@ -744,10 +752,13 @@ def _nstar_section(
 # --------------------------------------------------------------------------- #
 # Section builders
 # --------------------------------------------------------------------------- #
-def _legend_html(channel_names: Sequence[str]) -> str:
+def _legend_html(
+    channel_names: Sequence[str],
+    channel_display_mapping: Optional[Mapping[str, str]] = None,
+) -> str:
     items = "".join(
         f"<span class='legend-item'><b>{_xsub(i)}</b> = "
-        f"{html.escape(_sensor(name))}</span>"
+        f"{html.escape(_sensor(name, channel_display_mapping))}</span>"
         for i, name in enumerate(channel_names)
     )
     return (
@@ -761,6 +772,12 @@ def _summary_table(
     scenario_meta: Optional[Dict],
     channel_names: Sequence[str],
     n_max: int,
+    *,
+    dataset_identity: str,
+    arm_labels: Sequence[str],
+    real_training_description: str,
+    fixed_test_description: str,
+    target_definition: str,
 ) -> str:
     meta = scenario_meta or {}
     classifiers = ", ".join(
@@ -770,15 +787,17 @@ def _summary_table(
         ("Scenario run ID", str(meta.get("scenario_run_id", "&mdash;"))),
         ("Scenario family", html.escape(str(meta.get("scenario_family", "dataset")))),
         ("Scenario mode", html.escape(str(real_result.config.mode))),
-        ("Dataset", html.escape(str(meta.get("dataset", "Occupancy Detection")))),
-        ("Main arms", "Real → Real; Single Gaussian → Real; GMM → Real"),
+        ("Dataset", html.escape(str(meta.get("dataset", dataset_identity)))),
+        ("Target", html.escape(target_definition)),
+        ("Main arms", html.escape("; ".join(arm_labels))),
+        ("Real training source", html.escape(real_training_description)),
         ("Number of channels", str(len(channel_names))),
         ("Non-empty channel subsets", str(len(real_result.subsets))),
         ("Classifiers", html.escape(classifiers)),
         ("Metric", "Empirical test loss (0–1 misclassification)"),
         ("Sample sizes", html.escape(str(list(real_result.sample_sizes)))),
         ("Largest evaluated sample size", f"N = {n_max} samples per class"),
-        ("Evaluation split", "Fixed real Occupancy evaluation split"),
+        ("Evaluation split", html.escape(fixed_test_description)),
     ]
     body = "".join(
         f"<tr><th class='key'>{html.escape(k)}</th><td>{v}</td></tr>"
@@ -787,7 +806,12 @@ def _summary_table(
     return f"<table class='meta'>{body}</table>"
 
 
-def _protocol_html(real_result: SimulationResult) -> str:
+def _protocol_html(
+    real_result: SimulationResult,
+    arm_labels: Mapping[str, str],
+    arm_summaries: Mapping[str, str],
+    fixed_test_description: str,
+) -> str:
     cfg = real_result.config
     stopping = _table(
         ["Parameter", "Value"],
@@ -806,26 +830,14 @@ def _protocol_html(real_result: SimulationResult) -> str:
     )
     return (
         "<h2>3. Experimental protocol</h2>"
-        "<h3>3.1 Real → Real arm (real-data baseline)</h3>"
-        "<p>The real-data baseline draws balanced training samples from the "
-        "standardized Occupancy training pool and evaluates all channel "
-        "subsets and classifiers using the fixed real Occupancy evaluation "
-        "split.</p>"
-        "<h3>3.2 Single Gaussian → Real arm</h3>"
-        "<p>The single-Gaussian-to-real arm estimates one class-conditional "
-        "Gaussian distribution per Occupancy class from the standardized "
-        "training pool. Training samples are generated synthetically from these "
-        "Gaussian distributions, while evaluation is performed on the fixed "
-        "real Occupancy evaluation split.</p>"
-        "<h3>3.3 GMM → Real arm</h3>"
-        "<p>The GMM-to-real arm fits one class-conditional Gaussian mixture "
-        "model per Occupancy class using the standardized training pool. The "
-        "number of components is selected per class by BIC under a conservative "
-        "component cap. Training samples are generated synthetically from the "
-        "fitted GMMs, while evaluation is performed on the fixed real Occupancy "
-        "evaluation split.</p>"
-        "<p>All three main arms are evaluated on the same fixed real Occupancy "
-        "evaluation split.</p>"
+        f"<h3>3.1 {html.escape(arm_labels['real_to_real'])} arm (real-data baseline)</h3>"
+        f"<p>{html.escape(arm_summaries['real_to_real'])}</p>"
+        f"<h3>3.2 {html.escape(arm_labels['single_gaussian_to_real'])} arm</h3>"
+        f"<p>{html.escape(arm_summaries['single_gaussian_to_real'])}</p>"
+        f"<h3>3.3 {html.escape(arm_labels['gmm_to_real'])} arm</h3>"
+        f"<p>{html.escape(arm_summaries['gmm_to_real'])}</p>"
+        "<p>All three main arms are evaluated on the same "
+        f"{html.escape(fixed_test_description)}.</p>"
         "<h3>3.4 Monte Carlo stopping rule</h3>"
         f"{stopping}"
     )
@@ -902,7 +914,9 @@ def _carousel_html(visualization: Optional[Dict]) -> str:
         "<h2>4. Data visualization</h2>"
         f"<table class='meta'>{meta_html}</table>"
         "<h3>4.1 Projection panels</h3>"
+        "<div class='carousel'>"
         + tab_group("scenario-visualization-source", source_tabs, "real")
+        + "</div>"
     )
 
 
@@ -915,7 +929,13 @@ def _best_comparison_html(
     graph_suffix: str,
     graphs_out: Optional[Dict],
     generate_graphs: bool = True,
+    arm_labels: Optional[Mapping[str, str]] = None,
 ) -> str:
+    labels = arm_labels or {
+        "real_to_real": "Real → Real",
+        "single_gaussian_to_real": "Single Gaussian → Real",
+        "gmm_to_real": "GMM → Real",
+    }
     rows = []
     for clf in real_result.classifier_names:
         real_best = _ranked(real_result, clf, n)[0]
@@ -939,12 +959,12 @@ def _best_comparison_html(
     table = _table(
         [
             "Classifier",
-            "Real → Real best subset",
-            "Real → Real loss",
-            "Single Gaussian → Real best subset",
-            "Single Gaussian → Real loss",
-            "GMM → Real best subset",
-            "GMM → Real loss",
+            f"{labels['real_to_real']} best subset",
+            f"{labels['real_to_real']} loss",
+            f"{labels['single_gaussian_to_real']} best subset",
+            f"{labels['single_gaussian_to_real']} loss",
+            f"{labels['gmm_to_real']} best subset",
+            f"{labels['gmm_to_real']} loss",
             "SG same as real",
             "GMM same as real",
         ],
@@ -953,9 +973,9 @@ def _best_comparison_html(
 
     graph_tabs = []
     for arm_key, arm_name, arm_result in (
-        ("real", "Real → Real", real_result),
-        ("sgr", "Single Gaussian → Real", gaussian_result),
-        ("gmm", "GMM → Real", gmm_result),
+        ("real", labels["real_to_real"], real_result),
+        ("sgr", labels["single_gaussian_to_real"], gaussian_result),
+        ("gmm", labels["gmm_to_real"], gmm_result),
     ):
         sizes = arm_result.sample_sizes
         series = []
@@ -1012,7 +1032,13 @@ def _top_ranked_html(
     graphs_out: Optional[Dict],
     top_k: int = 5,
     generate_graphs: bool = True,
+    arm_labels: Optional[Mapping[str, str]] = None,
 ) -> str:
+    labels = arm_labels or {
+        "real_to_real": "Real → Real",
+        "single_gaussian_to_real": "Single Gaussian → Real",
+        "gmm_to_real": "GMM → Real",
+    }
     parts = [
         "<h2>6. Top-ranked subsets</h2>",
         f"<p>Subsets are ranked by empirical test loss at the largest evaluated "
@@ -1022,9 +1048,9 @@ def _top_ranked_html(
     for i, clf in enumerate(real_result.classifier_names, start=1):
         arm_tabs = []
         for arm_key, arm_name, arm_result in (
-            ("real", "Real → Real", real_result),
-            ("sgr", "Single Gaussian → Real", gaussian_result),
-            ("gmm", "GMM → Real", gmm_result),
+            ("real", labels["real_to_real"], real_result),
+            ("sgr", labels["single_gaussian_to_real"], gaussian_result),
+            ("gmm", labels["gmm_to_real"], gmm_result),
         ):
             ranked = _ranked(arm_result, clf, n)[:top_k]
             rows = [
@@ -1083,34 +1109,21 @@ def _top_ranked_html(
     return "".join(parts)
 
 
-def _interpretation_html() -> str:
+def _interpretation_html(
+    interpretation_notes: Sequence[Tuple[str, str]],
+    limitations: Sequence[str],
+) -> str:
+    notes = "".join(
+        f"<h3>{html.escape(title)}</h3><p>{html.escape(body)}</p>"
+        for title, body in interpretation_notes
+    )
+    limitation_items = "".join(f"<li>{html.escape(item)}</li>" for item in limitations)
     return (
         "<h2>9. Interpretation notes</h2>"
-        "<h3>Structural fidelity metrics</h3>"
-        "<p>Ranking fidelity, pairwise winner agreement, and progressive "
-        "N-star similarity describe distinct aspects of preservation and should "
-        "be interpreted separately alongside their availability statuses.</p>"
-        "<h3>Agreement among the three arms</h3>"
-        "<p>Where the Real → Real, Single Gaussian → Real and GMM → Real arms "
-        "select the same best subsets and show similar cooperative thresholds "
-        "under real-data evaluation, synthetic training preserves the "
-        "cooperative advantages observed when classifiers are evaluated on real "
-        "Occupancy data.</p>"
-        "<h3>Single Gaussian vs GMM under real-data evaluation</h3>"
-        "<p>If the GMM → Real arm aligns more closely with Real → Real than "
-        "Single Gaussian → Real, this suggests that multimodal class-conditional "
-        "structure is important for preserving cooperative behavior under "
-        "real-data evaluation.</p>"
-        "<h3>Divergences from the Real → Real baseline</h3>"
-        "<p>Differences in best subsets or in N* availability indicate "
-        "structure in the real Occupancy data that a given synthetic training "
-        "distribution does not reproduce under real-data evaluation.</p>"
-        "<h3>Classifier-specific behavior</h3>"
-        "<p>Linear SVM, Logistic Regression, and Gaussian Naive Bayes may rank "
-        "subsets differently; comparisons should be read per classifier.</p>"
-        "<h3>Limitations of the current run mode</h3>"
-        "<p>Smoke-mode results should be interpreted as preliminary evidence "
-        "and pipeline validation rather than final inferential conclusions.</p>"
+        + notes
+        + "<h3>Limitations</h3><ul>"
+        + limitation_items
+        + "</ul>"
     )
 
 
@@ -1188,93 +1201,91 @@ def generate_occupancy_scenario_report(
     graphs_out: Optional[Dict] = None,
     generate_graphs: bool = True,
 ) -> Path:
-    """Generate the academic Occupancy scenario report.
+    """Generate the Occupancy report through the generic scenario core."""
 
-    The three main arms are ``Real → Real`` (``real_result``),
-    ``Single Gaussian → Real`` (``gaussian_result``) and ``GMM → Real``
-    (``gmm_result``); all are evaluated on the fixed real Occupancy evaluation
-    split. Loss-vs-N graphs are rendered into ``output_dir`` during generation;
-    their filenames are recorded in ``graphs_out`` (if provided) so callers can
-    register them in ``scenario.json``.
-    """
-
-    output_dir = Path(output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
-    out_path = output_dir / filename
-    if graphs_out is None:
-        graphs_out = {}
-
-    arm_results = {
-        "real_to_real": real_result,
-        "single_gaussian_to_real": gaussian_result,
-        "gmm_to_real": gmm_result,
-    }
-    arm_labels = {
-        "real_to_real": "Real → Real",
-        "single_gaussian_to_real": "Single Gaussian → Real",
-        "gmm_to_real": "GMM → Real",
-    }
-
-    channel_names = tuple(
-        channel_names
-        or real_result.metadata.get("channel_names", [])
-        or gaussian_result.metadata.get("channel_names", [])
-    )
-    n_max = max(real_result.sample_sizes)
-
-    question = (
-        "Which training distribution best preserves the cooperative structure "
-        "observed under real-data evaluation in the Occupancy Detection dataset: "
-        "real data, single-Gaussian synthetic data, or GMM synthetic data?"
+    from coinfosim.reports.dataset_anchored_scenario import (
+        DatasetAnchoredScenarioReportSpec,
+        generate_dataset_anchored_scenario_report,
     )
 
-    related = (
-        "<p class='related'>Detailed reports: "
-        f"<a href='{html.escape(dataset_report)}'>dataset</a> &middot; "
-        f"<a href='{html.escape(real_report)}'>Real → Real Monte Carlo</a> &middot; "
-        f"<a href='{html.escape(sg_real_report)}'>Single Gaussian → Real Monte Carlo</a> &middot; "
-        f"<a href='{html.escape(gmm_real_report)}'>GMM → Real Monte Carlo</a>"
-        "</p>"
+    report_spec = DatasetAnchoredScenarioReportSpec(
+        title="CoInfoSim — Occupancy Detection Baseline Scenario",
+        scientific_question=(
+            "Which training distribution best preserves the cooperative structure "
+            "observed under real-data evaluation in the Occupancy Detection dataset: "
+            "real data, single-Gaussian synthetic data, or GMM synthetic data?"
+        ),
+        dataset_identity="Occupancy Detection",
+        target_definition="Binary room-occupancy label",
+        channel_display_mapping=_SENSOR_DISPLAY,
+        real_training_description="standardized Occupancy training pool",
+        fixed_test_description="Fixed real Occupancy evaluation split",
+        arm_labels={
+            "real_to_real": "Real → Real",
+            "single_gaussian_to_real": "Single Gaussian → Real",
+            "gmm_to_real": "GMM → Real",
+        },
+        arm_summaries={
+            "real_to_real": (
+                "The real-data baseline draws balanced training samples from the "
+                "standardized Occupancy training pool and evaluates every channel "
+                "subset and classifier on the fixed real Occupancy evaluation split."
+            ),
+            "single_gaussian_to_real": (
+                "One class-conditional Gaussian distribution per Occupancy class is "
+                "estimated from the standardized training pool; synthetic training "
+                "samples are evaluated on the fixed real Occupancy evaluation split."
+            ),
+            "gmm_to_real": (
+                "A class-conditional Gaussian mixture model per Occupancy class is "
+                "fit to the standardized training pool with BIC model selection; "
+                "synthetic training samples are evaluated on the fixed real Occupancy "
+                "evaluation split."
+            ),
+        },
+        dataset_report_link_label="dataset",
+        limitations=(
+            "Smoke-mode results are preliminary evidence and pipeline validation, not final inferential conclusions.",
+        ),
+        interpretation_notes=(
+            (
+                "Structural fidelity metrics",
+                "Ranking fidelity, pairwise winner agreement, and progressive N-star similarity describe distinct aspects of preservation and must be interpreted separately alongside their availability statuses.",
+            ),
+            (
+                "Agreement among the three arms",
+                "Agreement in best subsets and cooperative thresholds indicates that synthetic training preserves cooperative advantages observed under real Occupancy evaluation.",
+            ),
+            (
+                "Single Gaussian vs GMM under real-data evaluation",
+                "Closer GMM alignment with Real → Real suggests that multimodal class-conditional structure matters for cooperative behavior.",
+            ),
+            (
+                "Divergences from the Real → Real baseline",
+                "Differences in best subsets or N-star availability identify real Occupancy structure not reproduced by a synthetic training distribution.",
+            ),
+            (
+                "Classifier-specific behavior",
+                "Linear SVM, Logistic Regression, and Gaussian Naive Bayes may rank subsets differently; comparisons must be read per classifier.",
+            ),
+        ),
+        scenario_metadata={"dataset": "Occupancy Detection"},
     )
-
-    doc = f"""<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>CoInfoSim — Occupancy Detection Baseline Scenario</title>
-<style>{_STYLE}{TAB_CSS}</style>
-</head>
-<body>
-
-<h1>CoInfoSim — Occupancy Detection Baseline Scenario</h1>
-{related}
-
-{_legend_html(channel_names)}
-
-<h2>1. Scientific question</h2>
-<p class="question">{html.escape(question)}</p>
-
-<h2>2. Scenario summary</h2>
-{_summary_table(real_result, scenario_meta, channel_names, n_max)}
-
-{_protocol_html(real_result)}
-
-{_carousel_html(visualization)}
-
-{_best_comparison_html(real_result, gaussian_result, gmm_result, n_max, output_dir, graph_suffix, graphs_out, generate_graphs)}
-
-{_top_ranked_html(real_result, gaussian_result, gmm_result, n_max, output_dir, graph_suffix, graphs_out, generate_graphs=generate_graphs)}
-
-{_structural_fidelity_section(arm_results, "real_to_real", arm_labels, output_dir, graph_suffix, graphs_out, generate_graphs)}
-
-{_nstar_section(real_result, gaussian_result, gmm_result, channel_names, n_max, output_dir, graph_suffix, graphs_out, generate_graphs)}
-
-{_interpretation_html()}
-
-{TAB_JS}
-</body>
-</html>"""
-
-    out_path.write_text(doc, encoding="utf-8")
-    return out_path
+    return generate_dataset_anchored_scenario_report(
+        real_result,
+        gaussian_result,
+        gmm_result,
+        report_spec=report_spec,
+        output_dir=output_dir,
+        dataset_report=dataset_report,
+        real_report=real_report,
+        sg_real_report=sg_real_report,
+        gmm_real_report=gmm_real_report,
+        filename=filename,
+        channel_names=channel_names,
+        visualization=visualization,
+        scenario_meta=scenario_meta,
+        graph_suffix=graph_suffix,
+        graphs_out=graphs_out,
+        generate_graphs=generate_graphs,
+    )

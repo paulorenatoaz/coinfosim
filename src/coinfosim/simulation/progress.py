@@ -216,6 +216,7 @@ class CooperativeProgressReporter:
         n_cells: int,
         fixed_test_size: int,
         sample_sizes: Sequence[int],
+        execution: Optional[Mapping[str, Any]] = None,
     ) -> None:
         """Announce the start of one experiment-arm Monte Carlo simulation."""
         if not self.verbose:
@@ -229,6 +230,27 @@ class CooperativeProgressReporter:
             f"Fixed test size        : {fixed_test_size}",
             "Metric                 : empirical test loss",
         ]
+        if execution:
+            cache_bytes = execution.get(
+                "fixed_test_cache_bytes_per_worker", "unknown"
+            )
+            body.extend(
+                [
+                    "Execution backend       : "
+                    f"{execution.get('backend', 'unknown')}",
+                    "Workers requested/effective: "
+                    f"{execution.get('requested_workers', 'unknown')} / "
+                    f"{execution.get('effective_workers', 'unknown')}",
+                    "Numeric threads / worker: "
+                    f"{execution.get('worker_inner_threads', 'unknown')}",
+                    "Multiprocessing start   : "
+                    f"{execution.get('start_method', 'unknown')}",
+                    "Detected logical CPUs   : "
+                    f"{execution.get('logical_cpus', 'unknown')}",
+                    "Fixed-test cache / worker: "
+                    f"{cache_bytes} bytes",
+                ]
+            )
         self._emit_panel(
             f"{_SYM_START} Monte Carlo simulation start", body, "blue"
         )

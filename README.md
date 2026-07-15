@@ -4,7 +4,7 @@ CoInfoSim is a research simulator for evaluating **cooperative advantage among i
 
 CoInfoSim is a conceptual evolution of the earlier **SLACGS** and **CoSenSim** lines of work. It preserves their incremental Monte Carlo protocol, reproducible sample generation, adaptive repetition logic, and scenario-based reporting structure, while reformulating the scientific object from sensor-network dimensionality to multi-channel classification.
 
-> **Status:** Early-stage research project under active development. Sprint 1 introduced the new Gaussian sampler and cooperative Monte Carlo loop. Sprint 2 adds a first dataset-anchored Occupancy Detection scenario with real-data and Gaussian-anchored Monte Carlo reports. Broader dataset grids, cost-aware optimization, and publication workflows remain future work.
+> **Status:** Active research project. The repository supports idealized synthetic experiments and reproducible dataset-anchored scenarios for Occupancy Detection and UCI Air Quality. Dataset scenarios compare real, single-Gaussian synthetic, and class-conditional GMM synthetic training on one fixed real evaluation set.
 
 ## Core research question
 
@@ -100,13 +100,15 @@ Controlled experiments using manually specified Gaussian simulation models, each
 
 ### Phase 2 — Dataset-Anchored Multi-Channel Simulation
 
-Real datasets are used to build dataset-anchored scenarios. For each dataset the simulator produces a real-data simulation report (balanced sampling from the standardized reservoir) and a Gaussian-anchored synthetic simulation report (parameters estimated on the standardized data). The dataset-anchored scenario report compares
+Real datasets are used to build dataset-anchored scenarios. Each implemented dataset provides an explicit scientific protocol, prepared training/test data, and dataset-specific reporting text. The standard three-arm design compares balanced training from the real standardized reservoir, a training-fitted single Gaussian per class, and a training-fitted class-conditional GMM. Every arm is evaluated on the same fixed real test set. The dataset-anchored scenario report compares
 
 $$
-\overline{L}^{\,real}_{A,f}(n) \quad \text{versus} \quad \overline{L}^{\,synth}_{A,f}(n),
+\overline{L}^{\,real}_{A,f}(n), \quad
+\overline{L}^{\,Gaussian}_{A,f}(n), \quad \text{and} \quad
+\overline{L}^{\,GMM}_{A,f}(n),
 $$
 
-assessing whether the Gaussian anchored model preserves the cooperative patterns of the real dataset.
+assessing whether fitted synthetic training distributions preserve the cooperative patterns observed under fixed real-data evaluation.
 
 ### Phase 3 — Cost-Aware Channel Selection
 
@@ -131,28 +133,28 @@ Channel cost is treated generically and may include acquisition, deployment, cal
 | Scenario report | Aggregated report for one scenario |
 | Dataset report | Report describing a real dataset used in dataset-anchored experiments |
 
-## Planned reporting structure
+## Reporting structure
 
-The reporting system is **planned architecture**. It is designed to remain generic: automated reports display the parameters explicitly defined in each simulation model and scenario grid together with generic derived metrics, while scenario-specific interpretive quantities live in accompanying analyses rather than as required report fields. The layered structure is:
+The reporting system is layered and dataset-aware. Automated reports display the parameters explicitly defined in each simulation model together with generic loss, ranking, N-star, and structural-fidelity analyses; dataset-specific provenance and interpretation remain explicit rather than being inferred from arbitrary input files. The structure is:
 
 1. **Project index** — published entry point listing scenario, dataset, and simulation reports, result files, generation date, and software/commit version.
 2. **Dataset report** — dataset name and source, target $Y$, class distribution, candidate and selected channels, preprocessing and standardization, training reservoir/test set, and visual diagnostics of standardized data.
 3. **Simulation report** — model id and source, class centers and covariance matrices, evaluated subsets, classifiers, values of $n$, repetitions/convergence, loss curves $\overline{L}_{A,f}(n)$, subset rankings, thresholds $N^*$, and data-geometry visualizations.
 4. **Scenario report** — the scenario question, a table of simulation models, links to simulation reports, aggregate loss curves, threshold summaries, best-subset maps, scenario-grid heatmaps, and animations of geometry across the scenario.
-5. **Dataset-anchored scenario report** — links to the dataset report and both simulation reports, real-versus-synthetic loss curves and rankings, threshold comparisons, and real–synthetic discrepancies.
+5. **Dataset-anchored scenario report** — links to the dataset report and three arm reports, real-versus-synthetic loss curves and rankings, N-star comparisons, and separate ranking-fidelity, winner-agreement, and progressive N-star-similarity metrics.
 
-Planned visual elements include synthetic dataset visualizations, real-data visual diagnostics, GIF animations of sample-size growth, panels/animations of scenario-parameter variation, loss curves $\overline{L}_{A,f}(n)$, channel-subset rankings, cooperative advantage thresholds $N^*$, best-subset maps, and scenario-grid heatmaps, with links connecting scenario reports to their simulation and dataset reports.
+Implemented dataset-anchored reports include real and synthetic projection panels, loss curves $\overline{L}_{A,f}(n)$, channel-subset rankings, cooperative advantage thresholds $N^*$, winner matrices, progressive N-star matrices, and separate structural-fidelity curves. Broader grids and animations remain future work.
 
 ## Real-world motivating cases
 
-The dataset-anchored phase is motivated by small, interpretable real-data studies with a few selected channels:
+The dataset-anchored phase uses small, interpretable real-data studies with a few selected channels:
 
-- **Occupancy detection** — channels such as CO₂, light, and temperature.
+- **Occupancy detection** — implemented with Temperature, Humidity, Light, CO₂, and HumidityRatio.
+- **Air quality** — implemented with five PT08 metal-oxide sensor responses and a benzene reference used only to construct the target.
 - **Water potability** — channels such as pH, conductivity, and turbidity.
-- **Air quality** — field sensor responses compared with certified reference measurements.
 - **Hydraulic systems / condition monitoring** — multiple physical or operational measurements for fault classification (future work).
 
-These cases motivate channel-subset evaluation and the separation between channel cost $C_X(A)$ and label/reference cost $C_Y(n)$. Dataset pipelines are **not** implemented in this repository yet.
+The first two pipelines are implemented; the remaining examples are motivations, not plug-and-play dataset support.
 
 ## Relationship to SLACGS and CoSenSim
 
@@ -162,13 +164,13 @@ CoInfoSim evolves from SLACGS, which studied cooperative gains in synthetic Gaus
 
 ```
 docs/          # Documentation, design notes, and planned-architecture descriptions
-data/          # Dataset READMEs and pointers (no large data committed)
+data/          # Raw dataset files and provenance; the Air Quality CSV is committed
 experiments/   # Experiment manifests and scripts (planned)
 src/coinfosim/ # Main package (inherited functional code; reformulation in progress)
 tests/         # Smoke and unit tests
 ```
 
-The package namespace and CLI are now `coinfosim`. Renaming the GitHub repository itself from `cosensim` to `coinfosim` is an external operation (see *Follow-up* below).
+The package namespace and CLI are `coinfosim`.
 
 ## Installation (developer quick-start)
 
@@ -180,7 +182,7 @@ source .venv/bin/activate
 pip install -e .
 ```
 
-## Basic usage (placeholder)
+## Basic usage
 
 The CLI entry point is `coinfosim`:
 
@@ -188,11 +190,64 @@ The CLI entry point is `coinfosim`:
 coinfosim --help
 ```
 
-The simulator API and command set are being reformulated for the CoInfoSim research direction; current commands reflect the inherited implementation and will evolve as the phases above are implemented.
+Dataset-anchored scenarios are run through their dataset-specific scripts. The supported sample-size presets are:
 
-## Sprint 2 Occupancy scenario
+| Mode | `n_per_class` values |
+|---|---|
+| `smoke` | `2, 4, 8, 16, 32` |
+| `fast` | `2, 4, 8, 16, 32, 64, 128` |
+| `full` | `2, 4, 8, 16, 32, 64, 128, 256, 512` |
+| `strict` | `2, 4, 8, 16, 32, 64, 128, 256, 512` |
 
-Sprint 2 implements an Occupancy Detection real-data anchored smoke scenario. Place the UCI raw files at:
+Only `smoke` is used by the documented validation workflow. `fast`, `full`, and `strict` are never run automatically; use them only after explicit scientific review and after checking the real training reservoir's minority-class capacity.
+
+## UCI Air Quality scenario
+
+The Air Quality scenario tests whether synthetic training distributions preserve cooperative channel-subset structure when every arm is evaluated on the same fixed future real observations. It uses the official UCI Air Quality dataset, DOI `10.24432/C59K5F`. The original `AirQualityUCI.csv` is committed at `data/raw/air_quality/`; provenance and its SHA-256 are recorded in that directory's README.
+
+Classifier input is restricted to these five sensor-response channels:
+
+- `PT08.S1(CO)`
+- `PT08.S2(NMHC)`
+- `PT08.S3(NOx)`
+- `PT08.S4(NO2)`
+- `PT08.S5(O3)`
+
+`C6H6(GT)` is a benzene reference used only to define the binary target and is excluded from classifier input. After complete-case filtering, rows are split chronologically: the first 80% form the training reservoir and the last 20% form the fixed future real test set. The target threshold is the training-only 75th percentile of `C6H6(GT)`, with positive label `C6H6(GT) >= threshold`. Z-score parameters are fitted on training only with `ddof=0`.
+
+The scenario evaluates all 31 non-empty channel subsets and the same three classifiers under:
+
+- Real → Real
+- Single Gaussian → Real
+- GMM → Real
+
+Run the approved smoke scenario:
+
+```bash
+.venv/bin/python scripts/run_air_quality_scenario.py --mode smoke
+```
+
+Regenerate reports and graphs from a persisted scenario without rerunning Monte Carlo:
+
+```bash
+.venv/bin/python scripts/run_air_quality_scenario.py \
+  --report-from-scenario-run <SCENARIO_RUN_ID>
+```
+
+Run outputs are immutable, ID-addressed directories with shared registries:
+
+```text
+output/reports/scenario_runs.json
+output/reports/simulation_runs.json
+output/reports/scenarios/<scenario-id>_air_quality_baseline_<mode>/
+output/reports/simulations/<simulation-id>_air_quality_<arm>_<mode>/
+```
+
+The scenario directory contains the dataset report, scenario report, `scenario.json`, projection images, and analytical graphs. Each of the three simulation directories contains its arm report, compressed result payload, summary, `simulation.json`, and exported diagnostic tables.
+
+## Occupancy Detection scenario
+
+Occupancy remains fully supported. Place its UCI raw files at:
 
 ```text
 data/raw/occupancy/datatraining.txt
@@ -206,16 +261,16 @@ Run the smoke scenario with:
 .venv/bin/python scripts/run_occupancy_scenario.py --mode smoke
 ```
 
-Smoke mode evaluates `n_per_class = [1, 2, 4, 8, 16, 32]`, all 31 non-empty subsets of Temperature, Humidity, Light, CO2, and HumidityRatio, and the three Sprint classifiers: Linear SVM, Logistic Regression, and Gaussian Naive Bayes. The command generates:
+Smoke mode uses the current `2, 4, 8, 16, 32` preset and evaluates all 31 non-empty subsets of Temperature, Humidity, Light, CO2, and HumidityRatio with Linear SVM, Logistic Regression, and Gaussian Naive Bayes. Its runner uses the same generic three-arm execution, persistence, registry, and scenario-report cores as Air Quality while preserving the Occupancy public wrappers.
 
-```text
-output/reports/occupancy_scenario_report.html
-output/reports/occupancy_dataset_report.html
-output/reports/occupancy_real_monte_carlo_report.html
-output/reports/occupancy_gaussian_anchored_monte_carlo_report.html
-```
+## Extending dataset-anchored scenarios
 
-Fast mode evaluates `n_per_class = [1, 2, 4, 8, 16, 32, 64, 128]`. Full mode is defined in code through `512` but should not be run for Sprint 2 local validation unless explicitly requested.
+Future datasets require an explicit implementation; CoInfoSim does not claim arbitrary CSV plug-and-play support. The extension workflow is:
+
+1. Implement a validated loader and prepared-data object with fixed train/test semantics.
+2. Provide the dataset/scenario execution specification and model builders.
+3. Provide dataset-specific report text, provenance, diagnostics, limitations, and interpretation.
+4. Reuse the generic dataset-anchored runner and report cores for execution, persistence, structural analysis, and regeneration.
 
 ## Citation
 
@@ -233,5 +288,4 @@ CoInfoSim is distributed under the GNU General Public License v3.0 (GPL-3.0), in
 
 ## Follow-up
 
-- The GitHub repository is still named `cosensim`; renaming it to `coinfosim` is an external GitHub operation. After renaming, update the `origin` remote URL locally.
-- The new simulator logic, Occupancy dataset-anchored pipeline, Gaussian-anchored simulation, reformulated Monte Carlo loop, and Sprint 2 HTML reports now have an initial implementation. Cost-aware optimization, broader dataset grids, and publication automation remain planned follow-up work.
+Cost-aware optimization, additional explicitly implemented datasets, broader reviewed experiment grids, and publication automation remain future work.

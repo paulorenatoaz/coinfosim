@@ -8,6 +8,7 @@ require the Occupancy raw data files under ``data/raw/occupancy``.
 import importlib.util
 import json
 import sys
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
@@ -158,7 +159,7 @@ def test_simulation_json_has_report_ready_data(tmp_path):
     mod.run_scenario(
         raw_dir=str(RAW_DIR),
         output_dir=str(tmp_path),
-        config=_tiny_config(),
+        config=replace(_tiny_config(), sample_sizes=(4, 8)),
         visualize=False,
     )
     sim_json = json.loads(
@@ -181,6 +182,41 @@ def test_simulation_json_has_report_ready_data(tmp_path):
     assert sim_json["result_data"]["structural_dynamics"]["schema_version"] == 1
     # Pointer to full persisted result payload.
     assert sim_json["artifacts"]["result_data"].endswith(".json.gz")
+
+    simulation_dirs = [
+        "000000_occupancy_real_data_smoke",
+        "000001_occupancy_single_gaussian_to_real_smoke",
+        "000002_occupancy_gmm_to_real_smoke",
+    ]
+    execution_records = []
+    for simulation_dir in simulation_dirs:
+        record = json.loads(
+            (
+                tmp_path
+                / "simulations"
+                / simulation_dir
+                / "simulation.json"
+            ).read_text(encoding="utf-8")
+        )
+        execution = record["model_metadata"]["execution"]
+        assert record["summary_data"]["execution"] == execution
+        execution_records.append(execution)
+
+    assert execution_records[0] == execution_records[1] == execution_records[2]
+    assert execution_records[0]["backend"] == "sequential"
+    assert execution_records[0]["requested_workers"] == 1
+    assert execution_records[0]["effective_workers"] == 1
+    assert execution_records[0]["fixed_test_cache_bytes_per_worker"] > 0
+
+    report_html = (
+        tmp_path
+        / "simulations"
+        / simulation_dirs[0]
+        / "occupancy_real_data_monte_carlo_report_smoke_000000.html"
+    ).read_text(encoding="utf-8")
+    assert "Execution backend" in report_html
+    assert "Workers requested / effective" in report_html
+    assert "Fixed-test cache per worker" in report_html
 
 
 def test_gmm_simulation_json_has_model_selection(tmp_path):
