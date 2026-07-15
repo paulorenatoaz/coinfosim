@@ -152,6 +152,22 @@ class Support2Data:
             "test": _id_fingerprint(self.raw_test["id"]),
         }
 
+    def split_manifest(self) -> Dict[str, object]:
+        """Return the exact persisted cohort and partition membership."""
+
+        return {
+            "dataset": "SUPPORT2",
+            "target": SUPPORT2_TARGET,
+            "split_seed": int(self.split_seed),
+            "train_fraction": float(self.train_fraction),
+            "test_fraction": float(1.0 - self.train_fraction),
+            "stratification_variables": [SUPPORT2_TARGET, SUPPORT2_STRATIFICATION_COLUMN],
+            "id_fingerprints": self.id_fingerprints(),
+            "cohort_ids": [int(value) for value in self.cohort_frame["id"]],
+            "train_ids": [int(value) for value in self.raw_train["id"]],
+            "test_ids": [int(value) for value in self.raw_test["id"]],
+        }
+
     def raw_channel_summary(self) -> pd.DataFrame:
         return _channel_summary(self.raw_train, self.raw_test, self.channel_names)
 
