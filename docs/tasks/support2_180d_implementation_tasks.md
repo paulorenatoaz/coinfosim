@@ -554,7 +554,13 @@ Stop if:
 
 # Block 2 — Add raw data and provenance
 
-**Status:** `[~] In progress`
+**Status:** `[x] Complete`
+
+**Completion note (2026-07-15):** Added the byte-identical Vanderbilt/HBiostat
+`support2.csv`, provenance README, and frozen structure/hash test. Verified SHA-256
+`79621945edf2a5c8dc36359684ff356d3c6025e773ba4fefac26f865f7894c78`, 47
+header names, 48 fields in every record, and 9,105 records. Test:
+`pytest tests/test_support2_loader.py -q`. Commit: `7fbf5a1d`.
 
 **Depends on:** Block 1
 
@@ -627,7 +633,12 @@ Stop if:
 
 # Block 3 — Implement explicit SUPPORT2 ingestion
 
-**Status:** `[~] In progress`
+**Status:** `[x] Complete`
+
+**Completion note (2026-07-15):** Added explicit CSV record inspection,
+canonical schema enforcement, ID reconstruction/validation, numeric parsing, and
+an exhaustive 48-column role map in `datasets/support2.py`. Structural corruption
+tests pass. Commit: `78385cf0`.
 
 **Depends on:** Block 2
 
@@ -731,7 +742,12 @@ Add tests for:
 
 # Block 4 — Implement and validate `death_180d`
 
-**Status:** `[~] In progress`
+**Status:** `[x] Complete`
+
+**Completion note (2026-07-15):** Implemented independently testable inclusive
+180-day target derivation with missing, finite, domain, non-negative-time, and
+survivor-follow-up checks. Verified raw counts 4,840/4,265, 2,904 survivors,
+minimum survivor follow-up 344, and all boundary cases. Commit: `78385cf0`.
 
 **Depends on:** Block 3
 
@@ -846,7 +862,12 @@ Add focused tests for:
 
 # Block 5 — Build the complete cohort and fixed split
 
-**Status:** `[~] In progress`
+**Status:** `[x] Complete`
+
+**Completion note (2026-07-15):** Implemented complete-case construction and the
+fixed seed-0 joint-stratified split. Verified cohort 8,873; train/test 7,098/1,775;
+class counts 3,768/3,330 and 943/832; 16 strata in both partitions; and all three
+approved ID fingerprints. Commit: `78385cf0`.
 
 **Depends on:** Block 4
 
@@ -973,7 +994,11 @@ Stop if any expected count or fingerprint differs. Do not compensate by changing
 
 # Block 6 — Implement training-only preprocessing
 
-**Status:** `[~] In progress`
+**Status:** `[x] Complete`
+
+**Completion note (2026-07-15):** Added training-only seven-channel z-score
+standardization with `ddof=0`, unchanged application to test, exact channel order,
+and leakage/no-imputation/no-clipping restoration tests. Commit: `78385cf0`.
 
 **Depends on:** Block 5
 
@@ -1046,7 +1071,12 @@ The returned `Support2Data` satisfies the existing dataset-anchored data contrac
 
 # Block 7 — Export the SUPPORT2 dataset API
 
-**Status:** `[~] In progress`
+**Status:** `[x] Complete`
+
+**Completion note (2026-07-15):** Exported `Support2Data`, constants, and
+`load_support2_data` through `coinfosim.datasets`; Occupancy and Air Quality
+imports remain intact. The combined loader suite reports 18 passed. Commit:
+`78385cf0`.
 
 **Depends on:** Block 6
 
@@ -1084,7 +1114,13 @@ feat: add SUPPORT2 180-day mortality dataset pipeline
 
 # Block 8 — Persist target, preprocessing, and split metadata
 
-**Status:** `[ ] Pending`
+**Status:** `[x] Complete`
+
+**Completion note (2026-07-15):** Extended the generic runner/spec and report-data
+snapshot with optional dataset artifacts, preprocessing, and exclusion metadata.
+SUPPORT2 writes strict split-manifest, target-metadata, and preprocessing-metadata
+JSON artifacts. Air Quality runner regression: 4 passed. Commit: `1b69887e`;
+SUPPORT2 callback/artifact implementation: `9642fa09`.
 
 **Depends on:** Blocks 5–7
 
@@ -1202,7 +1238,12 @@ Existing dataset-anchored scenarios continue to pass their tests unchanged or wi
 
 # Block 9 — Implement SUPPORT2 anchored-model wrappers
 
-**Status:** `[ ] Pending`
+**Status:** `[x] Complete`
+
+**Completion note (2026-07-15):** Added thin wrappers around the generic Gaussian
+and GMM builders. Tests verify classes, 3,768/3,330 training sizes, seven-dimensional
+direct estimates, training-only fitting, and leakage boundaries. 2 passed. Commit:
+`9642fa09`.
 
 **Depends on:** Blocks 6–8
 
@@ -1268,7 +1309,12 @@ No SUPPORT2-specific duplicate Gaussian or GMM implementation is introduced.
 
 # Block 10 — Implement the SUPPORT2 dataset report
 
-**Status:** `[ ] Pending`
+**Status:** `[x] Complete`
+
+**Completion note (2026-07-15):** Added a 20-section scientific report covering
+provenance, endpoint, survivor audit, raw/cohort counts, missingness, disease groups,
+split/fingerprints, preprocessing, class-conditional diagnostics, limitations, and
+citations. Dataset-report test: 1 passed. Commit: `9642fa09`.
 
 **Depends on:** Blocks 4–9
 
@@ -1378,7 +1424,12 @@ A reader can independently reconstruct the endpoint, cohort, split, and preproce
 
 # Block 11 — Implement arm-report wrappers
 
-**Status:** `[ ] Pending`
+**Status:** `[x] Complete`
+
+**Completion note (2026-07-15):** Added Real → Real, Single Gaussian → Real, and
+GMM → Real wrappers using the shared structured report. Tiny smoke fixtures verify
+target/fixed-test wording, 127 subsets, structural sections, and model metadata.
+2 passed. Commit: `9642fa09`.
 
 **Depends on:** Blocks 9–10
 
@@ -1440,7 +1491,12 @@ All three reports are generated through the same generic reporting architecture 
 
 # Block 12 — Implement the SUPPORT2 scenario-comparison report
 
-**Status:** `[ ] Pending`
+**Status:** `[x] Complete`
+
+**Completion note (2026-07-15):** Added the SUPPORT2 specification for the generic
+scenario renderer, with endpoint/cohort/split context, near-balanced classes,
+ranking fidelity, exact-tie-aware agreement, progressive N-star similarity, and
+links to all four subordinate reports. Test: 1 passed. Commit: `9642fa09`.
 
 **Depends on:** Block 11
 
@@ -1516,7 +1572,14 @@ The scenario report is comparable to the existing scenario-level reports and lin
 
 # Block 13 — Implement the SUPPORT2 execution specification and CLI script
 
-**Status:** `[ ] Pending`
+**Status:** `[x] Complete`
+
+**Completion note (2026-07-15):** Added the module-level execution spec, smoke CLI,
+persisted-result regeneration CLI, strict protocol metadata, and exact split
+artifact callback. Runner tests validate shared test identity, three simulations,
+127 subsets, three classifiers, persistence, regeneration with loader/simulator
+blocked, and pre-expensive-work failure for `n_per_class=3331`. 3 passed in smoke
+mode. Commit: `9642fa09`.
 
 **Depends on:** Blocks 8–12
 
@@ -1674,7 +1737,16 @@ Smoke artifacts are usable, or a narrowly scoped compatibility-preserving fix is
 
 # Block 15 — Regression test suite on the feature branch
 
-**Status:** `[ ] Pending`
+**Status:** `[x] Complete`
+
+**Completion note (2026-07-15):** Confirmed the feature branch and inspected every
+test-side `MonteCarloConfig`; all executable simulations use `mode="smoke"`.
+SUPPORT2 modules passed 18, 2, 1, 2, 1, and 3 tests respectively. The targeted
+Air Quality/Occupancy/generic regression set passed 79 tests; the Air Quality
+runner passed 4 tests; the full repository suite passed 317 tests in 1,288.90 s.
+Only existing Matplotlib pending-deprecation warnings were reported. Commits:
+`78385cf0`, `1b69887e`, `9642fa09`; documentation test record committed in the
+feature-finalization commit.
 
 **Depends on:** Blocks 2–14
 
