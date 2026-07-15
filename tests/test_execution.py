@@ -126,17 +126,3 @@ def test_simulator_default_matches_explicit_sequential_execution_exactly():
     )
     assert default_result.stopping_info == explicit_result.stopping_info
     assert default_result.metadata == explicit_result.metadata
-
-
-def test_process_backend_is_not_started_before_block_4():
-    scenario = make_synthetic_scenario_1()
-    simulator = CooperativeMonteCarloSimulator(
-        scenario.model,
-        _tiny_config(),
-        subsets=[(0,)],
-        classifier_names=["gaussian_nb"],
-        execution_config=ExecutionConfig(backend="process", n_jobs=2),
-    )
-
-    with pytest.raises(NotImplementedError, match="Block 4"):
-        simulator.run()
