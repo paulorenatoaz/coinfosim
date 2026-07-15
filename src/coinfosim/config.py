@@ -74,9 +74,10 @@ DEFAULT_CONFIG: Dict[str, Any] = {
         "levels": {},  # Module-specific log levels: {"coinfosim.core.simulator": "DEBUG"}
     },
     "publishing": {
-        "enabled": False,
-        "target_dir": "../coinfosim-reports-pages",
-        "auto_push": False,
+        "branch": "gh-pages",
+        "remote": "origin",
+        "site_title": "CoInfoSim — Published Research Reports",
+        "include_data": True,
     },
 }
 
@@ -299,6 +300,14 @@ def validate_config(config: Dict[str, Any]) -> Dict[str, Any]:
     seed = config["experiment"]["seed"]
     if seed is not None and (not isinstance(seed, int) or seed < 0):
         raise ConfigError(f"Invalid seed: {seed}. Must be None or non-negative integer.")
+
+    publishing = config["publishing"]
+    for key in ("branch", "remote", "site_title"):
+        value = publishing.get(key)
+        if not isinstance(value, str) or not value.strip():
+            raise ConfigError(f"publishing.{key} must be a non-empty string.")
+    if not isinstance(publishing.get("include_data"), bool):
+        raise ConfigError("publishing.include_data must be a boolean.")
     
     return config
 
@@ -513,14 +522,10 @@ level = "INFO"
 quiet = false
 
 [publishing]
-# Enable automatic publishing to GitHub Pages
-enabled = false
-
-# Target directory for published reports
-target_dir = "../coinfosim-reports-pages"
-
-# Automatically git push after publishing
-auto_push = false
+branch = "gh-pages"
+remote = "origin"
+site_title = "CoInfoSim — Published Research Reports"
+include_data = true
 """
     
     config_path.write_text(template)
@@ -572,9 +577,10 @@ level = "INFO"
 quiet = false
 
 [publishing]
-enabled = false
-target_dir = "../coinfosim-reports-pages"
-auto_push = false
+branch = "gh-pages"
+remote = "origin"
+site_title = "CoInfoSim — Published Research Reports"
+include_data = true
 """
     
     config_path.write_text(template)

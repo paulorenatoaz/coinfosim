@@ -686,16 +686,37 @@ def make_report(
 @app.command()
 def publish(
     ctx: typer.Context,
-    auto_push: bool = typer.Option(
+    dry_run: bool = typer.Option(
         False,
-        "--auto-push",
-        help="Automatically push to GitHub after publishing",
+        "--dry-run",
+        help="Validate and assemble the site without changing Git",
     ),
-    branch: str = typer.Option(
-        "reports-pages",
+    branch: Optional[str] = typer.Option(
+        None,
         "--branch",
         "-b",
-        help="Target branch for GitHub Pages",
+        help="Publication branch (default: configured gh-pages branch)",
+    ),
+    remote: Optional[str] = typer.Option(
+        None,
+        "--remote",
+        help="Git remote (default: configured origin remote)",
+    ),
+    output_dir: Optional[Path] = typer.Option(
+        None,
+        "--output-dir",
+        "-o",
+        help="Output directory containing reports/ and optionally data/",
+    ),
+    prune: bool = typer.Option(
+        False,
+        "--prune",
+        help="Exactly synchronize the managed reports/ and data/ directories",
+    ),
+    title: Optional[str] = typer.Option(
+        None,
+        "--title",
+        help="Homepage title",
     ),
 ):
     """
@@ -703,27 +724,49 @@ def publish(
     
     Examples:
         coinfosim publish
-        coinfosim publish --auto-push
+        coinfosim publish --dry-run
+        coinfosim publish --output-dir ./output --prune
     """
     logger = get_logger("coinfosim.cli.publish")
-    
+    config = ctx.obj["config"]
+    publishing = config["publishing"]
+    selected_output = output_dir.resolve() if output_dir else get_output_dir(config)
+    selected_branch = branch or publishing["branch"]
+    selected_remote = remote or publishing["remote"]
+    selected_title = title or publishing["site_title"]
+
     console.print(f"\n[bold cyan]Publishing to GitHub Pages[/bold cyan]\n")
-    console.print(f"Target branch: [yellow]{branch}[/yellow]\n")
-    
+    console.print(f"Output directory: [yellow]{selected_output}[/yellow]")
+    console.print(f"Branch: [yellow]{selected_branch}[/yellow]")
+    console.print(f"Remote: [yellow]{selected_remote}[/yellow]\n")
+
     try:
-        from coinfosim.publish.publisher import publish_to_pages
-        
-        with console.status(f"[bold green]Publishing...[/bold green]"):
-            publish_to_pages(auto_push=auto_push, branch=branch)
-        
-        console.print(f"[bold green]✓[/bold green] Published successfully!")
-        
-        if auto_push:
-            console.print("Changes pushed to GitHub\n")
+        from coinfosim.publish.publisher import PublishError, publish_to_pages
+
+        action = "Validating" if dry_run else "Publishing"
+        with console.status(f"[bold green]{action}...[/bold green]"):
+            result = publish_to_pages(
+                selected_output,
+                branch=selected_branch,
+                remote=selected_remote,
+                site_title=selected_title,
+                include_data=publishing["include_data"],
+                prune=prune,
+                dry_run=dry_run,
+            )
+
+        console.print(f"Scenario reports: [yellow]{result.report_count}[/yellow]")
+        for report in result.reports:
+            console.print(f"  [dim]{report}[/dim]")
+        if dry_run:
+            console.print("[bold green]✓[/bold green] Validation complete; no Git changes were made.")
+        elif result.changed:
+            console.print("[bold green]✓[/bold green] Published successfully.")
+            console.print(f"Commit: [yellow]{result.commit_sha}[/yellow]")
         else:
-            console.print(f"[yellow]Note:[/yellow] Run 'git push origin {branch}' to deploy\n")
-        
-    except Exception as e:
+            console.print("[bold green]✓[/bold green] No changes to publish.")
+
+    except PublishError as e:
         console.print(f"[red]✗[/red] Publishing failed: {e}", style="bold red")
         logger.error(f"Publishing error: {e}", exc_info=True)
         raise typer.Exit(1)

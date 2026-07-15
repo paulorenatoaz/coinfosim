@@ -2,6 +2,8 @@
 
 CoInfoSim is a research simulator for evaluating **cooperative advantage among information channels** in supervised classification tasks. It studies when a *subset* of channels provides a measurable advantage over isolated channels, redundant pairs, or simpler subsets, and how many labeled samples are needed before that advantage appears.
 
+Published research reports: <https://paulorenatoaz.github.io/coinfosim/>
+
 CoInfoSim is a conceptual evolution of the earlier **SLACGS** and **CoSenSim** lines of work. It preserves their incremental Monte Carlo protocol, reproducible sample generation, adaptive repetition logic, and scenario-based reporting structure, while reformulating the scientific object from sensor-network dimensionality to multi-channel classification.
 
 > **Status:** Active research project. The repository supports idealized synthetic experiments and reproducible dataset-anchored scenarios for Occupancy Detection and UCI Air Quality. Dataset scenarios compare real, single-Gaussian synthetic, and class-conditional GMM synthetic training on one fixed real evaluation set.
@@ -286,6 +288,10 @@ CoInfoSim is distributed under the GNU General Public License v3.0 (GPL-3.0), in
 - Keep pull requests small and focused; propose larger refactors in an issue first.
 - Preserve reproducibility: experiments should record random seeds and environment details.
 
+## Publishing reports
+
+Publish the configured output to the artifact-only `gh-pages` branch with `coinfosim publish`, or validate it without Git changes with `coinfosim publish --dry-run`. See [docs/PUBLISHING.md](docs/PUBLISHING.md) for incremental publication, exact synchronization, and one-time Pages configuration.
+
 ## Follow-up
 
-Cost-aware optimization, additional explicitly implemented datasets, broader reviewed experiment grids, and publication automation remain future work.
+Cost-aware optimization, additional explicitly implemented datasets, and broader reviewed experiment grids remain future work.
