@@ -83,7 +83,9 @@ def test_summary_dataframe():
 
 # --- Mode config --------------------------------------------------------------
 
-@pytest.mark.parametrize("mode", ["smoke", "fast", "full", "strict"])
+@pytest.mark.parametrize(
+    "mode", ["smoke", "fast", "full", "full-scale", "strict"]
+)
 def test_get_mode_config_valid(mode):
     cfg = get_mode_config(mode)
     assert isinstance(cfg, MonteCarloConfig)
@@ -97,18 +99,26 @@ def test_get_mode_config_valid(mode):
 
 
 def test_valid_modes_constant():
-    assert set(VALID_MODES) == {"smoke", "fast", "full", "strict"}
+    assert set(VALID_MODES) == {
+        "smoke",
+        "fast",
+        "full",
+        "full-scale",
+        "strict",
+    }
 
 
 def test_sprint2_mode_sample_sizes_and_smoke_budget():
     smoke = get_mode_config("smoke")
     fast = get_mode_config("fast")
     full = get_mode_config("full")
+    full_scale = get_mode_config("full-scale")
     strict = get_mode_config("strict")
 
     assert smoke.sample_sizes == (2, 4, 8, 16, 32)
     assert fast.sample_sizes == (2, 4, 8, 16, 32, 64, 128)
     assert full.sample_sizes == (2, 4, 8, 16, 32, 64, 128, 256, 512)
+    assert full_scale.sample_sizes == full.sample_sizes
     assert strict.sample_sizes == (2, 4, 8, 16, 32, 64, 128, 256, 512)
 
     assert smoke.min_replications == 10
@@ -119,6 +129,13 @@ def test_sprint2_mode_sample_sizes_and_smoke_budget():
 
     assert fast.ci_half_width_target == 0.03
     assert full.ci_half_width_target == 0.01
+    assert full_scale.sample_sizes == full.sample_sizes
+    assert full_scale.min_replications == full.min_replications
+    assert full_scale.max_replications == full.max_replications
+    assert full_scale.replication_batch_size == full.replication_batch_size
+    assert full_scale.test_samples_per_class == full.test_samples_per_class
+    assert full_scale.ci_half_width_target == full.ci_half_width_target
+    assert full_scale.base_seed == full.base_seed
     assert strict.ci_half_width_target == 0.005
     assert strict.min_replications == 100
     assert strict.max_replications == 2000
