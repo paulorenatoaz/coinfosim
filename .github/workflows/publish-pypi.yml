@@ -57,7 +57,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     environment:
-      name: ${{ 'pypi' }}
+      name: ${{ vars.PYPI_ENVIRONMENT || 'pypi' }}
     permissions:
       id-token: write
     steps:
