@@ -162,7 +162,7 @@ def equivalent_results():
     process_config = ExecutionConfig(
         backend="process",
         n_jobs=2,
-        start_method="forkserver",
+        start_method="spawn",
         worker_inner_threads=1,
     )
     for arm, sampler in _samplers().items():

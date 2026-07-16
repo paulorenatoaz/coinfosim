@@ -188,7 +188,7 @@ class ExecutionConfig:
 
     backend: str = "sequential"
     n_jobs: int = 1
-    start_method: str = "forkserver"
+    start_method: str = "spawn"  # only universally-available method (Windows lacks forkserver/fork)
     worker_inner_threads: int = 1
 
     def __post_init__(self) -> None:

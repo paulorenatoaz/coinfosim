@@ -164,7 +164,7 @@ def test_sampler_sequential_and_process_results_are_exactly_equal(kind):
         ExecutionConfig(
             backend="process",
             n_jobs=2,
-            start_method="forkserver",
+            start_method="spawn",
             worker_inner_threads=1,
         ),
     )

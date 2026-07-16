@@ -76,7 +76,7 @@ def test_execution_metadata_records_capacity_and_cache_size():
         "requested_workers": 4,
         "effective_workers": 2,
         "worker_inner_threads": 1,
-        "start_method": "forkserver",
+        "start_method": "spawn",
         "logical_cpus": os.cpu_count(),
         "fixed_test_cache_bytes_per_worker": 72,
     }
