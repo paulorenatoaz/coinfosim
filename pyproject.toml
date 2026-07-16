@@ -5,3 +5,8 @@ build-backend = "setuptools.build_meta"
 # Project metadata (name, version, dependencies, console scripts) is defined in
 # setup.py to keep a single source of truth for CoInfoSim packaging.
 # See: https://github.com/paulorenatoaz/coinfosim
+
+[tool.pytest.ini_options]
+markers = [
+    "slow: exercises a real (tiny) end-to-end Monte Carlo run rather than mocks",
+]

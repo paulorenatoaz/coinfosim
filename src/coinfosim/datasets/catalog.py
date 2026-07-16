@@ -287,3 +287,21 @@ def get_dataset(slug_or_alias: str) -> DatasetDefinition:
     if canonical is None or canonical not in catalog:
         raise UnknownDatasetError(slug_or_alias)
     return catalog[canonical]
+
+
+def with_base_url(dataset: DatasetDefinition, base_url: str) -> DatasetDefinition:
+    """Return a copy of ``dataset`` with every file URL rewritten under ``base_url``.
+
+    Intended for explicit advanced/testing use (private mirrors, local test
+    servers). The production default is always the pinned CoInfoSim GitHub
+    Pages URLs recorded in the catalog; this is never applied automatically.
+    """
+
+    from dataclasses import replace
+
+    base = base_url.rstrip("/")
+    files = tuple(
+        replace(file, url=f"{base}/{dataset.local_directory}/{file.filename}")
+        for file in dataset.files
+    )
+    return replace(dataset, files=files)
