@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "pages_base_url": "https://paulorenatoaz.github.io/coinfosim/datasets",
+  "datasets": {
+    "occupancy": {
+      "display_name": "Occupancy Detection",
+      "local_directory": "occupancy",
+      "repository_raw_directory": "data/raw/occupancy",
+      "license": {
+        "name": "CC BY 4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "notice": "Creative Commons Attribution 4.0 International. Attribution required."
+      },
+      "citation": "Candanedo, L. (2016). Occupancy Detection [Dataset]. UCI Machine Learning Repository. https://doi.org/10.24432/C5X01N",
+      "source_url": "https://archive.ics.uci.edu/dataset/357/occupancy+detection",
+      "doi": "10.24432/C5X01N",
+      "creator": "Luis Candanedo",
+      "files": [
+        {
+          "filename": "datatraining.txt",
+          "sha256": "b2c4d0ce2b9e4e453c476f7125ef31aeec2d1f5c7f5572d0e80de3df6521ab56",
+          "size_bytes": 596674,
+          "url": "https://paulorenatoaz.github.io/coinfosim/datasets/occupancy/datatraining.txt"
+        },
+        {
+          "filename": "datatest.txt",
+          "sha256": "1b92c7c1b2838963464fa891a610cf3c5db4becb7189189b29b330107a584c7f",
+          "size_bytes": 200766,
+          "url": "https://paulorenatoaz.github.io/coinfosim/datasets/occupancy/datatest.txt"
+        },
+        {
+          "filename": "datatest2.txt",
+          "sha256": "d026d1bd5aeccd4aff4f3b3710d48e40613bd5fc370db7e61bbdcaa50d985095",
+          "size_bytes": 699664,
+          "url": "https://paulorenatoaz.github.io/coinfosim/datasets/occupancy/datatest2.txt"
+        }
+      ]
+    },
+    "air-quality": {
+      "display_name": "Air Quality",
+      "local_directory": "air-quality",
+      "repository_raw_directory": "data/raw/air_quality",
+      "license": {
+        "name": "CC BY 4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "notice": "UCI displays this dataset as CC BY 4.0. Data are intended for research use; please cite the associated publication (De Vito et al., Sensors and Actuators B: Chemical, 2008)."
+      },
+      "citation": "De Vito, S. (2016). Air Quality [Dataset]. UCI Machine Learning Repository. https://doi.org/10.24432/C59K5F",
+      "source_url": "https://archive.ics.uci.edu/dataset/360/air+quality",
+      "doi": "10.24432/C59K5F",
+      "creator": "Saverio De Vito",
+      "files": [
+        {
+          "filename": "AirQualityUCI.csv",
+          "sha256": "13277ae5d8581e80b7be09d47c7d3d06fe9b8e957078f2cf6e859f955e62f996",
+          "size_bytes": 785065,
+          "url": "https://paulorenatoaz.github.io/coinfosim/datasets/air-quality/AirQualityUCI.csv"
+        }
+      ]
+    },
+    "support2": {
+      "display_name": "SUPPORT2",
+      "local_directory": "support2",
+      "repository_raw_directory": "data/raw/support2",
+      "license": {
+        "name": "No explicit redistribution license identified; public research dataset; source acknowledgment required",
+        "url": null,
+        "notice": "No explicit redistribution license was identified for SUPPORT2. It is a public research dataset; follow the acknowledgment policy of the original HBiostat dataset site when using this file."
+      },
+      "citation": "Knaus WA, et al. The SUPPORT Prognostic Model. Vanderbilt University Department of Biostatistics (HBiostat). https://doi.org/10.3886/ICPSR02957.v2",
+      "source_url": "https://hbiostat.org/data/",
+      "doi": "10.3886/ICPSR02957.v2",
+      "creator": "Frank Harrell",
+      "files": [
+        {
+          "filename": "support2.csv",
+          "sha256": "79621945edf2a5c8dc36359684ff356d3c6025e773ba4fefac26f865f7894c78",
+          "size_bytes": 3141732,
+          "url": "https://paulorenatoaz.github.io/coinfosim/datasets/support2/support2.csv"
+        }
+      ]
+    }
+  }
+}
