@@ -72,6 +72,12 @@ def simulation_summary_snapshot(result: SimulationResult) -> Dict[str, Any]:
         "number_of_subsets": len(result.subsets),
         "number_of_classifiers": len(result.classifier_names),
         "classifier_names": list(result.classifier_names),
+        "classifier_selection": _clean(
+            result.metadata.get("classifier_selection", {})
+        ),
+        "classifier_configurations": _clean(
+            result.metadata.get("classifier_configurations", {})
+        ),
         "subsets": [list(s) for s in result.subsets],
         "fixed_test_size": result.metadata.get("fixed_test_size"),
         "execution": _clean(result.metadata.get("execution", {})),
@@ -104,6 +110,12 @@ def simulation_report_data(
     )
     payload = {
         "metric": "empirical_test_loss",
+        "classifier_selection": _clean(
+            result.metadata.get("classifier_selection", {})
+        ),
+        "classifier_configurations": _clean(
+            result.metadata.get("classifier_configurations", {})
+        ),
         "summary_table": _records(summary_df),
         "best_subset_rankings": _records(rankings_df),
         "threshold_comparisons": _records(thresholds_df),
@@ -207,6 +219,12 @@ def dataset_anchored_scenario_report_data(
         "arms": arms,
         "structural_snapshot_policy": (
             "embedded" if include_structural_snapshots else "regenerate_from_result_data"
+        ),
+        "classifier_selection": _clean(
+            real_result.metadata.get("classifier_selection", {})
+        ),
+        "classifier_configurations": _clean(
+            real_result.metadata.get("classifier_configurations", {})
         ),
     }
     if include_structural_snapshots:

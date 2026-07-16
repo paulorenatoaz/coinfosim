@@ -13,6 +13,7 @@ from coinfosim.classifiers.registry import (
     CLASSIFIER_KEYS,
     available_classifiers,
     classifier_label,
+    default_classifiers,
     make_classifier,
 )
 from coinfosim.simulation.metrics import empirical_test_loss
@@ -72,8 +73,14 @@ def test_available_classifiers():
         "linear_svm",
         "logistic_regression",
         "gaussian_nb",
+        "random_forest",
     ]
     assert CLASSIFIER_KEYS == available_classifiers()
+    assert default_classifiers() == [
+        "linear_svm",
+        "logistic_regression",
+        "gaussian_nb",
+    ]
 
 
 @pytest.mark.parametrize("key", ["linear_svm", "logistic_regression", "gaussian_nb"])

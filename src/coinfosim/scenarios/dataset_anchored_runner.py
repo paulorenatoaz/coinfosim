@@ -12,6 +12,11 @@ from typing import Any, Callable, Dict, Mapping, Optional
 
 import numpy as np
 
+from coinfosim.classifiers.registry import (
+    ClassifierExecutionPlan,
+    default_execution_plan,
+    resolve_classifier_names,
+)
 from coinfosim.reports.scenario_visualization import (
     build_balanced_sample,
     generate_scenario_visualizations,
@@ -90,6 +95,10 @@ class DatasetAnchoredExecutionSpec:
         Callable[[Any, Path], Mapping[str, Path | str]]
     ] = None
     include_structural_snapshots: bool = True
+    classifier_names: tuple[str, ...] | None = None
+    classifier_configuration_resolver: Optional[
+        Callable[[Any, Mapping[str, Any]], ClassifierExecutionPlan]
+    ] = None
 
 
 def _config_dict(
@@ -97,6 +106,7 @@ def _config_dict(
     *,
     requested_sample_sizes: Optional[tuple[int, ...]] = None,
     training_class_counts: Optional[Mapping[str, int]] = None,
+    classifier_plan: ClassifierExecutionPlan | None = None,
 ) -> Dict[str, Any]:
     payload = {
         "mode": config.mode,
@@ -131,6 +141,8 @@ def _config_dict(
                     "resolved_max_n_per_class": max(config.sample_sizes),
                 }
             )
+    if classifier_plan is not None:
+        payload.update(dict(classifier_plan.provenance))
     return payload
 
 
@@ -362,9 +374,13 @@ def run_dataset_anchored_scenario(
     config: Optional[MonteCarloConfig] = None,
     execution_config: Optional[ExecutionConfig] = None,
     visualize: bool = True,
+    classifier_configuration: Optional[Mapping[str, Any]] = None,
 ) -> Dict[str, Any]:
     """Execute the standard Real/Gaussian/GMM-to-fixed-real protocol."""
 
+    # Static scenario selection is validated before dataset loading or any
+    # report/model work begins.
+    classifier_names = resolve_classifier_names(spec.classifier_names)
     if reporter is None:
         reporter = CooperativeProgressReporter(verbose=False)
     if config is None:
@@ -413,10 +429,22 @@ def run_dataset_anchored_scenario(
             config, minority_count
         )
         _validate_sample_sizes(training_class_counts, config)
+        if spec.classifier_configuration_resolver is None:
+            classifier_plan = default_execution_plan(classifier_names)
+        else:
+            classifier_plan = spec.classifier_configuration_resolver(
+                data, dict(classifier_configuration or {})
+            )
+            if classifier_plan.names != classifier_names:
+                raise ValueError(
+                    "classifier configuration resolver returned a plan that differs "
+                    "from the scenario classifier selection"
+                )
         config_payload = _config_dict(
             config,
             requested_sample_sizes=requested_sample_sizes,
             training_class_counts=training_class_counts,
+            classifier_plan=classifier_plan,
         )
         scenario_registry.update_run(
             scenario_run_id, config=config_payload
@@ -430,6 +458,32 @@ def run_dataset_anchored_scenario(
                 f"effective sample sizes: {config.sample_sizes}"
             )
         context = dict(spec.report_context_callback(data))
+        reporter.info(f"Classifiers: {', '.join(classifier_plan.names)}")
+        rf_configuration = classifier_plan.provenance.get(
+            "classifier_configurations", {}
+        ).get("random_forest", {})
+        if rf_configuration:
+            calibration = rf_configuration.get("calibration", {})
+            reporter.info(
+                "Random Forest calibration path: "
+                f"{calibration.get('artifact_path', 'unknown')}"
+            )
+            reporter.info(
+                f"Calibration SHA-256: {calibration.get('artifact_sha256', 'unknown')}"
+            )
+            reporter.info(
+                "Random Forest internal jobs: "
+                f"{rf_configuration.get('parameters', {}).get('n_jobs', 'unknown')}"
+            )
+        reporter.info(f"Execution backend: {execution_config.backend}")
+        reporter.info(
+            "Workers requested/effective: "
+            f"{execution_config.n_jobs} / "
+            f"{min(execution_config.n_jobs, config.replication_batch_size) if execution_config.backend == 'process' else 1}"
+        )
+        reporter.info(
+            f"Numeric threads per worker: {execution_config.worker_inner_threads}"
+        )
         reporter.scenario_step_finish(
             f"Loading {spec.dataset_name} dataset", elapsed=time.time() - step
         )
@@ -520,6 +574,7 @@ def run_dataset_anchored_scenario(
             },
             progress=reporter,
             execution_config=execution_config,
+            classifier_plan=classifier_plan,
         ).run()
         real_completed, real_report, real_result_path = _persist_simulation(
             simulation_registry,
@@ -563,6 +618,7 @@ def run_dataset_anchored_scenario(
             },
             progress=reporter,
             execution_config=execution_config,
+            classifier_plan=classifier_plan,
         ).run()
         gaussian_completed, gaussian_report, gaussian_result_path = _persist_simulation(
             simulation_registry,
@@ -607,6 +663,7 @@ def run_dataset_anchored_scenario(
             },
             progress=reporter,
             execution_config=execution_config,
+            classifier_plan=classifier_plan,
         ).run()
         gmm_completed, gmm_report, gmm_result_path = _persist_simulation(
             simulation_registry,

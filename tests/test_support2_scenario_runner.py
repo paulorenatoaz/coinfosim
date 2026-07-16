@@ -8,6 +8,7 @@ import numpy as np
 import pytest
 
 from coinfosim.results.persistence import load_simulation_result
+from coinfosim.datasets.support2 import load_support2_data
 from coinfosim.samplers.real import RealDatasetSampler
 from coinfosim.samplers.transfer import SyntheticTrainRealTestSampler
 from coinfosim.scenarios import dataset_anchored_runner as runner
@@ -41,11 +42,22 @@ def _tiny_config(sample_sizes=(2, 4)):
 
 
 def _fast_spec(module):
+    original_resolver = module.SUPPORT2_SPEC.classifier_configuration_resolver
+
+    def reduced_forest(data, configuration):
+        plan = original_resolver(data, configuration)
+        plan.parameters["random_forest"]["n_estimators"] = 2
+        plan.provenance["classifier_configurations"]["random_forest"][
+            "parameters"
+        ]["n_estimators"] = 2
+        return plan
+
     return replace(
         module.SUPPORT2_SPEC,
         gmm_builder=lambda data: build_gmm_anchored_support2_model(
             data, max_components=1, min_points_per_component=50, n_init=1, random_state=0
         ),
+        classifier_configuration_resolver=reduced_forest,
     )
 
 
@@ -57,11 +69,13 @@ def test_support2_runner_persists_three_arms_shared_test_and_protocol(tmp_path, 
     module = _load_script_module()
     monkeypatch.setattr(module, "SUPPORT2_SPEC", _fast_spec(module))
     captured = []
+    captured_plans = []
     original = runner.CooperativeMonteCarloSimulator
 
     class CapturingSimulator(original):
         def __init__(self, *args, **kwargs):
             captured.append(kwargs["sampler"])
+            captured_plans.append(kwargs["classifier_plan"])
             super().__init__(*args, **kwargs)
 
     monkeypatch.setattr(runner, "CooperativeMonteCarloSimulator", CapturingSimulator)
@@ -78,6 +92,8 @@ def test_support2_runner_persists_three_arms_shared_test_and_protocol(tmp_path, 
     assert fixed[0] is fixed[1] is fixed[2]
     assert all(np.array_equal(value.X, fixed[0].X) for value in fixed)
     assert all(np.array_equal(value.y, fixed[0].y) for value in fixed)
+    assert captured_plans[0] is captured_plans[1] is captured_plans[2]
+    assert captured_plans[0].names == ("linear_svm", "random_forest")
 
     scenario = _strict_json(output["scenario_json"])
     assert scenario["scenario_slug"] == "support2_baseline"
@@ -113,7 +129,14 @@ def test_support2_runner_persists_three_arms_shared_test_and_protocol(tmp_path, 
         assert Path(ref["simulation_json_path"]).stat().st_size < 2_000_000
         result = load_simulation_result(ref["result_data_path"])
         assert len(result.subsets) == 127
-        assert result.classifier_names == ["linear_svm", "logistic_regression", "gaussian_nb"]
+        assert result.classifier_names == ["linear_svm", "random_forest"]
+        assert result.metadata["classifier_selection"]["ordered_keys"] == [
+            "linear_svm",
+            "random_forest",
+        ]
+        rf = result.metadata["classifier_configurations"]["random_forest"]
+        assert rf["parameters"]["n_jobs"] == 1
+        assert rf["calibration"]["artifact_sha256"]
         assert result.metadata["fixed_test_size"] == 1775
         assert Path(ref["report_path"]).exists(), slug
     for artifact in ("dataset_report", "scenario_report"):
@@ -171,3 +194,99 @@ def test_support2_n_per_class_3331_fails_before_expensive_work(tmp_path, monkeyp
             visualize=False,
         )
     assert _strict_json(tmp_path / "simulation_runs.json")["next_simulation_run_id"] == 0
+
+
+def test_support2_random_forest_only_plan_uses_calibration_artifact():
+    module = _load_script_module()
+    data = load_support2_data(RAW_DIR)
+    plan = module._resolve_support2_classifier_configuration(
+        data,
+        {
+            "classifier_names": ("random_forest",),
+            "classifier_selection_source": "cli_or_api",
+            "rf_calibration_file": str(
+                REPO_ROOT / "config/calibration/support2_random_forest.json"
+            ),
+        },
+    )
+
+    assert plan.names == ("random_forest",)
+    assert tuple(plan.parameters) == ("random_forest",)
+    assert plan.parameters["random_forest"]["n_jobs"] == 1
+    assert plan.provenance["classifier_selection"] == {
+        "source": "cli_or_api",
+        "ordered_keys": ["random_forest"],
+    }
+    assert plan.provenance["classifier_configurations"]["random_forest"][
+        "calibration"
+    ]["artifact_sha256"]
+
+
+def test_support2_non_forest_selection_does_not_require_calibration_artifact():
+    module = _load_script_module()
+    data = load_support2_data(RAW_DIR)
+    plan = module._resolve_support2_classifier_configuration(
+        data,
+        {
+            "classifier_names": ("gaussian_nb", "linear_svm"),
+            "rf_calibration_file": "does-not-exist.json",
+        },
+    )
+
+    assert plan.names == ("gaussian_nb", "linear_svm")
+    assert plan.parameters == {"gaussian_nb": {}, "linear_svm": {}}
+    assert list(plan.provenance["classifier_configurations"]) == [
+        "gaussian_nb",
+        "linear_svm",
+    ]
+
+
+def test_support2_run_scenario_applies_classifier_override(monkeypatch):
+    module = _load_script_module()
+    captured = {}
+
+    def fake_runner(spec, **kwargs):
+        captured["spec"] = spec
+        captured.update(kwargs)
+        return {}
+
+    monkeypatch.setattr(module, "run_dataset_anchored_scenario", fake_runner)
+    module.run_scenario(classifier_names=("random_forest",))
+
+    assert captured["spec"].classifier_names == ("random_forest",)
+    assert captured["classifier_configuration"]["classifier_names"] == (
+        "random_forest",
+    )
+    assert captured["classifier_configuration"][
+        "classifier_selection_source"
+    ] == "cli_or_api"
+
+
+def test_support2_cli_accepts_random_forest_only(monkeypatch):
+    module = _load_script_module()
+    captured = {}
+
+    def fake_run_scenario(**kwargs):
+        captured.update(kwargs)
+        return {}
+
+    monkeypatch.setattr(module, "run_scenario", fake_run_scenario)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "run_support2_scenario.py",
+            "--quiet",
+            "--classifiers",
+            "random_forest",
+            "--execution-backend",
+            "process",
+            "--n-jobs",
+            "12",
+        ],
+    )
+
+    assert module.main() == 0
+    assert captured["classifier_names"] == ["random_forest"]
+    assert captured["execution_config"].backend == "process"
+    assert captured["execution_config"].n_jobs == 12

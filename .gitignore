@@ -75,6 +75,7 @@ docs/build/
 # Project-generated artifacts
 # output/
 output/block4_report_previews/
+output/validation/
 
 # Local virtual environments
 .venv/

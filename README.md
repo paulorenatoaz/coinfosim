@@ -88,7 +88,11 @@ The initial classifier set is intentionally small and interpretable:
 - **Logistic Regression** — a lightweight probabilistic linear baseline.
 - **Gaussian Naive Bayes** — a probabilistic baseline whose conditional-independence assumption helps distinguish cooperative gains that arise from marginal evidence accumulation from gains that depend on multivariate dependence.
 
-Future classifier sets may include RBF SVM, kNN, Random Forest, gradient boosting, or neural networks, added once the Monte Carlo and reporting protocols are stable.
+These three remain the historical default set. The SUPPORT2 protocol described
+below explicitly opts into a separately calibrated Random Forest; that opt-in
+does not change the defaults for synthetic, Occupancy, or Air Quality runs.
+Future classifier sets may include RBF SVM, kNN, gradient boosting, or neural
+networks, added once their scientific protocols are approved.
 
 ## Research plan
 
@@ -220,15 +224,65 @@ neither the primary target nor a predictor. Complete cases are required for
 ordering within partitions. Z-score parameters use training rows only with
 `ddof=0`.
 
-All 127 non-empty subsets of the seven channels are evaluated with Linear SVM,
-Logistic Regression, and Gaussian Naive Bayes under Real → Real, Single
+All 127 non-empty subsets of the seven channels are evaluated with exactly
+`linear_svm` and `random_forest`, in that order, under Real → Real, Single
 Gaussian → Real, and GMM → Real. Every arm reuses the same fixed real test set.
+The Random Forest configuration is calibrated once using only the real training
+reservoir, frozen at
+`config/calibration/support2_random_forest.json`, and reused unchanged across
+arms, sample sizes, subsets, and replications. Calibration is never run by a
+normal scenario command and there is no fallback when the artifact is missing,
+invalid, stale, or incompatible.
+
+Generate the versioned calibration artifact only when intentionally
+recalibrating the approved protocol:
+
+```bash
+.venv/bin/python scripts/calibrate_support2_random_forest.py \
+  --raw-dir data/raw/support2 \
+  --output config/calibration/support2_random_forest.json \
+  --calibration-seed 0
+```
+
+Existing artifacts require `--force` to overwrite. Validation checks the raw
+file SHA-256, training-partition fingerprint, target, channel order, split seed,
+estimator parameters, enforced `n_jobs=1`, and scikit-learn compatibility. A
+different scikit-learn major version is rejected; minor or patch differences
+produce a warning that is persisted in execution metadata.
+
+During Monte Carlo execution, Random Forest uses the versioned
+`classifier_seed_v1` policy: its estimator seed depends only on the base seed,
+a stable classifier namespace, and replication ID. The same replication seed is
+therefore used across every arm, sample size, and feature subset. Linear SVM
+retains its historical `random_state=0`.
 
 Run the approved smoke workflow:
 
 ```bash
-.venv/bin/python scripts/run_support2_scenario.py --mode smoke
+set -o pipefail
+
+.venv/bin/python scripts/run_support2_scenario.py \
+  --mode smoke \
+  --raw-dir data/raw/support2 \
+  --output-dir output/validation/support2-random-forest-smoke \
+  --rf-calibration-file config/calibration/support2_random_forest.json \
+  --execution-backend process \
+  --n-jobs 5 \
+  --worker-inner-threads 1 \
+  --multiprocessing-start-method forkserver \
+  --no-color \
+  2>&1 | tee output/validation/support2-random-forest-smoke.log
 ```
+
+This uses five outer Monte Carlo processes while every Random Forest estimator
+uses internal `n_jobs=1`, avoiding nested parallelism.
+
+The default SUPPORT2 classifier selection remains `linear_svm random_forest`.
+For an explicitly scoped comparison, `--classifiers` accepts one or more
+registered classifier keys in execution/report order. For example, an RF-only
+run uses `--classifiers random_forest`. Whenever Random Forest is selected, the
+same frozen calibration artifact is mandatory and internal `n_jobs=1` remains
+enforced. The selected keys and their source are persisted in run metadata.
 
 Regenerate the dataset-linked three-arm report hierarchy from persisted results
 without rerunning Monte Carlo:

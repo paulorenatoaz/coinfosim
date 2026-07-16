@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from coinfosim.classifiers.registry import available_classifiers
+from coinfosim.classifiers.registry import default_classifiers
 from coinfosim.models.gaussian import GaussianSimulationModel
 from coinfosim.models.gmm import GMMSimulationModel
 from coinfosim.reports.report_tables import (
@@ -145,7 +145,7 @@ def _run(sampler, execution_config, arm):
         sampler.model,
         _config(),
         subsets=SUBSETS,
-        classifier_names=available_classifiers(),
+        classifier_names=default_classifiers(),
         sampler=sampler,
         metadata={
             "experiment_arm": arm,

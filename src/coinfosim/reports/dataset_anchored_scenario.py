@@ -7,6 +7,7 @@ import html
 from pathlib import Path
 from typing import Dict, Mapping, Optional, Sequence, Tuple
 
+from coinfosim.classifiers.registry import classifier_label
 from coinfosim.reports.html_tabs import TAB_CSS, TAB_JS
 from coinfosim.reports.occupancy_scenario import (
     _STYLE,
@@ -85,6 +86,21 @@ def generate_dataset_anchored_scenario_report(
         "single_gaussian_to_real": gaussian_result,
         "gmm_to_real": gmm_result,
     }
+    classifier_names = tuple(real_result.classifier_names)
+    for arm_name, result in arm_results.items():
+        if tuple(result.classifier_names) != classifier_names:
+            raise ValueError(
+                f"all three arms must use the same classifier plan; {arm_name} differs"
+            )
+    recorded_configurations = [
+        result.metadata.get("classifier_configurations") for result in arm_results.values()
+    ]
+    present_configurations = [value for value in recorded_configurations if value]
+    if present_configurations and (
+        len(present_configurations) != len(recorded_configurations)
+        or any(value != present_configurations[0] for value in present_configurations[1:])
+    ):
+        raise ValueError("all three arms must use the same classifier configuration")
     channel_names = tuple(
         channel_names
         or real_result.metadata.get("channel_names", [])
@@ -94,6 +110,22 @@ def generate_dataset_anchored_scenario_report(
     metadata = dict(report_spec.scenario_metadata)
     metadata.update(scenario_meta or {})
     metadata.setdefault("dataset", report_spec.dataset_identity)
+    metadata["classifiers"] = ", ".join(classifier_names)
+    classifier_display = ", ".join(classifier_label(name) for name in classifier_names)
+    if present_configurations:
+        classifier_configuration_note = (
+            "<p><strong>Classifiers:</strong> "
+            + html.escape(classifier_display)
+            + ". Resolved classifier parameters, seed policy, and calibration "
+            "provenance are recorded in each linked Monte Carlo report.</p>"
+        )
+    else:
+        classifier_configuration_note = (
+            "<p><strong>Classifiers:</strong> "
+            + html.escape(classifier_display)
+            + ". Detailed classifier configuration was not recorded for this "
+            "historical result.</p>"
+        )
 
     related = (
         "<p class='related'>Detailed reports: "
@@ -129,6 +161,7 @@ def generate_dataset_anchored_scenario_report(
 
 <h2>2. Scenario summary</h2>
 {_summary_table(real_result, metadata, channel_names, n_max, dataset_identity=report_spec.dataset_identity, arm_labels=arm_label_sequence, real_training_description=report_spec.real_training_description, fixed_test_description=report_spec.fixed_test_description, target_definition=report_spec.target_definition)}
+{classifier_configuration_note}
 
 {_protocol_html(real_result, report_spec.arm_labels, report_spec.arm_summaries, report_spec.fixed_test_description)}
 
