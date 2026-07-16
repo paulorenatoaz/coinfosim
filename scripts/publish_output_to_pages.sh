@@ -1,50 +1,16 @@
 #!/usr/bin/env bash
+# Compatibility wrapper around `coinfosim publish pages`.
+#
+# Python (coinfosim.publish.publisher) is the source of truth; this script
+# only forwards environment-variable configuration to the CLI command.
 set -euo pipefail
 REMOTE="${REMOTE:-origin}"
-PAGES="${PAGES:-reports-pages}"
-REPORTS_DIR="reports"
-DATA_DIR="data"
+PAGES="${PAGES:-gh-pages}"
+OUTPUT_DIR="${OUTPUT_DIR:-output}"
 
-git fetch "$REMOTE" --prune
-if ! git ls-remote --exit-code --heads "$REMOTE" "$PAGES" >/dev/null 2>&1; then
-  echo "Error: '$PAGES' branch not found on remote. Initialize it first." >&2
-  exit 1
-fi
-
-git worktree add reports-pages "$PAGES"
-
-mkdir -p reports-pages/"$REPORTS_DIR" reports-pages/"$DATA_DIR"
-
-if [ -d output/reports ]; then
-  cp -R output/reports/. reports-pages/"$REPORTS_DIR"/
-else
-  echo "Note: output/reports not found; skipping HTML sync."
-fi
-
-# Copy data directory (JSON/CSV and subfolders like tables)
-if [ -d output/data ]; then
-  cp -R output/data/. reports-pages/"$DATA_DIR"/
-else
-  echo "Note: output/data not found; skipping data dir sync."
-fi
-
-PYTHONPATH="${PYTHONPATH:+$PYTHONPATH:}src" "${PYTHON:-python3}" -m coinfosim.publish.publisher \
-  --reports-dir "$REPORTS_DIR" \
-  --data-dir "$DATA_DIR" \
-  --site-dir reports-pages \
-  --title "CoInfoSim - Published Research Reports"
-
-touch reports-pages/.nojekyll
-
-pushd reports-pages >/dev/null
-if [ -n "$(git status --porcelain)" ]; then
-  git add -A
-  git commit -m "chore(publish): sync output to gh-pages"
-  git push "$REMOTE" "$PAGES"
-else
-  echo "No changes to publish."
-fi
-popd >/dev/null
-
-git worktree remove reports-pages --force || true
-echo "Published. Ensure GitHub Pages is set to branch: $PAGES, folder: /"
+echo "scripts/publish_output_to_pages.sh delegates to 'coinfosim publish pages'." >&2
+exec "${PYTHON:-python3}" -m coinfosim publish pages \
+  --output-dir "$OUTPUT_DIR" \
+  --branch "$PAGES" \
+  --remote "$REMOTE" \
+  --push

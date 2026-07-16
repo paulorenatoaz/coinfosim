@@ -75,7 +75,7 @@ DEFAULT_CONFIG: Dict[str, Any] = {
     },
     "publishing": {
         "enabled": False,
-        "target_dir": "../coinfosim-reports-pages",
+        "target_dir": "../coinfosim-gh-pages",
         "auto_push": False,
     },
     "datasets": {
@@ -524,7 +524,7 @@ quiet = false
 enabled = false
 
 # Target directory for published reports
-target_dir = "../coinfosim-reports-pages"
+target_dir = "../coinfosim-gh-pages"
 
 # Automatically git push after publishing
 auto_push = false
@@ -580,7 +580,7 @@ quiet = false
 
 [publishing]
 enabled = false
-target_dir = "../coinfosim-reports-pages"
+target_dir = "../coinfosim-gh-pages"
 auto_push = false
 """
     

@@ -44,8 +44,8 @@ utils.py        # Helpers (report_service_conf, path utilities)
    - Uses `is_param_in_simulation_reports()` to resume from previous runs (JSON-based checkpointing)
    - Auto-skips already-simulated parameters
 
-3. **Publishing to GitHub Pages** (`scripts/publish_output_to_pages.sh` or `coinfosim.publish.publisher`):
-   - Copies `output/reports/*.html` and `output/data/*.json` to `reports-pages` branch
+3. **Publishing to GitHub Pages** (`coinfosim publish pages`, or `scripts/publish_output_to_pages.sh` as a thin wrapper):
+   - Copies `output/reports/*.html`, `output/data/*.json`, and the tracked raw datasets to the `gh-pages` branch
    - Uses git worktree to avoid checkout conflicts
 
 ### Configuration System (Task 024 Complete)
@@ -117,7 +117,7 @@ output/
 - **Legacy** (DO NOT USE in new code): pygsheets, google-api-python-client
 
 ## Multi-Workspace Context
-This repo has a companion **`coinfosim-reports-pages`** repo (sibling directory) for GitHub Pages hosting. Publishing workflow syncs `output/` to that repo's `reports-pages` branch.
+GitHub Pages hosting lives on this repo's own **`gh-pages`** branch (not a separate sibling repo). `coinfosim publish pages` syncs `output/reports`, `output/data`, and the tracked raw datasets to that branch via a git worktree.
 
 ## When Editing Code
 1. **Parameter validation**: Model constructor has strict checks - preserve them

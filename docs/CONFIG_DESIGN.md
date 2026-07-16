@@ -72,7 +72,7 @@ colors = true                # Colored console output
 
 [publishing]
 auto_push = false            # Auto-push to GitHub Pages
-remote_branch = "reports-pages"
+remote_branch = "gh-pages"
 title = "CoInfoSim Reports"
 ```
 

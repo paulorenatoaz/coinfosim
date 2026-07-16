@@ -79,6 +79,8 @@ class DatasetDefinition:
     citation: str
     source_url: str
     files: tuple[DatasetFileDefinition, ...]
+    doi: str = ""
+    creator: str = ""
 
     @property
     def filenames(self) -> tuple[str, ...]:
@@ -169,6 +171,13 @@ def _build_dataset(slug: str, payload: Mapping[str, Any]) -> DatasetDefinition:
             raise DatasetCatalogError(f"{context}: duplicate filename {file.filename!r}")
         seen_filenames.add(file.filename)
 
+    doi = payload.get("doi") or ""
+    creator = payload.get("creator") or ""
+    if doi and not isinstance(doi, str):
+        raise DatasetCatalogError(f"{context}: doi must be a string")
+    if creator and not isinstance(creator, str):
+        raise DatasetCatalogError(f"{context}: creator must be a string")
+
     return DatasetDefinition(
         slug=slug,
         display_name=display_name,
@@ -178,6 +187,8 @@ def _build_dataset(slug: str, payload: Mapping[str, Any]) -> DatasetDefinition:
         citation=citation,
         source_url=source_url,
         files=files,
+        doi=doi,
+        creator=creator,
     )
 
 

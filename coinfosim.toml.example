@@ -44,7 +44,7 @@ enabled = false
 
 # Target directory for published reports
 # Should point to your *-pages repository
-target_dir = "../coinfosim-reports-pages"
+target_dir = "../coinfosim-gh-pages"
 
 # Automatically git push after publishing
 auto_push = false
