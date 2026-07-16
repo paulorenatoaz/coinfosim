@@ -65,6 +65,7 @@ dev = [
     "pytest-cov>=4.0.0",
     "build>=1.0.0",
     "twine>=5.0.0",
+    "pyyaml>=6.0.0",  # only for tests/test_ci_workflows.py's workflow-structure checks
     "black>=23.0.0",
     "ruff>=0.1.0",
     "mypy>=1.0.0",
