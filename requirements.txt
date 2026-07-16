@@ -1,6 +1,7 @@
-numpy
-scipy
-scikit-learn
-pandas
-matplotlib
-jupyter
+# Runtime and development dependencies are declared in pyproject.toml
+# (the single source of truth for CoInfoSim packaging). For local
+# development, install the package itself instead of this file:
+#
+#   pip install -e ".[dev]"
+#
+-e .[dev]
