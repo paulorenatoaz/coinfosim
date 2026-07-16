@@ -78,6 +78,13 @@ DEFAULT_CONFIG: Dict[str, Any] = {
         "target_dir": "../coinfosim-reports-pages",
         "auto_push": False,
     },
+    "datasets": {
+        # Per-dataset explicit directory overrides (canonical slug -> path or
+        # None). Consulted by the dataset resolver before the platform cache.
+        "occupancy": None,
+        "air-quality": None,
+        "support2": None,
+    },
 }
 
 
