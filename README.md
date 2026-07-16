@@ -2,17 +2,157 @@
 
 CoInfoSim is a research simulator for evaluating **cooperative advantage among information channels** in supervised classification tasks. It studies when a *subset* of channels provides a measurable advantage over isolated channels, redundant pairs, or simpler subsets, and how many labeled samples are needed before that advantage appears.
 
-CoInfoSim is a conceptual evolution of the earlier **SLACGS** and **CoSenSim** lines of work. It preserves their incremental Monte Carlo protocol, reproducible sample generation, adaptive repetition logic, and scenario-based reporting structure, while reformulating the scientific object from sensor-network dimensionality to multi-channel classification.
+> **Core research question:** When does cooperation among information channels improve supervised classification?
 
-> **Status:** Active research project. The repository supports idealized synthetic experiments and reproducible dataset-anchored scenarios for Occupancy Detection, UCI Air Quality, and SUPPORT2 180-day mortality. Dataset scenarios compare real, single-Gaussian synthetic, and class-conditional GMM synthetic training on one fixed real evaluation set.
+> **Status:** Active research project. The installable CLI runs three reproducible, dataset-anchored scenarios — Occupancy Detection, UCI Air Quality, and SUPPORT2 180-day mortality — each comparing real, single-Gaussian synthetic, and class-conditional GMM synthetic training on one fixed real evaluation set.
 
-## Core research question
+## Installation
 
-> When does cooperation among information channels improve supervised classification?
+```bash
+python -m pip install coinfosim
+```
 
-Rather than asking only whether a single channel is informative, CoInfoSim evaluates when combining channels yields lower classification loss, when an apparently useful channel is redundant, and when a weaker channel is valuable because it complements stronger ones.
+Python 3.10 or later is required. Installing from PyPI does **not** require cloning this repository or manually locating any dataset: the CLI downloads and hash-verifies the datasets it needs the first time you run a scenario.
 
-## Modeling framework
+## 60-second quick start
+
+```bash
+coinfosim scenario list
+coinfosim scenario run occupancy --mode smoke
+```
+
+The first run automatically downloads and verifies the Occupancy Detection dataset from the CoInfoSim GitHub Pages site into your platform's user data directory, then runs the smoke-scale three-arm protocol and writes an HTML report. Nothing is installed into your project directory or current working directory.
+
+## Three built-in scenarios
+
+| Scenario | Slug | Aliases | Dataset |
+|---|---|---|---|
+| Occupancy Detection | `occupancy` | `occupancy-detection` | UCI Occupancy Detection (CC BY 4.0) |
+| UCI Air Quality | `air-quality` | `air_quality`, `airquality` | UCI Air Quality (CC BY 4.0) |
+| SUPPORT2 180-day mortality | `support2` | `support-2` | SUPPORT2 (acknowledgment required; see [Datasets](#dataset-download-and-cache-behavior)) |
+
+```bash
+coinfosim scenario run occupancy --mode smoke
+coinfosim scenario run air-quality --mode smoke
+coinfosim scenario run support2 --mode smoke
+```
+
+Each command resolves the dataset, downloads and hash-verifies any missing files, runs the same three-arm scientific protocol (real, single-Gaussian synthetic, GMM synthetic — see [Scientific modes](#scientific-modes-and-computational-cost)), and writes the dataset report, three simulation-arm reports, consolidated scenario report, run registries, and persisted result data. See scientific detail for each dataset below, and full option reference with `coinfosim scenario run --help`.
+
+Numeric scenario identifiers are not used — always refer to scenarios by slug or alias.
+
+## Generated outputs
+
+Every `coinfosim scenario run` (default `--output-dir output/reports`) writes an immutable, ID-addressed set of directories with two shared registries:
+
+```text
+output/reports/scenario_runs.json
+output/reports/simulation_runs.json
+output/reports/scenarios/<scenario-run-id>_<scenario-slug>_<mode>/
+output/reports/simulations/<simulation-run-id>_<simulation-slug>_<mode>/
+```
+
+The scenario directory contains the dataset report, the consolidated scenario report, `scenario.json`, and (unless `--no-visualizations`) projection images and analytical graphs. Each of the three simulation directories contains its arm's Monte Carlo report, a compressed result payload, a summary, and `simulation.json`. Re-running a scenario never overwrites a previous run — every run gets a new, monotonically increasing ID.
+
+Inspect run registries directly:
+
+```bash
+coinfosim runs scenarios
+coinfosim runs simulations
+coinfosim runs scenario <run-id>
+coinfosim runs simulation <run-id>
+```
+
+## Dataset download and cache behavior
+
+Dataset files are mirrored, byte-for-byte, on the CoInfoSim GitHub Pages site (`https://paulorenatoaz.github.io/coinfosim/datasets/`) — never downloaded directly from UCI or HBiostat at runtime. Every file's SHA-256 hash is pinned in the installed package (`src/coinfosim/resources/datasets.json`) and verified before it is ever used; a present-but-invalid file is never used silently.
+
+Resolution order for `coinfosim scenario run` (and `dataset path`/`dataset fetch`/`dataset verify`):
+
+1. an explicit `--data-dir`;
+2. a dataset-specific path from your loaded CoInfoSim configuration;
+3. `COINFOSIM_DATA_DIR`, a root containing dataset subdirectories;
+4. the verified platform cache (via [`platformdirs`](https://pypi.org/project/platformdirs/) — e.g. `~/.local/share/coinfosim/datasets` on Linux);
+5. automatic download into the platform cache, unless `--no-download` is passed;
+6. a compatibility fallback to `data/raw/<dataset>` when running from a source checkout.
+
+```bash
+coinfosim dataset list
+coinfosim dataset show support2
+coinfosim dataset status support2
+coinfosim dataset fetch support2
+coinfosim dataset verify support2 --data-dir /path/to/existing/copy
+coinfosim dataset path support2
+```
+
+Provenance, licenses, and hashes for each dataset:
+
+- **Occupancy Detection** — UCI dataset 357, DOI `10.24432/C5X01N`, Creative Commons Attribution 4.0 International (CC BY 4.0).
+- **UCI Air Quality** — UCI dataset 360, DOI `10.24432/C59K5F`, displayed by UCI as CC BY 4.0; please cite the associated publication (De Vito et al., *Sensors and Actuators B: Chemical*, 2008).
+- **SUPPORT2** — DOI `10.3886/ICPSR02957.v2`. **No explicit redistribution license was identified.** It is a public research dataset; follow the acknowledgment policy of the original HBiostat dataset site (<https://hbiostat.org/data/>). Do not treat SUPPORT2 as openly licensed.
+
+Full per-file hashes, sizes, and direct download links are published on the [project home page](https://paulorenatoaz.github.io/coinfosim/) and in [`datasets/manifest.json`](https://paulorenatoaz.github.io/coinfosim/datasets/manifest.json), and are queryable with `coinfosim dataset show <dataset>`.
+
+## Scientific modes and computational cost
+
+| Mode | `n_per_class` values |
+|---|---|
+| `smoke` | `2, 4, 8, 16, 32` |
+| `fast` | `2, 4, 8, 16, 32, 64, 128` |
+| `full` | `2, 4, 8, 16, 32, 64, 128, 256, 512` |
+| `full-scale` | Powers of two from 2 through the largest power of two not exceeding the training minority-class count; same Monte Carlo precision/budget as `full` |
+| `strict` | `2, 4, 8, 16, 32, 64, 128, 256, 512` |
+
+`--mode smoke` is the default and validates the full pipeline end to end. `fast`, `full`, `full-scale`, and `strict` are explicit, deliberate research-budget choices — none of them ever start implicitly, and `full-scale` in particular can be substantially more expensive than `full`. Choose them only after reviewing the real training reservoir's minority-class capacity.
+
+## Multiprocessing
+
+```bash
+coinfosim scenario run air-quality \
+  --mode full \
+  --backend process \
+  --workers 8 \
+  --worker-threads 1 \
+  --start-method auto
+```
+
+`--backend sequential` (the default) always uses exactly one worker; `--workers > 1` requires `--backend process`. `--start-method auto` resolves to a safe, platform-appropriate multiprocessing start method — `spawn` on Windows and macOS, `forkserver` (falling back to `spawn`) on Linux — and never selects `fork` automatically. The resolved execution metadata (backend, worker counts, start method, logical CPU count) is persisted in every simulation's output.
+
+## Report regeneration
+
+Regenerate the full report hierarchy for a completed scenario run from its persisted results, without rerunning any Monte Carlo simulation:
+
+```bash
+coinfosim scenario regenerate air-quality --run-id 6 --output-dir output/reports
+```
+
+## Development installation
+
+```bash
+git clone https://github.com/paulorenatoaz/coinfosim.git
+cd coinfosim
+python -m venv .venv
+source .venv/bin/activate
+pip install -e ".[dev]"
+```
+
+This installs CoInfoSim in editable mode with the `dev` extra (pytest, ruff, mypy, `build`, `twine`). Run the test suite with `pytest` (add `-m "not slow"` to skip the real-mode wheel-install and end-to-end integration tests). See [`docs/cli.md`](docs/cli.md) for the full command reference, [`docs/datasets.md`](docs/datasets.md) for dataset internals, [`docs/installation.md`](docs/installation.md) for detailed install paths, [`docs/releasing.md`](docs/releasing.md) for the release process, and [`docs/migration-cli-0.2.md`](docs/migration-cli-0.2.md) if you previously ran the `scripts/run_*.py` reference scripts directly.
+
+## Citation
+
+If you use CoInfoSim in published research, please cite this repository. See [CITATION.cff](CITATION.cff).
+
+## License
+
+CoInfoSim is distributed under the GNU General Public License v3.0 (GPL-3.0), inherited from the SLACGS project from which it is derived. See the [LICENSE](LICENSE) file for the full text. Note that the GPL-3.0 license applies to the CoInfoSim *software*; dataset licenses/acknowledgment requirements are tracked separately (see [Dataset download and cache behavior](#dataset-download-and-cache-behavior)).
+
+---
+
+## Scientific framework
+
+This section documents the modeling framework, research plan, and reporting structure in depth. It assumes you have already read the practical usage sections above.
+
+### Modeling framework
 
 Let
 
@@ -44,11 +184,11 @@ so differences in location, dispersion, correlation, or distributional shape may
 
 A **channel subset** is denoted $A \subseteq \{1, \ldots, d\}$, and the classifier observes only the restricted vector $X_A$. For $d = 3$, the simulator evaluates all $2^3 - 1 = 7$ non-empty subsets — three isolated channels, three pairs, and the full three-channel set.
 
-### Balanced sampling and standardization
+#### Balanced sampling and standardization
 
 The initial protocol uses **class-balanced** sampling: $n$ always denotes the number of labeled training samples *per class*. Synthetic simulations generate $n$ samples per class; real-data simulations draw balanced subsets from the training reservoir. When sampling without replacement from real data, the feasible maximum $n$ is limited by the smallest class in the training reservoir. CoInfoSim operates on **standardized** channels by default, which matters for scale-sensitive classifiers such as Linear SVM and Logistic Regression. In dataset-anchored mode, the estimated parameters $\hat{\mu}_c$ and $\hat{\Sigma}_c$ are computed from standardized data.
 
-## Core empirical object
+### Core empirical object
 
 The central quantity is the **Monte Carlo average classification loss**
 
@@ -80,7 +220,7 @@ $$
 
 the smallest sample size per class at which subset $B$ first achieves lower average loss than subset $A$.
 
-## Initial classifiers
+### Initial classifiers
 
 The initial classifier set is intentionally small and interpretable:
 
@@ -88,21 +228,17 @@ The initial classifier set is intentionally small and interpretable:
 - **Logistic Regression** — a lightweight probabilistic linear baseline.
 - **Gaussian Naive Bayes** — a probabilistic baseline whose conditional-independence assumption helps distinguish cooperative gains that arise from marginal evidence accumulation from gains that depend on multivariate dependence.
 
-These three remain the historical default set. The SUPPORT2 protocol described
-below explicitly opts into a separately calibrated Random Forest; that opt-in
-does not change the defaults for synthetic, Occupancy, or Air Quality runs.
-Future classifier sets may include RBF SVM, kNN, gradient boosting, or neural
-networks, added once their scientific protocols are approved.
+These three remain the historical default set. The SUPPORT2 protocol explicitly opts into a separately calibrated Random Forest; that opt-in does not change the defaults for synthetic, Occupancy, or Air Quality runs. Future classifier sets may include RBF SVM, kNN, gradient boosting, or neural networks, added once their scientific protocols are approved.
 
-## Research plan
+### Research plan
 
 CoInfoSim is organized into three phases.
 
-### Phase 1 — Idealized Synthetic Multi-Channel Scenarios
+#### Phase 1 — Idealized Synthetic Multi-Channel Scenarios
 
 Controlled experiments using manually specified Gaussian simulation models, each defined by class centers and covariance matrices. The initial focus is binary classification with three standardized channels. This phase studies additive gains from weak but complementary channels, redundancy among strong channels, channel-subset ranking as $n$ grows, cooperative advantage thresholds $N^*$, and differences among the initial classifiers.
 
-### Phase 2 — Dataset-Anchored Multi-Channel Simulation
+#### Phase 2 — Dataset-Anchored Multi-Channel Simulation
 
 Real datasets are used to build dataset-anchored scenarios. Each implemented dataset provides an explicit scientific protocol, prepared training/test data, and dataset-specific reporting text. The standard three-arm design compares balanced training from the real standardized reservoir, a training-fitted single Gaussian per class, and a training-fitted class-conditional GMM. Every arm is evaluated on the same fixed real test set. The dataset-anchored scenario report compares
 
@@ -114,7 +250,7 @@ $$
 
 assessing whether fitted synthetic training distributions preserve the cooperative patterns observed under fixed real-data evaluation.
 
-### Phase 3 — Cost-Aware Channel Selection
+#### Phase 3 — Cost-Aware Channel Selection
 
 A generic **channel cost** $C_X(A)$ and a **label/reference cost** $C_Y(n)$ are introduced, with total
 
@@ -124,7 +260,7 @@ $$
 
 Channel cost is treated generically and may include acquisition, deployment, calibration, maintenance, computation, latency, energy, or logistical burden. This supports constrained decisions such as minimizing $C(A,n)$ subject to $\overline{L}_{A,f}(n) \le L_{\max}$, or penalized objectives $\overline{L}_{A,f}(n) + \lambda C_X(A) + \gamma C_Y(n)$.
 
-## Key concepts and vocabulary
+### Key concepts and vocabulary
 
 | Term | Meaning |
 |---|---|
@@ -137,7 +273,7 @@ Channel cost is treated generically and may include acquisition, deployment, cal
 | Scenario report | Aggregated report for one scenario |
 | Dataset report | Report describing a real dataset used in dataset-anchored experiments |
 
-## Reporting structure
+### Reporting structure
 
 The reporting system is layered and dataset-aware. Automated reports display the parameters explicitly defined in each simulation model together with generic loss, ranking, N-star, and structural-fidelity analyses; dataset-specific provenance and interpretation remain explicit rather than being inferred from arbitrary input files. The structure is:
 
@@ -149,241 +285,57 @@ The reporting system is layered and dataset-aware. Automated reports display the
 
 Implemented dataset-anchored reports include real and synthetic projection panels, loss curves $\overline{L}_{A,f}(n)$, channel-subset rankings, cooperative advantage thresholds $N^*$, winner matrices, progressive N-star matrices, and separate structural-fidelity curves. Broader grids and animations remain future work.
 
-## Real-world motivating cases
+### Real-world motivating cases
 
 The dataset-anchored phase uses small, interpretable real-data studies with a few selected channels:
 
 - **Occupancy detection** — implemented with Temperature, Humidity, Light, CO₂, and HumidityRatio.
 - **Air quality** — implemented with five PT08 metal-oxide sensor responses and a benzene reference used only to construct the target.
 - **SUPPORT2 180-day mortality** — implemented with seven baseline physiologic channels and a fixed endpoint derived from `death` and `d.time`.
-- **Water potability** — channels such as pH, conductivity, and turbidity.
+- **Water potability** — channels such as pH, conductivity, and turbidity (future work).
 - **Hydraulic systems / condition monitoring** — multiple physical or operational measurements for fault classification (future work).
 
-The first three pipelines are implemented; the remaining examples are motivations, not plug-and-play dataset support.
+The first three pipelines are implemented; the remaining examples are motivations, not plug-and-play dataset support. CoInfoSim does not claim arbitrary CSV plug-and-play support — a new dataset requires an explicit validated loader, execution spec, model builders, and dataset-specific report text.
 
-## Relationship to SLACGS and CoSenSim
+### Relationship to SLACGS and CoSenSim
 
 CoInfoSim evolves from SLACGS, which studied cooperative gains in synthetic Gaussian settings and was organized primarily around dimensionality comparisons (lower- versus higher-dimensional models). CoInfoSim generalizes that idea: the object of comparison is no longer dimension $d$ but the channel subset $A \subseteq \{1,\ldots,d\}$, and the framing moves from sensor networks to multi-channel classification. The intermediate CoSenSim stage carried this toward real-data-anchored sensor studies; CoInfoSim completes the generalization to information channels. The reproducible Monte Carlo machinery, nested sample growth, adaptive repetition, and scenario-level reporting from SLACGS are retained.
 
-## Repository structure
+### Repository structure
 
-```
+```text
 docs/          # Documentation, design notes, and planned-architecture descriptions
-data/          # Raw dataset files and provenance; Air Quality and SUPPORT2 CSVs are committed
-experiments/   # Experiment manifests and scripts (planned)
-src/coinfosim/ # Main package (inherited functional code; reformulation in progress)
-tests/         # Smoke and unit tests
+data/          # Tracked raw dataset files and provenance (mirrored on GitHub Pages at runtime)
+src/coinfosim/ # Installable package: cli/, datasets/, scenarios/, publish/, simulation/, reports/, ...
+scripts/       # Deprecated compatibility wrappers around the scenario service; prefer the CLI
+tests/         # Unit, integration, and CLI test suite
 ```
 
-The package namespace and CLI are `coinfosim`.
+### SUPPORT2 Random Forest calibration (maintainer operation)
 
-## Installation (developer quick-start)
+The SUPPORT2 scenario's Random Forest configuration is calibrated once using only the real training reservoir and frozen at `config/calibration/support2_random_forest.json`, then reused unchanged across arms, sample sizes, subsets, and replications. Calibration never runs as part of a normal scenario command, and there is no fallback when the artifact is missing, invalid, stale, or incompatible.
 
-Python 3.10+ is recommended.
+Recalibrating the approved protocol is a maintainer-only operation, separate from the public CLI:
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -e .
-```
-
-## Basic usage
-
-The CLI entry point is `coinfosim`:
-
-```bash
-coinfosim --help
-```
-
-Dataset-anchored scenarios are run through their dataset-specific scripts. The supported sample-size presets are:
-
-| Mode | `n_per_class` values |
-|---|---|
-| `smoke` | `2, 4, 8, 16, 32` |
-| `fast` | `2, 4, 8, 16, 32, 64, 128` |
-| `full` | `2, 4, 8, 16, 32, 64, 128, 256, 512` |
-| `full-scale` | Powers of two from 2 through the largest power of two not exceeding the training minority-class count; same Monte Carlo precision/budget as `full` |
-| `strict` | `2, 4, 8, 16, 32, 64, 128, 256, 512` |
-
-Only `smoke` is used by the documented validation workflow. `fast`, `full`, `full-scale`, and `strict` are never run automatically; use them only after explicit scientific review and after checking the real training reservoir's minority-class capacity. `full-scale` may be substantially more expensive than `full`, and all three dataset-anchored arms share its single resolved sample-size grid.
-
-## SUPPORT2 180-day mortality scenario
-
-The SUPPORT2 scenario predicts death within 180 days after study entry. Its
-fixed derived target is:
-
-```python
-death_180d = ((death == 1) & (d_time <= 180)).astype(int)
-```
-
-where the raw source field is `d.time` and day 180 is inclusive. `hospdead` is
-neither the primary target nor a predictor. Complete cases are required for
-`meanbp`, `hrt`, `resp`, `temp`, `wblc`, `crea`, `sod`, `death`, `d.time`, and
-`dzgroup`, yielding 8,873 patients. A fixed 80/20 split uses
-`random_state=0`, joint `death_180d × dzgroup` stratification, and ascending ID
-ordering within partitions. Z-score parameters use training rows only with
-`ddof=0`.
-
-All 127 non-empty subsets of the seven channels are evaluated with exactly
-`linear_svm` and `random_forest`, in that order, under Real → Real, Single
-Gaussian → Real, and GMM → Real. Every arm reuses the same fixed real test set.
-The Random Forest configuration is calibrated once using only the real training
-reservoir, frozen at
-`config/calibration/support2_random_forest.json`, and reused unchanged across
-arms, sample sizes, subsets, and replications. Calibration is never run by a
-normal scenario command and there is no fallback when the artifact is missing,
-invalid, stale, or incompatible.
-
-Generate the versioned calibration artifact only when intentionally
-recalibrating the approved protocol:
-
-```bash
-.venv/bin/python scripts/calibrate_support2_random_forest.py \
+python scripts/calibrate_support2_random_forest.py \
   --raw-dir data/raw/support2 \
   --output config/calibration/support2_random_forest.json \
   --calibration-seed 0
 ```
 
-Existing artifacts require `--force` to overwrite. Validation checks the raw
-file SHA-256, training-partition fingerprint, target, channel order, split seed,
-estimator parameters, enforced `n_jobs=1`, and scikit-learn compatibility. A
-different scikit-learn major version is rejected; minor or patch differences
-produce a warning that is persisted in execution metadata.
+Existing artifacts require `--force` to overwrite. Validation checks the raw file SHA-256, training-partition fingerprint, target, channel order, split seed, estimator parameters, enforced `n_jobs=1`, and scikit-learn compatibility. During Monte Carlo execution, Random Forest uses the versioned `classifier_seed_v1` policy: its estimator seed depends only on the base seed, a stable classifier namespace, and replication ID, so the same replication seed is used across every arm, sample size, and feature subset. Linear SVM retains its historical `random_state=0`.
 
-During Monte Carlo execution, Random Forest uses the versioned
-`classifier_seed_v1` policy: its estimator seed depends only on the base seed,
-a stable classifier namespace, and replication ID. The same replication seed is
-therefore used across every arm, sample size, and feature subset. Linear SVM
-retains its historical `random_state=0`.
+### Extending dataset-anchored scenarios
 
-Run the approved smoke workflow:
-
-```bash
-set -o pipefail
-
-.venv/bin/python scripts/run_support2_scenario.py \
-  --mode smoke \
-  --raw-dir data/raw/support2 \
-  --output-dir output/validation/support2-random-forest-smoke \
-  --rf-calibration-file config/calibration/support2_random_forest.json \
-  --execution-backend process \
-  --n-jobs 5 \
-  --worker-inner-threads 1 \
-  --multiprocessing-start-method forkserver \
-  --no-color \
-  2>&1 | tee output/validation/support2-random-forest-smoke.log
-```
-
-This uses five outer Monte Carlo processes while every Random Forest estimator
-uses internal `n_jobs=1`, avoiding nested parallelism.
-
-The default SUPPORT2 classifier selection remains `linear_svm random_forest`.
-For an explicitly scoped comparison, `--classifiers` accepts one or more
-registered classifier keys in execution/report order. For example, an RF-only
-run uses `--classifiers random_forest`. Whenever Random Forest is selected, the
-same frozen calibration artifact is mandatory and internal `n_jobs=1` remains
-enforced. The selected keys and their source are persisted in run metadata.
-
-Regenerate the dataset-linked three-arm report hierarchy from persisted results
-without rerunning Monte Carlo:
-
-```bash
-.venv/bin/python scripts/run_support2_scenario.py \
-  --report-from-scenario-run <SCENARIO_RUN_ID>
-```
-
-The scenario directory contains the SUPPORT2 dataset report, consolidated
-scenario report, exact split manifest, target metadata, preprocessing metadata,
-and `scenario.json`. Each simulation directory contains its arm report,
-compressed result payload, summary, and `simulation.json`. Production/full-mode
-experiments are intentionally reserved for the repository owner after smoke
-validation.
-
-## UCI Air Quality scenario
-
-The Air Quality scenario tests whether synthetic training distributions preserve cooperative channel-subset structure when every arm is evaluated on the same fixed future real observations. It uses the official UCI Air Quality dataset, DOI `10.24432/C59K5F`. The original `AirQualityUCI.csv` is committed at `data/raw/air_quality/`; provenance and its SHA-256 are recorded in that directory's README.
-
-Classifier input is restricted to these five sensor-response channels:
-
-- `PT08.S1(CO)`
-- `PT08.S2(NMHC)`
-- `PT08.S3(NOx)`
-- `PT08.S4(NO2)`
-- `PT08.S5(O3)`
-
-`C6H6(GT)` is a benzene reference used only to define the binary target and is excluded from classifier input. After complete-case filtering, rows are split chronologically: the first 80% form the training reservoir and the last 20% form the fixed future real test set. The target threshold is the training-only 75th percentile of `C6H6(GT)`, with positive label `C6H6(GT) >= threshold`. Z-score parameters are fitted on training only with `ddof=0`.
-
-The scenario evaluates all 31 non-empty channel subsets and the same three classifiers under:
-
-- Real → Real
-- Single Gaussian → Real
-- GMM → Real
-
-Run the approved smoke scenario:
-
-```bash
-.venv/bin/python scripts/run_air_quality_scenario.py --mode smoke
-```
-
-Regenerate reports and graphs from a persisted scenario without rerunning Monte Carlo:
-
-```bash
-.venv/bin/python scripts/run_air_quality_scenario.py \
-  --report-from-scenario-run <SCENARIO_RUN_ID>
-```
-
-Run outputs are immutable, ID-addressed directories with shared registries:
-
-```text
-output/reports/scenario_runs.json
-output/reports/simulation_runs.json
-output/reports/scenarios/<scenario-id>_air_quality_baseline_<mode>/
-output/reports/simulations/<simulation-id>_air_quality_<arm>_<mode>/
-```
-
-The scenario directory contains the dataset report, scenario report, `scenario.json`, projection images, and analytical graphs. Each of the three simulation directories contains its arm report, compressed result payload, summary, `simulation.json`, and exported diagnostic tables.
-
-## Occupancy Detection scenario
-
-Occupancy remains fully supported. Place its UCI raw files at:
-
-```text
-data/raw/occupancy/datatraining.txt
-data/raw/occupancy/datatest.txt
-data/raw/occupancy/datatest2.txt
-```
-
-Run the smoke scenario with:
-
-```bash
-.venv/bin/python scripts/run_occupancy_scenario.py --mode smoke
-```
-
-Smoke mode uses the current `2, 4, 8, 16, 32` preset and evaluates all 31 non-empty subsets of Temperature, Humidity, Light, CO2, and HumidityRatio with Linear SVM, Logistic Regression, and Gaussian Naive Bayes. Its runner uses the same generic three-arm execution, persistence, registry, and scenario-report cores as Air Quality while preserving the Occupancy public wrappers.
-
-## Extending dataset-anchored scenarios
-
-Future datasets require an explicit implementation; CoInfoSim does not claim arbitrary CSV plug-and-play support. The extension workflow is:
+Future datasets require an explicit implementation. The extension workflow is:
 
 1. Implement a validated loader and prepared-data object with fixed train/test semantics.
-2. Provide the dataset/scenario execution specification and model builders.
-3. Provide dataset-specific report text, provenance, diagnostics, limitations, and interpretation.
-4. Reuse the generic dataset-anchored runner and report cores for execution, persistence, structural analysis, and regeneration.
+2. Provide the dataset/scenario execution specification and model builders in `src/coinfosim/scenarios/definitions/`.
+3. Add the pinned file hashes to `src/coinfosim/resources/datasets.json` and provenance to `data/raw/<dataset>/README.md`.
+4. Provide dataset-specific report text, provenance, diagnostics, limitations, and interpretation.
+5. Reuse the generic dataset-anchored runner and report cores for execution, persistence, structural analysis, and regeneration.
 
-## Citation
-
-If you use CoInfoSim in published research, please cite this repository. See [CITATION.cff](CITATION.cff).
-
-## License
-
-CoInfoSim is distributed under the GNU General Public License v3.0 (GPL-3.0), inherited from the SLACGS project from which it is derived. See the [LICENSE](LICENSE) file for the full text.
-
-## Contributing / development notes
-
-- This is an academic research project under active development.
-- Keep pull requests small and focused; propose larger refactors in an issue first.
-- Preserve reproducibility: experiments should record random seeds and environment details.
-
-## Follow-up
+### Follow-up
 
 Cost-aware optimization, additional explicitly implemented datasets, broader reviewed experiment grids, and publication automation remain future work.
