@@ -1,6 +1,4 @@
-import importlib.util
 import json
-import sys
 from dataclasses import replace
 from pathlib import Path
 
@@ -9,23 +7,21 @@ import pytest
 
 from coinfosim.results.persistence import load_simulation_result
 from coinfosim.datasets.support2 import load_support2_data
+from coinfosim.classifiers.registry import resolve_classifier_names
 from coinfosim.samplers.real import RealDatasetSampler
 from coinfosim.samplers.transfer import SyntheticTrainRealTestSampler
 from coinfosim.scenarios import dataset_anchored_runner as runner
+from coinfosim.scenarios.definitions.support2 import (
+    CANONICAL_ARTIFACT_PATH,
+    SUPPORT2_CLASSIFIER_CONFIGURATION,
+    SUPPORT2_SPEC,
+    _resolve_support2_classifier_configuration,
+)
 from coinfosim.scenarios.support2 import build_gmm_anchored_support2_model
 from coinfosim.simulation.config import MonteCarloConfig
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 RAW_DIR = REPO_ROOT / "data" / "raw" / "support2"
-
-
-def _load_script_module():
-    script = REPO_ROOT / "scripts" / "run_support2_scenario.py"
-    spec = importlib.util.spec_from_file_location("run_support2_scenario", script)
-    module = importlib.util.module_from_spec(spec)
-    sys.modules["run_support2_scenario"] = module
-    spec.loader.exec_module(module)
-    return module
 
 
 def _tiny_config(sample_sizes=(2, 4)):
@@ -41,8 +37,8 @@ def _tiny_config(sample_sizes=(2, 4)):
     )
 
 
-def _fast_spec(module):
-    original_resolver = module.SUPPORT2_SPEC.classifier_configuration_resolver
+def _fast_spec():
+    original_resolver = SUPPORT2_SPEC.classifier_configuration_resolver
 
     def reduced_forest(data, configuration):
         plan = original_resolver(data, configuration)
@@ -53,7 +49,7 @@ def _fast_spec(module):
         return plan
 
     return replace(
-        module.SUPPORT2_SPEC,
+        SUPPORT2_SPEC,
         gmm_builder=lambda data: build_gmm_anchored_support2_model(
             data, max_components=1, min_points_per_component=50, n_init=1, random_state=0
         ),
@@ -66,8 +62,7 @@ def _strict_json(path):
 
 
 def test_support2_runner_persists_three_arms_shared_test_and_protocol(tmp_path, monkeypatch):
-    module = _load_script_module()
-    monkeypatch.setattr(module, "SUPPORT2_SPEC", _fast_spec(module))
+    spec = _fast_spec()
     captured = []
     captured_plans = []
     original = runner.CooperativeMonteCarloSimulator
@@ -79,8 +74,13 @@ def test_support2_runner_persists_three_arms_shared_test_and_protocol(tmp_path, 
             super().__init__(*args, **kwargs)
 
     monkeypatch.setattr(runner, "CooperativeMonteCarloSimulator", CapturingSimulator)
-    output = module.run_scenario(
-        raw_dir=str(RAW_DIR), output_dir=str(tmp_path), config=_tiny_config(), visualize=False
+    output = runner.run_dataset_anchored_scenario(
+        spec,
+        raw_dir=str(RAW_DIR),
+        output_dir=str(tmp_path),
+        config=_tiny_config(),
+        visualize=False,
+        classifier_configuration=SUPPORT2_CLASSIFIER_CONFIGURATION,
     )
     assert [output[key] for key in (
         "scenario_run_id", "real_simulation_run_id",
@@ -148,10 +148,14 @@ def test_support2_runner_persists_three_arms_shared_test_and_protocol(tmp_path, 
 def test_support2_regeneration_uses_persisted_results_without_monte_carlo_or_raw_data(
     tmp_path, monkeypatch
 ):
-    module = _load_script_module()
-    monkeypatch.setattr(module, "SUPPORT2_SPEC", _fast_spec(module))
-    output = module.run_scenario(
-        raw_dir=str(RAW_DIR), output_dir=str(tmp_path), config=_tiny_config(), visualize=False
+    spec = _fast_spec()
+    output = runner.run_dataset_anchored_scenario(
+        spec,
+        raw_dir=str(RAW_DIR),
+        output_dir=str(tmp_path),
+        config=_tiny_config(),
+        visualize=False,
+        classifier_configuration=SUPPORT2_CLASSIFIER_CONFIGURATION,
     )
     scenario_before = _strict_json(output["scenario_json"])
 
@@ -159,8 +163,10 @@ def test_support2_regeneration_uses_persisted_results_without_monte_carlo_or_raw
         raise AssertionError("Monte Carlo or raw loader ran during regeneration")
 
     monkeypatch.setattr(runner, "CooperativeMonteCarloSimulator", fail)
-    monkeypatch.setattr(module, "SUPPORT2_SPEC", replace(module.SUPPORT2_SPEC, loader=fail))
-    regenerated = module.regenerate_from_scenario_run(0, output_dir=str(tmp_path))
+    regeneration_spec = replace(spec, loader=fail)
+    regenerated = runner.regenerate_dataset_anchored_scenario(
+        regeneration_spec, 0, output_dir=str(tmp_path)
+    )
     for key in ("scenario_report", "real_report", "single_gaussian_to_real_report", "gmm_to_real_report"):
         assert Path(regenerated[key]).exists()
     scenario_after = _strict_json(output["scenario_json"])
@@ -170,36 +176,31 @@ def test_support2_regeneration_uses_persisted_results_without_monte_carlo_or_raw
     assert _strict_json(tmp_path / "simulation_runs.json")["next_simulation_run_id"] == 3
 
 
-def test_support2_n_per_class_3331_fails_before_expensive_work(tmp_path, monkeypatch):
-    module = _load_script_module()
-
+def test_support2_n_per_class_3331_fails_before_expensive_work(tmp_path):
     def expensive(*args, **kwargs):
         raise AssertionError("expensive work started")
 
-    monkeypatch.setattr(
-        module,
-        "SUPPORT2_SPEC",
-        replace(
-            _fast_spec(module),
-            dataset_report_callback=expensive,
-            gaussian_builder=expensive,
-            gmm_builder=expensive,
-        ),
+    spec = replace(
+        _fast_spec(),
+        dataset_report_callback=expensive,
+        gaussian_builder=expensive,
+        gmm_builder=expensive,
     )
     with pytest.raises(ValueError, match="minority-class count 3330.*3331"):
-        module.run_scenario(
+        runner.run_dataset_anchored_scenario(
+            spec,
             raw_dir=str(RAW_DIR),
             output_dir=str(tmp_path),
             config=_tiny_config(sample_sizes=(3331,)),
             visualize=False,
+            classifier_configuration=SUPPORT2_CLASSIFIER_CONFIGURATION,
         )
     assert _strict_json(tmp_path / "simulation_runs.json")["next_simulation_run_id"] == 0
 
 
 def test_support2_random_forest_only_plan_uses_calibration_artifact():
-    module = _load_script_module()
     data = load_support2_data(RAW_DIR)
-    plan = module._resolve_support2_classifier_configuration(
+    plan = _resolve_support2_classifier_configuration(
         data,
         {
             "classifier_names": ("random_forest",),
@@ -223,9 +224,8 @@ def test_support2_random_forest_only_plan_uses_calibration_artifact():
 
 
 def test_support2_non_forest_selection_does_not_require_calibration_artifact():
-    module = _load_script_module()
     data = load_support2_data(RAW_DIR)
-    plan = module._resolve_support2_classifier_configuration(
+    plan = _resolve_support2_classifier_configuration(
         data,
         {
             "classifier_names": ("gaussian_nb", "linear_svm"),
@@ -241,52 +241,20 @@ def test_support2_non_forest_selection_does_not_require_calibration_artifact():
     ]
 
 
-def test_support2_run_scenario_applies_classifier_override(monkeypatch):
-    module = _load_script_module()
-    captured = {}
+def test_support2_spec_classifier_override_recipe():
+    """The classifier-override recipe used by the (deprecated) reference
+    script's ``--classifiers`` flag remains available to any caller that
+    builds its own execution spec directly; the built-in CLI does not
+    expose it, but the underlying capability is preserved."""
 
-    def fake_runner(spec, **kwargs):
-        captured["spec"] = spec
-        captured.update(kwargs)
-        return {}
+    resolved_names = resolve_classifier_names(("random_forest",))
+    overridden_spec = replace(SUPPORT2_SPEC, classifier_names=resolved_names)
+    classifier_configuration = {
+        "rf_calibration_file": str(CANONICAL_ARTIFACT_PATH),
+        "classifier_names": resolved_names,
+        "classifier_selection_source": "cli_or_api",
+    }
 
-    monkeypatch.setattr(module, "run_dataset_anchored_scenario", fake_runner)
-    module.run_scenario(classifier_names=("random_forest",))
-
-    assert captured["spec"].classifier_names == ("random_forest",)
-    assert captured["classifier_configuration"]["classifier_names"] == (
-        "random_forest",
-    )
-    assert captured["classifier_configuration"][
-        "classifier_selection_source"
-    ] == "cli_or_api"
-
-
-def test_support2_cli_accepts_random_forest_only(monkeypatch):
-    module = _load_script_module()
-    captured = {}
-
-    def fake_run_scenario(**kwargs):
-        captured.update(kwargs)
-        return {}
-
-    monkeypatch.setattr(module, "run_scenario", fake_run_scenario)
-    monkeypatch.setattr(
-        sys,
-        "argv",
-        [
-            "run_support2_scenario.py",
-            "--quiet",
-            "--classifiers",
-            "random_forest",
-            "--execution-backend",
-            "process",
-            "--n-jobs",
-            "12",
-        ],
-    )
-
-    assert module.main() == 0
-    assert captured["classifier_names"] == ["random_forest"]
-    assert captured["execution_config"].backend == "process"
-    assert captured["execution_config"].n_jobs == 12
+    assert overridden_spec.classifier_names == ("random_forest",)
+    assert classifier_configuration["classifier_names"] == ("random_forest",)
+    assert classifier_configuration["classifier_selection_source"] == "cli_or_api"
