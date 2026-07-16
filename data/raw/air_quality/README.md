@@ -11,8 +11,24 @@
   Actuators B: Chemical*, 129(2), 2008.
 - **Acquired:** 2026-07-14
 - **Original filename:** `AirQualityUCI.csv`
+- **Size:** 785065 bytes
 - **Committed SHA-256:**
   `13277ae5d8581e80b7be09d47c7d3d06fe9b8e957078f2cf6e859f955e62f996`
+
+`.gitattributes` marks this file `-text` so it is never rewritten by Git
+line-ending normalization on any platform; the SHA-256 above is computed
+from the exact committed bytes.
+
+This file is mirrored, byte-for-byte, on the CoInfoSim GitHub Pages site at:
+
+```
+https://paulorenatoaz.github.io/coinfosim/datasets/air-quality/AirQualityUCI.csv
+```
+
+`coinfosim scenario run air-quality` downloads and hash-verifies this file
+automatically from that location; the pinned hash above is also recorded in
+the installed package's dataset catalog
+(`src/coinfosim/resources/datasets.json`).
 
 UCI identifies this dataset as CC BY 4.0 and requests appropriate attribution.
 The UCI description also notes research-use provenance for these field sensor

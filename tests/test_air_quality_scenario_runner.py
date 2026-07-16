@@ -1,6 +1,4 @@
-import importlib.util
 import json
-import sys
 from dataclasses import replace
 from pathlib import Path
 
@@ -12,20 +10,12 @@ from coinfosim.samplers.real import RealDatasetSampler
 from coinfosim.samplers.transfer import SyntheticTrainRealTestSampler
 from coinfosim.scenarios import dataset_anchored_runner as runner
 from coinfosim.scenarios.air_quality import build_gmm_anchored_air_quality_model
+from coinfosim.scenarios.definitions.air_quality import AIR_QUALITY_SPEC
 from coinfosim.simulation.config import MonteCarloConfig, get_mode_config
 from coinfosim.simulation.execution import ExecutionConfig
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 RAW_DIR = REPO_ROOT / "data" / "raw" / "air_quality"
-
-
-def _load_script_module():
-    script = REPO_ROOT / "scripts" / "run_air_quality_scenario.py"
-    spec = importlib.util.spec_from_file_location("run_air_quality_scenario", script)
-    module = importlib.util.module_from_spec(spec)
-    sys.modules["run_air_quality_scenario"] = module
-    spec.loader.exec_module(module)
-    return module
 
 
 def _tiny_config(sample_sizes=(2, 4)):
@@ -41,9 +31,9 @@ def _tiny_config(sample_sizes=(2, 4)):
     )
 
 
-def _fast_spec(module):
+def _fast_spec():
     return replace(
-        module.AIR_QUALITY_SPEC,
+        AIR_QUALITY_SPEC,
         gmm_builder=lambda data: build_gmm_anchored_air_quality_model(
             data,
             max_components=1,
@@ -77,8 +67,7 @@ def _assert_same_losses(first, second):
 def test_air_quality_runner_tracks_three_arms_and_shared_fixed_test(
     tmp_path, monkeypatch
 ):
-    module = _load_script_module()
-    monkeypatch.setattr(module, "AIR_QUALITY_SPEC", _fast_spec(module))
+    spec = _fast_spec()
     captured_samplers = []
     captured_execution_configs = []
     original_simulator = runner.CooperativeMonteCarloSimulator
@@ -91,7 +80,8 @@ def test_air_quality_runner_tracks_three_arms_and_shared_fixed_test(
 
     monkeypatch.setattr(runner, "CooperativeMonteCarloSimulator", CapturingSimulator)
     execution_config = ExecutionConfig()
-    output = module.run_scenario(
+    output = runner.run_dataset_anchored_scenario(
+        spec,
         raw_dir=str(RAW_DIR),
         output_dir=str(tmp_path),
         config=_tiny_config(),
@@ -177,8 +167,7 @@ def test_air_quality_runner_tracks_three_arms_and_shared_fixed_test(
 def test_full_scale_resolves_once_and_persists_shared_config(
     tmp_path, monkeypatch
 ):
-    module = _load_script_module()
-    monkeypatch.setattr(module, "AIR_QUALITY_SPEC", _fast_spec(module))
+    spec = _fast_spec()
     config = replace(
         get_mode_config("full-scale"),
         min_replications=2,
@@ -211,7 +200,8 @@ def test_full_scale_resolves_once_and_persists_shared_config(
         runner, "CooperativeMonteCarloSimulator", CapturingSimulator
     )
 
-    output = module.run_scenario(
+    output = runner.run_dataset_anchored_scenario(
+        spec,
         raw_dir=str(RAW_DIR),
         output_dir=str(tmp_path),
         config=config,
@@ -245,16 +235,17 @@ def test_full_scale_resolves_once_and_persists_shared_config(
         )
 
 
-def test_same_seed_reproduces_losses_and_rerun_never_overwrites(tmp_path, monkeypatch):
-    module = _load_script_module()
-    monkeypatch.setattr(module, "AIR_QUALITY_SPEC", _fast_spec(module))
-    first = module.run_scenario(
+def test_same_seed_reproduces_losses_and_rerun_never_overwrites(tmp_path):
+    spec = _fast_spec()
+    first = runner.run_dataset_anchored_scenario(
+        spec,
         raw_dir=str(RAW_DIR),
         output_dir=str(tmp_path),
         config=_tiny_config(),
         visualize=False,
     )
-    second = module.run_scenario(
+    second = runner.run_dataset_anchored_scenario(
+        spec,
         raw_dir=str(RAW_DIR),
         output_dir=str(tmp_path),
         config=_tiny_config(),
@@ -280,9 +271,9 @@ def test_same_seed_reproduces_losses_and_rerun_never_overwrites(tmp_path, monkey
 def test_persistence_roundtrip_and_regeneration_do_not_run_monte_carlo(
     tmp_path, monkeypatch
 ):
-    module = _load_script_module()
-    monkeypatch.setattr(module, "AIR_QUALITY_SPEC", _fast_spec(module))
-    output = module.run_scenario(
+    spec = _fast_spec()
+    output = runner.run_dataset_anchored_scenario(
+        spec,
         raw_dir=str(RAW_DIR),
         output_dir=str(tmp_path),
         config=_tiny_config(),
@@ -297,7 +288,9 @@ def test_persistence_roundtrip_and_regeneration_do_not_run_monte_carlo(
         raise AssertionError("Monte Carlo must not run during regeneration")
 
     monkeypatch.setattr(runner, "CooperativeMonteCarloSimulator", fail_if_called)
-    regenerated = module.regenerate_from_scenario_run(0, output_dir=str(tmp_path))
+    regenerated = runner.regenerate_dataset_anchored_scenario(
+        spec, 0, output_dir=str(tmp_path)
+    )
 
     assert Path(regenerated["scenario_report"]).exists()
     assert Path(regenerated["real_report"]).exists()
@@ -310,22 +303,20 @@ def test_persistence_roundtrip_and_regeneration_do_not_run_monte_carlo(
 
 
 def test_infeasible_real_sample_size_fails_before_reports_models_or_simulations(
-    tmp_path, monkeypatch
+    tmp_path,
 ):
-    module = _load_script_module()
-
     def expensive_step(*args, **kwargs):
         raise AssertionError("expensive execution started before feasibility check")
 
     spec = replace(
-        _fast_spec(module),
+        _fast_spec(),
         dataset_report_callback=expensive_step,
         gaussian_builder=expensive_step,
         gmm_builder=expensive_step,
     )
-    monkeypatch.setattr(module, "AIR_QUALITY_SPEC", spec)
     with pytest.raises(ValueError, match="minority-class count 1818.*1819"):
-        module.run_scenario(
+        runner.run_dataset_anchored_scenario(
+            spec,
             raw_dir=str(RAW_DIR),
             output_dir=str(tmp_path),
             config=_tiny_config(sample_sizes=(1819,)),

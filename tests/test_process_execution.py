@@ -95,7 +95,7 @@ def immediate_pool(monkeypatch):
     return _ImmediatePool
 
 
-def test_two_worker_forkserver_execution_serializes_worker_context():
+def test_two_worker_process_execution_serializes_worker_context():
     _, sampler, test_dataset, cells, test_by_subset = _worker_context()
     executor = ProcessReplicationExecutor(
         sampler=sampler,
@@ -105,7 +105,7 @@ def test_two_worker_forkserver_execution_serializes_worker_context():
         execution_config=ExecutionConfig(
             backend="process",
             n_jobs=2,
-            start_method="forkserver",
+            start_method="spawn",
             worker_inner_threads=1,
         ),
         replication_batch_size=2,

@@ -37,3 +37,8 @@ recursive-exclude * .vscode
 recursive-exclude output *
 recursive-exclude TCC *
 recursive-exclude docs/_build *
+
+# Raw datasets are mirrored on GitHub Pages, not shipped in any
+# distribution artifact; only the pinned catalog (src/coinfosim/resources)
+# travels with the package.
+prune data

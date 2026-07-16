@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import multiprocessing as mp
 import os
+import platform
 from concurrent.futures import Future, ProcessPoolExecutor, as_completed
 from dataclasses import dataclass
 from typing import Any, Mapping, Optional, Protocol, Sequence
@@ -21,6 +22,42 @@ from coinfosim.simulation.replication import (
 )
 
 SUPPORTED_BACKENDS = ("sequential", "process")
+SUPPORTED_START_METHOD_REQUESTS = ("auto", "spawn", "forkserver", "fork")
+
+
+def resolve_start_method(requested: str, *, backend: str) -> str:
+    """Resolve a user-requested multiprocessing start method to a concrete one.
+
+    ``"auto"`` maps to a safe, platform-appropriate method and never selects
+    ``"fork"`` automatically: ``spawn`` on Windows and macOS, ``forkserver``
+    (falling back to ``spawn``) elsewhere. An explicit, unavailable method
+    fails clearly, but only when ``backend == "process"``: the sequential
+    backend never uses multiprocessing, so it must not require start-method
+    validation.
+    """
+
+    if requested not in SUPPORTED_START_METHOD_REQUESTS:
+        raise ValueError(
+            f"unknown multiprocessing start method {requested!r}; "
+            f"supported requests: {list(SUPPORTED_START_METHOD_REQUESTS)}"
+        )
+
+    resolved = requested
+    if requested == "auto":
+        system = platform.system()
+        if system in ("Windows", "Darwin"):
+            resolved = "spawn"
+        elif "forkserver" in mp.get_all_start_methods():
+            resolved = "forkserver"
+        else:
+            resolved = "spawn"
+
+    if backend == "process" and resolved not in mp.get_all_start_methods():
+        raise ValueError(
+            f"multiprocessing start method {resolved!r} is not available on "
+            f"this platform; available methods: {mp.get_all_start_methods()}"
+        )
+    return resolved
 
 
 def effective_worker_count(
@@ -151,7 +188,7 @@ class ExecutionConfig:
 
     backend: str = "sequential"
     n_jobs: int = 1
-    start_method: str = "forkserver"
+    start_method: str = "spawn"  # only universally-available method (Windows lacks forkserver/fork)
     worker_inner_threads: int = 1
 
     def __post_init__(self) -> None:

@@ -5,27 +5,18 @@ folders, persistence, report generation, regeneration) runs quickly. They
 require the Occupancy raw data files under ``data/raw/occupancy``.
 """
 
-import importlib.util
 import json
-import sys
 from dataclasses import replace
 from pathlib import Path
 
 import pytest
 
+from coinfosim.scenarios import dataset_anchored_runner as runner
+from coinfosim.scenarios.definitions.occupancy import OCCUPANCY_SPEC
 from coinfosim.simulation.config import MonteCarloConfig
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 RAW_DIR = REPO_ROOT / "data" / "raw" / "occupancy"
-
-
-def _load_script_module():
-    script = REPO_ROOT / "scripts" / "run_occupancy_scenario.py"
-    spec = importlib.util.spec_from_file_location("run_occupancy_scenario", script)
-    module = importlib.util.module_from_spec(spec)
-    sys.modules["run_occupancy_scenario"] = module
-    spec.loader.exec_module(module)
-    return module
 
 
 pytestmark = pytest.mark.skipif(
@@ -48,8 +39,8 @@ def _tiny_config():
 
 
 def test_occupancy_run_creates_one_scenario_two_simulations(tmp_path):
-    mod = _load_script_module()
-    out = mod.run_scenario(
+    out = runner.run_dataset_anchored_scenario(
+        OCCUPANCY_SPEC,
         raw_dir=str(RAW_DIR),
         output_dir=str(tmp_path),
         config=_tiny_config(),
@@ -107,8 +98,8 @@ def test_occupancy_run_creates_one_scenario_two_simulations(tmp_path):
 
 
 def test_scenario_json_has_question_and_simulation_refs(tmp_path):
-    mod = _load_script_module()
-    mod.run_scenario(
+    runner.run_dataset_anchored_scenario(
+        OCCUPANCY_SPEC,
         raw_dir=str(RAW_DIR),
         output_dir=str(tmp_path),
         config=_tiny_config(),
@@ -155,8 +146,8 @@ def test_scenario_json_has_question_and_simulation_refs(tmp_path):
 
 
 def test_simulation_json_has_report_ready_data(tmp_path):
-    mod = _load_script_module()
-    mod.run_scenario(
+    runner.run_dataset_anchored_scenario(
+        OCCUPANCY_SPEC,
         raw_dir=str(RAW_DIR),
         output_dir=str(tmp_path),
         config=replace(_tiny_config(), sample_sizes=(4, 8)),
@@ -220,8 +211,8 @@ def test_simulation_json_has_report_ready_data(tmp_path):
 
 
 def test_gmm_simulation_json_has_model_selection(tmp_path):
-    mod = _load_script_module()
-    mod.run_scenario(
+    runner.run_dataset_anchored_scenario(
+        OCCUPANCY_SPEC,
         raw_dir=str(RAW_DIR),
         output_dir=str(tmp_path),
         config=_tiny_config(),
@@ -265,14 +256,15 @@ def test_gmm_simulation_json_has_model_selection(tmp_path):
 
 
 def test_second_run_does_not_overwrite_first(tmp_path):
-    mod = _load_script_module()
-    first = mod.run_scenario(
+    first = runner.run_dataset_anchored_scenario(
+        OCCUPANCY_SPEC,
         raw_dir=str(RAW_DIR),
         output_dir=str(tmp_path),
         config=_tiny_config(),
         visualize=False,
     )
-    second = mod.run_scenario(
+    second = runner.run_dataset_anchored_scenario(
+        OCCUPANCY_SPEC,
         raw_dir=str(RAW_DIR),
         output_dir=str(tmp_path),
         config=_tiny_config(),
@@ -298,8 +290,8 @@ def test_second_run_does_not_overwrite_first(tmp_path):
 
 
 def test_regeneration_does_not_rerun_monte_carlo(tmp_path, monkeypatch):
-    mod = _load_script_module()
-    mod.run_scenario(
+    runner.run_dataset_anchored_scenario(
+        OCCUPANCY_SPEC,
         raw_dir=str(RAW_DIR),
         output_dir=str(tmp_path),
         config=_tiny_config(),
@@ -310,9 +302,11 @@ def test_regeneration_does_not_rerun_monte_carlo(tmp_path, monkeypatch):
     def _boom(*args, **kwargs):
         raise AssertionError("Monte Carlo must not run during regeneration")
 
-    monkeypatch.setattr(mod, "CooperativeMonteCarloSimulator", _boom)
+    monkeypatch.setattr(runner, "CooperativeMonteCarloSimulator", _boom)
 
-    regenerated = mod.regenerate_from_scenario_run(0, output_dir=str(tmp_path))
+    regenerated = runner.regenerate_dataset_anchored_scenario(
+        OCCUPANCY_SPEC, 0, output_dir=str(tmp_path)
+    )
 
     assert Path(regenerated["scenario_report"]).exists()
     assert Path(regenerated["real_report"]).exists()
@@ -334,8 +328,8 @@ def test_regeneration_does_not_rerun_monte_carlo(tmp_path, monkeypatch):
 
 
 def test_visualization_panels_written_and_registered(tmp_path):
-    mod = _load_script_module()
-    mod.run_scenario(
+    runner.run_dataset_anchored_scenario(
+        OCCUPANCY_SPEC,
         raw_dir=str(RAW_DIR),
         output_dir=str(tmp_path),
         config=_tiny_config(),
@@ -363,7 +357,7 @@ def test_visualization_panels_written_and_registered(tmp_path):
         (scenario_dir / "scenario.json").read_text(encoding="utf-8")
     )
     viz = scenario_json["report_data"]["visualization"]
-    assert viz["metadata"]["visualization_seed"] == mod.VIZ_SEED
+    assert viz["metadata"]["visualization_seed"] == runner.VIZ_SEED
     assert set(viz["images"]) == set(scenario_json["report_data"]["visualization"]["images"])
     assert len(viz["images"]) == 9
     assert "visualization_images" in scenario_json["artifacts"]

@@ -43,7 +43,7 @@ def test_execution_config_defaults_are_sequential_and_immutable():
 
     assert config.backend == "sequential"
     assert config.n_jobs == 1
-    assert config.start_method == "forkserver"
+    assert config.start_method == "spawn"
     assert config.worker_inner_threads == 1
     with pytest.raises(FrozenInstanceError):
         config.n_jobs = 2

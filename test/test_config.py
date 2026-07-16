@@ -23,9 +23,18 @@ from coinfosim.config import (
 
 @pytest.fixture
 def temp_dir():
-    """Create a temporary directory for testing."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        yield Path(tmpdir)
+    """Create a temporary directory for testing.
+
+    Resolved so it matches Path.cwd() after chdir: on macOS, TemporaryDirectory
+    location is under a symlink (/var -> /private/var), and os.getcwd() (which
+    Path.cwd() wraps) always returns the resolved, symlink-free path.
+
+    ignore_cleanup_errors=True because on Windows, a log file handle opened by
+    a test via coinfosim.logging_config may still be open at teardown time;
+    Windows (unlike POSIX) refuses to delete a file that is still open.
+    """
+    with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmpdir:
+        yield Path(tmpdir).resolve()
 
 
 @pytest.fixture
