@@ -1,0 +1,4 @@
+# Raw dataset mirrors are hash-pinned in src/coinfosim/resources/datasets.json
+# and must never be rewritten by line-ending normalization on any platform.
+data/raw/**/*.txt -text
+data/raw/**/*.csv -text
