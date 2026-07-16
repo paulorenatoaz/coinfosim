@@ -73,7 +73,7 @@ docs/_build/
 docs/build/
 
 # Project-generated artifacts
-# output/
+output/
 output/block4_report_previews/
 output/validation/
 

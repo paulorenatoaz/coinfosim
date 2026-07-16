@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
 name: Publish to PyPI
 
 # Triggered only by a published GitHub Release. Uses PyPI Trusted
@@ -56,8 +57,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     environment:
-      name: pypi
-      url: https://pypi.org/p/coinfosim
+      name: ${{ 'pypi' }}
     permissions:
       id-token: write
     steps:
