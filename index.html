@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>CoInfoSim - Published Research Reports</title>
+<title>CoInfoSim - Published Research Reports and Datasets</title>
 <style>
 :root { --accent:#1f77b4; --ink:#1a1a1a; --muted:#666; --line:#dcdcdc; --soft:#f7f9fb; --question:#eef5fb; }
 * { box-sizing:border-box; }
@@ -10,32 +10,53 @@ h1 { border-bottom:3px solid var(--accent); padding-bottom:.55rem; line-height:1
 h2 { border-bottom:1px solid var(--line); padding-bottom:.35rem; margin-top:2.4rem; }
 h3 { line-height:1.3; }
 a { color:var(--accent); }
+pre { background:var(--soft); border:1px solid var(--line); padding:1rem; overflow-x:auto; }
 .lede { font-size:1.08rem; }
-.question { background:var(--question); border-left:5px solid var(--accent); padding:1rem 1.2rem; margin:1.6rem 0; }
-.grid { display:grid; grid-template-columns:1fr; gap:1rem; }
-.report-grid { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:1rem; }
-.report-card { border:1px solid var(--line); background:var(--soft); padding:1rem 1.15rem; }
-.report-card h3 { margin-top:0; }
-.dataset-label { color:var(--muted); margin-bottom:.25rem; }
-.path, .metadata { color:var(--muted); font-family:ui-monospace, SFMono-Regular, Consolas, monospace; font-size:.86rem; overflow-wrap:anywhere; }
+.report-grid, .dataset-grid { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:1rem; }
+.report-card, .dataset-card { border:1px solid var(--line); background:var(--soft); padding:1rem 1.15rem; }
+.report-card h3, .dataset-card h3 { margin-top:0; }
+.dataset-label, .license, .notice, .source { color:var(--muted); }
+.files { font-size:.86rem; }
+.hash, .size, .path, .metadata { color:var(--muted); font-family:ui-monospace, SFMono-Regular, Consolas, monospace; font-size:.82rem; overflow-wrap:anywhere; }
 footer { border-top:1px solid var(--line); margin-top:3rem; padding-top:1rem; color:var(--muted); font-size:.92rem; }
-@media (max-width:700px) { body { padding:1.4rem 1rem 3rem; } .report-grid { grid-template-columns:1fr; } }
+@media (max-width:700px) { body { padding:1.4rem 1rem 3rem; } .report-grid, .dataset-grid { grid-template-columns:1fr; } }
 </style></head><body><div class="wrap">
-<h1>CoInfoSim - Published Research Reports</h1>
+<h1>CoInfoSim - Published Research Reports and Datasets</h1>
 <p class="lede">CoInfoSim is a research simulator for evaluating cooperative advantage among information channels in supervised classification.</p>
-<div class="question"><strong>Scientific question:</strong> When does cooperation among information channels improve supervised classification?</div>
-<p class="metadata">Updated 2026-07-16 04:11:48Z</p>
-<div class="grid">
-<section><h2>Published Scenario Reports</h2><p><strong>9</strong> published scenario reports.</p><div class="report-grid"><article class="report-card"><h3>Occupancy Detection Baseline (fast)</h3><p class="dataset-label">Dataset: Occupancy Detection</p><p>Does training on single-Gaussian synthetic data preserve the cooperative advantages observed when classifiers are evaluated on real Occupancy data? Equivalently: which training distribution best preserves the cooperative structure observed under real-data evaluation in the Occupancy Detection dataset?</p><p class="path">scenarios/000001_occupancy_baseline_fast/occupancy_baseline_scenario_report_fast_000001.html</p><p><a href="reports/scenarios/000001_occupancy_baseline_fast/occupancy_baseline_scenario_report_fast_000001.html">Open scenario report</a></p></article>
+
+<h2>Install CoInfoSim</h2>
+<pre>pip install coinfosim</pre>
+
+<h2>Quick start</h2>
+<pre>coinfosim scenario list
+coinfosim scenario run occupancy --mode smoke</pre>
+
+<h2>Available datasets</h2>
+<p>Files are mirrored byte-for-byte on this site; hashes are pinned in the installed package and verified before every run. See the <a href="datasets/manifest.json">machine-readable manifest</a>.</p>
+<div class="dataset-grid"><article class="dataset-card"><h3>Occupancy Detection</h3><p>DOI: <a href="https://doi.org/10.24432/C5X01N">10.24432/C5X01N</a></p><p class="license">License: CC BY 4.0 (<a href="https://creativecommons.org/licenses/by/4.0/">license text</a>)</p><p class="notice">Creative Commons Attribution 4.0 International. Attribution required.</p><p class="source">Source: <a href="https://archive.ics.uci.edu/dataset/357/occupancy+detection">https://archive.ics.uci.edu/dataset/357/occupancy+detection</a></p><p class="citation">Candanedo, L. (2016). Occupancy Detection [Dataset]. UCI Machine Learning Repository. https://doi.org/10.24432/C5X01N</p><ul class="files"><li><a href="https://paulorenatoaz.github.io/coinfosim/datasets/occupancy/datatraining.txt">datatraining.txt</a> <span class="hash">sha256:b2c4d0ce2b9e4e453c476f7125ef31aeec2d1f5c7f5572d0e80de3df6521ab56</span> <span class="size">(596,674 bytes)</span></li><li><a href="https://paulorenatoaz.github.io/coinfosim/datasets/occupancy/datatest.txt">datatest.txt</a> <span class="hash">sha256:1b92c7c1b2838963464fa891a610cf3c5db4becb7189189b29b330107a584c7f</span> <span class="size">(200,766 bytes)</span></li><li><a href="https://paulorenatoaz.github.io/coinfosim/datasets/occupancy/datatest2.txt">datatest2.txt</a> <span class="hash">sha256:d026d1bd5aeccd4aff4f3b3710d48e40613bd5fc370db7e61bbdcaa50d985095</span> <span class="size">(699,664 bytes)</span></li></ul></article>
+<article class="dataset-card"><h3>Air Quality</h3><p>DOI: <a href="https://doi.org/10.24432/C59K5F">10.24432/C59K5F</a></p><p class="license">License: CC BY 4.0 (<a href="https://creativecommons.org/licenses/by/4.0/">license text</a>)</p><p class="notice">UCI displays this dataset as CC BY 4.0. Data are intended for research use; please cite the associated publication (De Vito et al., Sensors and Actuators B: Chemical, 2008).</p><p class="source">Source: <a href="https://archive.ics.uci.edu/dataset/360/air+quality">https://archive.ics.uci.edu/dataset/360/air+quality</a></p><p class="citation">De Vito, S. (2016). Air Quality [Dataset]. UCI Machine Learning Repository. https://doi.org/10.24432/C59K5F</p><ul class="files"><li><a href="https://paulorenatoaz.github.io/coinfosim/datasets/air-quality/AirQualityUCI.csv">AirQualityUCI.csv</a> <span class="hash">sha256:13277ae5d8581e80b7be09d47c7d3d06fe9b8e957078f2cf6e859f955e62f996</span> <span class="size">(785,065 bytes)</span></li></ul></article>
+<article class="dataset-card"><h3>SUPPORT2</h3><p>DOI: <a href="https://doi.org/10.3886/ICPSR02957.v2">10.3886/ICPSR02957.v2</a></p><p class="license">License: No explicit redistribution license identified; public research dataset; source acknowledgment required</p><p class="notice">No explicit redistribution license was identified for SUPPORT2. It is a public research dataset; follow the acknowledgment policy of the original HBiostat dataset site when using this file.</p><p class="source">Source: <a href="https://hbiostat.org/data/">https://hbiostat.org/data/</a></p><p class="citation">Knaus WA, et al. The SUPPORT Prognostic Model. Vanderbilt University Department of Biostatistics (HBiostat). https://doi.org/10.3886/ICPSR02957.v2</p><ul class="files"><li><a href="https://paulorenatoaz.github.io/coinfosim/datasets/support2/support2.csv">support2.csv</a> <span class="hash">sha256:79621945edf2a5c8dc36359684ff356d3c6025e773ba4fefac26f865f7894c78</span> <span class="size">(3,141,732 bytes)</span></li></ul></article></div>
+
+<h2>Published scenario reports</h2>
+<p><strong>8</strong> published scenario reports.</p>
+<div class="report-grid"><article class="report-card"><h3>Occupancy Detection Baseline (fast)</h3><p class="dataset-label">Dataset: Occupancy Detection</p><p>Does training on single-Gaussian synthetic data preserve the cooperative advantages observed when classifiers are evaluated on real Occupancy data? Equivalently: which training distribution best preserves the cooperative structure observed under real-data evaluation in the Occupancy Detection dataset?</p><p class="path">scenarios/000001_occupancy_baseline_fast/occupancy_baseline_scenario_report_fast_000001.html</p><p><a href="reports/scenarios/000001_occupancy_baseline_fast/occupancy_baseline_scenario_report_fast_000001.html">Open scenario report</a></p></article>
 <article class="report-card"><h3>Occupancy Detection Baseline (full)</h3><p class="dataset-label">Dataset: Occupancy Detection</p><p>Does training on single-Gaussian synthetic data preserve the cooperative advantages observed when classifiers are evaluated on real Occupancy data? Equivalently: which training distribution best preserves the cooperative structure observed under real-data evaluation in the Occupancy Detection dataset?</p><p class="path">scenarios/000002_occupancy_baseline_full/occupancy_baseline_scenario_report_full_000002.html</p><p><a href="reports/scenarios/000002_occupancy_baseline_full/occupancy_baseline_scenario_report_full_000002.html">Open scenario report</a></p></article>
 <article class="report-card"><h3>Occupancy Detection Baseline (smoke)</h3><p class="dataset-label">Dataset: Occupancy Detection</p><p>Does training on single-Gaussian synthetic data preserve the cooperative advantages observed when classifiers are evaluated on real Occupancy data? Equivalently: which training distribution best preserves the cooperative structure observed under real-data evaluation in the Occupancy Detection dataset?</p><p class="path">scenarios/000000_occupancy_baseline_smoke/occupancy_baseline_scenario_report_smoke_000000.html</p><p><a href="reports/scenarios/000000_occupancy_baseline_smoke/occupancy_baseline_scenario_report_smoke_000000.html">Open scenario report</a></p></article>
 <article class="report-card"><h3>SUPPORT2 180-Day Mortality Baseline (full)</h3><p class="dataset-label">Dataset: SUPPORT2</p><p>To what extent do class-conditional Single Gaussian and GMM synthetic training distributions preserve the cooperative channel-subset structure observed for 180-day mortality prediction on a fixed real SUPPORT2 test set?</p><p class="path">scenarios/000007_support2_baseline_full/support2_scenario_report_full_000007.html</p><p><a href="reports/scenarios/000007_support2_baseline_full/support2_scenario_report_full_000007.html">Open scenario report</a></p></article>
-<article class="report-card"><h3>SUPPORT2 180-Day Mortality Baseline (full)</h3><p class="dataset-label">Dataset: SUPPORT2</p><p>To what extent do class-conditional Single Gaussian and GMM synthetic training distributions preserve the cooperative channel-subset structure observed for 180-day mortality prediction on a fixed real SUPPORT2 test set?</p><p class="path">scenarios/000008_support2_baseline_full/support2_scenario_report_full_000008.html</p><p><a href="reports/scenarios/000008_support2_baseline_full/support2_scenario_report_full_000008.html">Open scenario report</a></p></article>
 <article class="report-card"><h3>UCI Air Quality Baseline (full)</h3><p class="dataset-label">Dataset: UCI Air Quality</p><p>To what extent do single-Gaussian and class-conditional GMM synthetic training distributions preserve the cooperative channel structure observed when classifiers detect elevated benzene concentration on a fixed future real-data evaluation period?</p><p class="path">scenarios/000005_air_quality_baseline_full/air_quality_scenario_report_full_000005.html</p><p><a href="reports/scenarios/000005_air_quality_baseline_full/air_quality_scenario_report_full_000005.html">Open scenario report</a></p></article>
 <article class="report-card"><h3>UCI Air Quality Baseline (full-scale)</h3><p class="dataset-label">Dataset: UCI Air Quality</p><p>To what extent do single-Gaussian and class-conditional GMM synthetic training distributions preserve the cooperative channel structure observed when classifiers detect elevated benzene concentration on a fixed future real-data evaluation period?</p><p class="path">scenarios/000006_air_quality_baseline_full-scale/air_quality_scenario_report_full-scale_000006.html</p><p><a href="reports/scenarios/000006_air_quality_baseline_full-scale/air_quality_scenario_report_full-scale_000006.html">Open scenario report</a></p></article>
 <article class="report-card"><h3>UCI Air Quality Baseline (smoke)</h3><p class="dataset-label">Dataset: UCI Air Quality</p><p>To what extent do single-Gaussian and class-conditional GMM synthetic training distributions preserve the cooperative channel structure observed when classifiers detect elevated benzene concentration on a fixed future real-data evaluation period?</p><p class="path">scenarios/000003_air_quality_baseline_smoke/air_quality_scenario_report_smoke_000003.html</p><p><a href="reports/scenarios/000003_air_quality_baseline_smoke/air_quality_scenario_report_smoke_000003.html">Open scenario report</a></p></article>
-<article class="report-card"><h3>UCI Air Quality Baseline (smoke)</h3><p class="dataset-label">Dataset: UCI Air Quality</p><p>To what extent do single-Gaussian and class-conditional GMM synthetic training distributions preserve the cooperative channel structure observed when classifiers detect elevated benzene concentration on a fixed future real-data evaluation period?</p><p class="path">scenarios/000004_air_quality_baseline_smoke/air_quality_scenario_report_smoke_000004.html</p><p><a href="reports/scenarios/000004_air_quality_baseline_smoke/air_quality_scenario_report_smoke_000004.html">Open scenario report</a></p></article></div></section>
-<section><h2>Data (JSON)</h2><ul></ul></section>
-</div>
-<footer>Served from <code>reports</code> and <code>data</code> on gh-pages.</footer>
+<article class="report-card"><h3>UCI Air Quality Baseline (smoke)</h3><p class="dataset-label">Dataset: UCI Air Quality</p><p>To what extent do single-Gaussian and class-conditional GMM synthetic training distributions preserve the cooperative channel structure observed when classifiers detect elevated benzene concentration on a fixed future real-data evaluation period?</p><p class="path">scenarios/000004_air_quality_baseline_smoke/air_quality_scenario_report_smoke_000004.html</p><p><a href="reports/scenarios/000004_air_quality_baseline_smoke/air_quality_scenario_report_smoke_000004.html">Open scenario report</a></p></article></div>
+
+<h2>Machine-readable artifacts</h2>
+<ul>
+<li><a href="datasets/manifest.json">datasets/manifest.json</a> &mdash; dataset provenance, hashes, and URLs</li>
+
+</ul>
+
+<h2>Citation and license</h2>
+<p>See the project repository for the CoInfoSim citation file and license. Dataset citations and license/acknowledgment status are listed with each dataset above; SUPPORT2 in particular carries no open redistribution license and requires source acknowledgment rather than attribution under an open license.</p>
+
+<p class="metadata">Updated 2026-07-16 09:51:24Z</p>
+<footer>Served from <code>reports</code>, <code>data</code>, and <code>datasets/</code> on gh-pages.</footer>
 </div></body></html>
