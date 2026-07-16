@@ -19,7 +19,10 @@ import time
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Mapping, Optional, Protocol, Sequence, Tuple
 
-from coinfosim.classifiers.registry import available_classifiers
+from coinfosim.classifiers.registry import (
+    ClassifierExecutionPlan,
+    default_execution_plan,
+)
 from coinfosim.models.gaussian import GaussianSimulationModel
 from coinfosim.results.accumulator import LossAccumulator
 from coinfosim.samplers.dataset import Dataset
@@ -86,6 +89,7 @@ class CooperativeMonteCarloSimulator:
         config: MonteCarloConfig,
         subsets: Optional[Sequence[Sequence[int]]] = None,
         classifier_names: Optional[Sequence[str]] = None,
+        classifier_plan: Optional[ClassifierExecutionPlan] = None,
         stopping_rule: Optional[StandardErrorStoppingRule] = None,
         sampler: Optional[MonteCarloSampler] = None,
         metadata: Optional[Mapping[str, object]] = None,
@@ -104,9 +108,12 @@ class CooperativeMonteCarloSimulator:
             subsets = all_nonempty_subsets(model.d)
         self.subsets: List[Tuple[int, ...]] = [tuple(s) for s in subsets]
 
-        if classifier_names is None:
-            classifier_names = available_classifiers()
-        self.classifier_names: List[str] = list(classifier_names)
+        if classifier_plan is None:
+            classifier_plan = default_execution_plan(classifier_names)
+        elif classifier_names is not None and tuple(classifier_names) != classifier_plan.names:
+            raise ValueError("classifier_names and classifier_plan.names differ")
+        self.classifier_plan = classifier_plan
+        self.classifier_names: List[str] = list(classifier_plan.names)
 
         if stopping_rule is None:
             stopping_rule = StandardErrorStoppingRule(
@@ -157,6 +164,8 @@ class CooperativeMonteCarloSimulator:
             test_dataset=test_dataset,
             test_by_subset=test_by_subset,
             replication_batch_size=self.config.replication_batch_size,
+            classifier_plan=self.classifier_plan,
+            base_seed=self.config.base_seed,
         )
 
         try:
@@ -257,6 +266,7 @@ class CooperativeMonteCarloSimulator:
         if model_name is not None:
             metadata["model_name"] = model_name
         metadata.update(self.extra_metadata)
+        metadata.update(self.classifier_plan.provenance)
         metadata["execution"] = execution_metadata
 
         return SimulationResult(

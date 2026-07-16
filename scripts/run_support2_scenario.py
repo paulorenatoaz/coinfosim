@@ -5,9 +5,15 @@ from __future__ import annotations
 
 import argparse
 import json
+from dataclasses import replace
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Sequence
 
+from coinfosim.classifiers.registry import (
+    REGISTERED_CLASSIFIER_KEYS,
+    ClassifierExecutionPlan,
+    resolve_classifier_names,
+)
 from coinfosim.datasets.support2 import (
     SUPPORT2_EXCLUDED_PREDICTORS,
     SUPPORT2_TARGET_HORIZON_DAYS,
@@ -31,6 +37,11 @@ from coinfosim.scenarios.support2 import (
     build_gaussian_anchored_support2_model,
     build_gmm_anchored_support2_model,
 )
+from coinfosim.scenarios.support2_rf_calibration import (
+    CANONICAL_ARTIFACT_PATH,
+    classifier_execution_plan_from_calibration,
+    load_and_validate_calibration_artifact,
+)
 from coinfosim.simulation.config import MonteCarloConfig, VALID_MODES
 from coinfosim.simulation.execution import ExecutionConfig
 from coinfosim.simulation.progress import CooperativeProgressReporter
@@ -44,6 +55,61 @@ SG2R_SLUG = "support2_single_gaussian_to_real"
 SG2R_FAMILY = "single_gaussian_to_real"
 GMM2R_SLUG = "support2_gmm_to_real"
 GMM2R_FAMILY = "gmm_to_real"
+
+
+def _resolve_support2_classifier_configuration(data, configuration):
+    names = resolve_classifier_names(
+        configuration.get(
+            "classifier_names", ("linear_svm", "random_forest")
+        )
+    )
+    parameters = {}
+    classifier_configurations = {}
+
+    if "linear_svm" in names:
+        classifier_configurations["linear_svm"] = {
+            "estimator": "sklearn.svm.SVC",
+            "parameters": {"kernel": "linear", "random_state": 0},
+            "seed_policy": {"kind": "fixed", "value": 0},
+        }
+    if "logistic_regression" in names:
+        classifier_configurations["logistic_regression"] = {
+            "estimator": "sklearn.linear_model.LogisticRegression",
+            "parameters": {"max_iter": 1000, "random_state": 0},
+            "seed_policy": {"kind": "fixed", "value": 0},
+        }
+    if "gaussian_nb" in names:
+        classifier_configurations["gaussian_nb"] = {
+            "estimator": "sklearn.naive_bayes.GaussianNB",
+            "parameters": {},
+            "seed_policy": {"kind": "none"},
+        }
+    if "random_forest" in names:
+        path = configuration.get("rf_calibration_file", CANONICAL_ARTIFACT_PATH)
+        loaded = load_and_validate_calibration_artifact(path, data)
+        calibrated_plan = classifier_execution_plan_from_calibration(loaded)
+        parameters["random_forest"] = dict(
+            calibrated_plan.parameters["random_forest"]
+        )
+        classifier_configurations["random_forest"] = dict(
+            calibrated_plan.provenance["classifier_configurations"]["random_forest"]
+        )
+
+    return ClassifierExecutionPlan(
+        names=names,
+        parameters=parameters,
+        provenance={
+            "classifier_selection": {
+                "source": configuration.get(
+                    "classifier_selection_source", "scenario_spec"
+                ),
+                "ordered_keys": list(names),
+            },
+            "classifier_configurations": {
+                name: classifier_configurations[name] for name in names
+            },
+        },
+    )
 
 
 def _target_metadata(data: Support2Data) -> Dict[str, Any]:
@@ -175,6 +241,8 @@ SUPPORT2_SPEC = DatasetAnchoredExecutionSpec(
     real_experiment_arm="real_to_real",
     dataset_artifacts_callback=_dataset_artifacts,
     include_structural_snapshots=False,
+    classifier_names=("linear_svm", "random_forest"),
+    classifier_configuration_resolver=_resolve_support2_classifier_configuration,
 )
 
 
@@ -186,9 +254,18 @@ def run_scenario(
     config: Optional[MonteCarloConfig] = None,
     execution_config: Optional[ExecutionConfig] = None,
     visualize: bool = True,
+    rf_calibration_file: str = str(CANONICAL_ARTIFACT_PATH),
+    classifier_names: Optional[Sequence[str]] = None,
 ) -> Dict[str, Any]:
+    explicit_selection = classifier_names is not None
+    resolved_classifier_names = resolve_classifier_names(
+        classifier_names if explicit_selection else SUPPORT2_SPEC.classifier_names
+    )
+    execution_spec = replace(
+        SUPPORT2_SPEC, classifier_names=resolved_classifier_names
+    )
     return run_dataset_anchored_scenario(
-        SUPPORT2_SPEC,
+        execution_spec,
         mode=mode,
         raw_dir=raw_dir,
         output_dir=output_dir,
@@ -196,6 +273,13 @@ def run_scenario(
         config=config,
         execution_config=execution_config,
         visualize=visualize,
+        classifier_configuration={
+            "rf_calibration_file": rf_calibration_file,
+            "classifier_names": resolved_classifier_names,
+            "classifier_selection_source": (
+                "cli_or_api" if explicit_selection else "scenario_spec"
+            ),
+        },
     )
 
 
@@ -217,6 +301,20 @@ def main() -> int:
     parser.add_argument("--mode", choices=VALID_MODES, default="smoke")
     parser.add_argument("--raw-dir", default="data/raw/support2")
     parser.add_argument("--output-dir", default="output/reports")
+    parser.add_argument(
+        "--rf-calibration-file", default=str(CANONICAL_ARTIFACT_PATH)
+    )
+    parser.add_argument(
+        "--classifiers",
+        nargs="+",
+        choices=REGISTERED_CLASSIFIER_KEYS,
+        default=None,
+        metavar="CLASSIFIER",
+        help=(
+            "ordered classifiers for this SUPPORT2 run; defaults to "
+            "linear_svm random_forest"
+        ),
+    )
     parser.add_argument("--execution-backend", choices=("sequential", "process"), default="sequential")
     parser.add_argument("--n-jobs", type=int, default=1)
     parser.add_argument("--worker-inner-threads", type=int, default=1)
@@ -238,6 +336,8 @@ def main() -> int:
                 mode=args.mode,
                 raw_dir=args.raw_dir,
                 output_dir=args.output_dir,
+                rf_calibration_file=args.rf_calibration_file,
+                classifier_names=args.classifiers,
                 reporter=reporter,
                 execution_config=ExecutionConfig(
                     backend=args.execution_backend,

@@ -56,7 +56,6 @@ SUPPORT2_SCENARIO_REPORT_SPEC = DatasetAnchoredScenarioReportSpec(
         "train_rows": "7098",
         "test_rows": "1775",
         "subsets": "127",
-        "classifiers": "linear_svm, logistic_regression, gaussian_nb",
     },
 )
 

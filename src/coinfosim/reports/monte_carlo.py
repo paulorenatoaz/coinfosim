@@ -5,6 +5,7 @@ from __future__ import annotations
 import base64
 import html
 import io
+import json
 from pathlib import Path
 from typing import Dict, List, Mapping, Optional, Sequence, Tuple
 
@@ -66,7 +67,46 @@ def _execution_configuration_html(result: SimulationResult) -> str:
   <dt>Multiprocessing start method</dt><dd>{value("start_method")}</dd>
   <dt>Detected logical CPUs</dt><dd>{value("logical_cpus")}</dd>
   <dt>Fixed-test cache per worker</dt>
-  <dd>{value("fixed_test_cache_bytes_per_worker")} bytes</dd>"""
+    <dd>{value("fixed_test_cache_bytes_per_worker")} bytes</dd>"""
+
+
+def _classifier_configuration_html(result: SimulationResult) -> str:
+    """Render resolved estimator parameters, seed policy, and calibration."""
+
+    configurations = result.metadata.get("classifier_configurations")
+    if not isinstance(configurations, Mapping) or not configurations:
+        return (
+            "<h3>Classifier configuration</h3>"
+            "<p>Detailed classifier configuration was not recorded for this "
+            "historical result.</p>"
+        )
+    rows = []
+    for key in result.classifier_names:
+        configuration = configurations.get(key, {})
+        parameters = configuration.get("parameters", {})
+        seed_policy = configuration.get("seed_policy", {})
+        calibration = configuration.get("calibration", {})
+        rows.append(
+            "<tr>"
+            f"<td><code>{html.escape(key)}</code></td>"
+            f"<td>{html.escape(classifier_label(key))}</td>"
+            f"<td><code>{html.escape(str(configuration.get('estimator', 'unknown')))}</code></td>"
+            f"<td><code>{html.escape(json.dumps(parameters, sort_keys=True))}</code></td>"
+            f"<td><code>{html.escape(json.dumps(seed_policy, sort_keys=True))}</code></td>"
+            f"<td>{html.escape(str(calibration.get('artifact_path', '—')))}</td>"
+            f"<td><code>{html.escape(str(calibration.get('artifact_sha256', '—')))}</code></td>"
+            f"<td>{html.escape(str(parameters.get('n_jobs', '—')))}</td>"
+            "</tr>"
+        )
+    return (
+        "<h3>Classifier configuration</h3>"
+        "<table class='data'><thead><tr><th>Key</th><th>Display label</th>"
+        "<th>Estimator class</th><th>Resolved parameters</th><th>Seed policy</th>"
+        "<th>Calibration artifact</th><th>Calibration SHA-256</th>"
+        "<th>Internal n_jobs</th></tr></thead><tbody>"
+        + "".join(rows)
+        + "</tbody></table>"
+    )
 
 
 def subset_display_label(
@@ -258,6 +298,7 @@ defined as the misclassification rate on the fixed test set.</div>
 {_execution_configuration_html(result)}
   <dt>Runtime</dt><dd>{result.runtime_seconds:.2f} s</dd>
 </dl>
+{_classifier_configuration_html(result)}
 
 {extra_html}
 
@@ -1362,6 +1403,7 @@ full sensor names appear in metadata and appendices.</div>
 {_execution_configuration_html(result)}
   <dt>Runtime</dt><dd>{result.runtime_seconds:.2f} s</dd>
 </dl>
+{_classifier_configuration_html(result)}
 <details><summary>List all evaluated channel subsets</summary>
 <p>{html.escape(subsets_compact)}</p></details>
 

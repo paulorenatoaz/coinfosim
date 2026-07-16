@@ -10,6 +10,7 @@ from typing import Any, Mapping, Optional, Protocol, Sequence
 
 from threadpoolctl import threadpool_limits
 
+from coinfosim.classifiers.registry import ClassifierExecutionPlan
 from coinfosim.samplers.dataset import Dataset
 from coinfosim.simulation.replication import (
     Cell,
@@ -78,6 +79,8 @@ class _WorkerContext:
     cells: tuple[Cell, ...]
     test_dataset: Dataset
     test_by_subset: Mapping[tuple[int, ...], Dataset]
+    classifier_plan: ClassifierExecutionPlan
+    base_seed: int
     thread_limiter: Any
 
 
@@ -90,16 +93,26 @@ def _initialize_worker(
     test_dataset: Dataset,
     test_by_subset: Mapping[tuple[int, ...], Dataset],
     worker_inner_threads: int,
+    classifier_plan: ClassifierExecutionPlan | None = None,
+    base_seed: int = 0,
 ) -> None:
     """Install immutable arm context and persistent numeric thread limits."""
 
     global _WORKER_CONTEXT
     thread_limiter = threadpool_limits(limits=worker_inner_threads)
+    if classifier_plan is None:
+        from coinfosim.classifiers.registry import default_execution_plan
+
+        classifier_plan = default_execution_plan(
+            tuple(dict.fromkeys(name for _, name in cells))
+        )
     _WORKER_CONTEXT = _WorkerContext(
         sampler=sampler,
         cells=tuple(cells),
         test_dataset=test_dataset,
         test_by_subset=test_by_subset,
+        classifier_plan=classifier_plan,
+        base_seed=int(base_seed),
         thread_limiter=thread_limiter,
     )
 
@@ -114,6 +127,8 @@ def _run_worker_task(task: ReplicationTask) -> ReplicationResult:
         cells=_WORKER_CONTEXT.cells,
         test_by_subset=_WORKER_CONTEXT.test_by_subset,
         task=task,
+        classifier_plan=_WORKER_CONTEXT.classifier_plan,
+        base_seed=_WORKER_CONTEXT.base_seed,
     )
 
 
@@ -180,10 +195,14 @@ class SequentialReplicationExecutor:
         sampler: ReplicationSampler,
         cells: Sequence[Cell],
         test_by_subset: Mapping[tuple[int, ...], Dataset],
+        classifier_plan: ClassifierExecutionPlan | None = None,
+        base_seed: int = 0,
     ) -> None:
         self.sampler = sampler
         self.cells = tuple(cells)
         self.test_by_subset = test_by_subset
+        self.classifier_plan = classifier_plan
+        self.base_seed = int(base_seed)
 
     def run_batch(
         self,
@@ -201,6 +220,8 @@ class SequentialReplicationExecutor:
                     n_per_class=n_per_class,
                     replication_id=replication_id,
                 ),
+                classifier_plan=self.classifier_plan,
+                base_seed=self.base_seed,
             )
             for replication_id in replication_ids
         ]
@@ -220,6 +241,8 @@ class ProcessReplicationExecutor:
         test_by_subset: Mapping[tuple[int, ...], Dataset],
         execution_config: ExecutionConfig,
         replication_batch_size: int,
+        classifier_plan: ClassifierExecutionPlan | None = None,
+        base_seed: int = 0,
     ) -> None:
         if execution_config.backend != "process":
             raise ValueError("ProcessReplicationExecutor requires process backend")
@@ -238,6 +261,8 @@ class ProcessReplicationExecutor:
                 test_dataset,
                 test_by_subset,
                 execution_config.worker_inner_threads,
+                classifier_plan,
+                int(base_seed),
             ),
         )
 
@@ -298,6 +323,8 @@ def make_replication_executor(
     test_dataset: Dataset,
     test_by_subset: Mapping[tuple[int, ...], Dataset],
     replication_batch_size: int,
+    classifier_plan: ClassifierExecutionPlan | None = None,
+    base_seed: int = 0,
 ) -> ReplicationExecutor:
     """Construct the configured executor for one complete simulator run."""
 
@@ -306,6 +333,8 @@ def make_replication_executor(
             sampler=sampler,
             cells=cells,
             test_by_subset=test_by_subset,
+            classifier_plan=classifier_plan,
+            base_seed=base_seed,
         )
     return ProcessReplicationExecutor(
         sampler=sampler,
@@ -314,4 +343,6 @@ def make_replication_executor(
         test_by_subset=test_by_subset,
         execution_config=execution_config,
         replication_batch_size=replication_batch_size,
+        classifier_plan=classifier_plan,
+        base_seed=base_seed,
     )

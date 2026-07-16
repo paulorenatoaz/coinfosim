@@ -7,6 +7,7 @@ import numpy as np
 import pytest
 
 import coinfosim.simulation.execution as execution_module
+from coinfosim.classifiers.registry import ClassifierExecutionPlan
 from coinfosim.models.gaussian import GaussianSimulationModel
 from coinfosim.results.accumulator import LossAccumulator
 from coinfosim.samplers.gaussian import GaussianClassConditionalSampler
@@ -260,3 +261,52 @@ def test_simulator_uses_one_process_pool_for_all_sample_sizes(immediate_pool):
         (4, 1),
     ]
     assert pool.shutdown_called is True
+
+
+def test_random_forest_sequential_and_process_execution_are_identical():
+    model, sampler, _, _, _ = _worker_context()
+    config = MonteCarloConfig(
+        mode="smoke",
+        sample_sizes=(2,),
+        min_replications=2,
+        max_replications=2,
+        replication_batch_size=2,
+        test_samples_per_class=20,
+        ci_half_width_target=0.05,
+        base_seed=7,
+    )
+    plan = ClassifierExecutionPlan(
+        names=("random_forest",),
+        parameters={
+            "random_forest": {
+                "n_estimators": 5,
+                "max_depth": 3,
+                "min_samples_leaf": 1,
+                "max_features": "sqrt",
+                "n_jobs": 1,
+            }
+        },
+        provenance={},
+    )
+
+    sequential = CooperativeMonteCarloSimulator(
+        model,
+        config,
+        subsets=[(0,), (1,)],
+        classifier_plan=plan,
+        sampler=sampler,
+    ).run()
+    process = CooperativeMonteCarloSimulator(
+        model,
+        config,
+        subsets=[(0,), (1,)],
+        classifier_plan=plan,
+        sampler=sampler,
+        execution_config=ExecutionConfig(backend="process", n_jobs=2),
+    ).run()
+
+    for subset in sequential.subsets:
+        assert np.array_equal(
+            sequential.accumulator.losses(2, subset, "random_forest"),
+            process.accumulator.losses(2, subset, "random_forest"),
+        )

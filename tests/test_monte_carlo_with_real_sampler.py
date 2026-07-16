@@ -1,6 +1,6 @@
 import numpy as np
 
-from coinfosim.classifiers.registry import available_classifiers
+from coinfosim.classifiers.registry import default_classifiers
 from coinfosim.datasets.occupancy import load_occupancy_data
 from coinfosim.samplers.real import RealDatasetSampler
 from coinfosim.simulation.config import MonteCarloConfig
@@ -44,7 +44,7 @@ def test_monte_carlo_runs_with_real_occupancy_sampler():
 
     assert result.sample_sizes == [4]
     assert len(result.subsets) == 31
-    assert result.classifier_names == available_classifiers()
+    assert result.classifier_names == default_classifiers()
     assert result.metadata["metric"] == "empirical_test_loss"
     assert result.metadata["experiment_arm"] == "real_data"
     assert result.metadata["scenario_name"] == "Occupancy Detection"

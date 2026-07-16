@@ -14,6 +14,10 @@ from coinfosim.scenarios.support2 import (
     build_gaussian_anchored_support2_model,
     build_gmm_anchored_support2_model,
 )
+from coinfosim.scenarios.support2_rf_calibration import (
+    classifier_execution_plan_from_calibration,
+    load_and_validate_calibration_artifact,
+)
 from coinfosim.simulation.config import MonteCarloConfig
 from coinfosim.simulation.monte_carlo import CooperativeMonteCarloSimulator
 
@@ -34,6 +38,17 @@ def _config():
 @pytest.fixture(scope="module")
 def arm_results():
     data = load_support2_data("data/raw/support2")
+    classifier_plan = classifier_execution_plan_from_calibration(
+        load_and_validate_calibration_artifact(
+            "config/calibration/support2_random_forest.json", data
+        )
+    )
+    # Unit reports exercise Random Forest integration with a reduced tree count;
+    # the canonical 100-tree artifact is validated separately.
+    classifier_plan.parameters["random_forest"]["n_estimators"] = 2
+    classifier_plan.provenance["classifier_configurations"]["random_forest"][
+        "parameters"
+    ]["n_estimators"] = 2
     config = _config()
     real_sampler = RealDatasetSampler(
         data.train_dataset,
@@ -47,6 +62,7 @@ def arm_results():
         config,
         sampler=real_sampler,
         metadata={"experiment_arm": "real_to_real", "channel_names": list(data.channel_names)},
+        classifier_plan=classifier_plan,
     ).run()
     gaussian_model = build_gaussian_anchored_support2_model(data)
     gaussian_sampler = SyntheticTrainRealTestSampler(
@@ -62,6 +78,7 @@ def arm_results():
         config,
         sampler=gaussian_sampler,
         metadata={"experiment_arm": "single_gaussian_to_real", "channel_names": list(data.channel_names)},
+        classifier_plan=classifier_plan,
     ).run()
     gmm_model = build_gmm_anchored_support2_model(data, max_components=1, n_init=1)
     gmm_sampler = SyntheticTrainRealTestSampler(
@@ -77,6 +94,7 @@ def arm_results():
         config,
         sampler=gmm_sampler,
         metadata={"experiment_arm": "gmm_to_real", "channel_names": list(data.channel_names)},
+        classifier_plan=classifier_plan,
     ).run()
     return data, real, gaussian, gmm
 
@@ -90,6 +108,14 @@ def _assert_common(text, arm):
     assert "Progressive N-star matrix" in text
     for channel in SUPPORT2_CHANNELS:
         assert channel in text
+    assert "Linear SVM" in text
+    assert "Random Forest" in text
+    assert "Logistic Regression" not in text
+    assert "Gaussian Naive Bayes" not in text
+    assert "classifier_seed_v1" in text
+    assert "support2_random_forest.json" in text
+    assert "Internal n_jobs" in text
+    assert ">1</td>" in text
 
 
 def test_support2_real_report_identifies_real_training_and_fixed_test(arm_results, tmp_path):

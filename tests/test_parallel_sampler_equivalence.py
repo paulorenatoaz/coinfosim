@@ -5,7 +5,7 @@ import pickle
 import numpy as np
 import pytest
 
-from coinfosim.classifiers.registry import available_classifiers
+from coinfosim.classifiers.registry import default_classifiers
 from coinfosim.models.gaussian import GaussianSimulationModel
 from coinfosim.models.gmm import GMMSimulationModel
 from coinfosim.samplers.dataset import Dataset
@@ -150,7 +150,7 @@ def _run(kind, execution_config):
         sampler.model,
         _tiny_config(),
         subsets=SUBSETS,
-        classifier_names=available_classifiers(),
+        classifier_names=default_classifiers(),
         sampler=sampler,
         execution_config=execution_config,
     ).run()
