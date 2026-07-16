@@ -1,0 +1,71 @@
+name: Publish to PyPI
+
+# Triggered only by a published GitHub Release. Uses PyPI Trusted
+# Publishing (OIDC): no stored API token exists anywhere in this
+# repository or its secrets. Never rebuilds after approval — the exact
+# artifacts built and twine-checked in this run are the ones published.
+#
+# One-time external setup required on https://pypi.org (owner action,
+# cannot be performed by this workflow or by an agent):
+#   Organization/owner: paulorenatoaz
+#   Repository:          coinfosim
+#   Workflow filename:   publish-pypi.yml
+#   Environment name:    pypi
+#   Project name:        coinfosim
+#
+# Optionally configure a required reviewer on the "pypi" GitHub
+# environment (Settings -> Environments -> pypi -> Required reviewers)
+# for a manual approval gate before publish.
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install build tooling
+        run: python -m pip install --upgrade pip build twine
+
+      - name: Build sdist and wheel
+        run: python -m build
+
+      - name: twine check
+        run: python -m twine check dist/*
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: coinfosim-pypi-dist
+          path: dist/
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/coinfosim
+    permissions:
+      id-token: write
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: coinfosim-pypi-dist
+          path: dist/
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1

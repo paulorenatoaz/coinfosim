@@ -1,0 +1,75 @@
+name: Package
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch: {}
+
+concurrency:
+  group: package-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install build tooling
+        run: python -m pip install --upgrade pip build twine
+
+      - name: Build sdist and wheel
+        run: python -m build
+
+      - name: twine check
+        run: python -m twine check dist/*
+
+      - name: Inspect wheel contents
+        run: |
+          set -euo pipefail
+          WHEEL="$(ls dist/*.whl)"
+          echo "Inspecting: $WHEEL"
+          python -m zipfile -l "$WHEEL" > /tmp/wheel-contents.txt
+          cat /tmp/wheel-contents.txt
+
+          echo "Checking resources/datasets.json is included..."
+          grep -q "coinfosim/resources/datasets.json" /tmp/wheel-contents.txt
+
+          echo "Checking raw datasets are excluded..."
+          if grep -qi "data/raw" /tmp/wheel-contents.txt; then
+            echo "::error::raw dataset files leaked into the wheel"
+            exit 1
+          fi
+
+      - name: Upload dist artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: coinfosim-dist
+          path: dist/
+
+      - name: Install the built wheel in a clean environment
+        run: |
+          set -euo pipefail
+          python -m venv /tmp/wheel-venv
+          /tmp/wheel-venv/bin/pip install --upgrade pip
+          /tmp/wheel-venv/bin/pip install dist/*.whl
+
+      - name: CLI smoke tests (installed wheel, unrelated working directory)
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/wheel-smoke-dir
+          cd /tmp/wheel-smoke-dir
+          /tmp/wheel-venv/bin/coinfosim --version
+          /tmp/wheel-venv/bin/coinfosim scenario list
+          /tmp/wheel-venv/bin/coinfosim dataset list
+          /tmp/wheel-venv/bin/coinfosim doctor
