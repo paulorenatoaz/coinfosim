@@ -1,0 +1,124 @@
+\chapter{REPRODUTIBILIDADE COMPUTACIONAL}
+\label{ap:reprodutibilidade}
+
+\section{Repositório e versão auditada}
+
+O código-fonte está disponível em:
+
+\begin{center}
+\url{https://github.com/paulorenatoaz/coinfosim}
+\end{center}
+
+A auditoria metodológica e a redação dos resultados consideraram o estado do repositório após o commit:
+
+\begin{quote}
+\texttt{ec5b70baf53bbc67714a61bed64c06358111fb90}\\
+\textit{Merge feature/support2-random-forest}
+\end{quote}
+
+A citação do software é fornecida em \texttt{CITATION.cff} e na entrada bibliográfica \texttt{azevedo2026coinfosim} \cite{azevedo2026coinfosim}.
+
+\section{Estrutura dos artefatos persistidos}
+
+Cada execução de simulação persiste configuração, metadados, estado do acumulador, resumo de parada e dados necessários para regenerar os relatórios. Os registros de cada execução incluem:
+
+\begin{itemize}
+  \item tamanhos amostrais e subconjuntos avaliados;
+  \item classificadores e parâmetros resolvidos;
+  \item tabelas de perda média e erro-padrão;
+  \item rankings por $n$;
+  \item comparações de \Nstar{};
+  \item métricas estruturais progressivas;
+  \item tamanho e origem do conjunto de teste real fixo;
+  \item tempo de execução e política de paralelização;
+  \item número de replicações e razão de parada para cada $n$.
+\end{itemize}
+
+Os arquivos \texttt{scenario.json} e \texttt{simulation.json} contêm registros legíveis; o resultado completo permanece em arquivos compactados adjacentes para a regeneração exata dos relatórios.
+
+\section{Configuração experimental comum}
+
+Nos cenários completos, a grade utilizada foi
+\[
+\{2,4,8,16,32,64,128,256,512\}
+\]
+amostras por classe. A regra de parada empregou mínimo de 100 replicações, máximo de 2000, lotes de 20 e alvo de meia-largura de intervalo de confiança de 95\% igual a 0,01. A parada ocorre quando a maior meia-largura entre células $(S_I,f)$ atinge a tolerância ou quando o orçamento máximo é consumido.
+
+A padronização utiliza momentos estimados apenas no reservatório de treinamento e $\mathrm{ddof}=0$. O mesmo conjunto de teste real fixo é reutilizado nas três condições experimentais. As amostras são balanceadas por classe e incrementalmente aninhadas dentro de cada replicação.
+
+\section{Política de sementes}
+
+Cada execução registra a semente-base e os identificadores derivados. Para os classificadores determinísticos ou historicamente fixados, os parâmetros de aleatoriedade permanecem congelados. No Random Forest, a política versionada \texttt{classifier\_seed\_v1} deriva a semente do estimador a partir da semente-base, do espaço de nomes do classificador e do ID da replicação. A mesma semente de replicação é usada entre condições experimentais, tamanhos amostrais e subconjuntos.
+
+Essa política implementa uma comparação pareada. Para estudos de sensibilidade, recomenda-se executar uma política alternativa com sementes independentes entre condições e comparar as métricas estruturais.
+
+\section{Calibração do Random Forest}
+
+A calibração é realizada uma única vez com dados do reservatório real de treinamento do SUPPORT2. O artefato versionado é
+\begin{center}
+\texttt{config/calibration/support2\_random\_forest.json}.
+\end{center}
+
+O comando documentado é:
+
+\begin{verbatim}
+.venv/bin/python scripts/calibrate_support2_random_forest.py \
+  --raw-dir data/raw/support2 \
+  --output config/calibration/support2_random_forest.json \
+  --calibration-seed 0
+\end{verbatim}
+
+O artefato registra o hash do arquivo bruto, a impressão digital da partição de treinamento, a variável-alvo, a ordem dos canais, o particionamento, os parâmetros do estimador e a versão do scikit-learn. A execução normal não recalibra o modelo nem adota uma configuração alternativa silenciosa quando o artefato é inválido.
+
+\section{Paralelização}
+
+O paralelismo ocorre no nível externo das replicações Monte Carlo. Cada processo executa o estimador com paralelismo interno limitado a uma thread; no Random Forest, \texttt{n\_jobs=1} é obrigatório. Essa estratégia evita oversubscription e torna o uso de CPU previsível.
+
+Um exemplo de execução de validação é:
+
+\begin{verbatim}
+.venv/bin/python scripts/run_support2_scenario.py \
+  --mode smoke \
+  --raw-dir data/raw/support2 \
+  --output-dir output/validation/support2-random-forest-smoke \
+  --rf-calibration-file \
+  config/calibration/support2_random_forest.json \
+  --execution-backend process \
+  --n-jobs 5 \
+  --worker-inner-threads 1 \
+  --multiprocessing-start-method forkserver \
+  --no-color
+\end{verbatim}
+
+O número de processos de trabalho deve ser ajustado à máquina, sem alterar as sementes ou a configuração científica.
+
+\section{Regeneração dos relatórios}
+
+Os relatórios podem ser regenerados a partir dos resultados persistidos sem nova execução Monte Carlo. Essa separação mantém o cálculo científico independente da apresentação. A publicação no GitHub Pages copia os diretórios de relatórios e dados para o ramo de publicação e reconstrói a página inicial que aponta para os cenários disponíveis.
+
+\section{Compilação deste relatório}
+
+Este documento usa XeLaTeX e Biber. A compilação recomendada é:
+
+\begin{verbatim}
+latexmk -xelatex main.tex
+\end{verbatim}
+
+O preâmbulo segue o manual acadêmico da UFRJ para página A4, margens, espaçamento, paginação e estrutura, com elementos tipográficos inspirados no template da Sociedade Brasileira de Computação. O PDF final deve ser renderizado e inspecionado visualmente após qualquer alteração de figuras, tabelas ou metadados.
+
+\section{Checklist mínimo de replicação}
+
+Uma replicação independente deve registrar:
+
+\begin{enumerate}
+  \item commit do código e hash dos dados brutos;
+  \item versão do Python e das dependências;
+  \item comando completo de execução;
+  \item sementes e política de derivação;
+  \item particionamento e parâmetros de padronização;
+  \item configuração dos geradores e classificadores;
+  \item mecanismo de execução, processos de trabalho e linhas de execução internas;
+  \item critérios de parada e replicações efetivas;
+  \item IDs de simulação e cenário;
+  \item hashes dos artefatos e relatórios publicados.
+\end{enumerate}

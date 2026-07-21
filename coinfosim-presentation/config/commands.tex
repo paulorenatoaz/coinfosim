@@ -1,0 +1,67 @@
+% Comandos de composição do deck: um pequeno sistema visual reutilizável.
+\newcommand{\Nstar}{\ensuremath{N^{\star}}}
+\newcommand{\rankrho}{\ensuremath{\rho_{\mathrm{rank}}}}
+\newcommand{\WA}{\textit{Winners Agreement}}
+\newcommand{\figroot}{../coinfosim-report-latex/figures}
+
+% Linha de fonte, sempre no rodapé do conteúdo, em cinza discreto.
+\newcommand{\sourcecite}[1]{%
+  \par\vspace{0.05cm}%
+  {\color{CoInfoGray}\fontsize{6.6}{7.8}\selectfont Fonte: #1\par}%
+}
+
+% Rótulo curto em caixa alta acima de um bloco de conteúdo.
+\newcommand{\eyebrow}[1]{%
+  {\bfseries\fontsize{8.3}{9.8}\selectfont\color{CoInfoBlue}\MakeUppercase{#1}}%
+}
+
+% Mensagem principal do slide: caixa creme, texto em negrito.
+\newcommand{\takeaway}[1]{%
+  \begin{beamercolorbox}[wd=\linewidth,sep=0.14cm,rounded=true]{takeaway}
+    \centering\bfseries\fontsize{10.4}{12.3}\selectfont #1
+  \end{beamercolorbox}%
+}
+
+% Cartão informativo: título curto em destaque e corpo explicativo completo.
+\newcommand{\infocard}[3][\linewidth]{%
+  \begin{beamercolorbox}[wd=#1,sep=.12cm,rounded=true]{block body}
+    {\bfseries\fontsize{9.8}{11.6}\selectfont #2\par}
+    \vspace{0.03cm}
+    {\fontsize{8.7}{10.4}\selectfont #3\par}
+  \end{beamercolorbox}%
+}
+
+% Pílula de destaque com borda suave.
+\newcommand{\metricpill}[3]{%
+  \begin{tikzpicture}[baseline=(n.base)]
+    \node[rounded corners=2.6pt,draw=#1!55,fill=#1!7,inner xsep=5.5pt,inner ysep=3.4pt,
+      text=CoInfoInk,font=\fontsize{8.6}{10}\selectfont] (n)
+      {\textbf{#2}\; #3};
+  \end{tikzpicture}%
+}
+
+% Cartão de resultados usado no material de apoio.
+\newcommand{\resultcard}[4]{%
+  \begin{beamercolorbox}[wd=\linewidth,sep=0.15cm,rounded=true]{block body}
+    {\bfseries\color{#1}\fontsize{10}{12}\selectfont #2}\par\vspace{0.06cm}
+    {\fontsize{9}{11}\selectfont #3}\par
+    {\bfseries\fontsize{9}{11}\selectfont #4}
+  \end{beamercolorbox}%
+}
+
+\newcommand{\speakernotes}[5]{%
+  \note{%
+    \fontsize{8.0}{9.5}\selectfont
+    \textbf{Roteiro oral.} #1\par\smallskip
+    \textbf{Transição.} #2\par\smallskip
+    \textbf{Frase para lembrar.} #3\par\smallskip
+    \textbf{Tempo planejado.} #4\par\smallskip
+    \textbf{Cuidado conceitual.} #5
+  }%
+}
+
+\newcommand{\backupbegin}{%
+  \appendix
+  \backupslidestrue
+  \slidetime{}
+}

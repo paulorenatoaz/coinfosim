@@ -1,0 +1,261 @@
+\chapter{OBJETOS ESTRUTURAIS E MÉTRICAS DE PRESERVAÇÃO}
+
+\section{Da perda aos objetos estruturais}
+
+A perda média definida na Equação \eqref{eq:mean-loss} é a matéria-prima do estudo, mas o objeto científico não se reduz ao menor valor absoluto de erro. Para cada braço, classificador e tamanho amostral, as perdas induzem três representações complementares:
+
+\begin{enumerate}
+  \item uma ordenação global dos subconjuntos;
+  \item relações par a par de superioridade, empate ou inferioridade;
+  \item eventos de cruzamento que registram quando essas relações mudam ao longo de $n$.
+\end{enumerate}
+
+Os relatórios de simulação disponibilizam todas as curvas e rankings. O PDF emprega apenas exemplos selecionados, pois reproduzir cada ordenação para 31 ou 127 subconjuntos em todos os braços e classificadores impediria a leitura da argumentação principal.
+
+A Figura~\ref{fig:conceito-metricas} antecipa, em um exemplo esquemático, as três métricas que este capítulo formaliza. Elas são complementares porque observam componentes diferentes da mesma estrutura: a correlação de ranking compara a ordenação global; a \WinnersAgreement{} compara decisões par a par; e a similaridade de $\Nstar$ compara o momento amostral das últimas transições de superioridade.
+
+\begin{figure}[H]
+  \centering
+  \caption{Visão esquemática das três métricas estruturais e de sua complementaridade}
+  \label{fig:conceito-metricas}
+  \includegraphics[width=\textwidth]{figures/conceptual/metricas_tres_paineis.pdf}
+  \sourcebelow{elaboração própria}
+  \notailustracao{No painel (b), o objeto formal armazena apenas os pares não ordenados; a matriz quadrada é uma visualização redundante. No painel (c), as curvas podem cruzar mais de uma vez e o protocolo registra o último cruzamento observado na grade.}
+\end{figure}
+
+\section{Ranking por tamanho amostral}
+
+Sejam $q=|\mathcal{S}|$ subconjuntos em uma ordem canônica. Para um braço $g$, classificador $f$ e tamanho $n$, o vetor de perdas é
+\begin{equation}
+  \bm\ell^{(g,f)}(n)=
+  \left(
+    \overline{L}^{(g)}_{S_1,f}(n),\ldots,
+    \overline{L}^{(g)}_{S_q,f}(n)
+  \right).
+\end{equation}
+O vetor de postos $\bm r^{(g,f)}(n)$ atribui posto 1 à menor perda e utiliza o posto médio em empates exatos. O ranking completo permite observar não apenas qual subconjunto aparece primeiro, mas se grupos de alternativas permanecem próximos e se configurações menores conservam vantagem sobre configurações mais caras.
+
+A fidelidade de ranking entre um braço sintético $g$ e o braço real $R$ é a correlação de Spearman \cite{spearman1904}:
+\begin{equation}
+  \rankrho^{(g,f)}(n)
+  =\operatorname{corr}_{\mathrm{Spearman}}
+  \left(\bm r^{(R,f)}(n),\bm r^{(g,f)}(n)\right).
+  \label{eq:rank-rho}
+\end{equation}
+Valores próximos de 1 indicam ordenações semelhantes; valores próximos de 0 indicam ausência de associação monotônica; valores negativos representam inversão ampla. Quando um dos rankings é constante, a correlação não é definida. A autocorrelação do braço de referência é fixada em 1.
+
+A medida é global: uma troca entre dois subconjuntos quase empatados pode ter efeito pequeno em $\rankrho$, enquanto muitas inversões reduzem a correlação. Essa propriedade é desejável para planejamento operacional, pois não transforma automaticamente uma diferença mínima no primeiro lugar em falha estrutural total.
+
+\section{Curvas cooperativas e \texorpdfstring{$\Nstar$}{N*}}
+
+Para facilitar a interpretação das curvas, os relatórios selecionam, em cada cardinalidade, o subconjunto com menor perda no maior $n$ e exibem sua trajetória. O melhor subconjunto singular funciona como referência. Em muitos cenários, um canal isolado apresenta vantagem em amostras pequenas, enquanto pares ou conjuntos maiores passam a explorar informação adicional quando $n$ cresce. A Figura~\ref{fig:nstar-curva-definicao} ilustra esse comportamento com um caso didático: o braço \RealToReal{} do Occupancy Detection com SVM linear.
+
+\begin{figure}[H]
+  \centering
+  \caption{Curvas cooperativas e definição visual de $\Nstar$ no braço \RealToReal{} do Occupancy Detection, SVM linear}
+  \label{fig:nstar-curva-definicao}
+  \includegraphics[width=0.78\textwidth]{figures/nstar_curves/occupancy/nstar_curve_linear_svm_best1_real_to_real_sim000006.png}
+  \sourcebelow{relatório da simulação 000006 (\RealToReal{}), vinculado ao cenário Occupancy Detection 000002}
+  \notailustracao{A curva de referência é o melhor subconjunto singular, $\{X_3\}$. As demais curvas correspondem ao melhor subconjunto de cada cardinalidade no maior $n$, e as linhas verticais tracejadas marcam, para cada curva, o último cruzamento dirigido observado em relação à referência, isto é, o valor de $\Nstar$.}
+\end{figure}
+
+O gráfico apresenta simultaneamente a perda preditiva, o efeito do tamanho amostral e a emergência da vantagem cooperativa. Por isso, não é necessária uma seção autônoma de acurácia ou desempenho preditivo. A análise estrutural deriva das posições relativas das curvas.
+
+\section{Relações de vencedores por pares}
+
+Para dois subconjuntos $S_i$ e $S_j$, define-se a relação orientada pelo menor erro:
+\begin{equation}
+  W^{(g,f)}_{ij}(n)=
+  \begin{cases}
+    +1, & \overline{L}^{(g)}_{S_i,f}(n)<\overline{L}^{(g)}_{S_j,f}(n),\\
+    -1, & \overline{L}^{(g)}_{S_i,f}(n)>\overline{L}^{(g)}_{S_j,f}(n),\\
+    0,  & \overline{L}^{(g)}_{S_i,f}(n)=\overline{L}^{(g)}_{S_j,f}(n).
+  \end{cases}
+  \label{eq:winner-relation}
+\end{equation}
+
+O objeto formal precisa armazenar somente as $q(q-1)/2$ comparações não ordenadas,
+\begin{equation}
+  \mathcal{P}=\{(i,j):1\leq i<j\leq q\},
+\end{equation}
+porque $W_{ji}=-W_{ij}$ fora dos empates. A matriz quadrada mostrada nos relatórios duplica essas relações para facilitar a leitura visual: a diagonal é vazia, um triângulo determina o outro e as cores identificam qual elemento do par possui menor perda. Ela não constitui uma estrutura matemática adicional.
+
+Essa representação contém muito mais informação do que a identidade do primeiro colocado. Se o vencedor absoluto muda por uma diferença residual, a maioria das relações entre alternativas pode continuar preservada. Para decisões de custo, interessa saber se um subconjunto mais barato permanece superior a numerosas alternativas, não apenas se ocupa exatamente a primeira linha do ranking.
+
+\section{\WinnersAgreement}
+
+A \WinnersAgreement{} compara as relações par a par do braço sintético com as do braço real. Pares com empate exato em qualquer um dos braços são excluídos, pois não apresentam um vencedor estrito comparável. Seja
+\begin{equation}
+  \mathcal{P}_{\mathrm{valid}}^{(g,f)}(n)
+  =\left\{(i,j)\in\mathcal{P}:
+  W^{(R,f)}_{ij}(n)\neq0\;\land\;
+  W^{(g,f)}_{ij}(n)\neq0\right\}.
+\end{equation}
+A métrica é
+\begin{equation}
+  \mathrm{WA}^{(g,f)}(n)=
+  \frac{
+    \displaystyle\sum_{(i,j)\in\mathcal{P}_{\mathrm{valid}}^{(g,f)}(n)}
+    \mathbf{1}\!\left\{W^{(R,f)}_{ij}(n)=W^{(g,f)}_{ij}(n)\right\}
+  }{
+    \left|\mathcal{P}_{\mathrm{valid}}^{(g,f)}(n)\right|
+  }.
+  \label{eq:winners-agreement}
+\end{equation}
+Se não houver pares válidos, o valor é reportado como indisponível. Além da proporção, os relatórios registram número total de pares, pares válidos, concordantes e ignorados por empate. A autocorrelação do braço real é 1 quando há pares comparáveis. A Figura~\ref{fig:winners-evolucao} ilustra como essas relações par a par se reorganizam ao longo da grade amostral no braço \RealToReal{} do Occupancy Detection.
+
+\begin{landscape}
+\begin{figure}[H]
+  \centering
+  \caption{Evolução das matrizes de vencedores no cenário Occupancy Full, braço Real para Real, Linear SVM}
+  \label{fig:winners-evolucao}
+  \begin{minipage}[t]{0.31\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/winners/occupancy/graph_structural_winner_linear_svm_real_to_real_n2_full_000002.png}
+    \subcaption{Início: $n=2$}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[t]{0.31\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/winners/occupancy/graph_structural_winner_linear_svm_real_to_real_n32_full_000002.png}
+    \subcaption{Prefixo intermediário: $n=32$}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[t]{0.31\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/winners/occupancy/graph_structural_winner_linear_svm_real_to_real_n512_full_000002.png}
+    \subcaption{Fim: $n=512$}
+  \end{minipage}
+  \sourcebelow{relatório publicado do cenário Occupancy Detection 000002 do \CoInfoSim}
+  \notailustracao{A visualização é quadrada e redundante: a diagonal não se aplica e um triângulo determina o outro fora dos empates. Cada célula indica se o subconjunto da linha vence ($+1$), perde ($-1$) ou empata ($0$) contra o subconjunto da coluna. A \WinnersAgreement{} usa apenas uma ocorrência de cada par, correspondente à estrutura triangular superior. Os painéis publicados exibem os melhores subconjuntos de cada cardinalidade; em $n=2$ o subconjunto singular $\{X_3\}$ vence todas as comparações exibidas, em $n=32$ o par $\{X_1,X_3\}$ já o supera e em $n=512$ as combinações maiores vencem o singular.}
+\end{figure}
+\end{landscape}
+
+\section{Cruzamentos dirigidos e último \texorpdfstring{$\Nstar$}{N*}}
+
+Considere a grade estritamente crescente
+\begin{equation}
+  \mathcal{N}=(n_1,n_2,\ldots,n_P).
+\end{equation}
+Para um par dirigido $(i,j)$, defina a diferença
+\begin{equation}
+  \Delta^{(g,f)}_{ij}(n)=
+  \overline{L}^{(g)}_{S_i,f}(n)-
+  \overline{L}^{(g)}_{S_j,f}(n).
+\end{equation}
+Um evento em $n_k$, para $k\geq2$, é registrado quando $S_i$ não era estritamente melhor que $S_j$ no ponto anterior e passa a ser estritamente melhor no ponto atual:
+\begin{equation}
+  \Delta_{ij}(n_{k-1})\geq0
+  \quad\land\quad
+  \Delta_{ij}(n_k)<0.
+  \label{eq:crossing-event}
+\end{equation}
+Não há interpolação entre os valores da grade; o cruzamento é atribuído ao ponto $n_k$ em que a nova superioridade é observada.
+
+Como curvas irregulares podem inverter sua relação várias vezes, o \CoInfoSim{} mantém, em cada prefixo $\mathcal{N}_p=(n_1,\ldots,n_p)$, o evento mais recente naquela direção:
+\begin{equation}
+  \Nstar_{ij}(n_p)=
+  \max\left\{n_k\leq n_p:
+  \Delta_{ij}(n_{k-1})\geq0,\;
+  \Delta_{ij}(n_k)<0\right\},
+  \label{eq:last-nstar}
+\end{equation}
+quando o conjunto não é vazio. Portanto, $\Nstar$ não representa necessariamente o primeiro momento em que um subconjunto vence, nem resume todas as inversões. Ele registra o \textbf{último cruzamento dirigido observado} até o prefixo, interpretado como a transição final disponível naquele intervalo.
+
+Essa escolha é especialmente relevante para o Random Forest no SUPPORT2. Suas curvas apresentam numerosas oscilações e múltiplos cruzamentos; ainda assim, os braços podem concordar sobre quais pares possuem transição e sobre a posição do último evento. A alta similaridade não deve ser confundida com reprodução integral das curvas.
+
+\section{\texorpdfstring{Similaridade progressiva de $\Nstar$}{Progressive N*-Similarity}}
+
+Para um prefixo terminado em $n_p$, seja $C_R(p)$ o conjunto de células dirigidas com $\Nstar$ definido no braço real e $C_g(p)$ o conjunto correspondente no braço sintético. A concordância sobre a existência dos cruzamentos é medida pelo índice de Jaccard:
+\begin{equation}
+  J^{(g,f)}(p)=
+  \frac{|C_R(p)\cap C_g(p)|}{|C_R(p)\cup C_g(p)|}.
+  \label{eq:nstar-jaccard}
+\end{equation}
+
+Nos cruzamentos compartilhados, a diferença de posição é calculada na escala logarítmica de base 2, coerente com a grade de potências de dois:
+\begin{equation}
+  d^{(g,f)}(p)=
+  \frac{1}{|C_R(p)\cap C_g(p)|}
+  \sum_{(i,j)\in C_R(p)\cap C_g(p)}
+  \left|
+    \log_2 N^{\star,(g,f)}_{ij}(n_p)
+    -\log_2 N^{\star,(R,f)}_{ij}(n_p)
+  \right|.
+  \label{eq:nstar-distance}
+\end{equation}
+A distância média é normalizada pela amplitude logarítmica do prefixo:
+\begin{equation}
+  T^{(g,f)}(p)=
+  \operatorname{clip}_{[0,1]}
+  \left(
+    1-\frac{d^{(g,f)}(p)}{\log_2 n_p-\log_2 n_1}
+  \right).
+  \label{eq:nstar-timing}
+\end{equation}
+Finalmente,
+\begin{equation}
+  \mathrm{NS}^{(g,f)}(p)=J^{(g,f)}(p)\,T^{(g,f)}(p).
+  \label{eq:nstar-similarity}
+\end{equation}
+
+A métrica penaliza duas falhas distintas: ausência de uma transição que existe na referência, por meio de $J$, e deslocamento do último cruzamento, por meio de $T$. Se nenhum braço apresenta cruzamentos, a similaridade é definida como 1; se existem cruzamentos, mas nenhum é compartilhado, ela é 0. O primeiro prefixo não pode conter transição entre pontos da grade e é reportado como indisponível.
+
+A Figura~\ref{fig:conceito-nstar-progressivo} esquematiza o procedimento. A cada prefixo da grade, a matriz dirigida de $\Nstar$ é recomputada para os braços real e sintético; a comparação combina a concordância sobre \emph{quais} células possuem cruzamento definido, medida por $J(p)$, com a proximidade das posições dos últimos cruzamentos compartilhados, medida por $T(p)$. Nenhuma das componentes, isoladamente, determina a similaridade final.
+
+\begin{figure}[H]
+  \centering
+  \caption{Construção da similaridade progressiva de $\Nstar$ em prefixos crescentes da grade amostral}
+  \label{fig:conceito-nstar-progressivo}
+  \includegraphics[width=0.74\textwidth]{figures/conceptual/nstar_progressivo.pdf}
+  \sourcebelow{elaboração própria}
+\end{figure}
+
+Ao contrário das matrizes de vencedores, a matriz de $\Nstar$ é dirigida: $(i,j)$ registra o momento em que $S_i$ passa a superar $S_j$, e a célula inversa pode conter outro evento ou permanecer vazia. Assim, a matriz quadrada menos a diagonal não é apenas uma duplicação visual. A Figura~\ref{fig:nstar-matrizes-definicao} apresenta as matrizes dirigidas do maior prefixo no cenário SUPPORT2 com Random Forest, cenário 000008.
+
+\begin{landscape}
+\begin{figure}[H]
+  \centering
+  \caption{Matrizes progressivas de $\Nstar$ no maior prefixo do cenário SUPPORT2 000008, Random Forest, $n=512$}
+  \label{fig:nstar-matrizes-definicao}
+  \begin{minipage}[t]{0.48\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/nstar_matrices/support2_random_forest/graph_structural_nstar_random_forest_real_to_real_prefix512_full_000008.png}
+    \subcaption{\RealToReal{}: referência com 11.948 células dirigidas com cruzamento definido na estrutura completa}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[t]{0.48\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/nstar_matrices/support2_random_forest/graph_structural_nstar_random_forest_single_gaussian_to_real_prefix512_full_000008.png}
+    \subcaption{\GaussianToReal{}: 11.637 cruzamentos definidos, 10.521 compartilhados; Jaccard 0,8053, similaridade temporal 0,8442, similaridade total 0,6799}
+  \end{minipage}
+  \sourcebelow{relatório publicado do cenário SUPPORT2 000008 do \CoInfoSim}
+\end{figure}
+
+\begin{figure}[H]
+  \ContinuedFloat
+  \centering
+  \caption[]{Matrizes progressivas de $\Nstar$ no maior prefixo do cenário SUPPORT2 000008, Random Forest, $n=512$ (continuação)}
+  \begin{minipage}[t]{0.48\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/nstar_matrices/support2_random_forest/graph_structural_nstar_random_forest_gmm_to_real_prefix512_full_000008.png}
+    \subcaption{\GMMToReal{}: 11.531 cruzamentos definidos, 10.200 compartilhados; Jaccard 0,7681, similaridade temporal 0,8254, similaridade total 0,6340}
+  \end{minipage}
+  \sourcebelow{relatório publicado do cenário SUPPORT2 000008 do \CoInfoSim}
+  \notailustracao{Os painéis exibem, com escala e ordem idênticas, os melhores subconjuntos de cada cardinalidade; as contagens de células e as estatísticas informadas referem-se à estrutura dirigida completa dos 127 subconjuntos publicada no relatório. A densidade dessa estrutura mostra que a elevada similaridade do Random Forest não resulta de uma matriz com poucos cruzamentos. $\Nstar$ registra o último cruzamento observado no prefixo avaliado e não implica reprodução de toda a trajetória das curvas.}
+\end{figure}
+\end{landscape}
+
+\section{Complementaridade e hierarquia interpretativa}
+
+As três métricas respondem a perguntas diferentes:
+
+\begin{description}
+  \item[Correlação de ranking.] A ordenação global dos subconjuntos é semelhante? A medida tolera pequenas trocas locais e resume toda a lista.
+  \item[\WinnersAgreement.] Quantas decisões par a par são preservadas? A medida é diretamente interpretável como proporção de relações concordantes e pode apoiar comparações de eficiência entre muitas alternativas.
+  \item[\NstarSimilarity.] Os pares que mudam de superioridade e seus últimos regimes de transição são preservados? A medida acrescenta a dimensão amostral e é mais sensível à dinâmica fina das curvas.
+\end{description}
+
+Nenhuma métrica é reduzida à identidade da primeira posição. A coincidência do melhor subconjunto pode ser relatada como consequência do ranking, mas um erro mínimo entre alternativas quase empatadas não deve dominar a avaliação. Para planejamento de custos, $\rankrho$ e a \WinnersAgreement{} são particularmente úteis porque revelam a organização global e as relações entre configurações; a \NstarSimilarity{} acrescenta quando essa organização muda à medida que mais rótulos se tornam disponíveis.
+
+A preservação é, portanto, um perfil multidimensional. Um braço pode apresentar ranking alto, elevada concordância de vencedores e similaridade de $\Nstar$ moderada; ou pode preservar os últimos cruzamentos mesmo com perdas absolutas elevadas. O relatório mantém as métricas separadas para que essas combinações permaneçam visíveis, em vez de ocultá-las em um índice único.

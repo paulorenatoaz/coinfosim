@@ -1,0 +1,61 @@
+% !TeX program = xelatex
+% !BIB program = biber
+\documentclass[
+  12pt,
+  a4paper,
+  oneside,
+  openany,
+  chapter=TITLE,
+  section=TITLE,
+  brazil
+]{abntex2}
+
+\input{config/metadata}
+\input{config/preamble}
+\input{config/commands}
+
+\begin{document}
+\selectlanguage{brazil}
+\frenchspacing
+
+% Capa: não contada nem numerada.
+\pagenumbering{gobble}
+\input{frontmatter/cover}
+
+% A contagem começa na folha de rosto, mas a numeração só é exibida
+% a partir da primeira página da parte textual.
+\clearpage
+\pagenumbering{arabic}
+\setcounter{page}{1}
+\pagestyle{empty}
+\input{frontmatter/titlepage}
+\input{frontmatter/resumo}
+\input{frontmatter/abstract}
+\input{frontmatter/lists}
+
+\clearpage
+\pagestyle{coinfosim}
+
+\input{chapters/01_introducao}
+\input{chapters/02_fundamentacao}
+\input{chapters/03_perguntas}
+\input{chapters/04_datasets}
+\input{chapters/05_metodologia}
+\input{chapters/06_metricas}
+\input{chapters/07_resultados}
+\input{chapters/08_discussao}
+\input{chapters/09_implicacoes}
+\input{chapters/10_limitacoes}
+\input{chapters/11_conclusao}
+
+\postextual
+\ifdraftdocument\nocite{*}\fi
+\printbibliography[title={REFERÊNCIAS}]
+
+\begin{apendicesenv}
+\partapendices
+\input{appendices/apendice_a_resultados}
+\input{appendices/apendice_b_reprodutibilidade}
+\end{apendicesenv}
+
+\end{document}

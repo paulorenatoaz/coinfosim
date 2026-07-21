@@ -1,0 +1,96 @@
+% -----------------------------------------------------------------------------
+% Identidade visual da apresentação: paleta suave de baixa saturação
+% (azul acinzentado, lavanda, creme e acentos âmbar/ameixa validados para
+% daltonismo), tipografia Lato e composição com bastante respiro.
+% -----------------------------------------------------------------------------
+
+% Paleta principal.
+\definecolor{CoInfoInk}{HTML}{3B3E58}      % texto principal: azul-ameixa profundo
+\definecolor{CoInfoBlue}{HTML}{3F68B0}     % acento primário (série 1 dos gráficos)
+\definecolor{CoInfoAmber}{HTML}{B98136}    % acento quente (série 2 dos gráficos)
+\definecolor{CoInfoPlum}{HTML}{964F9C}     % acento ameixa (série 3 dos gráficos)
+\definecolor{CoInfoMint}{HTML}{4E8A78}     % verde-menta contido (afirmações positivas)
+\definecolor{CoInfoRose}{HTML}{B0566A}     % rosa queimado contido (negações/limites)
+\definecolor{CoInfoLavender}{HTML}{8B84C0} % lavanda para detalhes decorativos discretos
+\definecolor{CoInfoGray}{HTML}{6C6980}     % texto secundário
+\definecolor{CoInfoPale}{HTML}{EFF1F9}     % painel azul-lavanda pálido
+\definecolor{CoInfoCream}{HTML}{FAF5EB}    % painel creme quente (takeaways)
+\definecolor{CoInfoMist}{HTML}{F6F5FA}     % fundo neutro claríssimo
+\definecolor{CoInfoLine}{HTML}{D9D7E4}     % fios e divisórias suaves
+
+% Aliases para compatibilidade com nomes antigos.
+\colorlet{CoInfoNavy}{CoInfoInk}
+\colorlet{CoInfoOrange}{CoInfoAmber}
+\colorlet{CoInfoGreen}{CoInfoMint}
+\colorlet{CoInfoRed}{CoInfoRose}
+\colorlet{CoInfoLightGray}{CoInfoMist}
+
+% Tipografia: Lato para texto projetado, serifa apenas na matemática.
+\setmainfont{Lato}
+\setsansfont{Lato}
+\setmonofont{Liberation Mono}
+\usefonttheme{professionalfonts}
+\usefonttheme[onlymath]{serif}
+
+\setbeamercolor{normal text}{fg=CoInfoInk,bg=white}
+\setbeamercolor{structure}{fg=CoInfoBlue}
+\setbeamercolor{frametitle}{fg=CoInfoInk,bg=white}
+\setbeamercolor{title}{fg=CoInfoInk}
+\setbeamercolor{subtitle}{fg=CoInfoBlue}
+\setbeamercolor{alerted text}{fg=CoInfoPlum}
+\setbeamercolor{block title}{fg=white,bg=CoInfoBlue}
+\setbeamercolor{block body}{fg=CoInfoInk,bg=CoInfoPale}
+\setbeamercolor{takeaway}{fg=CoInfoInk,bg=CoInfoCream}
+
+\setbeamerfont{title}{series=\bfseries,size=\fontsize{24}{28}}
+\setbeamerfont{subtitle}{size=\fontsize{13.5}{17.5}}
+\setbeamerfont{frametitle}{series=\bfseries,size=\fontsize{17.5}{20.5}}
+\setbeamerfont{normal text}{size=\fontsize{11}{14.2}}
+\setbeamerfont{footline}{size=\fontsize{7.4}{8.8}}
+
+\setbeamersize{text margin left=0.64cm,text margin right=0.64cm}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{itemize item}{\raise0.24ex\hbox{\color{CoInfoLavender}\small$\bullet$}}
+\setbeamertemplate{itemize subitem}{\raise0.24ex\hbox{\color{CoInfoLavender}\tiny$\bullet$}}
+\setlength{\leftmargini}{1.15em}
+\setlength{\leftmarginii}{1.05em}
+
+% Título de quadro: tinta escura sobre fundo claro com um traço curto de
+% lavanda como único ornamento.
+\setbeamertemplate{frametitle}{%
+  \vskip0.26cm
+  {\usebeamerfont{frametitle}\usebeamercolor[fg]{frametitle}\insertframetitle\par}%
+  \vskip0.09cm
+  \begin{tikzpicture}
+    \fill[CoInfoLavender,rounded corners=1.0pt] (0,0) rectangle (1.28cm,0.072cm);
+  \end{tikzpicture}%
+  \vskip0.03cm
+}
+
+\newif\ifbackupslides
+\backupslidesfalse
+\newcommand{\insertslidetime}{}
+\newcommand{\slidetime}[1]{\renewcommand{\insertslidetime}{#1}}
+
+\setbeamertemplate{footline}{%
+  \leavevmode
+  \hbox{%
+    \begin{beamercolorbox}[wd=.72\paperwidth,ht=0.34cm,dp=0.15cm,leftskip=0.64cm]{author in head/foot}%
+      \usebeamerfont{footline}\color{CoInfoGray}%
+      CoInfoSim \enspace\textbullet\enspace Ciência de Dados \enspace\textbullet\enspace UFRJ
+    \end{beamercolorbox}%
+    \begin{beamercolorbox}[wd=.28\paperwidth,ht=0.34cm,dp=0.15cm,rightskip=0.64cm plus 1fil]{date in head/foot}%
+      \usebeamerfont{footline}\color{CoInfoGray}\hfill
+      \ifbackupslides
+        MATERIAL DE APOIO \enspace\textbullet\enspace \insertframenumber
+      \else
+        \insertslidetime \enspace\textbullet\enspace \insertframenumber/12
+      \fi
+    \end{beamercolorbox}%
+  }%
+}
+
+\setbeamertemplate{caption}{\raggedright\insertcaption\par}
+\setbeamerfont{caption}{size=\scriptsize}
+
+\AtBeginSection[]{}
