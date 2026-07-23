@@ -1,0 +1,169 @@
+% -----------------------------------------------------------------------------
+% Tipografia e idioma
+% -----------------------------------------------------------------------------
+\usepackage{fontspec}
+\setmainfont{Liberation Serif}
+\setsansfont{Liberation Sans}
+\setmonofont{Liberation Mono}
+\usepackage[brazil]{babel}
+\usepackage{microtype}
+
+% -----------------------------------------------------------------------------
+% Layout principal: UFRJ/SiBI 2025, documento digital em página única.
+% A4; margens esquerda/superior 3 cm e direita/inferior 2 cm.
+% -----------------------------------------------------------------------------
+\usepackage[
+  a4paper,
+  left=3cm,
+  top=3cm,
+  right=2cm,
+  bottom=2cm,
+  headheight=15pt,
+  headsep=0.55cm,
+  includehead=false,
+  includefoot=false
+]{geometry}
+
+\usepackage{setspace}
+\OnehalfSpacing
+\setlength{\parindent}{1.25cm}
+\setlength{\parskip}{0pt}
+\setlength{\emergencystretch}{2em}
+\clubpenalty=10000
+\widowpenalty=10000
+\displaywidowpenalty=10000
+
+% -----------------------------------------------------------------------------
+% Cabeçalho: apenas número da página no canto superior direito.
+% Usa a interface nativa da classe memoir/abnTeX2.
+% -----------------------------------------------------------------------------
+\makepagestyle{coinfosim}
+\makeoddhead{coinfosim}{}{}{\small\thepage}
+\makeevenhead{coinfosim}{\small\thepage}{}{}
+\makeoddfoot{coinfosim}{}{}{}
+\makeevenfoot{coinfosim}{}{}{}
+\makeheadrule{coinfosim}{\textwidth}{0pt}
+\aliaspagestyle{plain}{coinfosim}
+
+% -----------------------------------------------------------------------------
+% Títulos: hierarquia UFRJ com influência visual do template SBC.
+% -----------------------------------------------------------------------------
+\renewcommand{\ABNTEXchapterfont}{\bfseries\sffamily}
+\renewcommand{\ABNTEXchapterfontsize}{\fontsize{13}{15}\selectfont}
+\renewcommand{\ABNTEXsectionfont}{\bfseries\sffamily}
+\renewcommand{\ABNTEXsectionfontsize}{\fontsize{12}{14}\selectfont}
+\renewcommand{\ABNTEXsubsectionfont}{\bfseries\sffamily}
+\renewcommand{\ABNTEXsubsectionfontsize}{\fontsize{12}{14}\selectfont}
+\renewcommand{\ABNTEXsubsubsectionfont}{\itshape\sffamily}
+\renewcommand{\ABNTEXsubsubsectionfontsize}{\fontsize{12}{14}\selectfont}
+\setlength{\beforechapskip}{-1.2cm}
+\setlength{\afterchapskip}{1.5\baselineskip}
+\setpnumwidth{2em}
+\setrmarg{3em}
+
+% -----------------------------------------------------------------------------
+% Matemática, tabelas e gráficos
+% -----------------------------------------------------------------------------
+\usepackage{amsmath,amssymb,mathtools,bm}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{siunitx}
+\sisetup{output-decimal-marker={,}}
+\usepackage{graphicx}
+\usepackage{adjustbox}
+\usepackage{pdflscape}
+\usepackage{subcaption}
+\usepackage{float}
+
+% -----------------------------------------------------------------------------
+% Legendas: identificação acima; fonte abaixo. Fonte sans 10 pt conforme SBC.
+% -----------------------------------------------------------------------------
+\usepackage{caption}
+\captionsetup{
+  position=above,
+  font={sf,small},
+  labelfont=bf,
+  textfont=bf,
+  margin=0.8cm,
+  justification=justified,
+  singlelinecheck=true,
+  skip=6pt
+}
+\captionsetup[subfigure]{
+  position=below,
+  font={sf,footnotesize},
+  labelfont=bf,
+  textfont=normalfont,
+  margin=0pt,
+  justification=centering
+}
+
+% -----------------------------------------------------------------------------
+% Referências e URLs: sistema autor-data ABNT, processado por Biber.
+% -----------------------------------------------------------------------------
+\usepackage{csquotes}
+\usepackage[
+  backend=biber,
+  style=abnt,
+  ittitles,
+  giveninits=true,
+  repeatfields=true,
+  justify
+]{biblatex}
+\addbibresource{references/references.bib}
+\AtBeginBibliography{\SingleSpacing\raggedright}
+\usepackage{xurl}
+\hypersetup{
+  pdftitle={\ReportTitle: \ReportSubtitle},
+  pdfauthor={\ReportAuthor},
+  pdfsubject={Relatório acadêmico do projeto CoInfoSim},
+  pdfkeywords={canais de informação, classificação cooperativa, dados sintéticos, Monte Carlo},
+  bookmarksopen=true,
+  bookmarksnumbered=true
+}
+
+% -----------------------------------------------------------------------------
+% Identidade visual: uma cor de destaque sóbria e neutros em cinza.
+% A paleta preserva legibilidade em impressão em tons de cinza.
+% -----------------------------------------------------------------------------
+\usepackage[most]{tcolorbox}
+\usepackage{xcolor}
+\definecolor{CoinAccent}{RGB}{25,80,140}       % azul institucional (destaque único)
+\definecolor{CoinAccentDark}{RGB}{18,55,95}    % variação para títulos
+\definecolor{CoinAccentPale}{RGB}{237,242,248} % fundo claro de caixas de definição
+\definecolor{CoinGray}{RGB}{95,95,95}          % cinza médio para molduras discretas
+\definecolor{CoinGrayPale}{RGB}{246,246,246}   % fundo claro neutro
+\definecolor{DraftGray}{RGB}{245,245,245}
+\definecolor{DraftBorder}{RGB}{120,120,120}
+\definecolor{LinkBlue}{RGB}{25,80,140}
+\hypersetup{colorlinks=true,linkcolor=black,citecolor=black,urlcolor=LinkBlue}
+
+% Destaque sutil nos títulos de capítulo e seção (imprime quase preto em cinza).
+\renewcommand{\ABNTEXchapterfont}{\bfseries\sffamily\color{CoinAccentDark}}
+\renewcommand{\ABNTEXsectionfont}{\bfseries\sffamily\color{CoinAccentDark}}
+\renewcommand{\ABNTEXsubsectionfont}{\bfseries\sffamily}
+\renewcommand{\ABNTEXsubsubsectionfont}{\itshape\sffamily}
+
+% Rótulos de legenda na cor de destaque; texto permanece neutro.
+\captionsetup{labelfont={bf,color=CoinAccentDark}}
+\captionsetup[subfigure]{labelfont={bf,color=CoinAccentDark}}
+
+\newtcolorbox{editorialbox}[1][]{
+  breakable,
+  colback=DraftGray,
+  colframe=DraftBorder,
+  boxrule=0.4pt,
+  arc=1mm,
+  left=3mm,right=3mm,top=2mm,bottom=2mm,
+  fonttitle=\bfseries\sffamily,
+  title={Nota editorial},
+  #1
+}
+
+% Listas compactas apenas quando necessário.
+\usepackage{enumitem}
+\setlist[itemize]{topsep=3pt,itemsep=2pt,parsep=0pt}
+\setlist[enumerate]{topsep=3pt,itemsep=2pt,parsep=0pt}

@@ -1,0 +1,2 @@
+\babel@toc {brazil}{}\relax 
+\beamer@sectionintoc {1}{Complemento: boas práticas de Ciência de Dados}{13}{1}{1}

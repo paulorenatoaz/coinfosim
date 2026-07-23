@@ -1,0 +1,39 @@
+% !TeX program = xelatex
+% !BIB program = biber
+\documentclass[11pt,aspectratio=169]{beamer}
+
+\usepackage[brazil]{babel}
+\usepackage{fontspec}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{booktabs,tabularx,array,multirow}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,backgrounds,calc,fit,matrix,positioning,shapes.geometric}
+\usepackage{pgfpages}
+\usepackage{microtype}
+\usepackage{csquotes}
+\usepackage[backend=biber,style=authoryear,maxbibnames=20,sorting=nyt,doi=true,url=true,isbn=false]{biblatex}
+\addbibresource{references.bib}
+
+\input{config/theme}
+\input{config/commands}
+
+\ifdefined\shownotes
+  \setbeameroption{show notes on second screen=right}
+\else
+  \setbeameroption{hide notes}
+\fi
+
+\title{Preservação da estrutura de cooperação entre canais de informação}
+\subtitle{O treinamento com amostras sintéticas reproduz a evolução da cooperação observada com amostras reais?}
+\author{Paulo Renato Azevedo}
+\institute{Programa de Pós-Graduação em Informática \textbullet{} Universidade Federal do Rio de Janeiro}
+\date{Ciência de Dados \textbullet{} 2026}
+
+\begin{document}
+
+\input{slides/main}
+\input{slides/backup}
+
+\end{document}
+

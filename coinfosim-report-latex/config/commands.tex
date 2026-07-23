@@ -1,0 +1,110 @@
+% -----------------------------------------------------------------------------
+% Comandos científicos
+% -----------------------------------------------------------------------------
+\newcommand{\channelset}{\mathcal{S}}
+\newcommand{\subsetSI}{S_I}
+\newcommand{\loss}{\mathcal{L}}
+\newcommand{\meanloss}[3][]{\overline{L}^{#1}_{#2,#3}(n)}
+\newcommand{\Nstar}{\ensuremath{N^{\star}}}
+\newcommand{\rankrho}{\ensuremath{\rho_{\mathrm{rank}}}}
+\newcommand{\WinnersAgreement}{\textit{Winners Agreement}}
+\newcommand{\NstarSimilarity}{\textit{Progressive }\ensuremath{N^{\star}}\textit{-Similarity}}
+\newcommand{\RealToReal}{\ensuremath{\text{Real}\rightarrow\text{Real}}}
+\newcommand{\GaussianToReal}{\ensuremath{\text{Gaussiana}\rightarrow\text{Real}}}
+\newcommand{\GMMToReal}{\ensuremath{\text{GMM}\rightarrow\text{Real}}}
+\newcommand{\CoInfoSim}{\textsf{CoInfoSim}}
+\newcommand{\SLACGS}{\textsf{SLACGS}}
+
+% -----------------------------------------------------------------------------
+% Fonte de ilustrações, tabelas e quadros: obrigatória inclusive para autoria própria.
+% -----------------------------------------------------------------------------
+\newcommand{\sourcebelow}[1]{%
+  \par\vspace{2pt}%
+  {\sffamily\footnotesize Fonte: #1.\par}
+}
+\newcommand{\notailustracao}[1]{%
+  \par{\sffamily\footnotesize Nota: #1.\par}
+}
+
+% -----------------------------------------------------------------------------
+% Caixas editoriais reutilizáveis. Estilo contido: fundo claro, filete de
+% destaque à esquerda, sem molduras pesadas. Todas legíveis em tons de cinza.
+% -----------------------------------------------------------------------------
+\tcbset{coinbox/.style={
+  enhanced,
+  breakable,
+  boxrule=0pt,
+  frame hidden,
+  arc=1mm,
+  left=3mm,right=3mm,top=2mm,bottom=2mm,
+  borderline west={2.2pt}{0pt}{CoinAccent},
+  fonttitle=\bfseries\sffamily\small,
+  coltitle=CoinAccentDark,
+  attach title to upper={\par\smallskip},
+}}
+
+% Definição formal ou operacional de um conceito.
+\newtcolorbox{definitionbox}[1][]{
+  coinbox,
+  colback=CoinAccentPale,
+  title={#1},
+}
+
+% Interpretação: o que um resultado significa e o que não demonstra.
+\newtcolorbox{interpretationbox}[1][Interpretação]{
+  coinbox,
+  colback=CoinGrayPale,
+  borderline west={2.2pt}{0pt}{CoinGray},
+  coltitle=black,
+  title={#1},
+}
+
+% Síntese de resultado ao final de subseções de resultados.
+\newtcolorbox{keyresultbox}[1][Síntese do resultado]{
+  coinbox,
+  colback=CoinAccentPale,
+  title={#1},
+}
+
+% Registro destacado de limitação ou ameaça à validade.
+\newtcolorbox{limitationbox}[1][Limitação]{
+  coinbox,
+  colback=CoinGrayPale,
+  borderline west={2.2pt}{0pt}{CoinGray},
+  coltitle=black,
+  title={#1},
+}
+
+% Pergunta de pesquisa.
+\newtcolorbox{researchquestionbox}[1][]{
+  coinbox,
+  colback=white,
+  colframe=white,
+  title={#1},
+}
+
+% -----------------------------------------------------------------------------
+% Marcadores de conteúdo pendente. Somente aparecem no modo rascunho.
+% -----------------------------------------------------------------------------
+\newcommand{\editorialtodo}[1]{%
+  \ifdraftdocument
+    \begin{editorialbox}#1\end{editorialbox}
+  \fi
+}
+
+\newcommand{\figureplaceholder}[3][0.82\textwidth]{%
+  \begin{figure}[H]
+    \centering
+    \caption{#2}
+    \fbox{\parbox[c][0.24\textheight][c]{#1}{\centering\sffamily\small #3}}
+    \sourcebelow{elaboração própria; figura definitiva a inserir a partir dos relatórios publicados do \CoInfoSim}
+  \end{figure}
+}
+
+\newcommand{\matrixplaceholder}[3][0.46\textwidth]{%
+  \begin{minipage}[t]{#1}
+    \centering
+    \fbox{\parbox[c][0.20\textheight][c]{0.94\linewidth}{\centering\sffamily\small #3}}
+    \subcaption{#2}
+  \end{minipage}
+}

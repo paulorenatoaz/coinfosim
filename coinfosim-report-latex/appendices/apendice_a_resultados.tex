@@ -1,0 +1,72 @@
+\chapter{MAPA DOS RESULTADOS SUPLEMENTARES}
+\label{ap:resultados}
+
+Os relatórios HTML publicados contêm os rankings completos, curvas de perda, matrizes de vencedores, matrizes progressivas de \Nstar{}, parâmetros dos geradores e metadados de execução. Este apêndice registra os artefatos utilizados na auditoria do relatório. A página inicial da publicação é:
+
+\begin{center}
+\url{https://paulorenatoaz.github.io/coinfosim/}
+\end{center}
+
+\section{Cenários principais}
+
+\begin{longtable}{p{2.5cm}p{1.5cm}p{9.2cm}}
+\caption{Relatórios de cenário auditados}\label{tab:appendix-scenarios}\\
+\toprule
+\textbf{Dataset} & \textbf{ID} & \textbf{Relatório} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Dataset} & \textbf{ID} & \textbf{Relatório} \\
+\midrule
+\endhead
+Occupancy Detection & 000002 & \url{https://paulorenatoaz.github.io/coinfosim/reports/scenarios/000002_occupancy_baseline_full/occupancy_baseline_scenario_report_full_000002.html} \\
+\addlinespace
+UCI Air Quality & 000005 & \url{https://paulorenatoaz.github.io/coinfosim/reports/scenarios/000005_air_quality_baseline_full/air_quality_scenario_report_full_000005.html} \\
+\addlinespace
+SUPPORT2, classificadores originais & 000007 & \url{https://paulorenatoaz.github.io/coinfosim/reports/scenarios/000007_support2_baseline_full/support2_scenario_report_full_000007.html} \\
+\addlinespace
+SUPPORT2, Random Forest & 000008 & \url{https://paulorenatoaz.github.io/coinfosim/reports/scenarios/000008_support2_baseline_full/support2_scenario_report_full_000008.html} \\
+\bottomrule
+\sourcebelow{elaboração própria com base nos relatórios publicados do \CoInfoSim}
+\end{longtable}
+
+\section{Relatórios detalhados de Occupancy}
+
+O cenário 000002 referencia os seguintes artefatos:
+
+\begin{itemize}
+  \item relatório do dataset: \url{https://paulorenatoaz.github.io/coinfosim/reports/scenarios/000002_occupancy_baseline_full/occupancy_dataset_report_full_000002.html};
+  \item Real $\rightarrow$ Real, simulação 000006: \url{https://paulorenatoaz.github.io/coinfosim/reports/simulations/000006_occupancy_real_data_full/occupancy_real_data_monte_carlo_report_full_000006.html};
+  \item Gaussiana única $\rightarrow$ Real, simulação 000007: \url{https://paulorenatoaz.github.io/coinfosim/reports/simulations/000007_occupancy_single_gaussian_to_real_full/occupancy_single_gaussian_to_real_monte_carlo_report_full_000007.html};
+  \item GMM $\rightarrow$ Real, simulação 000008: \url{https://paulorenatoaz.github.io/coinfosim/reports/simulations/000008_occupancy_gmm_to_real_full/occupancy_gmm_to_real_monte_carlo_report_full_000008.html}.
+\end{itemize}
+
+\section{Relatórios detalhados de Air Quality}
+
+O cenário 000005 é a entrada principal e referencia:
+
+\begin{itemize}
+  \item relatório do dataset: \url{https://paulorenatoaz.github.io/coinfosim/reports/scenarios/000005_air_quality_baseline_full/air_quality_dataset_report_full_000005.html};
+  \item Real $\rightarrow$ Real, simulação 000015: \url{https://paulorenatoaz.github.io/coinfosim/reports/simulations/000015_air_quality_real_data_full/air_quality_real_data_monte_carlo_report_full_000015.html};
+  \item Gaussiana única $\rightarrow$ Real, simulação 000016: \url{https://paulorenatoaz.github.io/coinfosim/reports/simulations/000016_air_quality_single_gaussian_to_real_full/air_quality_single_gaussian_to_real_monte_carlo_report_full_000016.html};
+  \item GMM $\rightarrow$ Real, simulação 000017: \url{https://paulorenatoaz.github.io/coinfosim/reports/simulations/000017_air_quality_gmm_to_real_full/air_quality_gmm_to_real_monte_carlo_report_full_000017.html}.
+\end{itemize}
+
+Os resultados do PDF foram extraídos das tabelas de subconjuntos mais bem classificados e de fidelidade estrutural, além das visualizações bidimensionais de dados reais, Gaussiana única e GMM.
+
+\section{Relatórios detalhados de SUPPORT2}
+
+O cenário 000007 contém SVM linear, regressão logística e Gaussian Naive Bayes. O cenário 000008 contém o experimento adicional de Random Forest e referencia:
+
+\begin{itemize}
+  \item relatório do dataset: \url{https://paulorenatoaz.github.io/coinfosim/reports/scenarios/000008_support2_baseline_full/support2_dataset_report_full_000008.html};
+  \item Real $\rightarrow$ Real, simulação 000024: \url{https://paulorenatoaz.github.io/coinfosim/reports/simulations/000024_support2_real_data_full/support2_real_data_monte_carlo_report_full_000024.html};
+  \item Gaussiana única $\rightarrow$ Real, simulação 000025: \url{https://paulorenatoaz.github.io/coinfosim/reports/simulations/000025_support2_single_gaussian_to_real_full/support2_single_gaussian_to_real_monte_carlo_report_full_000025.html};
+  \item GMM $\rightarrow$ Real, simulação 000026: \url{https://paulorenatoaz.github.io/coinfosim/reports/simulations/000026_support2_gmm_to_real_full/support2_gmm_to_real_monte_carlo_report_full_000026.html}.
+\end{itemize}
+
+\section{Política de uso do material suplementar}
+
+Os relatórios online são a fonte exaustiva dos resultados. O PDF não reproduz todas as matrizes e curvas porque isso prejudicaria a leitura e duplicaria centenas de visualizações. A rastreabilidade é preservada por meio dos IDs imutáveis de cenário e simulação, nomes de arquivos, parâmetros registrados e resultados JSON persistidos.
+
+Os gráficos vetoriais incluídos no corpo do relatório foram reconstruídos a partir das tabelas finais publicadas. As geometrias e matrizes selecionadas foram incorporadas sem recortes que alterassem eixos, ordem dos subconjuntos, escala ou legenda.

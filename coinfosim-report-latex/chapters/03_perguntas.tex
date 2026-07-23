@@ -1,0 +1,100 @@
+\chapter{PERGUNTAS DE PESQUISA E HIPÓTESES}
+
+A comparação entre as estruturas que emergem nas condições de treinamento real e sintético é organizada por seis perguntas de pesquisa. As perguntas são mantidas separadas porque a preservação estrutural possui componentes distintos. Uma ordenação global semelhante não garante igualdade de todas as relações par a par; a preservação dessas relações não garante que os cruzamentos ocorram nos mesmos tamanhos amostrais; e nenhuma dessas propriedades exige igualdade das perdas absolutas.
+
+\section{RQ1 --- Preservação do ranking}
+
+\begin{researchquestionbox}[RQ1]
+Em que medida o ranking dos subconjuntos que emerge do treinamento dos classificadores nos braços sintéticos reproduz, para cada tamanho amostral, o ranking observado no braço \RealToReal{}?
+\end{researchquestionbox}
+
+O ranking considera todos os subconjuntos não vazios ordenados por perda média. Essa pergunta avalia a organização global da estrutura. A correlação de postos permite reconhecer preservação mesmo quando existem pequenas trocas de posição, sendo mais informativa que a coincidência exata de uma única configuração.
+
+A expectativa é que a preservação varie entre datasets, classificadores, geradores e tamanhos amostrais. Não se pressupõe que a perda sintética reproduza a perda real; o interesse é verificar se os subconjuntos mantêm posições relativas semelhantes.
+
+\section{RQ2 --- Preservação das relações de vitória}
+
+\begin{researchquestionbox}[RQ2]
+Em que medida as relações par a par que emergem do treinamento dos classificadores nos braços sintéticos reproduzem aquelas registradas no braço \RealToReal{} ao longo dos tamanhos amostrais?
+\end{researchquestionbox}
+
+Essa pergunta não se limita à identidade do primeiro colocado. Para cada par de subconjuntos, interessa saber qual configuração vence sob o critério definido no prefixo amostral analisado. A métrica \WinnersAgreement{} sintetiza a concordância dessas relações.
+
+A distinção é operacionalmente relevante. Mesmo que o braço sintético troque as duas primeiras posições por uma diferença pequena, ele pode preservar a maior parte das relações entre subconjuntos. Para decisões de custo e eficiência, saber que uma configuração menor vence consistentemente muitas alternativas pode ser mais útil do que exigir identidade exata do melhor subconjunto.
+
+\section{RQ3 --- Preservação de \texorpdfstring{$\Nstar$}{N*}}
+
+\begin{researchquestionbox}[RQ3]
+Em que medida os últimos limiares de vantagem cooperativa obtidos com classificadores treinados em amostras sintéticas reproduzem aqueles obtidos com os mesmos classificadores treinados em amostras reais?
+\end{researchquestionbox}
+
+O valor $\Nstar$ acrescenta uma dimensão dinâmica. Ele procura identificar o tamanho amostral associado à última transição de superioridade entre duas curvas dentro da grade experimental. Como um mesmo par pode apresentar múltiplos cruzamentos, a métrica não descreve toda a trajetória; ela registra a transição final segundo a regra implementada.
+
+Essa pergunta é mais exigente que uma comparação apenas ordinal. Pequenas perturbações nas curvas podem deslocar um cruzamento sem modificar substancialmente o ranking final. Consequentemente, a similaridade de $\Nstar$ deve ser interpretada junto à correlação de ranking e à \WinnersAgreement{}.
+
+\section{RQ4 --- Evolução com o tamanho amostral}
+
+\begin{researchquestionbox}[RQ4]
+Como a preservação do ranking, das relações de vitória e da estrutura de $\Nstar$ evolui com o aumento de $n$?
+\end{researchquestionbox}
+
+Os relatórios calculam métricas progressivas em prefixos crescentes da grade de tamanhos amostrais. Isso permite observar se a estrutura sintética se aproxima da referência conforme mais dados são utilizados, se estabiliza depois de determinado regime ou apresenta oscilações.
+
+A hipótese de trabalho é que a preservação frequentemente aumente ou se estabilize com $n$, porque estimativas produzidas com amostras maiores tendem a apresentar menor variabilidade. Essa hipótese não implica monotonicidade estrita. Oscilações nos primeiros prefixos e exceções em problemas difíceis são esperadas, e a conclusão deverá ser baseada nos resultados observados, não em uma regra imposta previamente.
+
+\section{RQ5 --- Dependência do classificador}
+
+\begin{researchquestionbox}[RQ5]
+Como a preservação da estrutura cooperativa varia entre modelos de classificação?
+\end{researchquestionbox}
+
+Linear SVM, Regressão Logística e Gaussian Naive Bayes impõem hipóteses distintas sobre fronteiras e dependências entre canais. O Random Forest acrescenta um modelo não linear no cenário SUPPORT2. A comparação busca verificar se amostras oriundas do mesmo gerador induzem estruturas semelhantes após o treinamento de classificadores distintos ou se a fidelidade resulta da interação entre distribuição sintética e mecanismo de aprendizagem.
+
+Não se formula a hipótese de que o classificador com menor perda será necessariamente aquele com maior preservação estrutural. O experimento adicional do Random Forest no SUPPORT2 é particularmente relevante para essa distinção, mas seu resultado não poderá ser generalizado para os outros datasets, nos quais o classificador não foi executado.
+
+\section{RQ6 --- Dependência do modelo gerador}
+
+\begin{researchquestionbox}[RQ6]
+Como a preservação da estrutura cooperativa varia em função do modelo utilizado para gerar as amostras sintéticas?
+\end{researchquestionbox}
+
+A comparação entre Gaussiana única e GMM não procura simplesmente declarar qual modelo é superior. O GMM possui maior flexibilidade e tende a representar formas distributivas mais complexas; a Gaussiana única é mais leve, mais interpretável e potencialmente mais favorável a análises posteriores.
+
+A hipótese de trabalho é que a utilidade da complexidade adicional do modelo de mistura de gaussianas, em relação a uma Gaussiana única, depende das características do dataset e do classificador utilizado. Quando o treinamento com amostras da Gaussiana única reproduzir a estrutura de cooperação quase tão bem quanto o treinamento com amostras do GMM, sua maior simplicidade constitui uma vantagem. Por outro lado, quando as estruturas resultantes das amostras do GMM apresentarem fidelidade significativamente superior, isso indicará que a complexidade adicional do modelo foi necessária para representar aspectos da distribuição dos dados relevantes para o processo de classificação.
+
+\section{Questão exploratória sobre geometria}
+
+Além das perguntas principais, o trabalho considera a seguinte questão exploratória:
+
+\begin{researchquestionbox}[Questão exploratória]
+Há características geométricas ou distributivas dos datasets que parecem associadas a maior ou menor preservação estrutural?
+\end{researchquestionbox}
+
+As projeções sugerem diferenças claras. O Occupancy apresenta regiões distantes de uma forma gaussiana simples, enquanto Air Quality e SUPPORT2 aparentam maior compatibilidade visual com regiões gaussianas em algumas projeções. Contudo, três datasets são insuficientes para estabelecer uma relação geral ou causal.
+
+A geometria será utilizada para interpretar casos, não para formular uma lei. Em particular, o Occupancy permite verificar que maior semelhança visual não implica necessariamente maior preservação estrutural: o GMM pode imitar melhor a forma real, enquanto o treinamento com amostras da Gaussiana única apresenta indicadores de ranking e \WinnersAgreement{} ligeiramente superiores em determinado prefixo final.
+
+\section{Hipótese futura de projeção}
+
+O trabalho também motiva, mas não testa, a seguinte hipótese:
+
+\begin{researchquestionbox}[Hipótese futura]
+Se a estrutura que emerge do treinamento de classificadores com amostras de um gerador parametrizado reproduzir a referência no intervalo em que dados reais estão disponíveis, esse gerador poderá ser investigado como instrumento para projetar a evolução da cooperação em regimes amostrais maiores.
+\end{researchquestionbox}
+
+Essa hipótese é relevante para planejamento operacional. Uma organização poderia parametrizar um gerador a partir dos dados existentes, validar a fidelidade da estrutura resultante na faixa observada e então estudar quando canais adicionais tenderiam a se tornar vantajosos. No entanto, a extrapolação de $n$ para $n+a$ ainda não foi realizada nem validada. A preservação em uma faixa finita não garante validade fora dela.
+
+Portanto, projeção e otimização de custos permanecem como agenda futura. O resultado atual necessário é mais básico: caracterizar quando e em que componentes a estrutura produzida pelo treinamento com amostras sintéticas reproduz a estrutura de referência.
+
+\section{Síntese das expectativas analíticas}
+
+As perguntas anteriores produzem quatro expectativas orientadoras, que serão tratadas como hipóteses de trabalho e não como conclusões antecipadas:
+
+\begin{enumerate}
+  \item a preservação é multidimensional, e ranking, \WinnersAgreement{} e similaridade de $\Nstar$ podem divergir;
+  \item a preservação tende a se tornar mais estável em regimes amostrais maiores, sem obrigação de monotonicidade;
+  \item a fidelidade depende da interação entre dataset, gerador e classificador;
+  \item um gerador simples pode ser cientificamente preferível quando o treinamento com suas amostras reproduz praticamente a mesma estrutura obtida com as amostras de um gerador mais complexo.
+\end{enumerate}
+
+Os capítulos de resultados responderão às perguntas por dataset. A discussão transversal retomará as seis RQs e distinguirá resultados demonstrados, indícios exploratórios e hipóteses ainda não testadas.
