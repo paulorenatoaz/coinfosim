@@ -394,7 +394,7 @@
 
 % Apoio 4 ---------------------------------------------------------------------
 \begin{frame}{Resultados adicionais — Occupancy e Air Quality}
-  \eyebrow{Indicadores herdados em $n=512$; $A_R$/$S_R$ indisponíveis nesta revisão}
+  \eyebrow{Quatro indicadores em $n=512$, recalculados diretamente pelo código atual}
   \vspace{0.06cm}
   \centering
   \renewcommand{\arraystretch}{1.0}
@@ -404,27 +404,27 @@
     Dataset / classificador & Treinamento $\rightarrow$ teste & $\rankrho$ & \AW{} & $A_R$ & $S_R$ \\
     \midrule
     \multirow{6}{*}{\shortstack[l]{Occupancy}}
-      & SVM, Gaussiana única $\rightarrow$ Real & 0,9528 & 0,9204 & --- & --- \\
-      & SVM, GMM $\rightarrow$ Real & 0,8774 & 0,8624 & --- & --- \\
-      & Reg. Logística, Gaussiana única $\rightarrow$ Real & 0,9036 & 0,8839 & --- & --- \\
-      & Reg. Logística, GMM $\rightarrow$ Real & 0,8738 & 0,8903 & --- & --- \\
-      & Gaussian NB, Gaussiana única $\rightarrow$ Real & 0,9976 & 0,9892 & --- & --- \\
-      & Gaussian NB, GMM $\rightarrow$ Real & 0,9996 & 0,9978 & --- & --- \\
+      & SVM, Gaussiana única $\rightarrow$ Real & 0,9528 & 0,9204 & 0,7706 & 0,7185 \\
+      & SVM, GMM $\rightarrow$ Real & 0,8774 & 0,8624 & 0,7407 & 0,7552 \\
+      & Reg. Logística, Gaussiana única $\rightarrow$ Real & 0,9036 & 0,8839 & 0,7089 & 0,7723 \\
+      & Reg. Logística, GMM $\rightarrow$ Real & 0,8738 & 0,8903 & 0,7714 & 0,8947 \\
+      & Gaussian NB, Gaussiana única $\rightarrow$ Real & 0,9976 & 0,9892 & 0,4364 & 0,6406 \\
+      & Gaussian NB, GMM $\rightarrow$ Real & 0,9996 & 0,9978 & 0,6667 & 0,8708 \\
     \midrule
     \multirow{6}{*}{\shortstack[l]{Air Quality}}
-      & SVM, Gaussiana única $\rightarrow$ Real & 0,8944 & 0,8882 & --- & --- \\
-      & SVM, GMM $\rightarrow$ Real & 0,9580 & 0,9333 & --- & --- \\
-      & Reg. Logística, Gaussiana única $\rightarrow$ Real & 0,9359 & 0,9118 & --- & --- \\
-      & Reg. Logística, GMM $\rightarrow$ Real & 0,9839 & 0,9613 & --- & --- \\
-      & Gaussian NB, Gaussiana única $\rightarrow$ Real & 1,0000 & 1,0000 & --- & --- \\
-      & Gaussian NB, GMM $\rightarrow$ Real & 0,9996 & 0,9978 & --- & --- \\
+      & SVM, Gaussiana única $\rightarrow$ Real & 0,8944 & 0,8882 & 0,2609 & 0,8875 \\
+      & SVM, GMM $\rightarrow$ Real & 0,9580 & 0,9333 & 0,4286 & 0,8500 \\
+      & Reg. Logística, Gaussiana única $\rightarrow$ Real & 0,9359 & 0,9118 & 0,5514 & 0,8983 \\
+      & Reg. Logística, GMM $\rightarrow$ Real & 0,9839 & 0,9613 & 0,7125 & 0,9035 \\
+      & Gaussian NB, Gaussiana única $\rightarrow$ Real & 1,0000 & 1,0000 & 0,7816 & 0,9689 \\
+      & Gaussian NB, GMM $\rightarrow$ Real & 0,9996 & 0,9978 & 0,8836 & 0,9760 \\
     \bottomrule
   \end{tabular}
 
   \vspace{0.05cm}
   {\fontsize{7.3}{8.7}\selectfont\color{CoInfoGray}
-    $\rankrho$/$\AW{}$: herdados dos relatórios publicados (esquema anterior, cap.\ 7). $A_R$/$S_R$: exigiriam dados brutos não persistidos localmente --- travessão, nunca zero nem o antigo valor de $N^\star$.}
-  \sourcecite{cenários Occupancy 000002, Air Quality 000005/000006; tabelas do capítulo 7 do relatório final.}
+    Os quatro indicadores foram recalculados diretamente pelo código atual a partir dos resultados brutos por replicação regenerados nesta revisão (cap.\ 7). Nenhum valor deriva do antigo $N^\star$.}
+  \sourcecite{cenários Occupancy 000002, Air Quality 000005; tabelas do capítulo 7 do relatório final.}
 \end{frame}
 
 % Apoio 5 ---------------------------------------------------------------------
@@ -440,7 +440,7 @@
 
 % Apoio 6 ---------------------------------------------------------------------
 \begin{frame}{Resultados adicionais — SUPPORT2}
-  \eyebrow{Herdados (full, $n=512$): $\rankrho$/\AW{} apenas; $A_R$/$S_R$ indisponíveis}
+  \eyebrow{Escala completa ($n=512$): quatro indicadores recalculados diretamente pelo código atual}
   \vspace{0.05cm}
   \centering
   \renewcommand{\arraystretch}{1.0}
@@ -449,14 +449,14 @@
     \toprule
     Classificador, treinamento $\rightarrow$ teste & $\rankrho$ & \AW{} & $A_R$ & $S_R$ \\
     \midrule
-    SVM, Gaussiana única $\rightarrow$ Real & 0,8672 & 0,8614 & --- & --- \\
-    SVM, GMM $\rightarrow$ Real & 0,9708 & 0,9344 & --- & --- \\
-    Reg. Log., Gaussiana única $\rightarrow$ Real & 0,9853 & 0,9514 & --- & --- \\
-    Reg. Log., GMM $\rightarrow$ Real & 0,9827 & 0,9461 & --- & --- \\
-    Gaussian NB, Gaussiana única $\rightarrow$ Real & 0,7915 & 0,7951 & --- & --- \\
-    Gaussian NB, GMM $\rightarrow$ Real & 0,9144 & 0,8715 & --- & --- \\
-    Random Forest, Gaussiana única $\rightarrow$ Real & 0,8387 & 0,8282 & --- & --- \\
-    Random Forest, GMM $\rightarrow$ Real & 0,8665 & 0,8429 & --- & --- \\
+    SVM, Gaussiana única $\rightarrow$ Real & 0,8672 & 0,8611 & 0,5262 & 0,7417 \\
+    SVM, GMM $\rightarrow$ Real & 0,9708 & 0,9343 & 0,6003 & 0,7921 \\
+    Reg. Log., Gaussiana única $\rightarrow$ Real & 0,9853 & 0,9513 & 0,5157 & 0,7376 \\
+    Reg. Log., GMM $\rightarrow$ Real & 0,9827 & 0,9461 & 0,4872 & 0,7549 \\
+    Gaussian NB, Gaussiana única $\rightarrow$ Real & 0,7915 & 0,7950 & 0,5632 & 0,7343 \\
+    Gaussian NB, GMM $\rightarrow$ Real & 0,9144 & 0,8713 & 0,7849 & 0,7473 \\
+    Random Forest, Gaussiana única $\rightarrow$ Real & 0,8387 & 0,8281 & 0,5052 & 0,8165 \\
+    Random Forest, GMM $\rightarrow$ Real & 0,8665 & 0,8429 & 0,4272 & 0,8059 \\
     \bottomrule
   \end{tabular}
 
@@ -477,8 +477,8 @@
 
   \vspace{0.02cm}
   {\fontsize{6.6}{7.8}\selectfont\color{CoInfoGray}
-    Bloco inferior: escala reduzida (\texttt{scenario\_run\_id=0}), não comparável linha a linha ao bloco superior.\par}
-  \sourcecite{SUPPORT2 000007/000008 (herdados); execução smoke local (recalculada); cap.\ 7 e apênd.\ A/B.}
+    Bloco inferior: escala reduzida (\texttt{scenario\_run\_id=0}), não comparável linha a linha ao superior; reproduz o mesmo padrão de $A_R$/$S_R$ do Random Forest.\par}
+  \sourcecite{SUPPORT2 000007/000008 e execução smoke; indicadores recalculados pelo código atual; cap.\ 7 e apênd.\ A/B.}
 \end{frame}
 
 % Apoio 7 ---------------------------------------------------------------------

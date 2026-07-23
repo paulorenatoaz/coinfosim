@@ -37,6 +37,8 @@ na branch \texttt{feature/academic-report-revision}, que já inclui, fundido em 
 
 A citação do software é fornecida em \texttt{CITATION.cff} e na entrada bibliográfica \texttt{azevedo2026coinfosim} \cite{azevedo2026coinfosim}.
 
+Uma revisão editorial subsequente (Seção~\ref{sec:resultados-guia}) fechou a lacuna de disponibilidade de dados então registrada: os resultados brutos por replicação das execuções \textit{full} de Occupancy, Air Quality e SUPPORT2 foram recuperados e regenerados sob o refatoramento semântico do arcabouço de perfil de cooperação preditiva, e os quatro indicadores foram recalculados diretamente pelo código atual para os quatro cenários de escala completa (Capítulo~7). O commit final desta revisão é registrado em \texttt{REVISION\_LOG.md}.
+
 \section{Estrutura dos artefatos persistidos}
 
 Cada execução de simulação persiste configuração, metadados, estado do acumulador, resumo de parada e dados necessários para regenerar os relatórios. Os registros de cada execução incluem:
@@ -47,7 +49,7 @@ Cada execução de simulação persiste configuração, metadados, estado do acu
   \item tabelas de perda média estimada e erro-padrão;
   \item rankings por $n$;
   \item matriz de vencedores $\Wmat$ e eventos de inversão de vencedor;
-  \item indicadores progressivos de preservação do perfil ($\rankrho$, $\AW$, $\AR$, $\DR$, $\SR$), esquema \texttt{schema\_version=2};
+  \item indicadores progressivos de preservação do perfil ($\rankrho$, $\AW$, $\AR$, $\DR$, $\SR$), esquema \texttt{schema\_version=3};
   \item tamanho e origem do conjunto de teste real fixo;
   \item tempo de execução e política de paralelização;
   \item número de replicações e razão de parada para cada $n$.
@@ -122,19 +124,21 @@ coinfosim scenario regenerate <slug> --run-id <id> \
 
 Essa separação mantém o cálculo científico independente da apresentação. A publicação no GitHub Pages copia os diretórios de relatórios e dados para o ramo de publicação e reconstrói a página inicial que aponta para os cenários disponíveis.
 
-\begin{limitationbox}[Estado do renderizador HTML no commit auditado]
-No commit auditado por esta revisão, o comando acima re-renderiza a HTML a partir do payload de \texttt{report\_data} já persistido, mas o renderizador de cenário (\texttt{src/coinfosim/reports/dataset\_anchored\_scenario.py} e o pacote \texttt{support2\_scenario.py}) ainda emite rótulos do arcabouço retirado (por exemplo, "Progressive N-star similarity") mesmo quando a camada de análise (\texttt{src/coinfosim/results/structural.py}) já implementa corretamente \texttt{effective\_winner\_matrices}, \texttt{winner\_reversal\_events}, \texttt{progressive\_reversal\_matrices} e \texttt{scenario\_structural\_fidelity} no esquema \texttt{schema\_version=2}. Essa inconsistência de código está fora do escopo desta revisão editorial (que não altera \texttt{src/coinfosim}) e é registrada aqui, e em \texttt{docs/tasks/academic\_documents\_predictive\_profile\_revision\_log.md}, como bloqueio identificado, não como algo corrigido nesta sessão.
+\begin{limitationbox}[Estado do renderizador HTML no commit então auditado --- resolvido nesta revisão]
+Uma revisão editorial anterior identificou que o renderizador de cenário ainda emitia rótulos do arcabouço $\NstarHistorical$ retirado (por exemplo, "Progressive N-star similarity") mesmo quando a camada de análise já implementava corretamente os indicadores do esquema $\Wmat/\Rmat$, e registrou essa inconsistência como um bloqueio de terminologia fora do escopo daquela revisão (que não alterava \texttt{src/coinfosim}). Esse bloqueio foi resolvido pelo refatoramento semântico do arcabouço de perfil de cooperação preditiva: o renderizador de cenário e a camada de análise (\texttt{coinfosim.results.predictive\_profile}) usam agora a mesma terminologia canônica --- $\Wmat$, $\Rmat$, $\rankrho$, $\AW$, $\AR$, $\SR$, $\DR$ --- em \texttt{schema\_version=3}, com \texttt{coinfosim.results.structural} mantido apenas como \textit{shim} de compatibilidade que reexporta as funções canônicas sob os nomes anteriores.
 \end{limitationbox}
 
 \section{Regeneração direta dos indicadores $\Wmat$/$\Rmat$ a partir de resultados persistidos}
 \label{ap:comando-wr}
 
-Para contornar o bloqueio acima e obter indicadores de preservação genuínos e correntes sem modificar código de produção nem executar Monte Carlo, esta revisão chamou diretamente as funções já aprovadas de \texttt{coinfosim.results.structural} sobre os resultados brutos persistidos da execução \textit{smoke} do SUPPORT2 (Apêndice~A, Seção~\ref{ap:support2-smoke}):
+Para obter indicadores de preservação genuínos e correntes sem modificar código de produção nem executar Monte Carlo, esta revisão chamou diretamente as funções canônicas de \texttt{coinfosim.results.predictive\_profile} sobre os resultados brutos persistidos da execução \textit{smoke} do SUPPORT2 (Apêndice~A, Seção~\ref{ap:support2-smoke}):
 
 \begin{verbatim}
 .venv/bin/python3 -c "
 from coinfosim.results.persistence import load_simulation_result
-from coinfosim.results.structural import scenario_structural_fidelity
+from coinfosim.results.predictive_profile import (
+    scenario_predictive_profile_agreement,
+)
 
 base = 'output/validation/support2-random-forest-smoke/simulations'
 arm_dirs = {
@@ -157,7 +161,7 @@ results = {
 labels = {'real_to_real': 'Real -> Real',
           'single_gaussian_to_real': 'Single Gaussian -> Real',
           'gmm_to_real': 'GMM -> Real'}
-fidelity = scenario_structural_fidelity(
+profile = scenario_predictive_profile_agreement(
     results, 'real_to_real', labels
 )
 "
@@ -166,8 +170,8 @@ fidelity = scenario_structural_fidelity(
 O mesmo padrão, combinado com as funções
 
 \begin{center}
-\small\texttt{coinfosim.reports.structural\_visualization.winner\_matrix\_figure}\\
-\small\texttt{coinfosim.reports.structural\_visualization.reversal\_matrix\_figure}
+\small\texttt{coinfosim.reports.predictive\_profile\_visualization.winner\_matrix\_figure}\\
+\small\texttt{coinfosim.reports.predictive\_profile\_visualization.reversal\_matrix\_figure}
 \end{center}
 
 \noindent produziu as figuras em \texttt{figures/wr\_matrices/support2\_smoke/} usadas nos Capítulos~6 e~7. Este comando é reprodutível por qualquer pessoa com acesso ao repositório e ao diretório
@@ -177,6 +181,8 @@ O mesmo padrão, combinado com as funções
 \end{center}
 
 \noindent (rastreado fora do controle de versão, mas presente no ambiente auditado); ele não requer, nem executa, nenhuma nova simulação.
+
+Para os quatro cenários de escala completa (Occupancy 000002, Air Quality 000005, SUPPORT2 000007 e 000008), esta revisão usou dois caminhos equivalentes, conforme a política \texttt{structural\_snapshot\_policy} de cada cenário (Apêndice~A): para 000002, 000005 e 000007 (\texttt{embedded}), os quatro indicadores foram lidos diretamente do payload \texttt{predictive\_cooperation\_profile} já persistido em \texttt{scenario.json}; para 000008 (\texttt{regenerate\_from\_result\_data}), o mesmo padrão de comando acima foi aplicado sobre os resultados brutos das simulações 000024--000026 em \texttt{output/reports/simulations/} (Apêndice~A), chamando \texttt{scenario\_predictive\_profile\_agreement} diretamente em vez de ler um payload embutido. Em ambos os casos, nenhuma nova simulação de Monte Carlo foi executada.
 
 \section{Compilação deste relatório}
 
@@ -188,9 +194,7 @@ latexmk -xelatex main.tex
 
 O preâmbulo segue o manual acadêmico da UFRJ para página A4, margens, espaçamento, paginação e estrutura, com elementos tipográficos inspirados no template da Sociedade Brasileira de Computação. O PDF final deve ser renderizado e inspecionado visualmente após qualquer alteração de figuras, tabelas ou metadados.
 
-\begin{limitationbox}[Compilação não validada nesta sessão]
-O ambiente desta revisão editorial não possui os binários \texttt{xelatex} nem \texttt{biber} instalados (apenas \texttt{pdflatex}/\texttt{bibtex}, incompatíveis com \texttt{fontspec} e \texttt{biblatex} usados neste documento), e a instalação de pacotes estava fora do escopo autorizado. Todas as edições desta revisão foram feitas diretamente nas fontes \LaTeX{}, mas \textbf{não puderam ser compiladas nem inspecionadas visualmente nesta sessão}. A compilação e a auditoria visual descritas no plano editorial ficam pendentes de um ambiente com o TeXLive completo (\texttt{texlive-xetex} e \texttt{biber}).
-\end{limitationbox}
+Uma revisão editorial anterior não dispunha dos binários \texttt{xelatex} nem \texttt{biber} no ambiente então utilizado, e não pôde compilar nem inspecionar visualmente o PDF resultante. Esse ambiente foi posteriormente completado com o TeXLive necessário; o documento é compilado e inspecionado visualmente ao final de cada revisão desde então, incluindo a presente.
 
 \section{Checklist mínimo de replicação}
 
