@@ -7,6 +7,15 @@ All notable changes to this project will be documented in this file.
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+- Replace the `N*` / directed-crossing / composite-similarity structural
+  framework with an explicit pairwise winner-reversal framework: an effective
+  winner matrix `W` with exact-tie carry-forward propagation, an unordered
+  upper-triangular reversal matrix `R` that exists only after a pair's first
+  valid winner reversal, and two separate metrics (reversal existence
+  agreement, reversal sample-size similarity) with no composite/product metric.
+  Updated the persisted `structural_dynamics`/`structural_fidelity` JSON
+  schema to version 2 and the scenario/arm HTML reports (summary tables,
+  metric curves, and paired `W`/`R` matrix panels) accordingly.
 - Reformulate the project as **CoInfoSim: A Simulator for Cooperative
   Classification from Multiple Information Channels**. Documentation, metadata,
   and identity updated from the sensor-network framing (CoSenSim) to a general
