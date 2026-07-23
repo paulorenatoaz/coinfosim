@@ -132,6 +132,59 @@ def collect_runtime_provenance_evidence(
     )
 
 
+def collect_persisted_provenance_evidence(
+    *,
+    scenario_run_id: int,
+    scenario_slug: str,
+    dataset_metadata: Mapping[str, Any],
+    target_metadata: Mapping[str, Any],
+    split_metadata: Mapping[str, Any],
+    preprocessing_metadata: Mapping[str, Any],
+    experiment_configuration: Mapping[str, Any],
+    classifier_configuration: Mapping[str, Any],
+    simulation_arms: Sequence[SimulationArmEvidence],
+    report_artifacts: Sequence[ArtifactEvidence],
+    gaussian_generator_metadata: Optional[Mapping[str, Any]] = None,
+    gmm_generator_metadata: Optional[Mapping[str, Any]] = None,
+    random_forest_calibration: Optional[ArtifactEvidence] = None,
+    code_commit_sha: Optional[str] = None,
+    original_code_revision: Optional[str] = None,
+    recovery_source_commit: Optional[str] = None,
+) -> ProvenanceEvidence:
+    """Normalize evidence collected while regenerating a scenario from
+    already-persisted results (no Monte Carlo rerun).
+
+    The historical dataset-preparation, generator-fitting, and
+    simulation-run activities are never associated with the current commit
+    or environment (``is_historical_regeneration=True``); only the
+    activities that actually run now -- profile recomputation, report
+    generation, and (when recovery evidence exists) artifact recovery -- use
+    the current commit/environment. ``original_code_revision`` is only ever
+    set when it was genuinely persisted; it is never guessed.
+    """
+
+    return ProvenanceEvidence(
+        scenario_run_id=scenario_run_id,
+        scenario_slug=scenario_slug,
+        dataset_metadata=dataset_metadata,
+        target_metadata=target_metadata,
+        split_metadata=split_metadata,
+        preprocessing_metadata=preprocessing_metadata,
+        experiment_configuration=experiment_configuration,
+        classifier_configuration=classifier_configuration,
+        simulation_arms=simulation_arms,
+        gaussian_generator_metadata=gaussian_generator_metadata,
+        gmm_generator_metadata=gmm_generator_metadata,
+        report_artifacts=report_artifacts,
+        random_forest_calibration=random_forest_calibration,
+        current_code_revision=code_commit_sha,
+        original_code_revision=original_code_revision,
+        recovery_source_commit=recovery_source_commit,
+        execution_environment=collect_execution_environment(),
+        is_historical_regeneration=True,
+    )
+
+
 def collect_execution_environment() -> ExecutionEnvironmentEvidence:
     """Collect the current execution environment as normalized evidence.
 

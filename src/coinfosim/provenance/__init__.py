@@ -17,6 +17,7 @@ from coinfosim.provenance.evidence import (
     ProvenanceEvidence,
     SimulationArmEvidence,
     collect_execution_environment,
+    collect_persisted_provenance_evidence,
     collect_runtime_provenance_evidence,
 )
 from coinfosim.provenance.export import (
@@ -43,6 +44,7 @@ __all__ = [
     "ProvenanceEvidence",
     "SimulationArmEvidence",
     "collect_execution_environment",
+    "collect_persisted_provenance_evidence",
     "collect_runtime_provenance_evidence",
     "build_scenario_prov_document",
     "ProvenanceArtifactSet",

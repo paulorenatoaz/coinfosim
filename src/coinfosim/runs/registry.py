@@ -82,6 +82,7 @@ class ScenarioRunRecord:
     semantic_manifest_path: Optional[str] = None
     provenance_path: Optional[str] = None
     scientific_object_type: Optional[str] = None
+    provenance_artifacts: Dict[str, str] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
