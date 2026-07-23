@@ -1049,6 +1049,8 @@ def regenerate_dataset_anchored_scenario(
         }
         for ref, _result in simulation_updates
     ]
+    report_artifact_sha256 = sha256_of_file(scenario_report)
+    report_artifact_relpath = to_repo_relative(scenario_report, repo_root)
     semantic_manifest = build_semantic_manifest(
         scenario_run_id=scenario_run_id,
         scenario_slug=record.scenario_slug,
@@ -1062,11 +1064,11 @@ def regenerate_dataset_anchored_scenario(
         source_result_data=source_result_data,
         code_commit_sha=code_commit_sha,
         recovered_source_commit_sha=recovered_source_commit_sha,
+        report_artifact_hashes={report_artifact_relpath: report_artifact_sha256},
     )
     semantic_manifest_path = scenario_dir / "semantic_manifest.json"
     write_semantic_manifest(semantic_manifest_path, semantic_manifest)
 
-    report_artifact_sha256 = sha256_of_file(scenario_report)
     provenance_graph = build_provenance_graph(
         scenario_run_id=scenario_run_id,
         source_result_data=source_result_data,
@@ -1074,7 +1076,7 @@ def regenerate_dataset_anchored_scenario(
             int(ref["simulation_run_id"]) for ref, _result in simulation_updates
         ],
         code_commit_sha=code_commit_sha,
-        report_artifact_path=to_repo_relative(scenario_report, repo_root),
+        report_artifact_path=report_artifact_relpath,
         report_artifact_sha256=report_artifact_sha256,
         recovered_source_commit_sha=recovered_source_commit_sha,
     )
