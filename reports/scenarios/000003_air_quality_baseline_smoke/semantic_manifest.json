@@ -1,0 +1,58 @@
+{
+  "canonical_metric_ids": [
+    "coinfosim:MeanLog2ReversalDistance",
+    "coinfosim:RankingFidelity",
+    "coinfosim:ReversalExistenceAgreement",
+    "coinfosim:ReversalSampleSizeSimilarity",
+    "coinfosim:WinnerAgreement"
+  ],
+  "classifier_ids": [
+    "gaussian_nb",
+    "linear_svm",
+    "logistic_regression"
+  ],
+  "code_commit_sha": "ac73e95bd67dafda44529f99a85961bdf6ec9b04",
+  "dataset_id": "UCI Air Quality",
+  "fixed_real_test_set_statement": "All training conditions (real, single-Gaussian synthetic, GMM synthetic) are evaluated on the same fixed real evaluation split; the predictive cooperation profile compares training conditions, never test data.",
+  "jsonld_context_path": "coinfosim/resources/coinfosim-context.jsonld",
+  "original_simulation_commit_sha": null,
+  "recovered_source_commit_sha": "c8f210458109a54a5268f1998683ff57802d2c09",
+  "report_artifact_hashes": {
+    "output/reports/scenarios/000003_air_quality_baseline_smoke/air_quality_scenario_report_smoke_000003.html": "e611b48e769ba81a42cc0972d80222cc0845016e090d7909f54a56a1d276463f"
+  },
+  "sample_sizes": [
+    2,
+    4,
+    8,
+    16,
+    32
+  ],
+  "scenario_run_id": "000003",
+  "scenario_slug": "air_quality_baseline",
+  "semantic_type": "coinfosim:PredictiveCooperationProfile",
+  "semantic_vocabulary_version": "1.0.0",
+  "source_result_data": [
+    {
+      "path": "output/reports/simulations/000009_air_quality_real_data_smoke/result_data_smoke_000009.json.gz",
+      "sha256": "2883d40265962189138950806ea6be54fa42689727bb6fc28d470cf0e272a570"
+    },
+    {
+      "path": "output/reports/simulations/000010_air_quality_single_gaussian_to_real_smoke/result_data_smoke_000010.json.gz",
+      "sha256": "7885c03035803835829ef2f854608cadef33a8a06bb5298870ceba0d9f2ebbd2"
+    },
+    {
+      "path": "output/reports/simulations/000011_air_quality_gmm_to_real_smoke/result_data_smoke_000011.json.gz",
+      "sha256": "00a5fbf9b8caa56b83c76589e12d400cc3a1c0174be5bd615769750318b6d82f"
+    }
+  ],
+  "source_simulation_run_ids": [
+    9,
+    10,
+    11
+  ],
+  "training_condition_ids": [
+    "real_to_real",
+    "single_gaussian_to_real",
+    "gmm_to_real"
+  ]
+}

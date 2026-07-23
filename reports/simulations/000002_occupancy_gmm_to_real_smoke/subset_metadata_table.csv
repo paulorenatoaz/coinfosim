@@ -1,0 +1,32 @@
+subset_id,x_label,subset_label,subset_size,has_temperature,has_humidity,has_light,has_co2,has_humidity_ratio
+0,{X1},{Temperature},1,True,False,False,False,False
+1,{X2},{Humidity},1,False,True,False,False,False
+2,{X3},{Light},1,False,False,True,False,False
+3,{X4},{CO2},1,False,False,False,True,False
+4,{X5},{HumidityRatio},1,False,False,False,False,True
+5,"{X1, X2}","{Temperature, Humidity}",2,True,True,False,False,False
+6,"{X1, X3}","{Temperature, Light}",2,True,False,True,False,False
+7,"{X1, X4}","{Temperature, CO2}",2,True,False,False,True,False
+8,"{X1, X5}","{Temperature, HumidityRatio}",2,True,False,False,False,True
+9,"{X2, X3}","{Humidity, Light}",2,False,True,True,False,False
+10,"{X2, X4}","{Humidity, CO2}",2,False,True,False,True,False
+11,"{X2, X5}","{Humidity, HumidityRatio}",2,False,True,False,False,True
+12,"{X3, X4}","{Light, CO2}",2,False,False,True,True,False
+13,"{X3, X5}","{Light, HumidityRatio}",2,False,False,True,False,True
+14,"{X4, X5}","{CO2, HumidityRatio}",2,False,False,False,True,True
+15,"{X1, X2, X3}","{Temperature, Humidity, Light}",3,True,True,True,False,False
+16,"{X1, X2, X4}","{Temperature, Humidity, CO2}",3,True,True,False,True,False
+17,"{X1, X2, X5}","{Temperature, Humidity, HumidityRatio}",3,True,True,False,False,True
+18,"{X1, X3, X4}","{Temperature, Light, CO2}",3,True,False,True,True,False
+19,"{X1, X3, X5}","{Temperature, Light, HumidityRatio}",3,True,False,True,False,True
+20,"{X1, X4, X5}","{Temperature, CO2, HumidityRatio}",3,True,False,False,True,True
+21,"{X2, X3, X4}","{Humidity, Light, CO2}",3,False,True,True,True,False
+22,"{X2, X3, X5}","{Humidity, Light, HumidityRatio}",3,False,True,True,False,True
+23,"{X2, X4, X5}","{Humidity, CO2, HumidityRatio}",3,False,True,False,True,True
+24,"{X3, X4, X5}","{Light, CO2, HumidityRatio}",3,False,False,True,True,True
+25,"{X1, X2, X3, X4}","{Temperature, Humidity, Light, CO2}",4,True,True,True,True,False
+26,"{X1, X2, X3, X5}","{Temperature, Humidity, Light, HumidityRatio}",4,True,True,True,False,True
+27,"{X1, X2, X4, X5}","{Temperature, Humidity, CO2, HumidityRatio}",4,True,True,False,True,True
+28,"{X1, X3, X4, X5}","{Temperature, Light, CO2, HumidityRatio}",4,True,False,True,True,True
+29,"{X2, X3, X4, X5}","{Humidity, Light, CO2, HumidityRatio}",4,False,True,True,True,True
+30,"{X1, X2, X3, X4, X5}","{Temperature, Humidity, Light, CO2, HumidityRatio}",5,True,True,True,True,True

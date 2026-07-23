@@ -1,0 +1,63 @@
+{
+  "canonical_metric_ids": [
+    "coinfosim:MeanLog2ReversalDistance",
+    "coinfosim:RankingFidelity",
+    "coinfosim:ReversalExistenceAgreement",
+    "coinfosim:ReversalSampleSizeSimilarity",
+    "coinfosim:WinnerAgreement"
+  ],
+  "classifier_ids": [
+    "gaussian_nb",
+    "linear_svm",
+    "logistic_regression"
+  ],
+  "code_commit_sha": "254b4acb0fb5acfcb7b02d0e723f740d40b2c6d3",
+  "dataset_id": "UCI Air Quality",
+  "fixed_real_test_set_statement": "All training conditions (real, single-Gaussian synthetic, GMM synthetic) are evaluated on the same fixed real evaluation split; the predictive cooperation profile compares training conditions, never test data.",
+  "jsonld_context_path": "coinfosim/resources/coinfosim-context.jsonld",
+  "original_simulation_commit_sha": null,
+  "recovered_source_commit_sha": "c8f210458109a54a5268f1998683ff57802d2c09",
+  "report_artifact_hashes": {
+    "output/reports/scenarios/000006_air_quality_baseline_full-scale/air_quality_scenario_report_full-scale_000006.html": "61b1dc3bb57e766ee735413a9409ecca030c74e408e340f2931d2b5153ff7fa1"
+  },
+  "sample_sizes": [
+    2,
+    4,
+    8,
+    16,
+    32,
+    64,
+    128,
+    256,
+    512,
+    1024
+  ],
+  "scenario_run_id": "000006",
+  "scenario_slug": "air_quality_baseline",
+  "semantic_type": "coinfosim:PredictiveCooperationProfile",
+  "semantic_vocabulary_version": "1.0.0",
+  "source_result_data": [
+    {
+      "path": "output/reports/simulations/000018_air_quality_real_data_full-scale/result_data_full-scale_000018.json.gz",
+      "sha256": "b992654a6ea3e7643e36d53c46d72904aa1c8e8b3d5c2a04e201438f210d070c"
+    },
+    {
+      "path": "output/reports/simulations/000019_air_quality_single_gaussian_to_real_full-scale/result_data_full-scale_000019.json.gz",
+      "sha256": "7a35174fc49809ccbcd731c27b2214771fac0d3a82bdc4bb37668e8d16e19852"
+    },
+    {
+      "path": "output/reports/simulations/000020_air_quality_gmm_to_real_full-scale/result_data_full-scale_000020.json.gz",
+      "sha256": "192d4e235b619b34f7624d4bf38f08ee00995d37f306edb8b3ba749c7bb52999"
+    }
+  ],
+  "source_simulation_run_ids": [
+    18,
+    19,
+    20
+  ],
+  "training_condition_ids": [
+    "real_to_real",
+    "single_gaussian_to_real",
+    "gmm_to_real"
+  ]
+}

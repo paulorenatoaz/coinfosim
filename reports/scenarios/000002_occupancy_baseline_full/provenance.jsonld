@@ -1,0 +1,126 @@
+{
+  "@context": {
+    "coinfosim": "https://paulorenatoaz.github.io/coinfosim/ns#",
+    "prov": "http://www.w3.org/ns/prov#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#"
+  },
+  "@graph": [
+    {
+      "@id": "urn:coinfosim:result-data:2bb46b4fe2aff6e4",
+      "@type": [
+        "prov:Entity",
+        "coinfosim:ResultData"
+      ],
+      "coinfosim:relativePath": "output/reports/simulations/000006_occupancy_real_data_full/result_data_full_000006.json.gz",
+      "coinfosim:sha256": "2bb46b4fe2aff6e40275e14773ef28642b21fd01f23459fabd651e9995aa8950",
+      "prov:wasAttributedTo": "urn:coinfosim:commit:c8f210458109a54a5268f1998683ff57802d2c09"
+    },
+    {
+      "@id": "urn:coinfosim:result-data:d62f830916ad0eab",
+      "@type": [
+        "prov:Entity",
+        "coinfosim:ResultData"
+      ],
+      "coinfosim:relativePath": "output/reports/simulations/000007_occupancy_single_gaussian_to_real_full/result_data_full_000007.json.gz",
+      "coinfosim:sha256": "d62f830916ad0eab57f96af501eddf04d40c9967523240a7113e47a4635e9f1a",
+      "prov:wasAttributedTo": "urn:coinfosim:commit:c8f210458109a54a5268f1998683ff57802d2c09"
+    },
+    {
+      "@id": "urn:coinfosim:result-data:bc4aacf4a34ac520",
+      "@type": [
+        "prov:Entity",
+        "coinfosim:ResultData"
+      ],
+      "coinfosim:relativePath": "output/reports/simulations/000008_occupancy_gmm_to_real_full/result_data_full_000008.json.gz",
+      "coinfosim:sha256": "bc4aacf4a34ac5207756b847463e99ac96c31a5ec3bda0b846132288b547dd1d",
+      "prov:wasAttributedTo": "urn:coinfosim:commit:c8f210458109a54a5268f1998683ff57802d2c09"
+    },
+    {
+      "@id": "urn:coinfosim:simulation-run:000006",
+      "@type": [
+        "prov:Entity",
+        "coinfosim:SimulationRun"
+      ]
+    },
+    {
+      "@id": "urn:coinfosim:simulation-run:000007",
+      "@type": [
+        "prov:Entity",
+        "coinfosim:SimulationRun"
+      ]
+    },
+    {
+      "@id": "urn:coinfosim:simulation-run:000008",
+      "@type": [
+        "prov:Entity",
+        "coinfosim:SimulationRun"
+      ]
+    },
+    {
+      "@id": "urn:coinfosim:activity:original-simulation:000002",
+      "@type": "prov:Activity",
+      "prov:generated": [
+        "urn:coinfosim:simulation-run:000006",
+        "urn:coinfosim:simulation-run:000007",
+        "urn:coinfosim:simulation-run:000008"
+      ]
+    },
+    {
+      "@id": "urn:coinfosim:activity:profile-recomputation:000002",
+      "@type": "prov:Activity",
+      "prov:used": [
+        "urn:coinfosim:result-data:2bb46b4fe2aff6e4",
+        "urn:coinfosim:result-data:d62f830916ad0eab",
+        "urn:coinfosim:result-data:bc4aacf4a34ac520"
+      ],
+      "prov:wasAssociatedWith": "urn:coinfosim:commit:ac73e95bd67dafda44529f99a85961bdf6ec9b04"
+    },
+    {
+      "@id": "urn:coinfosim:predictive-cooperation-profile:000002",
+      "@type": [
+        "prov:Entity",
+        "coinfosim:PredictiveCooperationProfile"
+      ],
+      "prov:wasDerivedFrom": [
+        "urn:coinfosim:result-data:2bb46b4fe2aff6e4",
+        "urn:coinfosim:result-data:d62f830916ad0eab",
+        "urn:coinfosim:result-data:bc4aacf4a34ac520"
+      ],
+      "prov:wasGeneratedBy": "urn:coinfosim:activity:profile-recomputation:000002"
+    },
+    {
+      "@id": "urn:coinfosim:activity:report-regeneration:000002",
+      "@type": "prov:Activity",
+      "prov:used": [
+        "urn:coinfosim:predictive-cooperation-profile:000002"
+      ],
+      "prov:wasAssociatedWith": "urn:coinfosim:commit:ac73e95bd67dafda44529f99a85961bdf6ec9b04"
+    },
+    {
+      "@id": "urn:coinfosim:report:000002",
+      "@type": [
+        "prov:Entity",
+        "coinfosim:ReportArtifact"
+      ],
+      "coinfosim:relativePath": "output/reports/scenarios/000002_occupancy_baseline_full/occupancy_baseline_scenario_report_full_000002.html",
+      "coinfosim:sha256": "d6aaeaa4b829ae157a66be2bf01f8595e47f43817d410fedaaa197fba5aa1fb7",
+      "prov:wasDerivedFrom": [
+        "urn:coinfosim:predictive-cooperation-profile:000002",
+        "urn:coinfosim:result-data:2bb46b4fe2aff6e4",
+        "urn:coinfosim:result-data:d62f830916ad0eab",
+        "urn:coinfosim:result-data:bc4aacf4a34ac520"
+      ],
+      "prov:wasGeneratedBy": "urn:coinfosim:activity:report-regeneration:000002"
+    },
+    {
+      "@id": "urn:coinfosim:commit:ac73e95bd67dafda44529f99a85961bdf6ec9b04",
+      "@type": "prov:SoftwareAgent",
+      "coinfosim:commitSha": "ac73e95bd67dafda44529f99a85961bdf6ec9b04"
+    },
+    {
+      "@id": "urn:coinfosim:commit:c8f210458109a54a5268f1998683ff57802d2c09",
+      "@type": "prov:SoftwareAgent",
+      "coinfosim:commitSha": "c8f210458109a54a5268f1998683ff57802d2c09"
+    }
+  ]
+}

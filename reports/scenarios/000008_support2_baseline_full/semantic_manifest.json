@@ -1,0 +1,60 @@
+{
+  "canonical_metric_ids": [
+    "coinfosim:MeanLog2ReversalDistance",
+    "coinfosim:RankingFidelity",
+    "coinfosim:ReversalExistenceAgreement",
+    "coinfosim:ReversalSampleSizeSimilarity",
+    "coinfosim:WinnerAgreement"
+  ],
+  "classifier_ids": [
+    "random_forest"
+  ],
+  "code_commit_sha": "254b4acb0fb5acfcb7b02d0e723f740d40b2c6d3",
+  "dataset_id": "SUPPORT2",
+  "fixed_real_test_set_statement": "All training conditions (real, single-Gaussian synthetic, GMM synthetic) are evaluated on the same fixed real evaluation split; the predictive cooperation profile compares training conditions, never test data.",
+  "jsonld_context_path": "coinfosim/resources/coinfosim-context.jsonld",
+  "original_simulation_commit_sha": null,
+  "recovered_source_commit_sha": "c8f210458109a54a5268f1998683ff57802d2c09",
+  "report_artifact_hashes": {
+    "output/reports/scenarios/000008_support2_baseline_full/support2_scenario_report_full_000008.html": "91f0ebb347305bf75798f98dd8f64d9a3ca6ba41fbde163a2ab8cecc5ac87a64"
+  },
+  "sample_sizes": [
+    2,
+    4,
+    8,
+    16,
+    32,
+    64,
+    128,
+    256,
+    512
+  ],
+  "scenario_run_id": "000008",
+  "scenario_slug": "support2_baseline",
+  "semantic_type": "coinfosim:PredictiveCooperationProfile",
+  "semantic_vocabulary_version": "1.0.0",
+  "source_result_data": [
+    {
+      "path": "output/reports/simulations/000024_support2_real_data_full/result_data_full_000024.json.gz",
+      "sha256": "175a5e6a7a35a4cee2299449497699797a8a732fb96b6c498827d76da9d6d631"
+    },
+    {
+      "path": "output/reports/simulations/000025_support2_single_gaussian_to_real_full/result_data_full_000025.json.gz",
+      "sha256": "a54b450181a993c896847766e198f759f3aac264677a01418b706e34d1e8ca8d"
+    },
+    {
+      "path": "output/reports/simulations/000026_support2_gmm_to_real_full/result_data_full_000026.json.gz",
+      "sha256": "c9c8321773a76b45074570a47254e70ffe7193c418a5b2c03bf85f1bd638012a"
+    }
+  ],
+  "source_simulation_run_ids": [
+    24,
+    25,
+    26
+  ],
+  "training_condition_ids": [
+    "real_to_real",
+    "single_gaussian_to_real",
+    "gmm_to_real"
+  ]
+}

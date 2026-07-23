@@ -1,0 +1,62 @@
+{
+  "canonical_metric_ids": [
+    "coinfosim:MeanLog2ReversalDistance",
+    "coinfosim:RankingFidelity",
+    "coinfosim:ReversalExistenceAgreement",
+    "coinfosim:ReversalSampleSizeSimilarity",
+    "coinfosim:WinnerAgreement"
+  ],
+  "classifier_ids": [
+    "gaussian_nb",
+    "linear_svm",
+    "logistic_regression"
+  ],
+  "code_commit_sha": "254b4acb0fb5acfcb7b02d0e723f740d40b2c6d3",
+  "dataset_id": "SUPPORT2",
+  "fixed_real_test_set_statement": "All training conditions (real, single-Gaussian synthetic, GMM synthetic) are evaluated on the same fixed real evaluation split; the predictive cooperation profile compares training conditions, never test data.",
+  "jsonld_context_path": "coinfosim/resources/coinfosim-context.jsonld",
+  "original_simulation_commit_sha": null,
+  "recovered_source_commit_sha": "c8f210458109a54a5268f1998683ff57802d2c09",
+  "report_artifact_hashes": {
+    "output/reports/scenarios/000007_support2_baseline_full/support2_scenario_report_full_000007.html": "10716b34cc05bf8960c5f010e937553e6db187b2e1e10586dcb54844d5799011"
+  },
+  "sample_sizes": [
+    2,
+    4,
+    8,
+    16,
+    32,
+    64,
+    128,
+    256,
+    512
+  ],
+  "scenario_run_id": "000007",
+  "scenario_slug": "support2_baseline",
+  "semantic_type": "coinfosim:PredictiveCooperationProfile",
+  "semantic_vocabulary_version": "1.0.0",
+  "source_result_data": [
+    {
+      "path": "output/reports/simulations/000021_support2_real_data_full/result_data_full_000021.json.gz",
+      "sha256": "c35ecf4da6476e40427277631ca41b28bf359810a2ed5fc22ca334930168a836"
+    },
+    {
+      "path": "output/reports/simulations/000022_support2_single_gaussian_to_real_full/result_data_full_000022.json.gz",
+      "sha256": "ec181887df5b5332c23260ecc377014374fcd61469d896d981bcb3c4e4590451"
+    },
+    {
+      "path": "output/reports/simulations/000023_support2_gmm_to_real_full/result_data_full_000023.json.gz",
+      "sha256": "97194b29b6cc3fd90f20299d8db8be5b9f08274c17bcaf7598ab4aeef0cf8487"
+    }
+  ],
+  "source_simulation_run_ids": [
+    21,
+    22,
+    23
+  ],
+  "training_condition_ids": [
+    "real_to_real",
+    "single_gaussian_to_real",
+    "gmm_to_real"
+  ]
+}

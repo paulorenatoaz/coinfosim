@@ -18973,5 +18973,9 @@
     "summary": "output/reports/simulations/000025_support2_single_gaussian_to_real_full/summary_full_000025.json",
     "simulation_json": "output/reports/simulations/000025_support2_single_gaussian_to_real_full/simulation.json"
   },
-  "error": null
+  "error": null,
+  "semantic_schema_version": null,
+  "semantic_manifest_path": null,
+  "provenance_path": null,
+  "scientific_object_type": null
 }

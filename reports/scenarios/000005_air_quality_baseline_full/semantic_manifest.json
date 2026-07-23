@@ -1,0 +1,62 @@
+{
+  "canonical_metric_ids": [
+    "coinfosim:MeanLog2ReversalDistance",
+    "coinfosim:RankingFidelity",
+    "coinfosim:ReversalExistenceAgreement",
+    "coinfosim:ReversalSampleSizeSimilarity",
+    "coinfosim:WinnerAgreement"
+  ],
+  "classifier_ids": [
+    "gaussian_nb",
+    "linear_svm",
+    "logistic_regression"
+  ],
+  "code_commit_sha": "ac73e95bd67dafda44529f99a85961bdf6ec9b04",
+  "dataset_id": "UCI Air Quality",
+  "fixed_real_test_set_statement": "All training conditions (real, single-Gaussian synthetic, GMM synthetic) are evaluated on the same fixed real evaluation split; the predictive cooperation profile compares training conditions, never test data.",
+  "jsonld_context_path": "coinfosim/resources/coinfosim-context.jsonld",
+  "original_simulation_commit_sha": null,
+  "recovered_source_commit_sha": "c8f210458109a54a5268f1998683ff57802d2c09",
+  "report_artifact_hashes": {
+    "output/reports/scenarios/000005_air_quality_baseline_full/air_quality_scenario_report_full_000005.html": "31206b086c4a199d10837317275f9039a1ce295caaea16b93462c65cd974fadb"
+  },
+  "sample_sizes": [
+    2,
+    4,
+    8,
+    16,
+    32,
+    64,
+    128,
+    256,
+    512
+  ],
+  "scenario_run_id": "000005",
+  "scenario_slug": "air_quality_baseline",
+  "semantic_type": "coinfosim:PredictiveCooperationProfile",
+  "semantic_vocabulary_version": "1.0.0",
+  "source_result_data": [
+    {
+      "path": "output/reports/simulations/000015_air_quality_real_data_full/result_data_full_000015.json.gz",
+      "sha256": "e171622756cf5874507232073ff6e993b55ff3036954e59dfdf5c2ef0adeba20"
+    },
+    {
+      "path": "output/reports/simulations/000016_air_quality_single_gaussian_to_real_full/result_data_full_000016.json.gz",
+      "sha256": "3baeb4db887352dbac73599790ba4eed9adec89e3fb6139e5723f2d545d6cafe"
+    },
+    {
+      "path": "output/reports/simulations/000017_air_quality_gmm_to_real_full/result_data_full_000017.json.gz",
+      "sha256": "26a0594c60f001b99341f25847ff3b0616d0a8d0c083f0c560da2ac941a71a13"
+    }
+  ],
+  "source_simulation_run_ids": [
+    15,
+    16,
+    17
+  ],
+  "training_condition_ids": [
+    "real_to_real",
+    "single_gaussian_to_real",
+    "gmm_to_real"
+  ]
+}

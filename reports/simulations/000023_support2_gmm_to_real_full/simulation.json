@@ -162,6 +162,8 @@
   },
   "result_data": {
     "metric": "empirical_test_loss",
+    "classifier_selection": {},
+    "classifier_configurations": {},
     "summary_table": [
       {
         "n_per_class": 2,
@@ -54838,5 +54840,9 @@
     "summary": "output/reports/simulations/000023_support2_gmm_to_real_full/summary_full_000023.json",
     "simulation_json": "output/reports/simulations/000023_support2_gmm_to_real_full/simulation.json"
   },
-  "error": null
+  "error": null,
+  "semantic_schema_version": null,
+  "semantic_manifest_path": null,
+  "provenance_path": null,
+  "scientific_object_type": null
 }

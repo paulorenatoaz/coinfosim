@@ -1,0 +1,126 @@
+{
+  "@context": {
+    "coinfosim": "https://paulorenatoaz.github.io/coinfosim/ns#",
+    "prov": "http://www.w3.org/ns/prov#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#"
+  },
+  "@graph": [
+    {
+      "@id": "urn:coinfosim:result-data:2883d40265962189",
+      "@type": [
+        "prov:Entity",
+        "coinfosim:ResultData"
+      ],
+      "coinfosim:relativePath": "output/reports/simulations/000009_air_quality_real_data_smoke/result_data_smoke_000009.json.gz",
+      "coinfosim:sha256": "2883d40265962189138950806ea6be54fa42689727bb6fc28d470cf0e272a570",
+      "prov:wasAttributedTo": "urn:coinfosim:commit:c8f210458109a54a5268f1998683ff57802d2c09"
+    },
+    {
+      "@id": "urn:coinfosim:result-data:7885c03035803835",
+      "@type": [
+        "prov:Entity",
+        "coinfosim:ResultData"
+      ],
+      "coinfosim:relativePath": "output/reports/simulations/000010_air_quality_single_gaussian_to_real_smoke/result_data_smoke_000010.json.gz",
+      "coinfosim:sha256": "7885c03035803835829ef2f854608cadef33a8a06bb5298870ceba0d9f2ebbd2",
+      "prov:wasAttributedTo": "urn:coinfosim:commit:c8f210458109a54a5268f1998683ff57802d2c09"
+    },
+    {
+      "@id": "urn:coinfosim:result-data:00a5fbf9b8caa56b",
+      "@type": [
+        "prov:Entity",
+        "coinfosim:ResultData"
+      ],
+      "coinfosim:relativePath": "output/reports/simulations/000011_air_quality_gmm_to_real_smoke/result_data_smoke_000011.json.gz",
+      "coinfosim:sha256": "00a5fbf9b8caa56b83c76589e12d400cc3a1c0174be5bd615769750318b6d82f",
+      "prov:wasAttributedTo": "urn:coinfosim:commit:c8f210458109a54a5268f1998683ff57802d2c09"
+    },
+    {
+      "@id": "urn:coinfosim:simulation-run:000009",
+      "@type": [
+        "prov:Entity",
+        "coinfosim:SimulationRun"
+      ]
+    },
+    {
+      "@id": "urn:coinfosim:simulation-run:000010",
+      "@type": [
+        "prov:Entity",
+        "coinfosim:SimulationRun"
+      ]
+    },
+    {
+      "@id": "urn:coinfosim:simulation-run:000011",
+      "@type": [
+        "prov:Entity",
+        "coinfosim:SimulationRun"
+      ]
+    },
+    {
+      "@id": "urn:coinfosim:activity:original-simulation:000003",
+      "@type": "prov:Activity",
+      "prov:generated": [
+        "urn:coinfosim:simulation-run:000009",
+        "urn:coinfosim:simulation-run:000010",
+        "urn:coinfosim:simulation-run:000011"
+      ]
+    },
+    {
+      "@id": "urn:coinfosim:activity:profile-recomputation:000003",
+      "@type": "prov:Activity",
+      "prov:used": [
+        "urn:coinfosim:result-data:2883d40265962189",
+        "urn:coinfosim:result-data:7885c03035803835",
+        "urn:coinfosim:result-data:00a5fbf9b8caa56b"
+      ],
+      "prov:wasAssociatedWith": "urn:coinfosim:commit:ac73e95bd67dafda44529f99a85961bdf6ec9b04"
+    },
+    {
+      "@id": "urn:coinfosim:predictive-cooperation-profile:000003",
+      "@type": [
+        "prov:Entity",
+        "coinfosim:PredictiveCooperationProfile"
+      ],
+      "prov:wasDerivedFrom": [
+        "urn:coinfosim:result-data:2883d40265962189",
+        "urn:coinfosim:result-data:7885c03035803835",
+        "urn:coinfosim:result-data:00a5fbf9b8caa56b"
+      ],
+      "prov:wasGeneratedBy": "urn:coinfosim:activity:profile-recomputation:000003"
+    },
+    {
+      "@id": "urn:coinfosim:activity:report-regeneration:000003",
+      "@type": "prov:Activity",
+      "prov:used": [
+        "urn:coinfosim:predictive-cooperation-profile:000003"
+      ],
+      "prov:wasAssociatedWith": "urn:coinfosim:commit:ac73e95bd67dafda44529f99a85961bdf6ec9b04"
+    },
+    {
+      "@id": "urn:coinfosim:report:000003",
+      "@type": [
+        "prov:Entity",
+        "coinfosim:ReportArtifact"
+      ],
+      "coinfosim:relativePath": "output/reports/scenarios/000003_air_quality_baseline_smoke/air_quality_scenario_report_smoke_000003.html",
+      "coinfosim:sha256": "e611b48e769ba81a42cc0972d80222cc0845016e090d7909f54a56a1d276463f",
+      "prov:wasDerivedFrom": [
+        "urn:coinfosim:predictive-cooperation-profile:000003",
+        "urn:coinfosim:result-data:2883d40265962189",
+        "urn:coinfosim:result-data:7885c03035803835",
+        "urn:coinfosim:result-data:00a5fbf9b8caa56b"
+      ],
+      "prov:wasGeneratedBy": "urn:coinfosim:activity:report-regeneration:000003"
+    },
+    {
+      "@id": "urn:coinfosim:commit:ac73e95bd67dafda44529f99a85961bdf6ec9b04",
+      "@type": "prov:SoftwareAgent",
+      "coinfosim:commitSha": "ac73e95bd67dafda44529f99a85961bdf6ec9b04"
+    },
+    {
+      "@id": "urn:coinfosim:commit:c8f210458109a54a5268f1998683ff57802d2c09",
+      "@type": "prov:SoftwareAgent",
+      "coinfosim:commitSha": "c8f210458109a54a5268f1998683ff57802d2c09"
+    }
+  ]
+}

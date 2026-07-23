@@ -18961,5 +18961,9 @@
     "summary": "output/reports/simulations/000024_support2_real_data_full/summary_full_000024.json",
     "simulation_json": "output/reports/simulations/000024_support2_real_data_full/simulation.json"
   },
-  "error": null
+  "error": null,
+  "semantic_schema_version": null,
+  "semantic_manifest_path": null,
+  "provenance_path": null,
+  "scientific_object_type": null
 }
