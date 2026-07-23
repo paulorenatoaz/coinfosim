@@ -10,10 +10,9 @@ O \CoInfoSim{} produz, para cada dataset, braço experimental, classificador e t
 Uma revisão editorial anterior desta migração científica --- do antigo esquema de $\NstarHistorical$/similaridade composta para o esquema $\Wmat/\Rmat$ descrito no Capítulo~6 --- não dispunha localmente dos resultados brutos por replicação das execuções \textit{full} ($n$ até 512) de Occupancy Detection (cenário 000002), UCI Air Quality (cenário 000005) e SUPPORT2 (cenários 000007 e 000008), e por isso reportava $\AR$, $\DR$ e $\SR$ como indisponíveis para esses quatro cenários, herdando apenas $\rankrho$ e $\AW$ das tabelas e figuras publicadas anteriormente. Essa lacuna foi fechada nesta revisão: os resultados brutos por replicação das quatro execuções foram recuperados e regenerados sob o refatoramento semântico do arcabouço de perfil de cooperação preditiva (\texttt{coinfosim.results.predictive\_profile}), e persistidos neste repositório junto dos relatórios HTML republicados (Apêndice~A). Consequentemente:
 \begin{itemize}
   \item $\rankrho$ e $\AW$ para os quatro cenários foram \textbf{recalculados diretamente pelo código atual} a partir desses resultados brutos, não herdados de tabelas ou figuras antigas; os valores coincidem, dentro da precisão de transcrição das versões anteriores, com os relatados antes desta migração, confirmando computacionalmente a equivalência matemática entre as duas versões desses dois indicadores (Seção~\ref{sec:resultados-guia});
-  \item $\AR$, $\DR$ e $\SR$ para os quatro cenários também foram \textbf{recalculados diretamente pelo código atual} nesta revisão, e deixam de ser reportados como indisponíveis: as Tabelas~\ref{tab:occupancy-final}, \ref{tab:air-final} e \ref{tab:support2-original}, e a Seção~\ref{sec:support2-rf}, apresentam esses três indicadores lado a lado com $\rankrho$ e $\AW$;
-  \item a execução \textit{smoke} do SUPPORT2 (\texttt{scenario\_run\_id=0}, grade $n\in\{2,4,8,16,32\}$, classificadores Linear SVM e Random Forest), cujos resultados brutos por replicação estão persistidos neste repositório em \path{output/validation/support2-random-forest-smoke/}, permanece na Seção~\ref{sec:support2-rf} como exemplo didático adicional em escala reduzida, e não substitui os resultados de escala completa apresentados neste capítulo.
+  \item $\AR$, $\DR$ e $\SR$ para os quatro cenários também foram \textbf{recalculados diretamente pelo código atual} nesta revisão, e deixam de ser reportados como indisponíveis: as Tabelas~\ref{tab:occupancy-final}, \ref{tab:air-final} e \ref{tab:support2-original}, e a Seção~\ref{sec:support2-rf}, apresentam esses três indicadores lado a lado com $\rankrho$ e $\AW$, complementados por figuras da evolução dos quatro indicadores ao longo da grade amostral completa ($n$ até 512).
 \end{itemize}
-Nenhum valor antigo de similaridade de $\NstarHistorical$ é reportado nesta revisão, e nenhum valor de $\AR$ ou $\SR$ foi derivado algebricamente do antigo produto: todos os valores dos quatro indicadores apresentados neste capítulo, para os quatro cenários de escala completa e para o exemplo \textit{smoke}, foram computados diretamente pelo esquema $\Wmat/\Rmat$ vigente. Ver Apêndice~A para os identificadores de execução e URLs dos relatórios republicados, e Apêndice~B para os comandos exatos de regeneração.
+Nenhum valor antigo de similaridade de $\NstarHistorical$ é reportado nesta revisão, e nenhum valor de $\AR$ ou $\SR$ foi derivado algebricamente do antigo produto: todos os valores dos quatro indicadores apresentados neste capítulo, para os quatro cenários de escala completa, foram computados diretamente pelo esquema $\Wmat/\Rmat$ vigente, sobre os resultados brutos por replicação regenerados; nenhuma execução \textit{smoke} ou de escala reduzida é reportada neste relatório. Ver Apêndice~A para os identificadores de execução e URLs dos relatórios republicados, e Apêndice~B para os comandos exatos de regeneração.
 \end{limitationbox}
 
 As visualizações geométricas foram mantidas como parte importante da interpretação; elas não dependem do esquema de métricas e, portanto, não são afetadas pela limitação acima. Elas não constituem um indicador de preservação e não permitem concluir, isoladamente, em qual condição de treinamento sintético o perfil de cooperação preditiva é melhor reproduzido. Sua função é mostrar quão diferente pode ser a aparência dos dados sintéticos e, em seguida, contrastar essa aparência com os resultados de preservação do perfil observados após o treinamento dos classificadores.
@@ -67,7 +66,7 @@ Essa diferença visual é relevante porque estabelece um teste difícil para a h
 
 A Tabela~\ref{tab:occupancy-final} apresenta os quatro indicadores no maior $n$ avaliado ($n=512$), recalculados diretamente pelo código atual a partir dos resultados brutos regenerados do cenário 000002 (Seção~\ref{sec:resultados-guia}). Para o SVM linear, o treinamento com amostras da Gaussiana única reproduziu melhor o ranking e as relações efetivas de vencedor do que o treinamento com amostras do GMM: $\rankrho=0{,}9528$ contra $0{,}8774$ e $\AW=0{,}9204$ contra $0{,}8624$. Isso ocorre apesar da inferioridade visual das amostras da Gaussiana única. Na regressão logística, o treinamento com amostras da Gaussiana única também apresentou correlação de ranking maior, enquanto aquele com amostras do GMM obteve \WinnersAgreement{} ligeiramente superior. No Gaussian Naive Bayes, ambos os braços reproduziram quase integralmente ranking e relações par a par.
 
-A existência e o regime amostral das inversões, contudo, revelam um padrão que $\rankrho$ e $\AW$ não capturam. No SVM linear, a Gaussiana única obteve $\AR$ ligeiramente superior ao do GMM ($0{,}7706$ contra $0{,}7407$), mas na regressão logística essa ordem se inverte ($\AR=0{,}7089$ na Gaussiana única contra $0{,}7714$ no GMM). O padrão mais marcante aparece no Gaussian Naive Bayes: apesar de $\rankrho$ e $\AW$ quase perfeitos em ambos os braços, o braço da Gaussiana única concorda em apenas $\AR=0{,}4364$ dos pares que invertem, contra $\AR=0{,}6667$ do braço do GMM --- o valor de $\AR$ mais baixo de todo o Occupancy ocorre justamente na configuração com melhor ordenação global e relações de vencedor. Isso confirma, com dados reais de escala completa, a mesma dissociação entre indicadores já ilustrada em escala reduzida na Seção~\ref{sec:support2-rf}.
+A existência e o regime amostral das inversões, contudo, revelam um padrão que $\rankrho$ e $\AW$ não capturam. No SVM linear, a Gaussiana única obteve $\AR$ ligeiramente superior ao do GMM ($0{,}7706$ contra $0{,}7407$), mas na regressão logística essa ordem se inverte ($\AR=0{,}7089$ na Gaussiana única contra $0{,}7714$ no GMM). O padrão mais marcante aparece no Gaussian Naive Bayes: apesar de $\rankrho$ e $\AW$ quase perfeitos em ambos os braços, o braço da Gaussiana única concorda em apenas $\AR=0{,}4364$ dos pares que invertem, contra $\AR=0{,}6667$ do braço do GMM --- o valor de $\AR$ mais baixo de todo o Occupancy ocorre justamente na configuração com melhor ordenação global e relações de vencedor. Isso confirma, com dados reais de escala completa, o mesmo tipo de dissociação entre indicadores discutido para o Random Forest do SUPPORT2 na Seção~\ref{sec:support2-rf}.
 
 \begin{table}[H]
   \centering
@@ -133,6 +132,36 @@ A Figura~\ref{fig:occupancy-winner-matrices} usa o resultado par a par observado
 \subsection{Existência e tamanho amostral das inversões}
 
 Os valores de $\AR$, $\DR$ e $\SR$ do cenário 000002, reportados na Tabela~\ref{tab:occupancy-final}, foram recalculados diretamente pelo código atual a partir dos resultados brutos regenerados desta execução (Seção~\ref{sec:resultados-guia}). As figuras de matriz de inversões e as curvas de $\NstarHistorical$ publicadas nas versões anteriores deste relatório dependiam do objeto retirado do arcabouço ativo e não são reproduzidas aqui; as matrizes $\Wmat$/$\Rmat$ completas deste cenário, no esquema atual, permanecem disponíveis no relatório HTML republicado (Apêndice~A). A leitura qualitativa de que a ordenação e as relações efetivas de vencedor foram bem preservadas no Gaussian Naive Bayes e de forma mais heterogênea nos classificadores lineares permanece válida, mas a leitura numérica da existência e do regime amostral das inversões mostra que essa hierarquia não se repete: o Gaussian Naive Bayes, apesar do $\rankrho$ e do $\AW$ mais altos entre os três classificadores, obteve os valores de $\AR$ mais baixos do cenário ($0{,}4364$ e $0{,}6667$), enquanto os classificadores lineares, com ordenação e relações de vencedor mais heterogêneas, concordaram sobre a existência de inversões em proporção mais alta ($\AR$ entre $0{,}7089$ e $0{,}7714$). Existência de inversões e ordenação global respondem, portanto, a aspectos distintos do treinamento sintético neste dataset.
+
+A Figura~\ref{fig:occupancy-metric-curves} mostra a evolução dos quatro indicadores ao longo de toda a grade amostral ($n$ de 2 a 512) para o Gaussian Naive Bayes, o classificador que evidencia essa dissociação. $\rankrho$ e $\AW$ sobem rapidamente e permanecem próximos de 1 a partir de $n$ pequeno; $\AR$, em contraste, oscila em patamar baixo por toda a grade no braço da Gaussiana única, e só cresce de forma mais visível no braço do GMM a partir de $n=128$. $\SR$ permanece intermediário a alto nos dois braços. A trajetória deixa claro que a baixa concordância de existência de inversões não é um efeito transitório de $n$ pequeno: ela persiste até o maior tamanho amostral avaliado.
+
+\begin{figure}[H]
+  \centering
+  \caption{Evolução dos quatro indicadores por $n$ no Occupancy Detection, Gaussian Naive Bayes (cenário 000002)}
+  \label{fig:occupancy-metric-curves}
+  \begin{minipage}[t]{0.49\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/predictive_profile_metrics/occupancy/occupancy_gnb_rho_rank.png}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[t]{0.49\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/predictive_profile_metrics/occupancy/occupancy_gnb_winner_agreement.png}
+  \end{minipage}
+
+  \vspace{2mm}
+  \begin{minipage}[t]{0.49\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/predictive_profile_metrics/occupancy/occupancy_gnb_reversal_existence_agreement.png}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[t]{0.49\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/predictive_profile_metrics/occupancy/occupancy_gnb_reversal_sample_size_similarity.png}
+  \end{minipage}
+  \sourcebelow{elaboração própria, computado diretamente pelo código atual a partir do relatório republicado do cenário Occupancy Detection 000002}
+  \notailustracao{A série de $\rankrho$ e $\AW$ é indexada por $n$ por classe; a de $\AR$ e $\SR$, pelo prefixo $n_t$ (Capítulo~6). A curva \RealToReal{} é a autocomparação trivial (valor 1 em todo o domínio) e serve apenas de referência visual}
+\end{figure}
 
 \section{UCI Air Quality}
 
@@ -218,6 +247,36 @@ A Tabela~\ref{tab:air-final} mostra uma preservação elevada do ranking e das r
 
 A combinação Air Quality--Gaussian Naive Bayes permanece a evidência mais clara, entre os quatro cenários de escala completa, de preservação quase integral do perfil de cooperação preditiva: ordenação global, relações efetivas de vencedor, existência de inversões e regime amostral das inversões são todos elevados nos dois braços sintéticos ($\AR\geq0{,}78$, $\SR\geq0{,}96$). Esse é o único par dataset--classificador do estudo em que os quatro indicadores concordam em apontar preservação forte simultaneamente; contrasta com o SVM linear do mesmo dataset, cujo $\AR$ cai para $0{,}26$--$0{,}43$ apesar de $\rankrho$ e $\AW$ também elevados (Tabela~\ref{tab:air-final}), e com o exemplo do SUPPORT2 apresentado na Seção~\ref{sec:support2-rf}, no qual nenhum classificador atinge essa concordância nos quatro indicadores ao mesmo tempo.
 
+A Figura~\ref{fig:air-quality-metric-curves} acompanha essa preservação ao longo de toda a grade amostral. Diferentemente do Occupancy, os quatro indicadores sobem juntos e cedo: $\rankrho$ e $\AW$ já estão próximos de 1 a partir de $n$ pequeno, e $\AR$ e $\SR$ os acompanham em vez de permanecerem em patamar baixo. Essa concordância entre as quatro trajetórias, não apenas entre os quatro valores finais em $n=512$, é o que distingue este caso dos demais cenários do estudo.
+
+\begin{figure}[H]
+  \centering
+  \caption{Evolução dos quatro indicadores por $n$ no UCI Air Quality, Gaussian Naive Bayes (cenário 000005)}
+  \label{fig:air-quality-metric-curves}
+  \begin{minipage}[t]{0.49\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/predictive_profile_metrics/air_quality/air_quality_gnb_rho_rank.png}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[t]{0.49\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/predictive_profile_metrics/air_quality/air_quality_gnb_winner_agreement.png}
+  \end{minipage}
+
+  \vspace{2mm}
+  \begin{minipage}[t]{0.49\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/predictive_profile_metrics/air_quality/air_quality_gnb_reversal_existence_agreement.png}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[t]{0.49\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/predictive_profile_metrics/air_quality/air_quality_gnb_reversal_sample_size_similarity.png}
+  \end{minipage}
+  \sourcebelow{elaboração própria, computado diretamente pelo código atual a partir do relatório republicado do cenário Air Quality 000005}
+  \notailustracao{A série de $\rankrho$ e $\AW$ é indexada por $n$ por classe; a de $\AR$ e $\SR$, pelo prefixo $n_t$ (Capítulo~6). A curva \RealToReal{} é a autocomparação trivial (valor 1 em todo o domínio) e serve apenas de referência visual}
+\end{figure}
+
 \section{SUPPORT2}
 
 \subsection{Ordenação global e relações efetivas de vencedor com classificadores lineares e Gaussian Naive Bayes}
@@ -246,6 +305,36 @@ O SUPPORT2 amplia o problema para sete canais e 127 subconjuntos. A Tabela~\ref{
   \notailustracao{$\DR$ (distância média em $\log_2$) foi de $2{,}0666$ (SVM, Gaussiana) e $1{,}6632$ (SVM, GMM); $2{,}0988$ (regressão logística, Gaussiana) e $1{,}9604$ (regressão logística, GMM); $2{,}1252$ (GNB, Gaussiana) e $2{,}0214$ (GNB, GMM). Os valores de $\rankrho$ e $\AW$ recalculados diferem das versões publicadas anteriormente apenas na quarta casa decimal, confirmando computacionalmente a equivalência matemática entre as duas versões desses dois indicadores (Seção~\ref{sec:resultados-guia})}
 \end{table}
 
+A Figura~\ref{fig:support2-metric-curves} mostra a evolução dos quatro indicadores por $n$ para o SVM linear. $\rankrho$ e $\AW$ sobem cedo e permanecem altos a partir de $n$ moderado, especialmente no braço do GMM; $\AR$ cresce de forma mais lenta e irregular em ambos os braços, sem nunca se aproximar dos patamares do Air Quality, e $\SR$ permanece estável na faixa de $0{,}7$--$0{,}8$ ao longo de quase toda a grade.
+
+\begin{figure}[H]
+  \centering
+  \caption{Evolução dos quatro indicadores por $n$ no SUPPORT2, SVM linear (cenário 000007)}
+  \label{fig:support2-metric-curves}
+  \begin{minipage}[t]{0.49\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/predictive_profile_metrics/support2/support2_svm_rho_rank.png}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[t]{0.49\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/predictive_profile_metrics/support2/support2_svm_winner_agreement.png}
+  \end{minipage}
+
+  \vspace{2mm}
+  \begin{minipage}[t]{0.49\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/predictive_profile_metrics/support2/support2_svm_reversal_existence_agreement.png}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[t]{0.49\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/predictive_profile_metrics/support2/support2_svm_reversal_sample_size_similarity.png}
+  \end{minipage}
+  \sourcebelow{elaboração própria, computado diretamente pelo código atual a partir dos resultados brutos regenerados do cenário SUPPORT2 000007}
+  \notailustracao{A série de $\rankrho$ e $\AW$ é indexada por $n$ por classe; a de $\AR$ e $\SR$, pelo prefixo $n_t$ (Capítulo~6). A curva \RealToReal{} é a autocomparação trivial (valor 1 em todo o domínio) e serve apenas de referência visual}
+\end{figure}
+
 \subsection{Random Forest: desempenho absoluto e preservação do perfil}
 \label{sec:support2-rf}
 
@@ -259,53 +348,47 @@ O cenário 000008 (execução \textit{full}, $n\leq512$) executou somente Random
   \notailustracao{A linha tracejada representa o erro de classificação obtido ao predizer sempre a classe majoritária no teste real. Este valor de perda não depende do esquema de métricas revisado e é reportado sem a ressalva de disponibilidade da Seção~\ref{sec:resultados-guia}}
 \end{figure}
 
-$\rankrho$ e $\AW$ do cenário 000008 mostram que esse baixo desempenho absoluto não impediu preservação elevada da ordenação e das relações efetivas de vencedor: o braço treinado com amostras da Gaussiana única atingiu $\rankrho=0{,}8387$ e $\AW=0{,}8282$; o braço treinado com amostras do GMM atingiu $0{,}8665$ e $0{,}8429$. $\AR$, $\DR$ e $\SR$ de escala completa ($n\leq512$) foram recalculados diretamente pelo código atual a partir dos resultados brutos regenerados deste cenário (Seção~\ref{sec:resultados-guia}): o braço da Gaussiana única obteve $\AR=0{,}5052$, $\DR=1{,}4684$ e $\SR=0{,}8165$; o braço do GMM obteve $\AR=0{,}4272$, $\DR=1{,}5532$ e $\SR=0{,}8059$. Esses valores reproduzem, em escala completa, o mesmo padrão qualitativo apresentado a seguir para a execução \textit{smoke} desta mesma seção: $\AR$ relativamente baixo combinado com $\SR$ relativamente alto. As antigas figuras de matrizes dirigidas de $\NstarHistorical$ e de curvas cooperativas com marcação de último cruzamento, publicadas nas versões anteriores deste relatório para este cenário, dependiam do objeto retirado do arcabouço ativo e não são reproduzidas; as matrizes $\Wmat$/$\Rmat$ completas sob o esquema atual permanecem disponíveis no relatório HTML republicado (Apêndice~A).
+$\rankrho$ e $\AW$ do cenário 000008 mostram que esse baixo desempenho absoluto não impediu preservação elevada da ordenação e das relações efetivas de vencedor: o braço treinado com amostras da Gaussiana única atingiu $\rankrho=0{,}8387$ e $\AW=0{,}8281$; o braço treinado com amostras do GMM atingiu $0{,}8665$ e $0{,}8429$. $\AR$, $\DR$ e $\SR$ de escala completa ($n\leq512$) foram recalculados diretamente pelo código atual a partir dos resultados brutos regenerados deste cenário (Seção~\ref{sec:resultados-guia}): o braço da Gaussiana única obteve $\AR=0{,}5052$, $\DR=1{,}4684$ e $\SR=0{,}8165$; o braço do GMM obteve $\AR=0{,}4272$, $\DR=1{,}5532$ e $\SR=0{,}8059$ --- o mesmo padrão qualitativo do SVM linear na Tabela~\ref{tab:support2-original}, com $\AR$ relativamente baixo combinado a $\SR$ relativamente alto. As antigas figuras de matrizes dirigidas de $\NstarHistorical$ e de curvas cooperativas com marcação de último cruzamento, publicadas nas versões anteriores deste relatório para este cenário, dependiam do objeto retirado do arcabouço ativo e não são reproduzidas; as matrizes $\Wmat$/$\Rmat$ completas deste cenário, no esquema atual, já foram apresentadas na Figura~\ref{fig:wr-matrices-support2} do Capítulo~6, e permanecem disponíveis por completo no relatório HTML republicado (Apêndice~A).
 
-\begin{keyresultbox}[Exemplo didático complementar: SUPPORT2, execução \textit{smoke}]
-Como exemplo didático complementar aos resultados de escala completa discutidos acima, a Tabela~\ref{tab:support2-smoke} e a Figura~\ref{fig:wr-matrices-support2-cap7} usam a execução \textit{smoke} do SUPPORT2 (\texttt{scenario\_run\_id=0}, grade $n\in\{2,4,8,16,32\}$, sete subconjuntos de referência selecionados um por cardinalidade). Esta execução \textbf{não é comparável em escala} à execução \textit{full} discutida acima ($n\leq512$, 127 subconjuntos completos): ela ilustra, com uma grade menor e mais fácil de inspecionar par a par, o mesmo padrão de dissociação entre $\AR$ e $\SR$ já confirmado em escala completa, e não substitui nem estende os resultados de escala completa.
-\end{keyresultbox}
-
-\begin{table}[H]
-  \centering
-  \caption{Indicadores de preservação do perfil no SUPPORT2, execução \textit{smoke} (\texttt{scenario\_run\_id=0}), $n_t\leq32$, recalculados diretamente pelo código atual}
-  \label{tab:support2-smoke}
-  \begin{adjustbox}{max width=\textwidth}
-  \begin{tabular}{llSSSSl}
-    \toprule
-    Classificador & Braço & {$\rankrho$} & {$\AW$} & {$\AR$} & {$\SR$} & {Pares (ref./braço/compart./união)} \\
-    \midrule
-    Linear SVM & Gaussiana única $\rightarrow$ Real & 0.0105 & 0.5043 & 0.7280 & 0.7283 & 6651 / 6886 / 5703 / 7834 \\
-    Linear SVM & GMM $\rightarrow$ Real             & 0.2712 & 0.5909 & 0.7937 & 0.6886 & 6651 / 7446 / 6238 / 7859 \\
-    Random Forest & Gaussiana única $\rightarrow$ Real & 0.6236 & 0.7309 & 0.4790 & 0.8815 & 4826 / 5737 / 3421 / 7142 \\
-    Random Forest & GMM $\rightarrow$ Real             & 0.5335 & 0.6869 & 0.4668 & 0.8787 & 4826 / 5629 / 3327 / 7128 \\
-    \bottomrule
-  \end{tabular}
-  \end{adjustbox}
-  \sourcebelow{recomputado diretamente dos resultados persistidos em \texttt{output/validation/support2-random-forest-smoke/}, usando \texttt{coinfosim.results.structural.scenario\_structural\_fidelity}; ver Apêndice~B para o comando exato}
-  \notailustracao{$q=127$ subconjuntos; $q(q-1)/2=8001$ pares não ordenados totais em todas as linhas. $\DR$ (distância média em $\log_2$, não tabulada por espaço) foi de $1{,}087$ (SVM, Gaussiana) e $1{,}245$ (SVM, GMM) contra $0{,}474$ (RF, Gaussiana) e $0{,}485$ (RF, GMM) --- o Random Forest concentrou as inversões compartilhadas em regimes amostrais mais próximos entre braços, mesmo com $\AR$ mais baixo}
-\end{table}
-
-Nesta execução reduzida, o Random Forest preservou pior a \emph{existência} das inversões do que o SVM linear ($\AR\approx0{,}47$--$0{,}48$ contra $0{,}73$--$0{,}79$), mas, condicional aos pares que efetivamente invertem em ambos os braços, preservou melhor o \emph{regime amostral} dessas inversões ($\SR\approx0{,}88$ contra $0{,}69$--$0{,}73$). O SVM linear, por sua vez, teve ordenação global quase não preservada ($\rankrho$ próximo de zero) apesar de $\AW$ moderado --- um lembrete de que os quatro indicadores podem divergir fortemente mesmo em uma única execução. Esse padrão de $\AR$ mais baixo e $\SR$ mais alto no Random Forest, em relação ao SVM linear, não é uma peculiaridade da escala \textit{smoke}: os resultados de escala completa apresentados acima ($\AR=0{,}43$--$0{,}51$ e $\SR=0{,}81$--$0{,}82$ para o Random Forest, contra $\AR=0{,}53$--$0{,}60$ e $\SR=0{,}74$--$0{,}79$ para o SVM linear no cenário 000007) confirmam a mesma direção, embora com magnitude diferente.
+A Figura~\ref{fig:support2-rf-metric-curves} mostra a evolução dos quatro indicadores por $n$ para o Random Forest. $\rankrho$ e $\AW$ crescem de forma relativamente suave e terminam em patamar comparável ao dos classificadores lineares do cenário 000007; $\AR$ permanece baixo por quase toda a grade, com uma leve recuperação apenas nos maiores valores de $n$, enquanto $\SR$ se mantém estável e alto desde o início --- o contraste visual entre os dois painéis inferiores é a mesma dissociação relatada na Tabela~\ref{tab:support2-original} para os demais classificadores do SUPPORT2, aqui mais acentuada.
 
 \begin{figure}[H]
   \centering
-  \caption{Matriz de vencedores $\mathbf{W}$ e matriz de inversões $\mathbf{R}$, SUPPORT2 \textit{smoke}, Random Forest, \RealToReal{} e \GaussianToReal{}}
-  \label{fig:wr-matrices-support2-cap7}
-  \includegraphics[width=0.46\textwidth]{figures/wr_matrices/support2_smoke/winner_matrix_single_gaussian_to_real_n32.png}
+  \caption{Evolução dos quatro indicadores por $n$ no SUPPORT2, Random Forest (cenário 000008)}
+  \label{fig:support2-rf-metric-curves}
+  \begin{minipage}[t]{0.49\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/predictive_profile_metrics/support2/support2_rf_rho_rank.png}
+  \end{minipage}
   \hfill
-  \includegraphics[width=0.46\textwidth]{figures/wr_matrices/support2_smoke/reversal_matrix_single_gaussian_to_real_n32.png}
-  \sourcebelow{recomputado diretamente dos resultados persistidos da execução \textit{smoke} do SUPPORT2; mesmas matrizes já apresentadas na Figura~\ref{fig:wr-matrices-support2} do Capítulo~6, reproduzidas aqui em contexto de resultados}
+  \begin{minipage}[t]{0.49\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/predictive_profile_metrics/support2/support2_rf_winner_agreement.png}
+  \end{minipage}
+
+  \vspace{2mm}
+  \begin{minipage}[t]{0.49\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/predictive_profile_metrics/support2/support2_rf_reversal_existence_agreement.png}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[t]{0.49\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/predictive_profile_metrics/support2/support2_rf_reversal_sample_size_similarity.png}
+  \end{minipage}
+  \sourcebelow{elaboração própria, computado diretamente pelo código atual a partir dos resultados brutos regenerados do cenário SUPPORT2 000008}
+  \notailustracao{A série de $\rankrho$ e $\AW$ é indexada por $n$ por classe; a de $\AR$ e $\SR$, pelo prefixo $n_t$ (Capítulo~6). A curva \RealToReal{} é a autocomparação trivial (valor 1 em todo o domínio) e serve apenas de referência visual}
 \end{figure}
 
 \subsection{Comparação do Random Forest com os demais classificadores}
 
-Comparando diretamente os cenários 000007 e 000008, o Random Forest combinou o menor desempenho preditivo absoluto entre os classificadores estudados (perda próxima do referencial majoritário) com valores de $\rankrho$ e $\AW$ comparáveis aos dos classificadores lineares no mesmo dataset --- reforçando que desempenho absoluto e preservação da ordenação/relações de vencedor são propriedades distintas. Em existência e regime amostral das inversões, o Random Forest ($\AR=0{,}43$--$0{,}51$; $\SR=0{,}81$--$0{,}82$) ocupa o extremo de $\SR$ mais alto entre todos os classificadores do SUPPORT2 em escala completa, ao lado de um $\AR$ entre os mais baixos do dataset (Tabela~\ref{tab:support2-original}): apenas o Gaussian Naive Bayes com GMM ($\AR=0{,}7849$) e a regressão logística com GMM ($\SR=0{,}7549$) se aproximam de um extremo semelhante em um único indicador, nunca nos dois simultaneamente. A relação desse classificador com a existência e o regime amostral das inversões foi reexaminada também na escala reduzida da execução \textit{smoke} (Seção~\ref{sec:support2-rf}), com o mesmo padrão qualitativo.
+Comparando diretamente os cenários 000007 e 000008, o Random Forest combinou o menor desempenho preditivo absoluto entre os classificadores estudados (perda próxima do referencial majoritário) com valores de $\rankrho$ e $\AW$ comparáveis aos dos classificadores lineares no mesmo dataset --- reforçando que desempenho absoluto e preservação da ordenação/relações de vencedor são propriedades distintas. Em existência e regime amostral das inversões, o Random Forest ($\AR=0{,}43$--$0{,}51$; $\SR=0{,}81$--$0{,}82$) ocupa o extremo de $\SR$ mais alto entre todos os classificadores do SUPPORT2 em escala completa, ao lado de um $\AR$ entre os mais baixos do dataset (Tabela~\ref{tab:support2-original}): apenas o Gaussian Naive Bayes com GMM ($\AR=0{,}7849$) e a regressão logística com GMM ($\SR=0{,}7549$) se aproximam de um extremo semelhante em um único indicador, nunca nos dois simultaneamente.
 
 Esse resultado não pode ser generalizado para Occupancy e Air Quality, pois o Random Forest não foi executado nesses datasets. A execução foi aproximadamente três a cinco vezes mais lenta que as simulações com classificadores mais simples, inviabilizando a repetição completa dentro do prazo do trabalho. O resultado é, portanto, evidência de uma interação específica entre SUPPORT2, Random Forest e os geradores avaliados.
 
 \section{Síntese dos cenários}
 
-A Tabela~\ref{tab:cross-synthesis} resume os padrões mais informativos observáveis nos quatro indicadores, agora recalculados diretamente pelo código atual para os quatro cenários de escala completa. Não existe um gerador universalmente superior. O classificador é decisivo: Gaussian Naive Bayes no Air Quality apresentou a preservação mais alta e mais uniforme dos quatro indicadores do estudo, enquanto o Random Forest no SUPPORT2 combinou baixa qualidade preditiva absoluta com preservação de ordenação e relações de vencedor comparável à dos classificadores lineares e um perfil particular de $\AR$ mais baixo e $\SR$ mais alto --- confirmado tanto em escala completa (Seção~\ref{sec:support2-rf}) quanto no exemplo em escala reduzida da mesma seção.
+A Tabela~\ref{tab:cross-synthesis} resume os padrões mais informativos observáveis nos quatro indicadores, agora recalculados diretamente pelo código atual para os quatro cenários de escala completa. Não existe um gerador universalmente superior. O classificador é decisivo: Gaussian Naive Bayes no Air Quality apresentou a preservação mais alta e mais uniforme dos quatro indicadores do estudo, enquanto o Random Forest no SUPPORT2 combinou baixa qualidade preditiva absoluta com preservação de ordenação e relações de vencedor comparável à dos classificadores lineares e um perfil particular de $\AR$ mais baixo e $\SR$ mais alto (Seção~\ref{sec:support2-rf}).
 
 \begin{table}[H]
   \centering
@@ -320,7 +403,6 @@ A Tabela~\ref{tab:cross-synthesis} resume os padrões mais informativos observá
     Air Quality & GNB, ambos os braços sintéticos & Único caso do estudo com os quatro indicadores elevados simultaneamente ($\AR\geq0{,}78$, $\SR\geq0{,}96$). \\
     SUPPORT2 & SVM e regressão logística & $\rankrho$ e $\AW$ altos em $n=512$; $\AR$ mais baixo que Occupancy/Air Quality ($0{,}49$--$0{,}60$). \\
     SUPPORT2 & Random Forest (\textit{full}, $n=512$) & Perda próxima ao referencial majoritário; $\rankrho$/$\AW$ comparáveis aos classificadores lineares; $\AR$ entre os mais baixos ($0{,}43$--$0{,}51$) e $\SR$ entre os mais altos ($0{,}81$--$0{,}82$) do SUPPORT2. \\
-    SUPPORT2 & Random Forest e SVM (\textit{smoke}, $n\leq32$) & Exemplo didático em escala reduzida do mesmo padrão de escala completa: RF preserva pior a existência das inversões, mas melhor seu regime amostral, do que o SVM linear. \\
     \bottomrule
   \end{tabularx}
   \sourcebelow{elaboração própria}

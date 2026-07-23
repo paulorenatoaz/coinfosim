@@ -39,3 +39,23 @@ A revisão registrada na tabela acima reportava $A_R$, $D_R$ e $S_R$ como indisp
 | Apêndice B | Atualização do comando de reprodução para os módulos canônicos (`predictive_profile`, `predictive_profile_visualization`); documentação do caminho de regeneração dos quatro cenários de escala completa; correção de `schema_version` (2→3); resolução das caixas de limitação sobre inconsistência terminológica do renderizador e sobre compilação não validada | Refletir o estado atual do código e do ambiente de compilação (TeXLive completo já instalado) | Não | Não |
 | Apresentação, slides 9–12 | Preenchimento das células de $A_R$/$S_R$ antes marcadas com travessão; reescrita das notas do apresentador e caixas de destaque | Os mesmos dados agora disponíveis no relatório | Sim, no mesmo sentido do Capítulo 7 | Não |
 | Apresentação, slides de apoio 4 e 6 | Preenchimento das tabelas completas de $A_R$/$S_R$ para os quatro cenários de escala completa | Idem | Sim, no mesmo sentido do Capítulo 7 | Não |
+
+## Revisão de 2026-07-23: resultados exclusivamente em escala completa
+
+Esta revisão elimina o uso de execuções *smoke* como evidência científica nos
+documentos acadêmicos. Todos os números, tabelas e figuras de resultados agora
+provêm dos cenários `full` 000002, 000005, 000007 e 000008. O modo *smoke*
+permanece citado apenas na documentação do fluxo de validação computacional,
+sem resultados associados.
+
+| Seção | Tipo de alteração | Razão | Significado científico alterado? | Figura ou tabela nova? |
+|---|---|---|---|---|
+| Cap. 6 | Substituição das matrizes $\Wmat$/$\Rmat$ do exemplo SUPPORT2 *smoke* ($n\leq32$) por matrizes recalculadas do cenário SUPPORT2 Random Forest `full` 000008 ($n\leq512$) | A execução completa e seus resultados brutos passaram a estar disponíveis | Não muda o método; fortalece a escala da evidência ilustrativa | Sim: quatro matrizes `support2_full` |
+| Cap. 7 | Remoção integral da caixa, tabela e figuras SUPPORT2 *smoke*; inclusão de quatro figuras de evolução por $n$ para cada uma das seções Occupancy/GNB, Air Quality/GNB, SUPPORT2/SVM e SUPPORT2/Random Forest | Evitar que uma execução de validação reduzida seja apresentada junto dos resultados científicos e mostrar a trajetória, não apenas o ponto final | Sim: a interpretação passa a se apoiar exclusivamente nos quatro cenários completos e explicita a evolução amostral dos indicadores | Sim: 16 gráficos de métricas por $n$ |
+| Caps. 8, 10 e 11 | Remoção das comparações e conclusões baseadas no exemplo *smoke*; atualização das respostas a RQ3--RQ6 e das limitações | Manter discussão e conclusão no mesmo escopo de evidência do Capítulo 7 | Não altera os valores; restringe corretamente o alcance das inferências à escala completa | Não |
+| Apêndice A | Remoção da seção de artefatos SUPPORT2 *smoke* e correção das referências cruzadas; declaração explícita da política de resultados `full`/`full-scale` | Os relatórios HTML e resultados completos estão disponíveis na publicação GitHub Pages | Não | Não |
+| Apêndice B | Reescrita do comando de regeneração de $\Wmat$/$\Rmat$ para as simulações `full` 000024--000026 e documentação das figuras atuais | Garantir que o procedimento documentado reproduza exatamente a evidência exibida | Não | Não |
+| Apresentação, slides 9--11 | Substituição das tabelas estáticas/resultado *smoke* por gráficos compactos de $\rankrho$, $\AW$, $\AR$ e $\SR$ versus $n$, gerados dos cenários `full` 000002, 000005 e 000008; atualização das notas do apresentador | Mostrar a evolução dos quatro indicadores e remover a mistura de escalas | Não altera os dados; melhora a leitura temporal e a consistência entre relatório e apresentação | Sim: três PDFs vetoriais |
+| Apresentação, apoio 6 e conclusão | Remoção da tabela SUPPORT2 *smoke* e de todas as citações de resultados em escala reduzida | Manter somente evidência completa em todo o deck | Não | Tabela de apoio simplificada |
+| Proveniência de figuras | Atualização de `FIGURE_SOURCES.md`, criação de gerador reprodutível para o deck e exclusão dos oito PNGs *smoke* sem uso | Tornar explícita a origem de cada figura e impedir reutilização acidental de evidência reduzida | Não | Sim |
+| Compilação e QA | `latexmk -xelatex` no relatório e `make presentation` no deck; inspeção visual das matrizes full, das quatro páginas de métricas do Capítulo 7, dos slides 9--12 e do apoio 6 | Validar referências, margens, legibilidade e ausência de colisões | Não | PDFs finais com 124 e 30 páginas, respectivamente |

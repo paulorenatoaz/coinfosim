@@ -131,28 +131,31 @@ Uma revisão editorial anterior identificou que o renderizador de cenário ainda
 \section{Regeneração direta dos indicadores $\Wmat$/$\Rmat$ a partir de resultados persistidos}
 \label{ap:comando-wr}
 
-Para obter indicadores de preservação genuínos e correntes sem modificar código de produção nem executar Monte Carlo, esta revisão chamou diretamente as funções canônicas de \texttt{coinfosim.results.predictive\_profile} sobre os resultados brutos persistidos da execução \textit{smoke} do SUPPORT2 (Apêndice~A, Seção~\ref{ap:support2-smoke}):
+Para obter indicadores de preservação genuínos e correntes sem modificar código de produção nem executar Monte Carlo, esta revisão chamou diretamente as funções canônicas de \texttt{coinfosim.results.predictive\_profile} sobre os resultados brutos por replicação regenerados dos quatro cenários de escala completa (Occupancy 000002, Air Quality 000005, SUPPORT2 000007 e 000008), conforme a política \texttt{structural\_snapshot\_policy} de cada cenário (Apêndice~A): para 000002, 000005 e 000007 (\texttt{embedded}), os quatro indicadores foram lidos diretamente do payload \texttt{predictive\_cooperation\_profile} já persistido em \texttt{scenario.json}; para 000008 (\texttt{regenerate\_from\_result\_data}), os indicadores foram recalculados diretamente sobre os resultados brutos das simulações 000024--000026 em \texttt{output/reports/simulations/} (Apêndice~A):
 
 \begin{verbatim}
 .venv/bin/python3 -c "
-from coinfosim.results.persistence import load_simulation_result
+from coinfosim.results.persistence import (
+    load_simulation_result,
+)
 from coinfosim.results.predictive_profile import (
     scenario_predictive_profile_agreement,
 )
 
-base = 'output/validation/support2-random-forest-smoke/simulations'
+base = 'output/reports/simulations'
 arm_dirs = {
-    'real_to_real': '000000_support2_real_data_smoke',
+    'real_to_real': '000024_support2_real_data_full',
     'single_gaussian_to_real':
-        '000001_support2_single_gaussian_to_real_smoke',
-    'gmm_to_real': '000002_support2_gmm_to_real_smoke',
+        '000025_support2_single_gaussian_to_real_full',
+    'gmm_to_real': '000026_support2_gmm_to_real_full',
 }
 suffixes = {
-    'real_to_real': '000000', 'single_gaussian_to_real': '000001',
-    'gmm_to_real': '000002',
+    'real_to_real': '000024',
+    'single_gaussian_to_real': '000025',
+    'gmm_to_real': '000026',
 }
 paths = {
-    arm: f'{base}/{d}/result_data_smoke_{suffixes[arm]}.json.gz'
+    arm: f'{base}/{d}/result_data_full_{suffixes[arm]}.json.gz'
     for arm, d in arm_dirs.items()
 }
 results = {
@@ -167,22 +170,16 @@ profile = scenario_predictive_profile_agreement(
 "
 \end{verbatim}
 
-O mesmo padrão, combinado com as funções
+O mesmo padrão, combinado com as funções do módulo
+\path{coinfosim.reports.predictive_profile_visualization},
 
-\begin{center}
-\small\texttt{coinfosim.reports.predictive\_profile\_visualization.winner\_matrix\_figure}\\
-\small\texttt{coinfosim.reports.predictive\_profile\_visualization.reversal\_matrix\_figure}
-\end{center}
+\begin{itemize}
+  \item \texttt{winner\_matrix\_figure};
+  \item \texttt{reversal\_matrix\_figure};
+  \item \texttt{profile\_metric\_series\_figure},
+\end{itemize}
 
-\noindent produziu as figuras em \texttt{figures/wr\_matrices/support2\_smoke/} usadas nos Capítulos~6 e~7. Este comando é reprodutível por qualquer pessoa com acesso ao repositório e ao diretório
-
-\begin{center}
-\small\texttt{output/validation/\allowbreak support2-random-forest-smoke/}
-\end{center}
-
-\noindent (rastreado fora do controle de versão, mas presente no ambiente auditado); ele não requer, nem executa, nenhuma nova simulação.
-
-Para os quatro cenários de escala completa (Occupancy 000002, Air Quality 000005, SUPPORT2 000007 e 000008), esta revisão usou dois caminhos equivalentes, conforme a política \texttt{structural\_snapshot\_policy} de cada cenário (Apêndice~A): para 000002, 000005 e 000007 (\texttt{embedded}), os quatro indicadores foram lidos diretamente do payload \texttt{predictive\_cooperation\_profile} já persistido em \texttt{scenario.json}; para 000008 (\texttt{regenerate\_from\_result\_data}), o mesmo padrão de comando acima foi aplicado sobre os resultados brutos das simulações 000024--000026 em \texttt{output/reports/simulations/} (Apêndice~A), chamando \texttt{scenario\_predictive\_profile\_agreement} diretamente em vez de ler um payload embutido. Em ambos os casos, nenhuma nova simulação de Monte Carlo foi executada.
+\noindent produziu, respectivamente, as matrizes $\Wmat$/$\Rmat$ em \path{figures/wr_matrices/support2_full/} (Capítulo~6) e as figuras de evolução dos quatro indicadores por $n$ em \path{figures/predictive_profile_metrics/} (Capítulo~7). Este comando é reprodutível por qualquer pessoa com acesso ao repositório e ao diretório \path{output/reports/} (rastreado fora do controle de versão, mas presente no ambiente auditado); ele não requer, nem executa, nenhuma nova simulação. Nenhum resultado de execução \textit{smoke} foi utilizado para gerar figuras ou tabelas deste relatório; o modo \textit{smoke} do \CoInfoSim{} (Seção anterior) é reservado a testes e validação computacional do código, não a produção de evidência científica.
 
 \section{Compilação deste relatório}
 

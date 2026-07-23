@@ -7,7 +7,7 @@ all: presentation
 
 figures:
 	../.venv/bin/python scripts/generate_air_quality_gnb_curves.py
-	../.venv/bin/python scripts/generate_air_quality_gnb_progressive_metrics.py
+	../.venv/bin/python scripts/generate_full_scale_metric_curves.py
 
 presentation: figures
 	$(LATEXMK) $(LATEXFLAGS) -outdir=build presentation.tex
