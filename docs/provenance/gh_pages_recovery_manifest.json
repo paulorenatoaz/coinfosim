@@ -1,0 +1,585 @@
+{
+  "academic_scenario_ids": [
+    "000002",
+    "000005",
+    "000006",
+    "000007",
+    "000008"
+  ],
+  "academic_scenarios_missing": [],
+  "academic_scenarios_present": [
+    "000002",
+    "000005",
+    "000006",
+    "000007",
+    "000008"
+  ],
+  "expected_scenario_ids": [
+    "000000",
+    "000001",
+    "000002",
+    "000003",
+    "000004",
+    "000005",
+    "000006",
+    "000007",
+    "000008"
+  ],
+  "gzip_verification_enabled": true,
+  "recovery_timestamp": "2026-07-23T08:51:25.810801+00:00",
+  "registry_inconsistencies": [
+    {
+      "directory": "reports/scenarios/000008_support2_baseline_full",
+      "id": "000008",
+      "issue": "directory present on disk but absent from scenario_runs.json",
+      "kind": "scenario"
+    },
+    {
+      "directory": "reports/simulations/000024_support2_real_data_full",
+      "id": "000024",
+      "issue": "directory present on disk and referenced by scenario 000008 but absent from simulation_runs.json",
+      "kind": "simulation"
+    },
+    {
+      "directory": "reports/simulations/000025_support2_single_gaussian_to_real_full",
+      "id": "000025",
+      "issue": "directory present on disk and referenced by scenario 000008 but absent from simulation_runs.json",
+      "kind": "simulation"
+    },
+    {
+      "directory": "reports/simulations/000026_support2_gmm_to_real_full",
+      "id": "000026",
+      "issue": "directory present on disk and referenced by scenario 000008 but absent from simulation_runs.json",
+      "kind": "simulation"
+    }
+  ],
+  "reports_dir": "reports",
+  "scenarios": {
+    "000000": {
+      "critical_result_data_ok": null,
+      "directory": "reports/scenarios/000000_occupancy_baseline_smoke",
+      "in_scenario_registry": true,
+      "is_academic_scenario": false,
+      "linked_simulation_ids": [
+        0,
+        1,
+        2
+      ],
+      "missing_linked_simulations": [],
+      "mode": "smoke",
+      "scenario_run_id": 0,
+      "scenario_slug": "occupancy_baseline",
+      "status": "completed"
+    },
+    "000001": {
+      "critical_result_data_ok": null,
+      "directory": "reports/scenarios/000001_occupancy_baseline_fast",
+      "in_scenario_registry": true,
+      "is_academic_scenario": false,
+      "linked_simulation_ids": [
+        3,
+        4,
+        5
+      ],
+      "missing_linked_simulations": [],
+      "mode": "fast",
+      "scenario_run_id": 1,
+      "scenario_slug": "occupancy_baseline",
+      "status": "completed"
+    },
+    "000002": {
+      "critical_result_data_ok": true,
+      "directory": "reports/scenarios/000002_occupancy_baseline_full",
+      "in_scenario_registry": true,
+      "is_academic_scenario": true,
+      "linked_simulation_ids": [
+        6,
+        7,
+        8
+      ],
+      "missing_linked_simulations": [],
+      "mode": "full",
+      "scenario_run_id": 2,
+      "scenario_slug": "occupancy_baseline",
+      "status": "completed"
+    },
+    "000003": {
+      "critical_result_data_ok": null,
+      "directory": "reports/scenarios/000003_air_quality_baseline_smoke",
+      "in_scenario_registry": true,
+      "is_academic_scenario": false,
+      "linked_simulation_ids": [
+        9,
+        10,
+        11
+      ],
+      "missing_linked_simulations": [],
+      "mode": "smoke",
+      "scenario_run_id": 3,
+      "scenario_slug": "air_quality_baseline",
+      "status": "completed"
+    },
+    "000004": {
+      "critical_result_data_ok": null,
+      "directory": "reports/scenarios/000004_air_quality_baseline_smoke",
+      "in_scenario_registry": true,
+      "is_academic_scenario": false,
+      "linked_simulation_ids": [
+        12,
+        13,
+        14
+      ],
+      "missing_linked_simulations": [],
+      "mode": "smoke",
+      "scenario_run_id": 4,
+      "scenario_slug": "air_quality_baseline",
+      "status": "completed"
+    },
+    "000005": {
+      "critical_result_data_ok": true,
+      "directory": "reports/scenarios/000005_air_quality_baseline_full",
+      "in_scenario_registry": true,
+      "is_academic_scenario": true,
+      "linked_simulation_ids": [
+        15,
+        16,
+        17
+      ],
+      "missing_linked_simulations": [],
+      "mode": "full",
+      "scenario_run_id": 5,
+      "scenario_slug": "air_quality_baseline",
+      "status": "completed"
+    },
+    "000006": {
+      "critical_result_data_ok": true,
+      "directory": "reports/scenarios/000006_air_quality_baseline_full-scale",
+      "in_scenario_registry": true,
+      "is_academic_scenario": true,
+      "linked_simulation_ids": [
+        18,
+        19,
+        20
+      ],
+      "missing_linked_simulations": [],
+      "mode": "full-scale",
+      "scenario_run_id": 6,
+      "scenario_slug": "air_quality_baseline",
+      "status": "completed"
+    },
+    "000007": {
+      "critical_result_data_ok": true,
+      "directory": "reports/scenarios/000007_support2_baseline_full",
+      "in_scenario_registry": true,
+      "is_academic_scenario": true,
+      "linked_simulation_ids": [
+        21,
+        22,
+        23
+      ],
+      "missing_linked_simulations": [],
+      "mode": "full",
+      "scenario_run_id": 7,
+      "scenario_slug": "support2_baseline",
+      "status": "completed"
+    },
+    "000008": {
+      "critical_result_data_ok": true,
+      "directory": "reports/scenarios/000008_support2_baseline_full",
+      "in_scenario_registry": false,
+      "is_academic_scenario": true,
+      "linked_simulation_ids": [
+        24,
+        25,
+        26
+      ],
+      "missing_linked_simulations": [],
+      "mode": "full",
+      "scenario_run_id": 8,
+      "scenario_slug": "support2_baseline",
+      "status": "completed"
+    }
+  },
+  "simulations": {
+    "000000": {
+      "directory": "reports/simulations/000000_occupancy_real_data_smoke",
+      "has_simulation_json": true,
+      "in_simulation_registry": true,
+      "result_data_files": [
+        {
+          "gzip_valid": true,
+          "path": "reports/simulations/000000_occupancy_real_data_smoke/result_data_smoke_000000.json.gz",
+          "sha256": "9201b938ad98b439914260e62986b0b0fae21f2d1db9f546cf0ab3a5fa5aa92a",
+          "size_bytes": 106164
+        }
+      ],
+      "simulation_run_id": 0
+    },
+    "000001": {
+      "directory": "reports/simulations/000001_occupancy_single_gaussian_to_real_smoke",
+      "has_simulation_json": true,
+      "in_simulation_registry": true,
+      "result_data_files": [
+        {
+          "gzip_valid": true,
+          "path": "reports/simulations/000001_occupancy_single_gaussian_to_real_smoke/result_data_smoke_000001.json.gz",
+          "sha256": "dfc9f7120bc22b5ad7d60bf0728b375a5966f77348be7f9cb70735c59a008ae5",
+          "size_bytes": 93166
+        }
+      ],
+      "simulation_run_id": 1
+    },
+    "000002": {
+      "directory": "reports/simulations/000002_occupancy_gmm_to_real_smoke",
+      "has_simulation_json": true,
+      "in_simulation_registry": true,
+      "result_data_files": [
+        {
+          "gzip_valid": true,
+          "path": "reports/simulations/000002_occupancy_gmm_to_real_smoke/result_data_smoke_000002.json.gz",
+          "sha256": "2bf0eeb05abe5adb0f02582e95d4f417171e4940935747a559b5ca329fb45f1b",
+          "size_bytes": 105337
+        }
+      ],
+      "simulation_run_id": 2
+    },
+    "000003": {
+      "directory": "reports/simulations/000003_occupancy_real_data_fast",
+      "has_simulation_json": true,
+      "in_simulation_registry": true,
+      "result_data_files": [
+        {
+          "gzip_valid": true,
+          "path": "reports/simulations/000003_occupancy_real_data_fast/result_data_fast_000003.json.gz",
+          "sha256": "98029c30eca0ee51b2fddf827f4fe2f8fdf3cf12ffa8a146affa8b953a7f6a0a",
+          "size_bytes": 993984
+        }
+      ],
+      "simulation_run_id": 3
+    },
+    "000004": {
+      "directory": "reports/simulations/000004_occupancy_single_gaussian_to_real_fast",
+      "has_simulation_json": true,
+      "in_simulation_registry": true,
+      "result_data_files": [
+        {
+          "gzip_valid": true,
+          "path": "reports/simulations/000004_occupancy_single_gaussian_to_real_fast/result_data_fast_000004.json.gz",
+          "sha256": "8956d7ddcbe2f374b0a68ec6b0e01a9037a96ba17eafd27618d10b58ee4f2bba",
+          "size_bytes": 922023
+        }
+      ],
+      "simulation_run_id": 4
+    },
+    "000005": {
+      "directory": "reports/simulations/000005_occupancy_gmm_to_real_fast",
+      "has_simulation_json": true,
+      "in_simulation_registry": true,
+      "result_data_files": [
+        {
+          "gzip_valid": true,
+          "path": "reports/simulations/000005_occupancy_gmm_to_real_fast/result_data_fast_000005.json.gz",
+          "sha256": "8dda6e8bb9854e633fccbfb812d3889d3c0513711634177a5ba899a9e6cb958b",
+          "size_bytes": 989573
+        }
+      ],
+      "simulation_run_id": 5
+    },
+    "000006": {
+      "directory": "reports/simulations/000006_occupancy_real_data_full",
+      "has_simulation_json": true,
+      "in_simulation_registry": true,
+      "result_data_files": [
+        {
+          "gzip_valid": true,
+          "path": "reports/simulations/000006_occupancy_real_data_full/result_data_full_000006.json.gz",
+          "sha256": "2bb46b4fe2aff6e40275e14773ef28642b21fd01f23459fabd651e9995aa8950",
+          "size_bytes": 3308857
+        }
+      ],
+      "simulation_run_id": 6
+    },
+    "000007": {
+      "directory": "reports/simulations/000007_occupancy_single_gaussian_to_real_full",
+      "has_simulation_json": true,
+      "in_simulation_registry": true,
+      "result_data_files": [
+        {
+          "gzip_valid": true,
+          "path": "reports/simulations/000007_occupancy_single_gaussian_to_real_full/result_data_full_000007.json.gz",
+          "sha256": "d62f830916ad0eab57f96af501eddf04d40c9967523240a7113e47a4635e9f1a",
+          "size_bytes": 2393269
+        }
+      ],
+      "simulation_run_id": 7
+    },
+    "000008": {
+      "directory": "reports/simulations/000008_occupancy_gmm_to_real_full",
+      "has_simulation_json": true,
+      "in_simulation_registry": true,
+      "result_data_files": [
+        {
+          "gzip_valid": true,
+          "path": "reports/simulations/000008_occupancy_gmm_to_real_full/result_data_full_000008.json.gz",
+          "sha256": "bc4aacf4a34ac5207756b847463e99ac96c31a5ec3bda0b846132288b547dd1d",
+          "size_bytes": 2967819
+        }
+      ],
+      "simulation_run_id": 8
+    },
+    "000009": {
+      "directory": "reports/simulations/000009_air_quality_real_data_smoke",
+      "has_simulation_json": true,
+      "in_simulation_registry": true,
+      "result_data_files": [
+        {
+          "gzip_valid": true,
+          "path": "reports/simulations/000009_air_quality_real_data_smoke/result_data_smoke_000009.json.gz",
+          "sha256": "2883d40265962189138950806ea6be54fa42689727bb6fc28d470cf0e272a570",
+          "size_bytes": 40770
+        }
+      ],
+      "simulation_run_id": 9
+    },
+    "000010": {
+      "directory": "reports/simulations/000010_air_quality_single_gaussian_to_real_smoke",
+      "has_simulation_json": true,
+      "in_simulation_registry": true,
+      "result_data_files": [
+        {
+          "gzip_valid": true,
+          "path": "reports/simulations/000010_air_quality_single_gaussian_to_real_smoke/result_data_smoke_000010.json.gz",
+          "sha256": "7885c03035803835829ef2f854608cadef33a8a06bb5298870ceba0d9f2ebbd2",
+          "size_bytes": 40522
+        }
+      ],
+      "simulation_run_id": 10
+    },
+    "000011": {
+      "directory": "reports/simulations/000011_air_quality_gmm_to_real_smoke",
+      "has_simulation_json": true,
+      "in_simulation_registry": true,
+      "result_data_files": [
+        {
+          "gzip_valid": true,
+          "path": "reports/simulations/000011_air_quality_gmm_to_real_smoke/result_data_smoke_000011.json.gz",
+          "sha256": "00a5fbf9b8caa56b83c76589e12d400cc3a1c0174be5bd615769750318b6d82f",
+          "size_bytes": 46947
+        }
+      ],
+      "simulation_run_id": 11
+    },
+    "000012": {
+      "directory": "reports/simulations/000012_air_quality_real_data_smoke",
+      "has_simulation_json": true,
+      "in_simulation_registry": true,
+      "result_data_files": [
+        {
+          "gzip_valid": true,
+          "path": "reports/simulations/000012_air_quality_real_data_smoke/result_data_smoke_000012.json.gz",
+          "sha256": "d2cfb92accbd7c0be0ff34fce55bf062468dfa6db1a0b9e23861aa42e8edc006",
+          "size_bytes": 40770
+        }
+      ],
+      "simulation_run_id": 12
+    },
+    "000013": {
+      "directory": "reports/simulations/000013_air_quality_single_gaussian_to_real_smoke",
+      "has_simulation_json": true,
+      "in_simulation_registry": true,
+      "result_data_files": [
+        {
+          "gzip_valid": true,
+          "path": "reports/simulations/000013_air_quality_single_gaussian_to_real_smoke/result_data_smoke_000013.json.gz",
+          "sha256": "22499bc24ceb2aa562b816ec48e2a6f27fabb36556d5be893d0a57649c3ad74c",
+          "size_bytes": 40520
+        }
+      ],
+      "simulation_run_id": 13
+    },
+    "000014": {
+      "directory": "reports/simulations/000014_air_quality_gmm_to_real_smoke",
+      "has_simulation_json": true,
+      "in_simulation_registry": true,
+      "result_data_files": [
+        {
+          "gzip_valid": true,
+          "path": "reports/simulations/000014_air_quality_gmm_to_real_smoke/result_data_smoke_000014.json.gz",
+          "sha256": "08c8cc673b27b9d5f49019816c7e70141c6eae1e8cdd248eb8db2406b8c665c4",
+          "size_bytes": 46944
+        }
+      ],
+      "simulation_run_id": 14
+    },
+    "000015": {
+      "directory": "reports/simulations/000015_air_quality_real_data_full",
+      "has_simulation_json": true,
+      "in_simulation_registry": true,
+      "result_data_files": [
+        {
+          "gzip_valid": true,
+          "path": "reports/simulations/000015_air_quality_real_data_full/result_data_full_000015.json.gz",
+          "sha256": "e171622756cf5874507232073ff6e993b55ff3036954e59dfdf5c2ef0adeba20",
+          "size_bytes": 1467572
+        }
+      ],
+      "simulation_run_id": 15
+    },
+    "000016": {
+      "directory": "reports/simulations/000016_air_quality_single_gaussian_to_real_full",
+      "has_simulation_json": true,
+      "in_simulation_registry": true,
+      "result_data_files": [
+        {
+          "gzip_valid": true,
+          "path": "reports/simulations/000016_air_quality_single_gaussian_to_real_full/result_data_full_000016.json.gz",
+          "sha256": "3baeb4db887352dbac73599790ba4eed9adec89e3fb6139e5723f2d545d6cafe",
+          "size_bytes": 1429871
+        }
+      ],
+      "simulation_run_id": 16
+    },
+    "000017": {
+      "directory": "reports/simulations/000017_air_quality_gmm_to_real_full",
+      "has_simulation_json": true,
+      "in_simulation_registry": true,
+      "result_data_files": [
+        {
+          "gzip_valid": true,
+          "path": "reports/simulations/000017_air_quality_gmm_to_real_full/result_data_full_000017.json.gz",
+          "sha256": "26a0594c60f001b99341f25847ff3b0616d0a8d0c083f0c560da2ac941a71a13",
+          "size_bytes": 1620517
+        }
+      ],
+      "simulation_run_id": 17
+    },
+    "000018": {
+      "directory": "reports/simulations/000018_air_quality_real_data_full-scale",
+      "has_simulation_json": true,
+      "in_simulation_registry": true,
+      "result_data_files": [
+        {
+          "gzip_valid": true,
+          "path": "reports/simulations/000018_air_quality_real_data_full-scale/result_data_full-scale_000018.json.gz",
+          "sha256": "b992654a6ea3e7643e36d53c46d72904aa1c8e8b3d5c2a04e201438f210d070c",
+          "size_bytes": 1487436
+        }
+      ],
+      "simulation_run_id": 18
+    },
+    "000019": {
+      "directory": "reports/simulations/000019_air_quality_single_gaussian_to_real_full-scale",
+      "has_simulation_json": true,
+      "in_simulation_registry": true,
+      "result_data_files": [
+        {
+          "gzip_valid": true,
+          "path": "reports/simulations/000019_air_quality_single_gaussian_to_real_full-scale/result_data_full-scale_000019.json.gz",
+          "sha256": "7a35174fc49809ccbcd731c27b2214771fac0d3a82bdc4bb37668e8d16e19852",
+          "size_bytes": 1452512
+        }
+      ],
+      "simulation_run_id": 19
+    },
+    "000020": {
+      "directory": "reports/simulations/000020_air_quality_gmm_to_real_full-scale",
+      "has_simulation_json": true,
+      "in_simulation_registry": true,
+      "result_data_files": [
+        {
+          "gzip_valid": true,
+          "path": "reports/simulations/000020_air_quality_gmm_to_real_full-scale/result_data_full-scale_000020.json.gz",
+          "sha256": "192d4e235b619b34f7624d4bf38f08ee00995d37f306edb8b3ba749c7bb52999",
+          "size_bytes": 1642655
+        }
+      ],
+      "simulation_run_id": 20
+    },
+    "000021": {
+      "directory": "reports/simulations/000021_support2_real_data_full",
+      "has_simulation_json": true,
+      "in_simulation_registry": true,
+      "result_data_files": [
+        {
+          "gzip_valid": true,
+          "path": "reports/simulations/000021_support2_real_data_full/result_data_full_000021.json.gz",
+          "sha256": "c35ecf4da6476e40427277631ca41b28bf359810a2ed5fc22ca334930168a836",
+          "size_bytes": 744357
+        }
+      ],
+      "simulation_run_id": 21
+    },
+    "000022": {
+      "directory": "reports/simulations/000022_support2_single_gaussian_to_real_full",
+      "has_simulation_json": true,
+      "in_simulation_registry": true,
+      "result_data_files": [
+        {
+          "gzip_valid": true,
+          "path": "reports/simulations/000022_support2_single_gaussian_to_real_full/result_data_full_000022.json.gz",
+          "sha256": "ec181887df5b5332c23260ecc377014374fcd61469d896d981bcb3c4e4590451",
+          "size_bytes": 737909
+        }
+      ],
+      "simulation_run_id": 22
+    },
+    "000023": {
+      "directory": "reports/simulations/000023_support2_gmm_to_real_full",
+      "has_simulation_json": true,
+      "in_simulation_registry": true,
+      "result_data_files": [
+        {
+          "gzip_valid": true,
+          "path": "reports/simulations/000023_support2_gmm_to_real_full/result_data_full_000023.json.gz",
+          "sha256": "97194b29b6cc3fd90f20299d8db8be5b9f08274c17bcaf7598ab4aeef0cf8487",
+          "size_bytes": 746144
+        }
+      ],
+      "simulation_run_id": 23
+    },
+    "000024": {
+      "directory": "reports/simulations/000024_support2_real_data_full",
+      "has_simulation_json": true,
+      "in_simulation_registry": false,
+      "result_data_files": [
+        {
+          "gzip_valid": true,
+          "path": "reports/simulations/000024_support2_real_data_full/result_data_full_000024.json.gz",
+          "sha256": "175a5e6a7a35a4cee2299449497699797a8a732fb96b6c498827d76da9d6d631",
+          "size_bytes": 198799
+        }
+      ],
+      "simulation_run_id": 24
+    },
+    "000025": {
+      "directory": "reports/simulations/000025_support2_single_gaussian_to_real_full",
+      "has_simulation_json": true,
+      "in_simulation_registry": false,
+      "result_data_files": [
+        {
+          "gzip_valid": true,
+          "path": "reports/simulations/000025_support2_single_gaussian_to_real_full/result_data_full_000025.json.gz",
+          "sha256": "a54b450181a993c896847766e198f759f3aac264677a01418b706e34d1e8ca8d",
+          "size_bytes": 202422
+        }
+      ],
+      "simulation_run_id": 25
+    },
+    "000026": {
+      "directory": "reports/simulations/000026_support2_gmm_to_real_full",
+      "has_simulation_json": true,
+      "in_simulation_registry": false,
+      "result_data_files": [
+        {
+          "gzip_valid": true,
+          "path": "reports/simulations/000026_support2_gmm_to_real_full/result_data_full_000026.json.gz",
+          "sha256": "c9c8321773a76b45074570a47254e70ffe7193c418a5b2c03bf85f1bd638012a",
+          "size_bytes": 203528
+        }
+      ],
+      "simulation_run_id": 26
+    }
+  },
+  "source_commit_sha": "c8f210458109a54a5268f1998683ff57802d2c09",
+  "source_ref": "origin/gh-pages"
+}
