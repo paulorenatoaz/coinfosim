@@ -77,30 +77,8 @@ Os valores de $\rankrho$, $\AW$, $\AR$, $\DR$ e $\SR$ da Tabela~\ref{tab:support
 
 \noindent diretamente (mesma função que o relatório HTML usa para renderizar o cenário sob demanda).
 
-\section{Execução \textit{smoke} do SUPPORT2 (dados brutos localmente persistidos)}
-\label{ap:support2-smoke}
-
-Assim como os quatro cenários de escala completa da Seção~\ref{ap:resultados-cenarios}, a execução \textit{smoke} do SUPPORT2 usada nas Seções~\ref{sec:reversal-matrix} e~\ref{sec:support2-rf} tem seus resultados brutos por replicação persistidos no ambiente auditado (fora do controle de versão, como todo o diretório \texttt{output/}, Apêndice~B). Por ser a execução mais compacta, seu caminho é listado individualmente nesta seção como referência mínima de reprodução; os caminhos dos quatro cenários de escala completa estão listados nas seções acima, sob \texttt{output/reports/simulations/}:
-
-\begin{center}
-\texttt{output/validation/support2-random-forest-smoke/}
-\end{center}
-
-\begin{itemize}
-  \item registro de cenário: \texttt{scenario\_run\_id=0}, \texttt{scenario\_slug=support2\_baseline}, arquivo \texttt{scenario\_runs.json};
-  \item resultados brutos por braço (caminhos relativos a \texttt{simulations/}):
-  \begin{itemize}
-    \item \RealToReal:\newline\texttt{\small 000000\_support2\_real\_data\_smoke/}\newline\texttt{\small\quad result\_data\_smoke\_000000.json.gz};
-    \item \GaussianToReal:\newline\texttt{\small 000001\_support2\_single\_gaussian\_to\_real\_smoke/}\newline\texttt{\small\quad result\_data\_smoke\_000001.json.gz};
-    \item \GMMToReal:\newline\texttt{\small 000002\_support2\_gmm\_to\_real\_smoke/}\newline\texttt{\small\quad result\_data\_smoke\_000002.json.gz};
-  \end{itemize}
-  \item grade: $n\in\{2,4,8,16,32\}$; classificadores: \texttt{linear\_svm}, \texttt{random\_forest}.
-\end{itemize}
-
-Os valores de $\rankrho$, $\AW$, $\AR$, $\DR$ e $\SR$ das Tabelas~\ref{tab:support2-smoke} e das Figuras~\ref{fig:wr-matrices-support2}/\ref{fig:wr-matrices-support2-cap7} foram obtidos diretamente destes arquivos pelo código atual, sem qualquer nova execução de Monte Carlo, conforme o comando documentado no Apêndice~B (Seção~\ref{ap:comando-wr}).
-
 \section{Política de uso do material suplementar}
 
-Os relatórios online listados na Seção~\ref{ap:resultados-cenarios} são a fonte exaustiva dos resultados desta revisão, incluindo as matrizes $\Wmat$/$\Rmat$ completas de cada cenário. O PDF não reproduz todas as matrizes e curvas porque isso prejudicaria a leitura e duplicaria centenas de visualizações; ele apresenta uma seleção orientada pelas hipóteses científicas, com os quatro indicadores tabulados por completo. A rastreabilidade é preservada por meio dos IDs imutáveis de cenário e simulação, nomes de arquivos, parâmetros registrados e resultados JSON persistidos no ambiente auditado (Seção~\ref{ap:support2-smoke}).
+Os relatórios online listados na Seção~\ref{ap:resultados-cenarios} são a fonte exaustiva dos resultados desta revisão, incluindo as matrizes $\Wmat$/$\Rmat$ completas de cada cenário. O PDF não reproduz todas as matrizes e curvas porque isso prejudicaria a leitura e duplicaria centenas de visualizações; ele apresenta uma seleção orientada pelas hipóteses científicas, com os quatro indicadores tabulados por completo e ilustrados por figuras de evolução por $n$ (Capítulo~7). A rastreabilidade é preservada por meio dos IDs imutáveis de cenário e simulação, nomes de arquivos, parâmetros registrados e resultados JSON persistidos no ambiente auditado. Todos os resultados apresentados neste relatório, em texto, tabelas e figuras, são de execuções \textit{full} ou \textit{full-scale}; nenhum resultado de execução \textit{smoke} é reportado como evidência --- o modo \textit{smoke} do \CoInfoSim{} é usado apenas para testes e validação computacional do próprio código (Apêndice~B), nunca como fonte de resultados científicos.
 
-Os gráficos vetoriais de $\rankrho$/$\AW$ reconstruídos a partir de tabelas finais publicadas anteriormente para Occupancy e Air Quality (identificados individualmente em \texttt{figures/FIGURE\_SOURCES.md} e nas fontes de cada figura no corpo do texto) foram incorporados sem recortes que alterassem eixos, ordem dos subconjuntos, escala ou legenda; os valores de $\rankrho$/$\AW$ que ilustram foram confirmados computacionalmente nesta revisão a partir dos resultados brutos regenerados, dentro da precisão de transcrição das versões anteriores (Seção~\ref{sec:resultados-guia}). As matrizes $\Wmat$/$\Rmat$ e os gráficos de métricas do SUPPORT2 \textit{smoke} apresentados nesta revisão, em contraste, foram gerados diretamente pelas funções vigentes de \texttt{coinfosim.reports.predictive\_profile\_visualization} sobre os dados brutos da Seção~\ref{ap:support2-smoke}. Os valores de $\AR$, $\DR$ e $\SR$ apresentados em todas as tabelas do Capítulo~7, para os quatro cenários de escala completa e para o exemplo \textit{smoke}, foram computados diretamente pelo código atual sobre resultados brutos por replicação, sem reconstrução a partir de nenhuma tabela ou figura publicada anteriormente --- esses três indicadores não existiam sob o esquema anterior de $\NstarHistorical$.
+Os gráficos vetoriais de $\rankrho$/$\AW$ reconstruídos a partir de tabelas finais publicadas anteriormente para Occupancy e Air Quality (identificados individualmente em \texttt{figures/FIGURE\_SOURCES.md} e nas fontes de cada figura no corpo do texto) foram incorporados sem recortes que alterassem eixos, ordem dos subconjuntos, escala ou legenda; os valores de $\rankrho$/$\AW$ que ilustram foram confirmados computacionalmente nesta revisão a partir dos resultados brutos regenerados, dentro da precisão de transcrição das versões anteriores (Seção~\ref{sec:resultados-guia}). As matrizes $\Wmat$/$\Rmat$ do SUPPORT2 (Figura~\ref{fig:wr-matrices-support2}) e as figuras de evolução dos quatro indicadores por $n$ (Capítulo~7) foram geradas diretamente pelas funções vigentes de \texttt{coinfosim.reports.predictive\_profile\_visualization} sobre os resultados brutos regenerados dos quatro cenários de escala completa. Os valores de $\AR$, $\DR$ e $\SR$ apresentados em todas as tabelas do Capítulo~7 foram computados diretamente pelo código atual sobre resultados brutos por replicação, sem reconstrução a partir de nenhuma tabela ou figura publicada anteriormente --- esses três indicadores não existiam sob o esquema anterior de $\NstarHistorical$.

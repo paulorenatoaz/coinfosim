@@ -188,39 +188,39 @@ e a \textbf{matriz de inversões} armazena apenas o mais recente:
 A célula $R_{ij}(n_t)$ existe \textbf{se e somente se} o par $(i,j)$ sofreu ao menos uma inversão válida de vencedor no prefixo avaliado. Ela não existe apenas porque um subconjunto vence desde o primeiro ponto da grade, apenas porque o primeiro vencedor aparece depois de empates iniciais, apenas porque as curvas se aproximam, ou apenas porque um subconjunto permanece vencedor durante todo o prefixo.
 \end{definitionbox}
 
-Diferentemente de $\Wmat$, a matriz $\Rmat$ não é antissimétrica: ela armazena um único valor por par não ordenado, no triângulo superior ($i<j$); a diagonal e o triângulo inferior são indisponíveis. $\Rmat$ não guarda separadamente qual subconjunto passou a vencer após a inversão --- essa informação é recuperável diretamente em $\Wmat(n_t)$. A Figura~\ref{fig:wr-matrices-support2} mostra, com dados reais do cenário SUPPORT2 (execução \textit{smoke}, prefixo $n_t\leq32$, classificador Random Forest, sete subconjuntos de referência selecionados um por cardinalidade), a matriz de vencedores $\Wmat$ e a matriz de inversões $\Rmat$ lado a lado para os braços \RealToReal{} e \GaussianToReal.
+Diferentemente de $\Wmat$, a matriz $\Rmat$ não é antissimétrica: ela armazena um único valor por par não ordenado, no triângulo superior ($i<j$); a diagonal e o triângulo inferior são indisponíveis. $\Rmat$ não guarda separadamente qual subconjunto passou a vencer após a inversão --- essa informação é recuperável diretamente em $\Wmat(n_t)$. A Figura~\ref{fig:wr-matrices-support2} mostra, com dados reais do cenário SUPPORT2 (execução \textit{full}, $n\leq512$, classificador Random Forest, sete subconjuntos de referência selecionados um por cardinalidade), a matriz de vencedores $\Wmat$ e a matriz de inversões $\Rmat$ lado a lado para os braços \RealToReal{} e \GaussianToReal.
 
 \begin{landscape}
 \begin{figure}[H]
   \centering
-  \caption{Matrizes pareadas $\mathbf{W}$ e $\mathbf{R}$ no maior prefixo disponível do cenário SUPPORT2 (execução \textit{smoke}, $n\leq32$), Random Forest}
+  \caption{Matrizes pareadas $\mathbf{W}$ e $\mathbf{R}$ no maior $n$ avaliado do cenário SUPPORT2 (execução \textit{full}, $n\leq512$, cenário 000008), Random Forest}
   \label{fig:wr-matrices-support2}
   \begin{minipage}[t]{0.48\linewidth}
     \centering
-    \includegraphics[height=6.2cm,keepaspectratio]{figures/wr_matrices/support2_smoke/winner_matrix_real_to_real_n32.png}
-    \subcaption{$\mathbf{W}(n{=}32)$, \RealToReal}
+    \includegraphics[height=5.4cm,keepaspectratio]{figures/wr_matrices/support2_full/winner_matrix_real_to_real_n512.png}
+    \subcaption{$\mathbf{W}(n{=}512)$, \RealToReal}
   \end{minipage}
   \hfill
   \begin{minipage}[t]{0.48\linewidth}
     \centering
-    \includegraphics[height=6.2cm,keepaspectratio]{figures/wr_matrices/support2_smoke/reversal_matrix_real_to_real_n32.png}
-    \subcaption{$\mathbf{R}(n_t{\leq}32)$, \RealToReal}
+    \includegraphics[height=5.4cm,keepaspectratio]{figures/wr_matrices/support2_full/reversal_matrix_real_to_real_n512.png}
+    \subcaption{$\mathbf{R}(n_t{\leq}512)$, \RealToReal}
   \end{minipage}
 
-  \vspace{4mm}
+  \vspace{2mm}
   \begin{minipage}[t]{0.48\linewidth}
     \centering
-    \includegraphics[height=6.2cm,keepaspectratio]{figures/wr_matrices/support2_smoke/winner_matrix_single_gaussian_to_real_n32.png}
-    \subcaption{$\mathbf{W}(n{=}32)$, \GaussianToReal}
+    \includegraphics[height=5.4cm,keepaspectratio]{figures/wr_matrices/support2_full/winner_matrix_single_gaussian_to_real_n512.png}
+    \subcaption{$\mathbf{W}(n{=}512)$, \GaussianToReal}
   \end{minipage}
   \hfill
   \begin{minipage}[t]{0.48\linewidth}
     \centering
-    \includegraphics[height=6.2cm,keepaspectratio]{figures/wr_matrices/support2_smoke/reversal_matrix_single_gaussian_to_real_n32.png}
-    \subcaption{$\mathbf{R}(n_t{\leq}32)$, \GaussianToReal}
+    \includegraphics[height=5.4cm,keepaspectratio]{figures/wr_matrices/support2_full/reversal_matrix_single_gaussian_to_real_n512.png}
+    \subcaption{$\mathbf{R}(n_t{\leq}512)$, \GaussianToReal}
   \end{minipage}
-  \sourcebelow{recomputado diretamente dos resultados persistidos da execução \textit{smoke} do cenário SUPPORT2 (\texttt{scenario\_run\_id=0}), usando as funções vigentes de \texttt{coinfosim.results.structural}; ver Apêndice~B}
-  \notailustracao{Esta execução é de escala \textit{smoke} ($n\leq32$, sete subconjuntos de referência) e serve apenas como exemplo didático de leitura conjunta de $\mathbf{W}$ e $\mathbf{R}$. Os resultados brutos da execução \textit{full} ($n\leq512$, 127 subconjuntos) do Random Forest no SUPPORT2 foram recuperados e regenerados sob o esquema atual nesta revisão; os valores numéricos correspondentes de $\AR$, $\DR$ e $\SR$ são reportados no Capítulo~7 (Seção~\ref{sec:support2-rf}), e as matrizes completas permanecem disponíveis nos relatórios HTML publicados (Apêndice~A), sem reprodução gráfica adicional neste capítulo por economia de espaço}
+  \sourcebelow{recomputado diretamente dos resultados brutos por replicação regenerados do cenário SUPPORT2 000008, usando as funções vigentes de \texttt{coinfosim.results.predictive\_profile}; ver Apêndice~B}
+  \notailustracao{Sete subconjuntos de referência (um por cardinalidade, selecionados pela menor perda média em $n=512$) entre os 127 do SUPPORT2, para manter a matriz legível; a leitura completa dos 127 subconjuntos permanece disponível no relatório HTML republicado (Apêndice~A). Os valores numéricos de $\AR$, $\DR$ e $\SR$ deste braço e classificador são reportados no Capítulo~7 (Seção~\ref{sec:support2-rf})}
 \end{figure}
 \end{landscape}
 

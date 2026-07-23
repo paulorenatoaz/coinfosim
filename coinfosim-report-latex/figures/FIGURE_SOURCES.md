@@ -12,12 +12,19 @@ Métodos de extração:
   data URI `data:image/png;base64,...`; o payload foi decodificado com
   `scripts/extract_embedded_report_figures.py`, identificado pelo atributo
   `alt` do `<img>`, e validado pela assinatura PNG.
+- **gerado pelo código atual**: figura produzida diretamente pelas funções
+  vigentes de `coinfosim.reports.predictive_profile_visualization` sobre os
+  resultados brutos por replicação regenerados de um cenário de escala
+  completa (`full` ou `full-scale`), sem qualquer nova execução de Monte
+  Carlo; ver Apêndice~B do relatório para o comando exato. Nunca gerada a
+  partir de uma execução `smoke`.
 
-Fontes locais: `output/reports/` no repositório CoInfoSim. O cenário 000008 e
-as simulações 000024–000026 não existem em `output/reports/` desta máquina;
-seus arquivos foram obtidos da publicação (branch `origin/gh-pages`,
-`reports/...`), que corresponde a
-`https://paulorenatoaz.github.io/coinfosim/reports/...`.
+Fontes locais: `output/reports/` no repositório CoInfoSim, incluindo o
+cenário 000008 e as simulações 000024–000026, regenerados a partir dos
+resultados brutos persistidos durante o refatoramento semântico do
+arcabouço de perfil de cooperação preditiva. Os mesmos artefatos também
+correspondem à publicação (branch `origin/gh-pages`, `reports/...`), isto
+é, `https://paulorenatoaz.github.io/coinfosim/reports/...`.
 
 ## geometry/ — projeções 2D (painéis geométricos, Capítulos 4 e 7)
 
@@ -69,7 +76,35 @@ Identificador da imagem embutida = atributo `alt` do `<img>` no HTML.
 Em todas as curvas, a referência do painel é o melhor subconjunto singular
 (`best 1`), e as linhas tracejadas marcam o último cruzamento observado.
 
-## structural_metrics/ — séries progressivas das métricas (Capítulo 7)
+## wr_matrices/support2_full/ — matrizes $\mathbf{W}$/$\mathbf{R}$ em escala completa (Capítulo 6)
+
+| Destino | Fonte | Dataset | Classificador | Braço | $n$ | Método |
+|---|---|---|---|---|---|---|
+| `wr_matrices/support2_full/winner_matrix_real_to_real_n512.png` | resultados brutos do cenário 000008 | SUPPORT2 | Random Forest | Real → Real | 512 | gerado pelo código atual |
+| `wr_matrices/support2_full/reversal_matrix_real_to_real_n512.png` | idem | SUPPORT2 | Random Forest | Real → Real | 512 | gerado pelo código atual |
+| `wr_matrices/support2_full/winner_matrix_single_gaussian_to_real_n512.png` | idem | SUPPORT2 | Random Forest | Gaussiana única → Real | 512 | gerado pelo código atual |
+| `wr_matrices/support2_full/reversal_matrix_single_gaussian_to_real_n512.png` | idem | SUPPORT2 | Random Forest | Gaussiana única → Real | 512 | gerado pelo código atual |
+
+Sete subconjuntos de referência (um por cardinalidade, `select_display_subsets_by_cardinality`), selecionados pela menor perda média em $n=512$, entre os 127 subconjuntos do SUPPORT2.
+
+## predictive_profile_metrics/ — evolução dos quatro indicadores por $n$ (Capítulo 7)
+
+Cada imagem mostra $\rho_{rank}$, $A_W$, $A_R$ ou $S_R$ ao longo da grade amostral completa, uma curva por braço (Real → Real, Gaussiana única → Real, GMM → Real).
+
+| Destino (por dataset) | Fonte | Classificador | Método |
+|---|---|---|---|
+| `predictive_profile_metrics/occupancy/occupancy_gnb_*.png` (4 arquivos) | resultados regenerados do cenário 000002 | Gaussian Naive Bayes | gerado pelo código atual |
+| `predictive_profile_metrics/air_quality/air_quality_gnb_*.png` (4 arquivos) | resultados regenerados do cenário 000005 | Gaussian Naive Bayes | gerado pelo código atual |
+| `predictive_profile_metrics/support2/support2_svm_*.png` (4 arquivos) | resultados regenerados do cenário 000007 | Linear SVM | gerado pelo código atual |
+| `predictive_profile_metrics/support2/support2_rf_*.png` (4 arquivos) | resultados regenerados do cenário 000008 | Random Forest | gerado pelo código atual |
+
+## structural_metrics/ — séries progressivas do esquema retirado (não citadas no relatório)
+
+Extraídas em uma revisão anterior a partir das versões então publicadas dos
+relatórios, sob o antigo esquema $N^\star$ retirado (Capítulo~6). Nenhuma
+figura desta pasta é referenciada em nenhum capítulo desta revisão: a
+equivalente atual, sob o esquema $\Wmat/\Rmat$, é `predictive_profile_metrics/`
+acima. Mantidas apenas como registro histórico do processo editorial.
 
 Cada imagem compara os braços Gaussiana única → Real e GMM → Real contra a
 referência real ao longo da grade amostral.

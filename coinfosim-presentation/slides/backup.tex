@@ -440,11 +440,11 @@
 
 % Apoio 6 ---------------------------------------------------------------------
 \begin{frame}{Resultados adicionais — SUPPORT2}
-  \eyebrow{Escala completa ($n=512$): quatro indicadores recalculados diretamente pelo código atual}
-  \vspace{0.05cm}
+  \eyebrow{Cenários full 000007 e 000008, $n=512$}
+  \vspace{0.14cm}
   \centering
-  \renewcommand{\arraystretch}{1.0}
-  \fontsize{6.9}{8.3}\selectfont
+  \renewcommand{\arraystretch}{1.12}
+  \fontsize{7.8}{9.4}\selectfont
   \begin{tabular}{lcccc}
     \toprule
     Classificador, treinamento $\rightarrow$ teste & $\rankrho$ & \AW{} & $A_R$ & $S_R$ \\
@@ -460,25 +460,10 @@
     \bottomrule
   \end{tabular}
 
-  \vspace{0.05cm}
-  \eyebrow{Recalculado pelo código atual: execução smoke, $n\leq32$}
-  \vspace{0.02cm}
-  \fontsize{7.2}{8.6}\selectfont
-  \begin{tabular}{lcccc}
-    \toprule
-    Classificador, treinamento $\rightarrow$ teste & $\rankrho$ & \AW{} & $A_R$ & $S_R$ \\
-    \midrule
-    Linear SVM, Gaussiana única $\rightarrow$ Real & 0,011 & 0,504 & 0,728 & 0,728 \\
-    Linear SVM, GMM $\rightarrow$ Real             & 0,271 & 0,591 & 0,794 & 0,689 \\
-    Random Forest, Gaussiana única $\rightarrow$ Real & 0,624 & 0,731 & 0,479 & 0,882 \\
-    Random Forest, GMM $\rightarrow$ Real             & 0,533 & 0,687 & 0,467 & 0,879 \\
-    \bottomrule
-  \end{tabular}
-
-  \vspace{0.02cm}
-  {\fontsize{6.6}{7.8}\selectfont\color{CoInfoGray}
-    Bloco inferior: escala reduzida (\texttt{scenario\_run\_id=0}), não comparável linha a linha ao superior; reproduz o mesmo padrão de $A_R$/$S_R$ do Random Forest.\par}
-  \sourcecite{SUPPORT2 000007/000008 e execução smoke; indicadores recalculados pelo código atual; cap.\ 7 e apênd.\ A/B.}
+  \vspace{0.18cm}
+  {\fontsize{8.0}{9.6}\selectfont\color{CoInfoGray}
+    Todos os valores desta tabela provêm dos cenários \textit{full} 000007 e 000008 ($n\leq512$); nenhum resultado de execução em escala reduzida é usado como evidência.\par}
+  \sourcecite{cenários SUPPORT2 full 000007 e 000008; indicadores recalculados pelo código atual; cap.\ 7 e apênd.\ A/B.}
 \end{frame}
 
 % Apoio 7 ---------------------------------------------------------------------
