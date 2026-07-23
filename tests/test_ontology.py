@@ -303,3 +303,139 @@ def test_no_retired_term_is_a_canonical_preferred_label(graph):
     }
     for retired in retired_terms:
         assert retired.lower() not in all_labels
+
+
+def test_no_composite_or_product_reversal_metric_class_exists(graph):
+    """Section 15.4: reversal existence agreement and reversal sample-size
+    similarity are always reported separately; no composite/product metric
+    class may be declared."""
+
+    metric_subclasses = {
+        str(s).rsplit("#", 1)[-1]
+        for s in graph.subjects(RDFS.subClassOf, COINFOSIM["PredictiveCooperationMetric"])
+    }
+    assert metric_subclasses == {
+        "EstimatedMeanTestLoss",
+        "RankingFidelity",
+        "WinnerAgreement",
+        "ReversalExistenceAgreement",
+        "MeanLog2ReversalDistance",
+        "ReversalSampleSizeSimilarity",
+    }
+    forbidden_name_fragments = ("composite", "product", "combined")
+    for local_name in metric_subclasses:
+        lowered = local_name.lower()
+        for fragment in forbidden_name_fragments:
+            assert fragment not in lowered
+
+
+# --------------------------------------------------------------------------- #
+# Object/datatype properties (Section 17-18, Block O2)
+# --------------------------------------------------------------------------- #
+REQUIRED_OBJECT_PROPERTIES = {
+    "hasAttribute": ("ChannelSubset", "Attribute", "has attribute", "possui atributo"),
+    "representsInformationChannel": (
+        "Attribute",
+        "InformationChannel",
+        "represents information channel",
+        "representa canal de informação",
+    ),
+    "hasWinnerMatrix": (
+        "PredictiveCooperationProfile",
+        "WinnerMatrix",
+        "has winner matrix",
+        "possui matriz de vencedores",
+    ),
+    "hasReversalMatrix": (
+        "PredictiveCooperationProfile",
+        "ReversalMatrix",
+        "has reversal matrix",
+        "possui matriz de inversões",
+    ),
+    "hasMetric": (
+        "PredictiveCooperationProfile",
+        "PredictiveCooperationMetric",
+        "has metric",
+        "possui métrica",
+    ),
+    "interpretsProfile": (
+        "PredictiveCooperationPattern",
+        "PredictiveCooperationProfile",
+        "interprets profile",
+        "interpreta perfil",
+    ),
+    "computedForClassifier": (
+        "PredictiveCooperationProfile",
+        "Classifier",
+        "computed for classifier",
+        "calculado para classificador",
+    ),
+    "computedUnderTrainingCondition": (
+        "PredictiveCooperationProfile",
+        "TrainingCondition",
+        "computed under training condition",
+        "calculado sob condição de treinamento",
+    ),
+    "computedFromDataset": (
+        "PredictiveCooperationProfile",
+        "PreparedDataset",
+        "computed from dataset",
+        "calculado a partir do conjunto de dados",
+    ),
+}
+
+REQUIRED_DATATYPE_PROPERTIES = {
+    "metricValue": ("PredictiveCooperationMetric", XSD.double, "metric value", "valor da métrica"),
+    "reversalSampleSize": (
+        "WinnerReversal",
+        XSD.positiveInteger,
+        "reversal sample size",
+        "tamanho amostral da inversão",
+    ),
+    "subsetCardinality": (
+        "ChannelSubset",
+        XSD.positiveInteger,
+        "subset cardinality",
+        "cardinalidade do subconjunto",
+    ),
+}
+
+
+def test_exactly_the_required_object_properties_exist(graph):
+    declared = {
+        str(s).rsplit("#", 1)[-1] for s in graph.subjects(RDF.type, OWL.ObjectProperty)
+    }
+    assert declared == set(REQUIRED_OBJECT_PROPERTIES)
+
+
+@pytest.mark.parametrize("name", sorted(REQUIRED_OBJECT_PROPERTIES))
+def test_object_property_domain_range_and_labels(graph, name):
+    domain, range_, label_en, label_pt = REQUIRED_OBJECT_PROPERTIES[name]
+    prop = COINFOSIM[name]
+    assert (prop, RDFS.domain, COINFOSIM[domain]) in graph
+    assert (prop, RDFS.range, COINFOSIM[range_]) in graph
+    assert (prop, RDFS.label, rdflib.Literal(label_en, lang="en")) in graph
+    assert (prop, RDFS.label, rdflib.Literal(label_pt, lang="pt")) in graph
+
+
+def test_exactly_the_required_datatype_properties_exist(graph):
+    declared = {
+        str(s).rsplit("#", 1)[-1] for s in graph.subjects(RDF.type, OWL.DatatypeProperty)
+    }
+    assert declared == set(REQUIRED_DATATYPE_PROPERTIES) | {"sampleSizePerClass"}
+
+
+@pytest.mark.parametrize("name", sorted(REQUIRED_DATATYPE_PROPERTIES))
+def test_datatype_property_domain_range_and_labels(graph, name):
+    domain, range_, label_en, label_pt = REQUIRED_DATATYPE_PROPERTIES[name]
+    prop = COINFOSIM[name]
+    assert (prop, RDFS.domain, COINFOSIM[domain]) in graph
+    assert (prop, RDFS.range, range_) in graph
+    assert (prop, RDFS.label, rdflib.Literal(label_en, lang="en")) in graph
+    assert (prop, RDFS.label, rdflib.Literal(label_pt, lang="pt")) in graph
+
+
+def test_sample_size_per_class_has_no_fixed_domain(graph):
+    prop = COINFOSIM["sampleSizePerClass"]
+    assert (prop, RDFS.range, XSD.positiveInteger) in graph
+    assert list(graph.objects(prop, RDFS.domain)) == []

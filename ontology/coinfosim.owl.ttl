@@ -253,3 +253,75 @@ coinfosim:WinnerReversal a owl:Class ;
     rdfs:label "winner reversal"@en, "inversão de vencedor"@pt ;
     rdfs:comment "A valid change of the effective pairwise winner relation from one defined winner to the other. Not defined by geometric interpolation of continuous loss curves, and never triggered by the first strict winner after unresolved initial ties."@en, "Mudança válida da relação efetiva de vencedor par a par de um vencedor definido para o outro. Não é definida por interpolação geométrica de curvas contínuas de perda, e nunca é disparada pelo primeiro vencedor estrito após empates iniciais não resolvidos."@pt .
 
+########################################################################
+# Object properties (Section 17)
+########################################################################
+
+coinfosim:hasAttribute a owl:ObjectProperty ;
+    rdfs:domain coinfosim:ChannelSubset ;
+    rdfs:range coinfosim:Attribute ;
+    rdfs:label "has attribute"@en, "possui atributo"@pt .
+
+coinfosim:representsInformationChannel a owl:ObjectProperty ;
+    rdfs:domain coinfosim:Attribute ;
+    rdfs:range coinfosim:InformationChannel ;
+    rdfs:label "represents information channel"@en, "representa canal de informação"@pt .
+
+coinfosim:hasWinnerMatrix a owl:ObjectProperty ;
+    rdfs:domain coinfosim:PredictiveCooperationProfile ;
+    rdfs:range coinfosim:WinnerMatrix ;
+    rdfs:label "has winner matrix"@en, "possui matriz de vencedores"@pt .
+
+coinfosim:hasReversalMatrix a owl:ObjectProperty ;
+    rdfs:domain coinfosim:PredictiveCooperationProfile ;
+    rdfs:range coinfosim:ReversalMatrix ;
+    rdfs:label "has reversal matrix"@en, "possui matriz de inversões"@pt .
+
+coinfosim:hasMetric a owl:ObjectProperty ;
+    rdfs:domain coinfosim:PredictiveCooperationProfile ;
+    rdfs:range coinfosim:PredictiveCooperationMetric ;
+    rdfs:label "has metric"@en, "possui métrica"@pt .
+
+coinfosim:interpretsProfile a owl:ObjectProperty ;
+    rdfs:domain coinfosim:PredictiveCooperationPattern ;
+    rdfs:range coinfosim:PredictiveCooperationProfile ;
+    rdfs:label "interprets profile"@en, "interpreta perfil"@pt .
+
+coinfosim:computedForClassifier a owl:ObjectProperty ;
+    rdfs:domain coinfosim:PredictiveCooperationProfile ;
+    rdfs:range coinfosim:Classifier ;
+    rdfs:label "computed for classifier"@en, "calculado para classificador"@pt .
+
+coinfosim:computedUnderTrainingCondition a owl:ObjectProperty ;
+    rdfs:domain coinfosim:PredictiveCooperationProfile ;
+    rdfs:range coinfosim:TrainingCondition ;
+    rdfs:label "computed under training condition"@en, "calculado sob condição de treinamento"@pt .
+
+coinfosim:computedFromDataset a owl:ObjectProperty ;
+    rdfs:domain coinfosim:PredictiveCooperationProfile ;
+    rdfs:range coinfosim:PreparedDataset ;
+    rdfs:label "computed from dataset"@en, "calculado a partir do conjunto de dados"@pt .
+
+########################################################################
+# Datatype properties (Section 18)
+########################################################################
+
+coinfosim:metricValue a owl:DatatypeProperty ;
+    rdfs:domain coinfosim:PredictiveCooperationMetric ;
+    rdfs:range xsd:double ;
+    rdfs:label "metric value"@en, "valor da métrica"@pt .
+
+coinfosim:reversalSampleSize a owl:DatatypeProperty ;
+    rdfs:domain coinfosim:WinnerReversal ;
+    rdfs:range xsd:positiveInteger ;
+    rdfs:label "reversal sample size"@en, "tamanho amostral da inversão"@pt .
+
+coinfosim:subsetCardinality a owl:DatatypeProperty ;
+    rdfs:domain coinfosim:ChannelSubset ;
+    rdfs:range xsd:positiveInteger ;
+    rdfs:label "subset cardinality"@en, "cardinalidade do subconjunto"@pt .
+
+coinfosim:sampleSizePerClass a owl:DatatypeProperty ;
+    rdfs:range xsd:positiveInteger ;
+    rdfs:label "sample size per class"@en, "tamanho amostral por classe"@pt ;
+    rdfs:comment "Reused across several scientific artifacts (e.g. simulation configuration and result summaries); no fixed OWL domain is declared, since doing so would create an artificial semantic restriction."@en, "Reutilizada em vários artefatos científicos (por exemplo, configuração de simulação e resumos de resultado); nenhum domínio OWL fixo é declarado, pois isso criaria uma restrição semântica artificial."@pt .
