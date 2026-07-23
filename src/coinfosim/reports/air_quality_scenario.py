@@ -68,11 +68,11 @@ AIR_QUALITY_SCENARIO_REPORT_SPEC = DatasetAnchoredScenarioReportSpec(
     interpretation_notes=(
         (
             "Structural fidelity metrics",
-            "Ranking fidelity, winner agreement, and progressive N-star similarity measure separate properties and are interpreted separately alongside their availability statuses.",
+            "Ranking fidelity, Winner Agreement, reversal existence agreement, and reversal sample-size similarity measure separate properties and are interpreted separately alongside their availability statuses.",
         ),
         (
             "Agreement among the three arms",
-            "Agreement in best subsets and cooperative thresholds indicates that a fitted synthetic training distribution preserves structure expressed on the same future real test set.",
+            "Agreement in best subsets and reversal fidelity indicates that a fitted synthetic training distribution preserves structure expressed on the same future real test set.",
         ),
         (
             "Single Gaussian vs GMM",

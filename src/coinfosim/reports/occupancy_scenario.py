@@ -11,15 +11,14 @@ from coinfosim.reports.html_tabs import TAB_CSS, TAB_JS, tab_group
 from coinfosim.reports.scenario_visualization import save_loss_vs_n
 from coinfosim.reports.structural_visualization import (
     metric_series_figure,
-    progressive_nstar_matrix_figure,
+    reversal_matrix_figure,
     save_figure,
     winner_matrix_figure,
 )
-from coinfosim.results.analysis import cooperative_threshold_interpolated
 from coinfosim.results.structural import (
-    progressive_directed_nstar,
+    effective_winner_matrices,
+    progressive_reversal_matrices,
     scenario_structural_fidelity,
-    winner_matrix,
 )
 from coinfosim.simulation.monte_carlo import SimulationResult
 
@@ -203,7 +202,7 @@ def _structural_fidelity_section(
     n_max = sample_sizes[-1]
     ranking = structural["ranking_fidelity_series"]
     agreements = structural["winner_agreement_series"]
-    nstar_similarities = structural["nstar_similarity_series"]
+    reversals = structural["reversal_fidelity_series"]
     summaries = [
         row for row in structural["final_summary"] if row["arm"] != reference_arm
     ]
@@ -217,13 +216,14 @@ def _structural_fidelity_section(
             str(row["n_pairs_valid"]),
             str(row["n_pairs_skipped_tie"]),
             html.escape(str(row["winner_status"])),
-            _fmt_num(row["nstar_similarity"], ".4f"),
-            str(row["n_reference_crossings"]),
-            str(row["n_arm_crossings"]),
-            str(row["n_shared_crossings"]),
-            _fmt_num(row["crossing_jaccard"], ".4f"),
-            _fmt_num(row["timing_similarity"], ".4f"),
-            html.escape(str(row["nstar_status"])),
+            _fmt_num(row["reversal_existence_agreement"], ".4f"),
+            _fmt_num(row["reversal_sample_size_similarity"], ".4f"),
+            str(row["n_reference_reversal_pairs"]),
+            str(row["n_arm_reversal_pairs"]),
+            str(row["n_shared_reversal_pairs"]),
+            str(row["n_union_reversal_pairs"]),
+            _fmt_num(row["mean_log2_reversal_distance"], ".4f"),
+            html.escape(str(row["reversal_status"])),
         ]
         for row in summaries
     ]
@@ -235,12 +235,14 @@ def _structural_fidelity_section(
         for metric, label in (
             ("rho_rank", "Ranking fidelity"),
             ("winner_agreement", "Winner agreement"),
-            ("nstar_similarity", "Progressive N-star similarity"),
+            ("reversal_existence_agreement", "Reversal existence agreement"),
+            ("reversal_sample_size_similarity", "Reversal sample-size similarity"),
         ):
             source_rows = {
                 "rho_rank": ranking,
                 "winner_agreement": agreements,
-                "nstar_similarity": nstar_similarities,
+                "reversal_existence_agreement": reversals,
+                "reversal_sample_size_similarity": reversals,
             }[metric]
             metric_rows = [
                 row
@@ -281,8 +283,7 @@ def _structural_fidelity_section(
     )
 
     display_by_classifier = structural["reference_display_subsets_by_classifier"]
-    winner_classifier_tabs = []
-    nstar_classifier_tabs = []
+    dynamics_classifier_tabs = []
     for classifier in classifiers:
         display_subsets = [
             tuple(subset) for subset in display_by_classifier[classifier]
@@ -290,108 +291,87 @@ def _structural_fidelity_section(
         subset_labels = [_subset_notation(subset) for subset in display_subsets]
         arm_tabs = []
         for arm, result in arm_results.items():
+            winner_matrices = {
+                int(item["n_per_class"]): item["matrix"]
+                for item in effective_winner_matrices(
+                    result, classifier, display_subsets
+                )
+            }
+            reversal_matrices = {
+                int(item["n_prefix"]): item["matrix"]
+                for item in progressive_reversal_matrices(
+                    result, classifier, display_subsets
+                )
+            }
             n_tabs = []
             for n in sample_sizes:
-                key = f"graph_structural_winner_{classifier}_{arm}_n{n}"
-                figure_html = ""
+                winner_html = ""
+                reversal_html = ""
                 if generate_graphs:
-                    matrix = winner_matrix(
-                        result, classifier, n, subsets=display_subsets
-                    )
-                    fig = winner_matrix_figure(
-                        matrix,
+                    winner_fig = winner_matrix_figure(
+                        winner_matrices[n],
                         subset_labels,
-                        f"{classifier_label(classifier)} — {arm_labels[arm]} — N={n}",
+                        f"{classifier_label(classifier)} — {arm_labels[arm]} "
+                        f"— Winner matrix — N={n}",
                     )
-                    figure_html = _emit_structural_graph(
-                        fig,
+                    winner_html = _emit_structural_graph(
+                        winner_fig,
                         output_dir,
                         graph_suffix,
                         graphs_out,
-                        key,
+                        f"graph_structural_winner_{classifier}_{arm}_n{n}",
                         True,
                     )
-                n_tabs.append((str(n), f"N = {n}", figure_html))
+                    reversal_fig = reversal_matrix_figure(
+                        reversal_matrices[n],
+                        subset_labels,
+                        f"{classifier_label(classifier)} — {arm_labels[arm]} "
+                        f"— Reversal matrix — N={n}",
+                    )
+                    reversal_html = _emit_structural_graph(
+                        reversal_fig,
+                        output_dir,
+                        graph_suffix,
+                        graphs_out,
+                        f"graph_structural_reversal_{classifier}_{arm}_n{n}",
+                        True,
+                    )
+                note = (
+                    "<p class='muted'>N is the first evaluated sample size, so "
+                    "no reversal can yet exist: the Reversal matrix is "
+                    "empty.</p>"
+                    if n == sample_sizes[0]
+                    else ""
+                )
+                n_tabs.append(
+                    (
+                        str(n),
+                        f"N = {n}",
+                        f"<div class='wr-pair'>{winner_html}{reversal_html}</div>"
+                        + note,
+                    )
+                )
             arm_tabs.append(
                 (
                     arm,
                     arm_labels[arm],
                     tab_group(
-                        f"scenario-structural-winner-{classifier}-{arm}-n",
+                        f"scenario-structural-dynamics-{classifier}-{arm}-n",
                         n_tabs,
                         str(sample_sizes[0]),
                     ),
                 )
             )
         selection_text = ", ".join(subset_labels)
-        winner_classifier_tabs.append(
+        dynamics_classifier_tabs.append(
             (
                 classifier,
                 classifier_label(classifier),
                 "<p class='refsubset'>Fixed Real → Real display subsets selected "
                 f"at Nmax: {html.escape(selection_text)}</p>"
                 + tab_group(
-                    f"scenario-structural-winner-{classifier}-arm",
+                    f"scenario-structural-dynamics-{classifier}-arm",
                     arm_tabs,
-                    reference_arm,
-                ),
-            )
-        )
-
-        nstar_arm_tabs = []
-        for arm, result in arm_results.items():
-            progressive = progressive_directed_nstar(
-                result, classifier, display_subsets
-            )
-            prefix_tabs = []
-            for item in progressive:
-                n_prefix = int(item["n_prefix"])
-                key = (
-                    f"graph_structural_nstar_{classifier}_{arm}_prefix{n_prefix}"
-                )
-                figure_html = ""
-                if generate_graphs:
-                    fig = progressive_nstar_matrix_figure(
-                        item["matrix"],
-                        subset_labels,
-                        f"{classifier_label(classifier)} — {arm_labels[arm]} "
-                        f"— prefix N={n_prefix}",
-                    )
-                    figure_html = _emit_structural_graph(
-                        fig,
-                        output_dir,
-                        graph_suffix,
-                        graphs_out,
-                        key,
-                        True,
-                    )
-                prefix_tabs.append(
-                    (str(n_prefix), f"Prefix N = {n_prefix}", figure_html)
-                )
-            prefix_content = (
-                tab_group(
-                    f"scenario-structural-nstar-{classifier}-{arm}-prefix",
-                    prefix_tabs,
-                    str(sample_sizes[1]),
-                )
-                if prefix_tabs
-                else (
-                    "<p>Progressive N-star requires at least two sample "
-                    "sizes.</p>"
-                )
-            )
-            nstar_arm_tabs.append(
-                (arm, arm_labels[arm], prefix_content)
-            )
-        nstar_classifier_tabs.append(
-            (
-                classifier,
-                classifier_label(classifier),
-                "<p class='refsubset'>The same fixed Real → Real display "
-                f"subsets are used: {html.escape(selection_text)}</p>"
-                + tab_group(
-                    f"scenario-structural-nstar-{classifier}-arm",
-                    nstar_arm_tabs,
                     reference_arm,
                 ),
             )
@@ -399,19 +379,22 @@ def _structural_fidelity_section(
 
     return (
         "<h2>7. Structural fidelity metrics</h2>"
-        "<p>Ranking Structural Fidelity compares complete all-subset loss "
-        "rankings using Spearman correlation with average-rank tie handling. "
-        "Winner Agreement compares exact pairwise winners after excluding pairs "
-        "tied in either arm. Progressive N-star Similarity compares directed "
-        "crossing-cell sets and their latest observed-grid timing through the "
-        "current sample-size prefix. These metrics remain separate; no composite "
-        "index is reported.</p>"
+        "<p>This section assesses predictive cooperation profile fidelity "
+        "across arms with three separate metrics. Ranking fidelity compares complete "
+        "subset rankings using Spearman correlation with average-rank tie "
+        "handling. Winner Agreement compares effective pairwise winner "
+        "relations, carried forward through exact ties, after excluding "
+        "pairs still unresolved in either arm. Reversal existence agreement "
+        "compares which unordered pairs have a valid last observed winner "
+        "reversal; reversal sample-size similarity compares the reversal "
+        "sample sizes only for the pairs shared between the two arms. These "
+        "metrics remain separate; no composite index is reported.</p>"
         "<p class='muted'><code>constant_ranking</code> means a non-reference "
         "ranking has no variation; <code>no_valid_pairs</code> means every "
-        "unordered pair was tied in at least one arm; "
+        "unordered pair was unresolved in at least one arm; "
         "<code>unavailable_first_prefix</code> marks N1; "
-        "<code>no_crossings_in_either</code> and "
-        "<code>no_shared_crossings</code> distinguish empty crossing cases; "
+        "<code>no_reversals_in_either</code> and "
+        "<code>no_shared_reversals</code> distinguish empty reversal cases; "
         "<code>ok</code> means the corresponding metric is available.</p>"
         f"<h3>7.1 Summary at N = {n_max}</h3>"
         + _table(
@@ -424,13 +407,14 @@ def _structural_fidelity_section(
                 "Valid winner pairs",
                 "Skipped tie pairs",
                 "Winner status",
-                "S_N*(<=Nmax)",
-                "Reference crossings",
-                "Arm crossings",
-                "Shared crossings",
-                "Crossing Jaccard",
-                "Timing similarity",
-                "N-star status",
+                "A_R(<=Nmax)",
+                "S_R(<=Nmax)",
+                "Reference reversal pairs",
+                "Arm reversal pairs",
+                "Shared reversal pairs",
+                "Union reversal pairs",
+                "Mean log2 reversal distance",
+                "Reversal status",
             ],
             rows,
         )
@@ -440,22 +424,18 @@ def _structural_fidelity_section(
             metric_classifier_tabs,
             default_classifier,
         )
-        + "<h3>7.3 Directed winner matrices</h3>"
-        "<p>Matrix values are +1 when the row subset has lower loss, -1 when "
-        "it has higher loss, 0 for an exact tie, and unavailable on the diagonal. "
-        "The fixed display reduction does not affect either numerical metric.</p>"
+        + "<h3>7.3 Pairwise winner and reversal dynamics</h3>"
+        "<p>The Winner matrix <code>W</code> shows who currently wins each "
+        "unordered subset pair at a given sample size; the Reversal matrix "
+        "<code>R</code> shows when that pair last changed winner through the "
+        "selected prefix. The direction and new winner after a reversal are "
+        "recovered from <code>W</code>, not stored separately in "
+        "<code>R</code>. <code>R</code> stores exactly one upper-triangular "
+        "value per unordered pair. The fixed display subset reduction below "
+        "does not alter the all-subset numerical metrics reported above.</p>"
         + tab_group(
-            "scenario-structural-winner-classifier",
-            winner_classifier_tabs,
-            default_classifier,
-        )
-        + "<h3>7.4 Progressive directed N-star matrices</h3>"
-        "<p>Each directed cell shows the latest observed-grid crossing in that "
-        "direction through the selected prefix. Missing cells are unavailable, "
-        "not zero, and prefix tabs begin at N2.</p>"
-        + tab_group(
-            "scenario-structural-nstar-classifier",
-            nstar_classifier_tabs,
+            "scenario-structural-dynamics-classifier",
+            dynamics_classifier_tabs,
             default_classifier,
         )
     )
@@ -1119,7 +1099,7 @@ def _interpretation_html(
     )
     limitation_items = "".join(f"<li>{html.escape(item)}</li>" for item in limitations)
     return (
-        "<h2>9. Interpretation notes</h2>"
+        "<h2>8. Interpretation notes</h2>"
         + notes
         + "<h3>Limitations</h3><ul>"
         + limitation_items
@@ -1181,6 +1161,9 @@ figure.graph img { max-width:100%; height:auto; border:1px solid var(--line);
           font-size:.86rem; box-shadow:0 1px 3px rgba(0,0,0,.06); }
 .legend-title { font-weight:700; color:#123; margin-right:.4rem; }
 .legend-item { white-space:nowrap; }
+.wr-pair { display:flex; flex-wrap:wrap; gap:1rem; justify-content:center;
+           align-items:flex-start; }
+.wr-pair figure.graph { margin:.5rem; }
 """
 
 
@@ -1250,11 +1233,11 @@ def generate_occupancy_scenario_report(
         interpretation_notes=(
             (
                 "Structural fidelity metrics",
-                "Ranking fidelity, pairwise winner agreement, and progressive N-star similarity describe distinct aspects of preservation and must be interpreted separately alongside their availability statuses.",
+                "Ranking fidelity, Winner Agreement, reversal existence agreement, and reversal sample-size similarity describe distinct aspects of predictive cooperation profile preservation and must be interpreted separately alongside their availability statuses.",
             ),
             (
                 "Agreement among the three arms",
-                "Agreement in best subsets and cooperative thresholds indicates that synthetic training preserves cooperative advantages observed under real Occupancy evaluation.",
+                "Agreement in best subsets and reversal fidelity indicates that synthetic training preserves cooperative advantages observed under real Occupancy evaluation.",
             ),
             (
                 "Single Gaussian vs GMM under real-data evaluation",
@@ -1262,7 +1245,7 @@ def generate_occupancy_scenario_report(
             ),
             (
                 "Divergences from the Real → Real baseline",
-                "Differences in best subsets or N-star availability identify real Occupancy structure not reproduced by a synthetic training distribution.",
+                "Differences in best subsets or winner reversals identify real Occupancy structure not reproduced by a synthetic training distribution.",
             ),
             (
                 "Classifier-specific behavior",

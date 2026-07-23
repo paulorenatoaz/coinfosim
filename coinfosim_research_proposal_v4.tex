@@ -58,11 +58,11 @@
 
 \begin{abstract}
 \noindent
-\CoInfoSim{} is proposed as a simulation framework for evaluating cooperative advantage among information channels in supervised classification tasks. The project evolves from the previous \SLACGS{} and \CoSenSim{} lines of work, preserving their incremental Monte Carlo protocol, reproducible sample generation, adaptive repetition logic, and scenario-based reporting structure, while reformulating the scientific object from sensor-network dimensionality to multi-channel classification. The central quantity is the Monte Carlo average classification loss
+\CoInfoSim{} is proposed as a simulation framework for evaluating predictive cooperation among information channels in supervised classification tasks. The project evolves from the previous \SLACGS{} and \CoSenSim{} lines of work, preserving their incremental Monte Carlo protocol, reproducible sample generation, adaptive repetition logic, and scenario-based reporting structure, while reformulating the scientific object from sensor-network dimensionality to multi-channel classification. The central quantity is the estimated mean test loss
 \[
     \overline{L}_{A,f}(n),
 \]
-indexed by channel subset $A$, classifier $f$, and number of labeled training samples per class $n$. Each information channel is represented as a component of a standardized input vector $X=(X_1,\ldots,X_d)$. In the Gaussian mode, the simulator receives class-conditional model parameters directly, namely centers and covariance matrices $\{(\mu_c,\Sigma_c)\}_{c=1}^{K}$, which may differ across classes. Training samples are class-balanced throughout the initial protocol. The project is organized into three phases: idealized synthetic multi-channel scenarios, dataset-anchored multi-channel simulation, and cost-aware channel selection.
+indexed by channel subset $A$, classifier $f$, and number of labeled training samples per class $n$. The evolution of $\overline{L}_{A,f}(n)$ relative to other subsets, as $n$ grows, is called the subset's \emph{predictive cooperation profile}. Formally, each component of the input vector is an \emph{attribute}; \emph{information channel} is the conceptual or operational interpretation given to an attribute (or attribute group) in a specific application, such as a sensor reading. In the Gaussian mode, the simulator receives class-conditional model parameters directly, namely centers and covariance matrices $\{(\mu_c,\Sigma_c)\}_{c=1}^{K}$, which may differ across classes. Training samples are class-balanced throughout the initial protocol. The project is organized into three phases: idealized synthetic multi-channel scenarios, dataset-anchored multi-channel simulation, and cost-aware channel selection.
 \end{abstract}
 
 \tableofcontents
@@ -85,7 +85,7 @@ The initial research questions are:
     \item When does a channel subset improve classification loss relative to the best isolated channel?
     \item When is an apparently useful channel redundant with another channel?
     \item When can a weaker channel be valuable because it complements stronger channels?
-    \item How many labeled samples per class are required before cooperative advantage appears?
+    \item How many labeled samples per class are required before a pairwise predictive-superiority reversal appears in the predictive cooperation profile?
     \item How should channel subsets be selected when classification performance and channel cost are both relevant?
 \end{itemize}
 
@@ -115,7 +115,7 @@ Let
 \[
     X=(X_1,\ldots,X_d)
 \]
-denote a standardized input vector, where each component $X_j$ is an information channel. Let
+denote a standardized input vector, where each component $X_j$ is formally an \emph{attribute}. When discussing a specific application, an attribute (or a group of attributes) is given a conceptual or operational interpretation as an \emph{information channel} -- for example, a sensor reading, a laboratory measurement, or an engineered feature. Let
 \[
     Y\in\{1,\ldots,K\}
 \]
@@ -187,15 +187,45 @@ where $m$ is the number of test observations used for evaluation. The main outpu
 \]
 The number of repetitions $R_n$ may depend on $n$, preserving the legacy strategy of using more repetitions for smaller sample sizes and fewer repetitions once the estimates stabilize.
 
-Derived quantities include the best subset for a classifier:
+A first derived quantity is the best subset for a classifier:
 \[
-    A_f^\star(n)=\arg\min_A \overline{L}_{A,f}(n),
+    A_f^\star(n)=\arg\min_A \overline{L}_{A,f}(n).
 \]
-and cooperative advantage thresholds. For two channel subsets $A$ and $B$, the threshold
+
+\subsection{Predictive Cooperation Profile and Pairwise Winner Reversals}
+
+For two channel subsets $A$ and $B$ and classifier $f$, the \emph{observed pairwise outcome} at sample size $n$ is
 \[
-    N^*(A,B;f)=\min\{n:\overline{L}_{B,f}(n)<\overline{L}_{A,f}(n)\}
+U_{A,B,f}(n)=
+\begin{cases}
++1, & \overline{L}_{A,f}(n)<\overline{L}_{B,f}(n),\\
+-1, & \overline{L}_{A,f}(n)>\overline{L}_{B,f}(n),\\
+0, & \overline{L}_{A,f}(n)=\overline{L}_{B,f}(n).
+\end{cases}
 \]
-identifies the smallest sample size per class at which subset $B$ achieves lower average loss than subset $A$ for classifier $f$.
+The \emph{effective pairwise winner relation} $W_{A,B,f}(n)$ propagates the last strict outcome through exact ties:
+\[
+W_{A,B,f}(n)=
+\begin{cases}
+U_{A,B,f}(n), & U_{A,B,f}(n)\neq 0,\\
+W_{A,B,f}(n_{-1}), & U_{A,B,f}(n)=0 \text{ and a previous winner exists},\\
+0, & U_{A,B,f}(n)=0 \text{ and no previous winner exists},
+\end{cases}
+\]
+where $n_{-1}$ denotes the previous evaluated sample size. Under this rule, an exact tie occurring after a pair's first strict winner does not erase or reverse the relation; only a strict outcome that differs from the previously recorded winner can do so.
+
+A \emph{valid pairwise predictive-superiority reversal} (winner reversal, for short) occurs at $n_k$, $k\geq 2$, when
+\[
+W_{A,B,f}(n_{k-1})\neq 0,\qquad W_{A,B,f}(n_k)\neq 0,\qquad W_{A,B,f}(n_k)\neq W_{A,B,f}(n_{k-1}).
+\]
+The \emph{reversal matrix} $R_{A,B,f}(n_t)$, evaluated over the prefix ending at $n_t$, stores the largest reversal sample size observed in that prefix and \textbf{exists only if} the pair has undergone at least one valid winner reversal; it does not exist merely because one subset currently wins, because a first winner appears after initial ties, or because an exact tie occurs. The sequence of $W$ and $R$ over $n$ constitutes the pair's contribution to the \emph{predictive cooperation profile}: the quantitative evolution of relative subset performance over sample size for a fixed dataset, classifier, and training condition.
+
+To compare predictive cooperation profiles across two training-condition arms (e.g.\ real-data training versus a synthetic-data training condition), two separate metrics are reported -- never combined into a single product or composite index:
+\begin{itemize}
+    \item \textbf{Reversal existence agreement} -- the Jaccard agreement, over unordered subset pairs, between the sets of pairs for which $R$ is defined in each arm;
+    \item \textbf{Reversal sample-size similarity} -- the normalized agreement, on the $\log_2(n)$ scale, between the reversal sample sizes recorded for the pairs shared by both arms.
+\end{itemize}
+The first metric answers whether the same pairs reverse; the second answers, only for pairs that reverse in both arms, whether they reverse at comparable sample sizes. Reporting them separately avoids conflating two different questions into one number.
 
 \section{Initial Classifiers}
 
@@ -220,7 +250,7 @@ This phase validates the simulator and studies the fundamental mechanisms of coo
     \item additive gains from weak but complementary channels;
     \item redundancy among strong channels;
     \item channel-subset ranking as $n$ increases;
-    \item cooperative advantage thresholds $N^*$;
+    \item predictive cooperation profiles and pairwise winner reversals;
     \item differences among Linear SVM, Logistic Regression, and Gaussian Naive Bayes.
 \end{itemize}
 
@@ -312,7 +342,7 @@ For all three-channel scenarios, the simulator evaluates all non-empty channel s
 \[
 \{X_1\},\{X_2\},\{X_3\},\{X_1,X_2\},\{X_1,X_3\},\{X_2,X_3\},\{X_1,X_2,X_3\}.
 \]
-The central empirical object remains $\overline{L}_{A,f}(n)$, and a key derived quantity is the cooperative advantage threshold $N^*(A,B;f)$.
+The central empirical object remains $\overline{L}_{A,f}(n)$, and a key derived quantity is each pair's predictive cooperation profile, summarized by the effective winner relation $W_{A,B,f}(n)$ and the reversal matrix $R_{A,B,f}(n_t)$.
 
 \subsection{Scenario 1: Simple Complementary Channel}
 
@@ -335,7 +365,7 @@ The central empirical object remains $\overline{L}_{A,f}(n)$, and a key derived 
 
 Here $X_1$ is the strongest isolated channel, $X_2$ is moderately informative, and $X_3$ is weaker individually. However, $X_3$ has low correlation with the other channels, so it may add non-redundant information. This is the first scenario to implement because it directly tests the core idea of cooperative advantage.
 
-\textbf{Expected report emphasis.} The first report should show loss curves for all channel subsets and classifiers, subset rankings as $n$ grows, cooperative advantage thresholds such as $N^*(\text{best single},\text{best pair};f)$ and $N^*(\text{best pair},\text{full};f)$, and visualizations of synthetic data geometry.
+\textbf{Expected report emphasis.} The first report should show loss curves for all channel subsets and classifiers, subset rankings as $n$ grows, winner reversals such as those between the best single channel and the best pair, and between the best pair and the full subset, and visualizations of synthetic data geometry.
 
 \subsection{Scenario 2: Redundancy Between Strong Channels}
 
@@ -451,7 +481,7 @@ This scenario marks a clear departure from the older shared-covariance formulati
 
 \subsection{Scenario 7: Redundancy--Complementarity Grid}
 
-\textbf{Question.} How does the cooperative advantage threshold change when redundancy and third-channel complementarity vary simultaneously?
+\textbf{Question.} How do pairwise winner reversals change when redundancy and third-channel complementarity vary simultaneously?
 
 This is a scenario grid rather than a single simulation model. One possible grid is:
 \[
@@ -473,7 +503,7 @@ with
     \qquad
     a\in\{0.15,0.30,0.45,0.60\}.
 \]
-Here $\rho$ controls redundancy between $X_1$ and $X_2$, while $a$ controls the strength of the third channel. This scenario should produce heatmaps of $N^*$, best-subset maps, and aggregate scenario reports.
+Here $\rho$ controls redundancy between $X_1$ and $X_2$, while $a$ controls the strength of the third channel. This scenario should produce heatmaps of reversal sample sizes, best-subset maps, and aggregate scenario reports.
 
 \subsection{Implementation order}
 
@@ -525,7 +555,7 @@ A simulation report summarizes one simulation model. It should include:
     \item convergence or stopping information;
     \item curves of $\overline{L}_{A,f}(n)$;
     \item rankings of channel subsets by sample size;
-    \item cooperative advantage thresholds $N^*$;
+    \item pairwise winner and reversal matrices ($W$ and $R$);
     \item visualizations of the generated or sampled data geometry.
 \end{itemize}
 
@@ -539,7 +569,7 @@ A scenario report aggregates several simulation reports organized around one exp
     \item a table of simulation models;
     \item links to simulation reports;
     \item aggregate loss curves;
-    \item cooperative advantage threshold summaries;
+    \item winner-reversal summaries;
     \item best-subset maps;
     \item heatmaps for scenario grids;
     \item animations or panels showing how data geometry changes across the scenario.
@@ -555,7 +585,7 @@ In dataset-anchored experiments, a scenario may be centered on a real dataset ra
     \item a comparison of real-data and synthetic-anchored behavior.
 \end{itemize}
 
-The comparison should show real versus synthetic loss curves, subset rankings, cooperative advantage thresholds $N^*$, real--synthetic loss discrepancies, and visualizations of both empirical and anchored synthetic geometry. This comparison evaluates whether the Gaussian synthetic model preserves the cooperative patterns observed in the real dataset.
+The comparison should show real versus synthetic loss curves, subset rankings, predictive cooperation profile fidelity -- reversal existence agreement and reversal sample-size similarity, reported separately -- real--synthetic loss discrepancies, and visualizations of both empirical and anchored synthetic geometry. This comparison evaluates whether the Gaussian synthetic model preserves the cooperative patterns observed in the real dataset.
 
 \section{Notes on Implementation Scope}
 

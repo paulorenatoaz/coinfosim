@@ -1,20 +1,30 @@
 from dataclasses import dataclass
 import json
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 
+from coinfosim.reports.structural_visualization import (
+    metric_series_figure,
+    reversal_matrix_figure,
+    winner_matrix_figure,
+)
 from coinfosim.results.structural import (
     directed_crossing_events,
+    effective_winner_matrices,
     progressive_directed_nstar,
-    progressive_nstar_similarity,
+    progressive_reversal_fidelity,
+    progressive_reversal_matrices,
     rank_vector,
     ranking_fidelity_series,
+    scenario_structural_fidelity,
     select_display_subsets_by_cardinality,
     simulation_structural_dynamics,
     validate_structural_compatibility,
     winner_agreement_series,
     winner_matrix,
+    winner_reversal_events,
 )
 
 
@@ -249,96 +259,236 @@ def test_progressive_crossing_keeps_latest_same_direction_across_alternations():
     )
 
 
-def test_nstar_similarity_is_unavailable_at_first_prefix_and_json_safe():
+def test_effective_winner_no_reversal_after_initial_tie_then_first_winner():
+    result = crossing_result({2: [0.5, 0.5], 4: [0.4, 0.5]})
+    effective = effective_winner_matrices(result, "clf")
+    assert effective[0]["matrix"] == [[None, 0], [0, None]]
+    assert effective[1]["matrix"] == [[None, 1], [-1, None]]
+    assert winner_reversal_events(result, "clf") == []
+
+
+def test_no_reversal_after_repeated_initial_ties_then_first_winner():
+    result = crossing_result({2: [0.5, 0.5], 4: [0.5, 0.5], 8: [0.4, 0.5]})
+    assert winner_reversal_events(result, "clf") == []
+
+
+def test_no_reversal_when_winner_repeats_across_intervening_tie():
+    result = crossing_result({2: [0.4, 0.5], 4: [0.5, 0.5], 6: [0.3, 0.5]})
+    assert winner_reversal_events(result, "clf") == []
+
+
+def test_single_reversal_after_tie_then_strict_opposite_winner():
+    result = crossing_result({2: [0.4, 0.5], 4: [0.5, 0.5], 6: [0.6, 0.5]})
+    assert winner_reversal_events(result, "clf") == [{"i": 0, "j": 1, "n_reversal": 6}]
+
+
+def test_single_reversal_between_two_strict_winners():
+    result = crossing_result({2: [0.4, 0.5], 4: [0.6, 0.5]})
+    assert winner_reversal_events(result, "clf") == [{"i": 0, "j": 1, "n_reversal": 4}]
+
+
+def test_multiple_alternations_retain_all_events_and_progressive_r_keeps_latest():
+    result = crossing_result(
+        {2: [0.6, 0.5], 4: [0.4, 0.5], 8: [0.6, 0.5], 16: [0.4, 0.5]}
+    )
+    events = winner_reversal_events(result, "clf")
+    assert events == [
+        {"i": 0, "j": 1, "n_reversal": 4},
+        {"i": 0, "j": 1, "n_reversal": 8},
+        {"i": 0, "j": 1, "n_reversal": 16},
+    ]
+    progressive = progressive_reversal_matrices(result, "clf")
+    assert progressive[0]["matrix"] == [[None, None], [None, None]]
+    assert progressive[1]["matrix"] == [[None, 4], [None, None]]
+    assert progressive[2]["matrix"] == [[None, 8], [None, None]]
+    assert progressive[3]["matrix"] == [[None, 16], [None, None]]
+
+
+def test_pair_with_no_reversal_remains_undefined_in_r():
+    result = make_result(
+        {"clf": {2: [0.4, 0.5, 0.9], 4: [0.6, 0.5, 0.9]}},
+        grid=(2, 4),
+        subsets=((0,), (1,), (2,)),
+    )
+    events = winner_reversal_events(result, "clf")
+    assert events == [{"i": 0, "j": 1, "n_reversal": 4}]
+    for item in progressive_reversal_matrices(result, "clf"):
+        assert item["matrix"][0][2] is None
+        assert item["matrix"][1][2] is None
+
+
+def test_reversal_events_use_only_i_lt_j_pairs():
+    result = crossing_result(
+        {2: [0.6, 0.5], 4: [0.4, 0.5], 8: [0.6, 0.5], 16: [0.4, 0.5]}
+    )
+    events = winner_reversal_events(result, "clf")
+    assert events and all(event["i"] < event["j"] for event in events)
+
+
+def test_progressive_reversal_matrix_has_values_only_in_upper_triangle():
+    result = crossing_result(
+        {2: [0.6, 0.5], 4: [0.4, 0.5], 8: [0.6, 0.5], 16: [0.4, 0.5]}
+    )
+    for item in progressive_reversal_matrices(result, "clf"):
+        matrix = item["matrix"]
+        for i in range(len(matrix)):
+            for j in range(len(matrix)):
+                if i >= j:
+                    assert matrix[i][j] is None
+
+
+def test_effective_winner_matrix_remains_antisymmetric_after_carry_forward():
+    result = crossing_result({2: [0.4, 0.5], 4: [0.5, 0.5], 6: [0.6, 0.5]})
+    for item in effective_winner_matrices(result, "clf"):
+        matrix = item["matrix"]
+        assert matrix[0][1] == -matrix[1][0]
+
+
+def test_winner_agreement_uses_carried_forward_effective_winner_through_tie():
+    ref = crossing_result({2: [0.4, 0.5], 4: [0.5, 0.5]})
+    arm = crossing_result({2: [0.3, 0.5], 4: [0.5, 0.5]})
+    row = metric_row(winner_agreement_series({"ref": ref, "arm": arm}, "ref"), n=4)
+    assert row["n_pairs_valid"] == 1
+    assert row["n_pairs_matching"] == 1
+    assert row["winner_agreement"] == 1.0
+    assert row["status"] == "ok"
+
+
+def test_reversal_fidelity_is_unavailable_at_first_prefix_and_json_safe():
     result = crossing_result({2: [0.6, 0.5], 4: [0.4, 0.5]})
-    rows = progressive_nstar_similarity({"ref": result, "arm": result}, "ref")
+    rows = progressive_reversal_fidelity({"ref": result, "arm": result}, "ref")
     first = metric_row(rows, n=2)
-    assert first["nstar_similarity"] is None
+    assert first["reversal_existence_agreement"] is None
+    assert first["mean_log2_reversal_distance"] is None
+    assert first["reversal_sample_size_similarity"] is None
     assert first["status"] == "unavailable_first_prefix"
     assert "null" in json.dumps(first, allow_nan=False)
 
 
-def test_nstar_similarity_no_crossings_in_either():
+def test_reversal_fidelity_no_reversals_in_either():
     ref = crossing_result({2: [0.4, 0.5], 4: [0.3, 0.5]})
     arm = crossing_result({2: [0.2, 0.5], 4: [0.1, 0.5]})
-    row = metric_row(progressive_nstar_similarity({"ref": ref, "arm": arm}, "ref"), n=4)
-    assert row["crossing_jaccard"] == 1.0
-    assert row["timing_similarity"] == 1.0
-    assert row["nstar_similarity"] == 1.0
-    assert row["status"] == "no_crossings_in_either"
+    row = metric_row(progressive_reversal_fidelity({"ref": ref, "arm": arm}, "ref"), n=4)
+    assert row["reversal_existence_agreement"] == 1.0
+    assert row["mean_log2_reversal_distance"] is None
+    assert row["reversal_sample_size_similarity"] is None
+    assert row["status"] == "no_reversals_in_either"
 
 
-def test_nstar_similarity_no_shared_crossings():
+def test_reversal_fidelity_no_shared_reversals_leaves_similarity_undefined():
     ref = crossing_result({2: [0.6, 0.5], 4: [0.4, 0.5]})
     arm = crossing_result({2: [0.4, 0.5], 4: [0.3, 0.5]})
-    row = metric_row(progressive_nstar_similarity({"ref": ref, "arm": arm}, "ref"), n=4)
-    assert row["n_reference_crossings"] == 1
-    assert row["n_arm_crossings"] == 0
-    assert row["crossing_jaccard"] == 0.0
-    assert row["timing_similarity"] is None
-    assert row["nstar_similarity"] == 0.0
-    assert row["status"] == "no_shared_crossings"
+    row = metric_row(progressive_reversal_fidelity({"ref": ref, "arm": arm}, "ref"), n=4)
+    assert row["n_reference_reversal_pairs"] == 1
+    assert row["n_arm_reversal_pairs"] == 0
+    assert row["reversal_existence_agreement"] == 0.0
+    assert row["mean_log2_reversal_distance"] is None
+    assert row["reversal_sample_size_similarity"] is None
+    assert row["status"] == "no_shared_reversals"
 
 
-def test_nstar_similarity_jaccard_and_shared_timing():
-    ref = crossing_result(
-        {2: [0.6, 0.5], 4: [0.4, 0.5], 8: [0.6, 0.5]}
+def test_reversal_fidelity_partial_overlap_across_independent_pairs():
+    ref = make_result(
+        {
+            "clf": {
+                2: [0.3, 0.2, 0.6, 0.5],
+                4: [0.15, 0.35, 0.6, 0.5],
+                8: [0.15, 0.35, 0.55, 0.9],
+            }
+        },
+        grid=(2, 4, 8),
+        subsets=((0,), (1,), (2,), (3,)),
     )
-    arm = crossing_result(
-        {2: [0.6, 0.5], 4: [0.4, 0.5], 8: [0.3, 0.5]}
+    arm = make_result(
+        {
+            "clf": {
+                2: [0.3, 0.2, 0.6, 0.5],
+                4: [0.15, 0.35, 0.6, 0.5],
+                8: [0.15, 0.35, 0.6, 0.5],
+            }
+        },
+        grid=(2, 4, 8),
+        subsets=((0,), (1,), (2,), (3,)),
     )
-    row = metric_row(progressive_nstar_similarity({"ref": ref, "arm": arm}, "ref"), n=8)
-    assert row["n_reference_crossings"] == 2
-    assert row["n_arm_crossings"] == 1
-    assert row["n_shared_crossings"] == 1
-    assert row["crossing_jaccard"] == pytest.approx(0.5)
-    assert row["timing_similarity"] == 1.0
-    assert row["nstar_similarity"] == pytest.approx(0.5)
+    row = metric_row(
+        progressive_reversal_fidelity({"ref": ref, "arm": arm}, "ref"), n=8
+    )
+    assert row["n_reference_reversal_pairs"] == 2
+    assert row["n_arm_reversal_pairs"] == 1
+    assert row["n_shared_reversal_pairs"] == 1
+    assert row["n_union_reversal_pairs"] == 2
+    assert row["reversal_existence_agreement"] == pytest.approx(0.5)
+    assert row["mean_log2_reversal_distance"] == pytest.approx(0.0)
+    assert row["reversal_sample_size_similarity"] == pytest.approx(1.0)
     assert row["status"] == "ok"
 
 
-def test_nstar_similarity_uses_current_prefix_log2_span_and_clips_bounds():
-    ref = crossing_result(
-        {2: [0.6, 0.5], 4: [0.4, 0.5], 8: [0.3, 0.5], 16: [0.2, 0.5]}
-    )
-    arm = crossing_result(
-        {2: [0.6, 0.5], 4: [0.6, 0.5], 8: [0.4, 0.5], 16: [0.3, 0.5]}
-    )
-    rows = progressive_nstar_similarity({"ref": ref, "arm": arm}, "ref")
-    at_eight = metric_row(rows, n=8)
-    assert at_eight["crossing_jaccard"] == 1.0
-    assert at_eight["timing_similarity"] == pytest.approx(0.5)
-    assert at_eight["nstar_similarity"] == pytest.approx(0.5)
-    assert all(
-        0.0 <= row["nstar_similarity"] <= 1.0
-        for row in rows
-        if row["nstar_similarity"] is not None
-    )
+def test_reversal_fidelity_full_overlap_identical_reversal_sample_sizes():
+    ref = crossing_result({2: [0.6, 0.5], 4: [0.4, 0.5]})
+    arm = crossing_result({2: [0.6, 0.5], 4: [0.4, 0.5]})
+    row = metric_row(progressive_reversal_fidelity({"ref": ref, "arm": arm}, "ref"), n=4)
+    assert row["reversal_existence_agreement"] == 1.0
+    assert row["mean_log2_reversal_distance"] == pytest.approx(0.0)
+    assert row["reversal_sample_size_similarity"] == pytest.approx(1.0)
+    assert row["status"] == "ok"
 
 
-def test_nstar_similarity_self_comparison_is_one_with_informative_status():
+def test_reversal_fidelity_one_level_log2_displacement():
+    ref = crossing_result({2: [0.6, 0.5], 4: [0.4, 0.5], 8: [0.4, 0.5]})
+    arm = crossing_result({2: [0.6, 0.5], 4: [0.6, 0.5], 8: [0.4, 0.5]})
+    row = metric_row(progressive_reversal_fidelity({"ref": ref, "arm": arm}, "ref"), n=8)
+    assert row["mean_log2_reversal_distance"] == pytest.approx(1.0)
+    assert row["reversal_sample_size_similarity"] == pytest.approx(0.5)
+    assert row["status"] == "ok"
+
+
+def test_reversal_fidelity_self_comparison_is_ok_with_zero_distance():
     result = crossing_result({2: [0.6, 0.5], 4: [0.4, 0.5]})
     row = metric_row(
-        progressive_nstar_similarity({"ref": result}, "ref"), arm="ref", n=4
+        progressive_reversal_fidelity({"ref": result}, "ref"), arm="ref", n=4
     )
-    assert row["nstar_similarity"] == 1.0
-    assert row["crossing_jaccard"] == 1.0
-    assert row["timing_similarity"] == 1.0
+    assert row["reversal_existence_agreement"] == 1.0
+    assert row["mean_log2_reversal_distance"] == pytest.approx(0.0)
+    assert row["reversal_sample_size_similarity"] == pytest.approx(1.0)
     assert row["status"] == "ok"
 
 
-def test_serialization_uses_sparse_winners_events_and_canonical_catalog():
+def test_reversal_fidelity_has_no_composite_product_field():
+    ref = crossing_result({2: [0.6, 0.5], 4: [0.4, 0.5]})
+    rows = progressive_reversal_fidelity({"ref": ref, "arm": ref}, "ref")
+    for row in rows:
+        assert "nstar_similarity" not in row
+        assert "crossing_jaccard" not in row
+        assert "timing_similarity" not in row
+        assert not any("product" in key for key in row)
+
+
+def test_structural_schema_version_is_2_and_strict_json_safe():
+    result = crossing_result({2: [0.6, 0.5], 4: [0.4, 0.5]})
+    dynamics = simulation_structural_dynamics(result)
+    assert dynamics["schema_version"] == 2
+    fidelity = scenario_structural_fidelity(
+        {"ref": result, "arm": result}, "ref", {"ref": "Ref", "arm": "Arm"}
+    )
+    assert fidelity["schema_version"] == 2
+    assert "reversal_fidelity_series" in fidelity
+    assert "nstar_similarity_series" not in fidelity
+    encoded = json.dumps({"dynamics": dynamics, "fidelity": fidelity}, allow_nan=False)
+    assert "NaN" not in encoded
+
+
+def test_serialization_uses_sparse_effective_winners_and_reversal_events():
     result = crossing_result({2: [0.6, 0.5], 4: [0.4, 0.5]})
     data = simulation_structural_dynamics(result)
     assert data["subset_catalog"] == [[0], [1]]
     assert data["sample_sizes"] == [2, 4]
     classifier = data["classifiers"]["clf"]
-    assert classifier["winner_pairs_by_n"] == {
+    assert classifier["effective_winner_pairs_by_n"] == {
         "2": [{"i": 0, "j": 1, "outcome": -1}],
         "4": [{"i": 0, "j": 1, "outcome": 1}],
     }
-    assert classifier["directed_crossing_events"] == [
-        {"row": 0, "col": 1, "n_crossing": 4}
+    assert classifier["winner_reversal_events"] == [
+        {"i": 0, "j": 1, "n_reversal": 4}
     ]
 
 
@@ -359,3 +509,69 @@ def test_report_data_serialization_is_deterministic_and_strict_json_safe():
     )
     assert '"rho_rank": null' in encoded
     assert "NaN" not in encoded
+
+
+def test_metric_series_figure_labels_and_x_field_for_all_four_metrics():
+    winner_rows = [
+        {"arm": "arm", "n_per_class": 2, "rho_rank": 0.5, "winner_agreement": 0.5},
+        {"arm": "arm", "n_per_class": 4, "rho_rank": 0.8, "winner_agreement": 0.9},
+    ]
+    reversal_rows = [
+        {
+            "arm": "arm",
+            "n_prefix": 2,
+            "reversal_existence_agreement": None,
+            "reversal_sample_size_similarity": None,
+        },
+        {
+            "arm": "arm",
+            "n_prefix": 4,
+            "reversal_existence_agreement": 1.0,
+            "reversal_sample_size_similarity": 1.0,
+        },
+    ]
+    expected_ylabels = {
+        "rho_rank": "Ranking fidelity",
+        "winner_agreement": "Winner agreement",
+        "reversal_existence_agreement": "Reversal existence agreement",
+        "reversal_sample_size_similarity": "Reversal sample-size similarity",
+    }
+    for metric, rows in (
+        ("rho_rank", winner_rows),
+        ("winner_agreement", winner_rows),
+        ("reversal_existence_agreement", reversal_rows),
+        ("reversal_sample_size_similarity", reversal_rows),
+    ):
+        fig = metric_series_figure(rows, metric, {"arm": "Arm"}, "Title")
+        assert fig.axes[0].get_ylabel() == expected_ylabels[metric]
+        plt.close(fig)
+
+
+def test_reversal_matrix_figure_masks_diagonal_and_lower_triangle():
+    matrix = [
+        [99, 4, None],
+        [7, 88, 8],
+        [None, None, 77],
+    ]
+    fig = reversal_matrix_figure(matrix, ["A", "B", "C"], "Reversal matrix")
+    ax = fig.axes[0]
+    assert ax.get_title() == "Reversal matrix"
+    values = np.ma.filled(ax.images[0].get_array(), np.nan)
+    assert np.isnan(values[0][0])
+    assert np.isnan(values[1][0])
+    assert np.isnan(values[2][2])
+    assert values[0][1] == 4
+    assert values[1][2] == 8
+    colorbar_label = fig.axes[-1].yaxis.get_label().get_text()
+    assert colorbar_label == "Last observed reversal sample size"
+    plt.close(fig)
+
+
+def test_winner_matrix_figure_uses_unresolved_legend_label():
+    matrix = [[None, 0], [0, None]]
+    fig = winner_matrix_figure(matrix, ["A", "B"], "Winner matrix")
+    colorbar_labels = [
+        tick.get_text() for tick in fig.axes[-1].get_yticklabels()
+    ]
+    assert colorbar_labels == ["row loses", "unresolved", "row wins"]
+    plt.close(fig)

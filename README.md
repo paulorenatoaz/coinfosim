@@ -1,6 +1,6 @@
 # CoInfoSim: A Simulator for Cooperative Classification from Multiple Information Channels
 
-CoInfoSim is a research simulator for evaluating **cooperative advantage among information channels** in supervised classification tasks. It studies when a *subset* of channels provides a measurable advantage over isolated channels, redundant pairs, or simpler subsets, and how many labeled samples are needed before that advantage appears.
+CoInfoSim is a research simulator for evaluating **predictive cooperation among information channels** in supervised classification tasks. It studies the **predictive cooperation profile** of a channel subset — how its predictive performance relative to other subsets evolves as the number of labeled training samples per class grows — comparing real versus synthetic training-condition arms evaluated on the same fixed real test set.
 
 > **Core research question:** When does cooperation among information channels improve supervised classification?
 
@@ -212,13 +212,9 @@ $$
 A_f^\star(n) = \arg\min_A \overline{L}_{A,f}(n),
 $$
 
-and the **cooperative advantage threshold** between subsets $A$ and $B$ is
+For subsets $A$ and $B$, the **pairwise winner relation** $W_{A,B}(n)$ records which of the two subsets currently has the lower average loss at $n$; an exact tie after a pair's first strict winner carries the previous winner forward instead of erasing it. A **valid winner reversal** occurs at $n$ when the effective winner is defined at both the previous and the current evaluated sample size and the winner differs between the two. The **reversal matrix** $R_{A,B}$ stores the sample size of the last observed valid reversal through the evaluated prefix, and a cell $R_{A,B}$ exists **only** for pairs that have undergone at least one such reversal — not merely because one subset currently wins.
 
-$$
-N^*(A, B; f) = \min\{n : \overline{L}_{B,f}(n) < \overline{L}_{A,f}(n)\},
-$$
-
-the smallest sample size per class at which subset $B$ first achieves lower average loss than subset $A$.
+Two separate metrics compare $R$ across training-condition arms (real, single-Gaussian synthetic, GMM synthetic — every arm evaluated on the same fixed real test set): **reversal existence agreement**, the Jaccard agreement over which unordered pairs have a defined reversal, and **reversal sample-size similarity**, the normalized agreement between the reversal sample sizes for the pairs shared by both arms. These two metrics are always reported separately; no composite/product metric is computed.
 
 ### Initial classifiers
 
@@ -236,7 +232,7 @@ CoInfoSim is organized into three phases.
 
 #### Phase 1 — Idealized Synthetic Multi-Channel Scenarios
 
-Controlled experiments using manually specified Gaussian simulation models, each defined by class centers and covariance matrices. The initial focus is binary classification with three standardized channels. This phase studies additive gains from weak but complementary channels, redundancy among strong channels, channel-subset ranking as $n$ grows, cooperative advantage thresholds $N^*$, and differences among the initial classifiers.
+Controlled experiments using manually specified Gaussian simulation models, each defined by class centers and covariance matrices. The initial focus is binary classification with three standardized channels. This phase studies additive gains from weak but complementary channels, redundancy among strong channels, channel-subset ranking as $n$ grows, predictive cooperation profiles and pairwise winner reversals, and differences among the initial classifiers.
 
 #### Phase 2 — Dataset-Anchored Multi-Channel Simulation
 
@@ -275,15 +271,15 @@ Channel cost is treated generically and may include acquisition, deployment, cal
 
 ### Reporting structure
 
-The reporting system is layered and dataset-aware. Automated reports display the parameters explicitly defined in each simulation model together with generic loss, ranking, N-star, and structural-fidelity analyses; dataset-specific provenance and interpretation remain explicit rather than being inferred from arbitrary input files. The structure is:
+The reporting system is layered and dataset-aware. Automated reports display the parameters explicitly defined in each simulation model together with generic loss, ranking, and predictive cooperation profile (winner/reversal) analyses; dataset-specific provenance and interpretation remain explicit rather than being inferred from arbitrary input files. The structure is:
 
 1. **Project index** — published entry point listing scenario, dataset, and simulation reports, result files, generation date, and software/commit version.
 2. **Dataset report** — dataset name and source, target $Y$, class distribution, candidate and selected channels, preprocessing and standardization, training reservoir/test set, and visual diagnostics of standardized data.
 3. **Simulation report** — model id and source, class centers and covariance matrices, evaluated subsets, classifiers, values of $n$, repetitions/convergence, loss curves $\overline{L}_{A,f}(n)$, subset rankings, thresholds $N^*$, and data-geometry visualizations.
 4. **Scenario report** — the scenario question, a table of simulation models, links to simulation reports, aggregate loss curves, threshold summaries, best-subset maps, scenario-grid heatmaps, and animations of geometry across the scenario.
-5. **Dataset-anchored scenario report** — links to the dataset report and three arm reports, real-versus-synthetic loss curves and rankings, N-star comparisons, and separate ranking-fidelity, winner-agreement, and progressive N-star-similarity metrics.
+5. **Dataset-anchored scenario report** — links to the dataset report and three arm reports, real-versus-synthetic loss curves and rankings, and separate ranking-fidelity, Winner Agreement, reversal existence agreement, and reversal sample-size similarity metrics.
 
-Implemented dataset-anchored reports include real and synthetic projection panels, loss curves $\overline{L}_{A,f}(n)$, channel-subset rankings, cooperative advantage thresholds $N^*$, winner matrices, progressive N-star matrices, and separate structural-fidelity curves. Broader grids and animations remain future work.
+Implemented dataset-anchored reports include real and synthetic projection panels, loss curves $\overline{L}_{A,f}(n)$, channel-subset rankings, paired winner ($W$) and reversal ($R$) matrices, and separate structural-fidelity curves. Broader grids and animations remain future work.
 
 ### Real-world motivating cases
 

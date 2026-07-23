@@ -170,7 +170,7 @@ def test_simulation_json_has_report_ready_data(tmp_path):
     assert sim_json["result_data"]["summary_table"]
     assert sim_json["result_data"]["best_subset_rankings"]
     assert sim_json["result_data"]["threshold_comparisons"]
-    assert sim_json["result_data"]["structural_dynamics"]["schema_version"] == 1
+    assert sim_json["result_data"]["structural_dynamics"]["schema_version"] == 2
     # Pointer to full persisted result payload.
     assert sim_json["artifacts"]["result_data"].endswith(".json.gz")
 
@@ -368,9 +368,12 @@ def test_visualization_panels_written_and_registered(tmp_path):
     assert "graph_best_comparison_sgr" in graphs
     assert "graph_best_comparison_gmm" in graphs
     assert any(k.startswith("graph_topranked_") and k.endswith("_gmm") for k in graphs)
-    assert any(k.startswith("graph_nstar_") and k.endswith("_gmm") for k in graphs)
+    assert any(
+        k.startswith("graph_structural_reversal_") and "gmm_to_real" in k
+        for k in graphs
+    )
     assert any(k.startswith("graph_topranked_") for k in graphs)
-    assert any(k.startswith("graph_nstar_") for k in graphs)
+    assert any(k.startswith("graph_structural_reversal_") for k in graphs)
     assert "graph_images" in scenario_json["artifacts"]
     for fname in graphs.values():
         assert (scenario_dir / fname).exists(), fname

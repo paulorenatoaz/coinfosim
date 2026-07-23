@@ -185,17 +185,23 @@ def winner_agreement_series(
     arm_results: Mapping[str, SimulationResult],
     reference_arm: str,
 ) -> List[Dict[str, object]]:
-    """Compute exact-tie-aware unordered pairwise winner agreement."""
+    """Compute carry-forward effective-winner unordered pairwise agreement."""
 
     context = validate_structural_compatibility(arm_results, reference_arm)
-    reference = arm_results[reference_arm]
     total = len(context.subsets) * (len(context.subsets) - 1) // 2
     rows: List[Dict[str, object]] = []
     for classifier in context.classifiers:
+        effective = {
+            arm: {
+                int(item["n_per_class"]): item["matrix"]
+                for item in effective_winner_matrices(result, classifier, context.subsets)
+            }
+            for arm, result in arm_results.items()
+        }
         for arm, result in arm_results.items():
             for n in context.sample_sizes:
-                ref_matrix = winner_matrix(reference, classifier, n, context.subsets)
-                arm_matrix = winner_matrix(result, classifier, n, context.subsets)
+                ref_matrix = effective[reference_arm][n]
+                arm_matrix = effective[arm][n]
                 valid = matching = 0
                 for i in range(len(context.subsets)):
                     for j in range(i + 1, len(context.subsets)):
@@ -224,6 +230,101 @@ def winner_agreement_series(
                         "status": status,
                     }
                 )
+    return rows
+
+
+def effective_winner_matrices(
+    result: SimulationResult,
+    classifier: str,
+    subsets: Optional[Sequence[Subset]] = None,
+) -> List[Dict[str, object]]:
+    """Return the carry-forward effective winner matrix `W` at each sample size.
+
+    Exact ties after a pair's first strict winner preserve the previous
+    winner instead of resetting to unresolved (Section 2.3 tie propagation).
+    """
+
+    catalog = tuple(tuple(s) for s in (subsets or result.subsets))
+    sample_sizes = tuple(int(n) for n in result.sample_sizes)
+    n_subsets = len(catalog)
+    state: Dict[Tuple[int, int], int] = {}
+    rows: List[Dict[str, object]] = []
+    for n in sample_sizes:
+        observed = winner_matrix(result, classifier, n, catalog)
+        matrix: List[List[Optional[int]]] = [[None] * n_subsets for _ in range(n_subsets)]
+        for i in range(n_subsets):
+            for j in range(i + 1, n_subsets):
+                outcome = observed[i][j]
+                if outcome != 0:
+                    state[(i, j)] = outcome
+                effective = state.get((i, j), 0)
+                matrix[i][j] = effective
+                matrix[j][i] = -effective if effective != 0 else 0
+        rows.append({"n_per_class": int(n), "matrix": matrix})
+    return rows
+
+
+def winner_reversal_events(
+    result: SimulationResult,
+    classifier: str,
+    subsets: Optional[Sequence[Subset]] = None,
+) -> List[Dict[str, int]]:
+    """Extract unordered valid pairwise winner reversals (Section 2.4).
+
+    A reversal at `n_k` requires a defined effective winner at both
+    `n_{k-1}` and `n_k` that differs between the two sample sizes.
+    """
+
+    catalog = tuple(tuple(s) for s in (subsets or result.subsets))
+    n_subsets = len(catalog)
+    effective = effective_winner_matrices(result, classifier, catalog)
+    events: List[Dict[str, int]] = []
+    for previous_item, current_item in zip(effective, effective[1:]):
+        previous_matrix = previous_item["matrix"]
+        current_matrix = current_item["matrix"]
+        n_reversal = int(current_item["n_per_class"])
+        for i in range(n_subsets):
+            for j in range(i + 1, n_subsets):
+                previous_value = previous_matrix[i][j]
+                current_value = current_matrix[i][j]
+                if previous_value != 0 and current_value != 0 and previous_value != current_value:
+                    events.append({"i": i, "j": j, "n_reversal": n_reversal})
+    return events
+
+
+def progressive_reversal_matrices(
+    result: SimulationResult,
+    classifier: str,
+    subsets: Optional[Sequence[Subset]] = None,
+) -> List[Dict[str, object]]:
+    """Reconstruct the progressive triangular reversal matrix `R` per prefix.
+
+    Each defined upper-triangle cell stores the last observed reversal
+    sample size through that prefix; the diagonal and lower triangle are
+    always `None`. The first prefix has no defined cells.
+    """
+
+    catalog = tuple(tuple(s) for s in (subsets or result.subsets))
+    sample_sizes = tuple(int(n) for n in result.sample_sizes)
+    n_subsets = len(catalog)
+    events = winner_reversal_events(result, classifier, catalog)
+    by_n: Dict[int, List[Dict[str, int]]] = {}
+    for event in events:
+        by_n.setdefault(event["n_reversal"], []).append(event)
+    latest: Dict[Tuple[int, int], int] = {}
+    rows: List[Dict[str, object]] = []
+    for n_prefix in sample_sizes:
+        for event in by_n.get(n_prefix, []):
+            latest[(event["i"], event["j"])] = event["n_reversal"]
+        matrix: List[List[Optional[int]]] = []
+        for i in range(n_subsets):
+            matrix.append(
+                [
+                    latest.get((i, j)) if i < j else None
+                    for j in range(n_subsets)
+                ]
+            )
+        rows.append({"n_prefix": int(n_prefix), "matrix": matrix})
     return rows
 
 
@@ -284,7 +385,7 @@ def progressive_directed_nstar(
     return progressive
 
 
-def _crossing_cells(matrix: Sequence[Sequence[Optional[int]]]) -> set[Tuple[int, int]]:
+def _reversal_cells(matrix: Sequence[Sequence[Optional[int]]]) -> set[Tuple[int, int]]:
     return {
         (row, col)
         for row, values in enumerate(matrix)
@@ -293,19 +394,24 @@ def _crossing_cells(matrix: Sequence[Sequence[Optional[int]]]) -> set[Tuple[int,
     }
 
 
-def progressive_nstar_similarity(
+def progressive_reversal_fidelity(
     arm_results: Mapping[str, SimulationResult],
     reference_arm: str,
 ) -> List[Dict[str, object]]:
-    """Compute progressive crossing-set and prefix-normalized timing similarity."""
+    """Compute reversal existence agreement and reversal sample-size similarity.
+
+    The two metrics (Section 2.6) answer separate questions and are never
+    combined into a composite/product metric (Section 2.7).
+    """
 
     context = validate_structural_compatibility(arm_results, reference_arm)
+    n1 = context.sample_sizes[0]
     rows: List[Dict[str, object]] = []
     for classifier in context.classifiers:
         progressions = {
             arm: {
                 int(item["n_prefix"]): item["matrix"]
-                for item in progressive_directed_nstar(
+                for item in progressive_reversal_matrices(
                     result, classifier, context.subsets
                 )
             }
@@ -316,60 +422,59 @@ def progressive_nstar_similarity(
                 {
                     "classifier": classifier,
                     "arm": arm,
-                    "n_prefix": context.sample_sizes[0],
-                    "n_reference_crossings": 0,
-                    "n_arm_crossings": 0,
-                    "n_shared_crossings": 0,
-                    "n_union_crossings": 0,
-                    "crossing_jaccard": None,
-                    "timing_similarity": None,
-                    "nstar_similarity": None,
+                    "n_prefix": n1,
+                    "n_reference_reversal_pairs": 0,
+                    "n_arm_reversal_pairs": 0,
+                    "n_shared_reversal_pairs": 0,
+                    "n_union_reversal_pairs": 0,
+                    "reversal_existence_agreement": None,
+                    "mean_log2_reversal_distance": None,
+                    "reversal_sample_size_similarity": None,
                     "status": "unavailable_first_prefix",
                 }
             )
             for n_prefix in context.sample_sizes[1:]:
                 reference_matrix = progressions[reference_arm][n_prefix]
                 arm_matrix = progressions[arm][n_prefix]
-                reference_cells = _crossing_cells(reference_matrix)
-                arm_cells = _crossing_cells(arm_matrix)
+                reference_cells = _reversal_cells(reference_matrix)
+                arm_cells = _reversal_cells(arm_matrix)
                 shared = reference_cells & arm_cells
                 union = reference_cells | arm_cells
                 if not union:
-                    jaccard = timing = similarity = 1.0
-                    status = "no_crossings_in_either"
+                    agreement = 1.0
+                    distance = None
+                    similarity = None
+                    status = "no_reversals_in_either"
                 elif not shared:
-                    jaccard = 0.0
-                    timing = None
-                    similarity = 0.0
-                    status = "no_shared_crossings"
+                    agreement = 0.0
+                    distance = None
+                    similarity = None
+                    status = "no_shared_reversals"
                 else:
-                    jaccard = len(shared) / len(union)
+                    agreement = len(shared) / len(union)
                     distances = [
                         abs(
-                            math.log2(float(arm_matrix[row][col]))
-                            - math.log2(float(reference_matrix[row][col]))
+                            math.log2(float(arm_matrix[i][j]))
+                            - math.log2(float(reference_matrix[i][j]))
                         )
-                        for row, col in shared
+                        for i, j in shared
                     ]
-                    mean_distance = sum(distances) / len(distances)
-                    prefix_span = math.log2(n_prefix) - math.log2(
-                        context.sample_sizes[0]
-                    )
-                    timing = min(1.0, max(0.0, 1.0 - mean_distance / prefix_span))
-                    similarity = jaccard * timing
+                    distance = sum(distances) / len(distances)
+                    prefix_span = math.log2(n_prefix) - math.log2(n1)
+                    similarity = min(1.0, max(0.0, 1.0 - distance / prefix_span))
                     status = "ok"
                 rows.append(
                     {
                         "classifier": classifier,
                         "arm": arm,
                         "n_prefix": n_prefix,
-                        "n_reference_crossings": len(reference_cells),
-                        "n_arm_crossings": len(arm_cells),
-                        "n_shared_crossings": len(shared),
-                        "n_union_crossings": len(union),
-                        "crossing_jaccard": jaccard,
-                        "timing_similarity": timing,
-                        "nstar_similarity": similarity,
+                        "n_reference_reversal_pairs": len(reference_cells),
+                        "n_arm_reversal_pairs": len(arm_cells),
+                        "n_shared_reversal_pairs": len(shared),
+                        "n_union_reversal_pairs": len(union),
+                        "reversal_existence_agreement": agreement,
+                        "mean_log2_reversal_distance": distance,
+                        "reversal_sample_size_similarity": similarity,
                         "status": status,
                     }
                 )
@@ -408,22 +513,22 @@ def simulation_structural_dynamics(
     subsets = tuple(tuple(int(i) for i in subset) for subset in result.subsets)
     classifiers: Dict[str, object] = {}
     for classifier in result.classifier_names:
-        winner_pairs_by_n: Dict[str, List[Dict[str, int]]] = {}
-        for n in result.sample_sizes:
-            matrix = winner_matrix(result, classifier, n, subsets)
-            winner_pairs_by_n[str(int(n))] = [
+        effective_winner_pairs_by_n: Dict[str, List[Dict[str, int]]] = {}
+        for item in effective_winner_matrices(result, classifier, subsets):
+            matrix = item["matrix"]
+            effective_winner_pairs_by_n[str(int(item["n_per_class"]))] = [
                 {"i": i, "j": j, "outcome": int(matrix[i][j])}
                 for i in range(len(subsets))
                 for j in range(i + 1, len(subsets))
             ]
         classifiers[str(classifier)] = {
-            "winner_pairs_by_n": winner_pairs_by_n,
-            "directed_crossing_events": directed_crossing_events(
+            "effective_winner_pairs_by_n": effective_winner_pairs_by_n,
+            "winner_reversal_events": winner_reversal_events(
                 result, classifier, subsets
             ),
         }
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "subset_catalog": [list(subset) for subset in subsets],
         "sample_sizes": [int(n) for n in result.sample_sizes],
         "classifiers": classifiers,
@@ -443,7 +548,7 @@ def scenario_structural_fidelity(
         raise ValueError(f"missing arm labels for {sorted(missing_labels)}")
     ranking = ranking_fidelity_series(arm_results, reference_arm)
     agreement = winner_agreement_series(arm_results, reference_arm)
-    nstar = progressive_nstar_similarity(arm_results, reference_arm)
+    reversal = progressive_reversal_fidelity(arm_results, reference_arm)
     rank_index = {
         (row["classifier"], row["arm"], row["n_per_class"]): row for row in ranking
     }
@@ -451,8 +556,8 @@ def scenario_structural_fidelity(
         (row["classifier"], row["arm"], row["n_per_class"]): row
         for row in agreement
     }
-    nstar_index = {
-        (row["classifier"], row["arm"], row["n_prefix"]): row for row in nstar
+    reversal_index = {
+        (row["classifier"], row["arm"], row["n_prefix"]): row for row in reversal
     }
     n_max = context.sample_sizes[-1]
     summary = []
@@ -460,7 +565,7 @@ def scenario_structural_fidelity(
         for arm in arm_results:
             rank_row = rank_index[(classifier, arm, n_max)]
             winner_row = agreement_index[(classifier, arm, n_max)]
-            nstar_row = nstar_index[(classifier, arm, n_max)]
+            reversal_row = reversal_index[(classifier, arm, n_max)]
             summary.append(
                 {
                     "classifier": classifier,
@@ -473,28 +578,40 @@ def scenario_structural_fidelity(
                     "n_pairs_matching": winner_row["n_pairs_matching"],
                     "n_pairs_skipped_tie": winner_row["n_pairs_skipped_tie"],
                     "winner_status": winner_row["status"],
-                    "nstar_similarity": nstar_row["nstar_similarity"],
-                    "n_reference_crossings": nstar_row["n_reference_crossings"],
-                    "n_arm_crossings": nstar_row["n_arm_crossings"],
-                    "n_shared_crossings": nstar_row["n_shared_crossings"],
-                    "n_union_crossings": nstar_row["n_union_crossings"],
-                    "crossing_jaccard": nstar_row["crossing_jaccard"],
-                    "timing_similarity": nstar_row["timing_similarity"],
-                    "nstar_status": nstar_row["status"],
+                    "reversal_existence_agreement": reversal_row[
+                        "reversal_existence_agreement"
+                    ],
+                    "n_reference_reversal_pairs": reversal_row[
+                        "n_reference_reversal_pairs"
+                    ],
+                    "n_arm_reversal_pairs": reversal_row["n_arm_reversal_pairs"],
+                    "n_shared_reversal_pairs": reversal_row[
+                        "n_shared_reversal_pairs"
+                    ],
+                    "n_union_reversal_pairs": reversal_row[
+                        "n_union_reversal_pairs"
+                    ],
+                    "mean_log2_reversal_distance": reversal_row[
+                        "mean_log2_reversal_distance"
+                    ],
+                    "reversal_sample_size_similarity": reversal_row[
+                        "reversal_sample_size_similarity"
+                    ],
+                    "reversal_status": reversal_row["status"],
                 }
             )
     display = select_display_subsets_by_cardinality(
         arm_results[reference_arm], context.classifiers
     )
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "reference_arm": reference_arm,
         "arm_labels": dict(arm_labels),
         "sample_sizes": list(context.sample_sizes),
         "subset_catalog": [list(subset) for subset in context.subsets],
         "ranking_fidelity_series": ranking,
         "winner_agreement_series": agreement,
-        "nstar_similarity_series": nstar,
+        "reversal_fidelity_series": reversal,
         "final_summary": summary,
         "reference_display_subsets_by_classifier": {
             classifier: [list(subset) for subset in subsets]

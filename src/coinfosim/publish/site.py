@@ -229,7 +229,7 @@ footer {{ border-top:1px solid var(--line); margin-top:3rem; padding-top:1rem; c
 @media (max-width:700px) {{ body {{ padding:1.4rem 1rem 3rem; }} .report-grid, .dataset-grid {{ grid-template-columns:1fr; }} }}
 </style></head><body><div class=\"wrap\">
 <h1>{html.escape(title)}</h1>
-<p class=\"lede\">CoInfoSim is a research simulator for evaluating cooperative advantage among information channels in supervised classification.</p>
+<p class=\"lede\">CoInfoSim is a research simulator for evaluating predictive cooperation among information channels in supervised classification.</p>
 
 <h2>Install CoInfoSim</h2>
 <pre>pip install coinfosim</pre>

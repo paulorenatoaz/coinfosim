@@ -117,8 +117,7 @@ def test_air_quality_scenario_report_uses_generic_academic_structure(tmp_path):
         "5. Best subset comparison at largest N",
         "6. Top-ranked subsets",
         "7. Structural fidelity metrics",
-        "8. N-star availability",
-        "9. Interpretation notes",
+        "8. Interpretation notes",
     ):
         assert section in text
 
@@ -132,21 +131,26 @@ def test_air_quality_scenario_report_uses_generic_academic_structure(tmp_path):
     for channel in CHANNELS:
         assert channel in text
     assert "<th>Rank</th><th>Subset</th><th>Loss</th><th>SE</th>" in text
-    assert "Ranking Structural Fidelity" in text
+    assert "predictive cooperation profile" in text
     assert "Winner Agreement" in text
-    assert "Progressive N-star Similarity" in text
+    assert "Reversal existence agreement" in text
+    assert "Reversal sample-size similarity" in text
+    assert "Winner matrix" in text
+    assert "Reversal matrix" in text
     assert "no composite index is reported" in text
     assert "composite structural index" not in text
+    assert "Progressive N-star similarity" not in text
+    assert "Progressive N-star Similarity" not in text
+    assert "Timing similarity" not in text
+    assert "Interpolated N-star" not in text
     assert "unavailable_first_prefix" in text
-    assert "only the last N* is reported" in text
     assert "data-group='scenario-visualization-source'" in text
     assert "data-group='scenario-top-ranked-classifier'" in text
-    assert "data-group='scenario-nstar-classifier'" in text
+    assert "data-group='scenario-structural-dynamics-classifier'" in text
     assert "Occupancy" not in text
 
     assert any(key.startswith("graph_topranked_") for key in graphs)
     assert any(key.startswith("graph_structural_winner_") for key in graphs)
-    assert any(key.startswith("graph_structural_nstar_") for key in graphs)
-    assert any(key.startswith("graph_nstar_") for key in graphs)
+    assert any(key.startswith("graph_structural_reversal_") for key in graphs)
     for filename in (*links.values(), *visualization["images"].values(), *graphs.values()):
         assert (tmp_path / filename).exists(), filename

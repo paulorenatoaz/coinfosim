@@ -16,6 +16,7 @@ authors = [
 keywords = [
     "classification",
     "cooperative-classification",
+    "predictive-cooperation-profile",
     "monte-carlo",
     "simulation",
     "machine-learning",

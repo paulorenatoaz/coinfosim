@@ -45,7 +45,7 @@ SUPPORT2_SCENARIO_REPORT_SPEC = DatasetAnchoredScenarioReportSpec(
     interpretation_notes=(
         ("Ranking fidelity", "Compare subset rankings against Real → Real separately for each classifier and sample size."),
         ("Exact-tie-aware winner agreement", "Pairwise agreement excludes comparisons tied in either arm and reports availability explicitly."),
-        ("Progressive N-star similarity", "Compare progressive crossing structure only where the required prefixes are available."),
+        ("Reversal fidelity", "Compare reversal existence agreement and reversal sample-size similarity only where the required prefixes are available."),
         ("Near-balanced endpoint", "The cohort contains 4,711 negatives and 4,162 positives; balanced training draws isolate distributional fidelity."),
     ),
     scenario_metadata={

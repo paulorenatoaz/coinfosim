@@ -15,7 +15,6 @@ from coinfosim.reports.occupancy_scenario import (
     _carousel_html,
     _interpretation_html,
     _legend_html,
-    _nstar_section,
     _protocol_html,
     _structural_fidelity_section,
     _summary_table,
@@ -73,7 +72,7 @@ def generate_dataset_anchored_scenario_report(
     graphs_out: Optional[Dict] = None,
     generate_graphs: bool = True,
 ) -> Path:
-    """Render the shared nine-section academic scenario report."""
+    """Render the shared eight-section academic scenario report."""
 
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -172,8 +171,6 @@ def generate_dataset_anchored_scenario_report(
 {_top_ranked_html(real_result, gaussian_result, gmm_result, n_max, output_dir, graph_suffix, graphs_out, generate_graphs=generate_graphs, arm_labels=report_spec.arm_labels)}
 
 {_structural_fidelity_section(arm_results, "real_to_real", report_spec.arm_labels, output_dir, graph_suffix, graphs_out, generate_graphs)}
-
-{_nstar_section(real_result, gaussian_result, gmm_result, channel_names, n_max, output_dir, graph_suffix, graphs_out, generate_graphs, report_spec.channel_display_mapping, report_spec.arm_labels)}
 
 {_interpretation_html(report_spec.interpretation_notes, report_spec.limitations)}
 
