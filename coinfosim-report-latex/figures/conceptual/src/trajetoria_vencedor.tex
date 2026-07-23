@@ -27,7 +27,7 @@
     1/1.35/{$U{=}{+1}$\\primeiro vencedor}/CoinWin,
     2/1.35/{$U{=}0$\\empate: mantém $S_i$}/CoinAccent,
     3/-1.35/{$U{=}{-1}$\\\textbf{inversão válida}}/CoinLose,
-    4/-1.35/{$U{=}{-1}$\\mantém $S_j$}/CoinLose
+    4/-1.35/{$U{=}{-1}$\\mantém $S_j$}/CoinLose%
   }{
     \pgfmathsetmacro{\x}{\k*\xstep}
     \node[draw=\cor, fill=\cor!15, rounded corners=1pt, font=\scriptsize, align=center,
@@ -49,11 +49,11 @@
 
   % Célula resultante em R
   \node[draw=CoinAccentDark, thick, rounded corners=1pt, fill=CoinAccentPale, font=\small,
-        align=center, text width=5.4cm, inner sep=5pt] (rcell) at (5.0,-3.1)
+        align=center, text width=5.4cm, inner sep=5pt] (rcell) at (5.0,-3.3)
     {$R_{ij}(n_5)=16$\\ \normalfont\footnotesize única célula de $\mathbf{R}$ para o par $(i,j)$: o tamanho amostral da última inversão válida observada};
   \draw[seta] (pt3.south) -- ++(0,-0.4) -| (rcell.north);
 
-  \node[rotulo, text width=9.5cm] at (5.0,-4.1)
+  \node[rotulo, text width=10.5cm, align=justify] at (5.0,-5.5)
     {$n_1$: empate exato inicial, indefinido. $\quad n_2$: primeiro vencedor estrito, inicializa $W_{ij}$ (não é inversão). $\quad n_3$: empate exato posterior mantém o vencedor anterior (não é inversão). $\quad n_4$: vencedor definido substituído pelo outro --- inversão válida. $\quad n_5$: vencedor mantido.};
 \end{tikzpicture}
 \end{document}

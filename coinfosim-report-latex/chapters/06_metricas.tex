@@ -20,7 +20,7 @@ A Figura~\ref{fig:conceito-metricas} antecipa, em um exemplo esquemático, os tr
   \label{fig:conceito-metricas}
   \includegraphics[width=\textwidth]{figures/conceptual/metricas_tres_paineis.pdf}
   \sourcebelow{elaboração própria}
-  \notailustracao{No painel (b), o objeto formal armazena apenas os pares não ordenados; a matriz quadrada exibida nos relatórios é uma visualização redundante. No painel (c), $A_R$ e $S_R$ são construídos separadamente e nunca multiplicados.}
+  \notailustracao{No painel (b), o objeto formal armazena apenas os pares não ordenados; a matriz quadrada exibida nos relatórios é uma visualização redundante. No painel (c), $A_R$ e $S_R$ são construídos separadamente e nunca multiplicados}
 \end{figure}
 
 \section{Ordenação dos subconjuntos e correlação de ranking}
@@ -90,7 +90,7 @@ A Figura~\ref{fig:trajetoria-vencedor} ilustra a trajetória de $W_{ij}$ para um
   \label{fig:trajetoria-vencedor}
   \includegraphics[width=0.92\textwidth]{figures/conceptual/trajetoria_vencedor.pdf}
   \sourcebelow{elaboração própria}
-  \notailustracao{Exemplo esquemático; não corresponde a um par específico de nenhum dataset. A Seção~\ref{sec:reversal-matrix} define formalmente quando uma inversão é válida.}
+  \notailustracao{Exemplo esquemático; não corresponde a um par específico de nenhum dataset. A Seção~\ref{sec:reversal-matrix} define formalmente quando uma inversão é válida}
 \end{figure}
 
 O objeto formal precisa armazenar somente as $q(q-1)/2$ comparações não ordenadas,
@@ -122,7 +122,7 @@ porque $W_{ji}=-W_{ij}$ fora dos casos indefinidos. A matriz quadrada mostrada n
     \subcaption{Fim: $n=512$}
   \end{minipage}
   \sourcebelow{relatório publicado do cenário Occupancy Detection 000002 do \CoInfoSim}
-  \notailustracao{A visualização é quadrada e redundante: a diagonal não se aplica e um triângulo determina o outro fora dos casos indefinidos. Cada célula indica se o subconjunto da linha vence ($+1$), perde ($-1$) ou está indefinido ($0$) contra o subconjunto da coluna. A \WinnersAgreement{} usa apenas uma ocorrência de cada par, correspondente ao triângulo superior. Os painéis exibem os melhores subconjuntos de cada cardinalidade; em $n=2$ o subconjunto singular $\{X_3\}$ vence todas as comparações exibidas, em $n=32$ o par $\{X_1,X_3\}$ já o supera e em $n=512$ as combinações maiores vencem o singular.}
+  \notailustracao{A visualização é quadrada e redundante: a diagonal não se aplica e um triângulo determina o outro fora dos casos indefinidos. Cada célula indica se o subconjunto da linha vence ($+1$), perde ($-1$) ou está indefinido ($0$) contra o subconjunto da coluna. A \WinnersAgreement{} usa apenas uma ocorrência de cada par, correspondente ao triângulo superior. Os painéis exibem os melhores subconjuntos de cada cardinalidade; em $n=2$ o subconjunto singular $\{X_3\}$ vence todas as comparações exibidas, em $n=32$ o par $\{X_1,X_3\}$ já o supera e em $n=512$ as combinações maiores vencem o singular}
 \end{figure}
 \end{landscape}
 
@@ -197,30 +197,30 @@ Diferentemente de $\Wmat$, a matriz $\Rmat$ não é antissimétrica: ela armazen
   \label{fig:wr-matrices-support2}
   \begin{minipage}[t]{0.48\linewidth}
     \centering
-    \includegraphics[width=\linewidth]{figures/wr_matrices/support2_smoke/winner_matrix_real_to_real_n32.png}
+    \includegraphics[height=6.2cm,keepaspectratio]{figures/wr_matrices/support2_smoke/winner_matrix_real_to_real_n32.png}
     \subcaption{$\mathbf{W}(n{=}32)$, \RealToReal}
   \end{minipage}
   \hfill
   \begin{minipage}[t]{0.48\linewidth}
     \centering
-    \includegraphics[width=\linewidth]{figures/wr_matrices/support2_smoke/reversal_matrix_real_to_real_n32.png}
+    \includegraphics[height=6.2cm,keepaspectratio]{figures/wr_matrices/support2_smoke/reversal_matrix_real_to_real_n32.png}
     \subcaption{$\mathbf{R}(n_t{\leq}32)$, \RealToReal}
   \end{minipage}
 
   \vspace{4mm}
   \begin{minipage}[t]{0.48\linewidth}
     \centering
-    \includegraphics[width=\linewidth]{figures/wr_matrices/support2_smoke/winner_matrix_single_gaussian_to_real_n32.png}
+    \includegraphics[height=6.2cm,keepaspectratio]{figures/wr_matrices/support2_smoke/winner_matrix_single_gaussian_to_real_n32.png}
     \subcaption{$\mathbf{W}(n{=}32)$, \GaussianToReal}
   \end{minipage}
   \hfill
   \begin{minipage}[t]{0.48\linewidth}
     \centering
-    \includegraphics[width=\linewidth]{figures/wr_matrices/support2_smoke/reversal_matrix_single_gaussian_to_real_n32.png}
+    \includegraphics[height=6.2cm,keepaspectratio]{figures/wr_matrices/support2_smoke/reversal_matrix_single_gaussian_to_real_n32.png}
     \subcaption{$\mathbf{R}(n_t{\leq}32)$, \GaussianToReal}
   \end{minipage}
   \sourcebelow{recomputado diretamente dos resultados persistidos da execução \textit{smoke} do cenário SUPPORT2 (\texttt{scenario\_run\_id=0}), usando as funções vigentes de \texttt{coinfosim.results.structural}; ver Apêndice~B}
-  \notailustracao{Esta execução é de escala \textit{smoke} ($n\leq32$, sete subconjuntos de referência) e serve apenas como exemplo didático de leitura conjunta de $\mathbf{W}$ e $\mathbf{R}$. As matrizes de escala completa ($n\leq512$, 127 subconjuntos) publicadas nas versões anteriores deste relatório não puderam ser regeneradas localmente sob o esquema atual porque os resultados brutos dessa execução não estão persistidos neste repositório (Apêndice~B); os resultados numéricos de escala completa para o Random Forest no SUPPORT2 são reportados como indisponíveis no Capítulo~7.}
+  \notailustracao{Esta execução é de escala \textit{smoke} ($n\leq32$, sete subconjuntos de referência) e serve apenas como exemplo didático de leitura conjunta de $\mathbf{W}$ e $\mathbf{R}$. As matrizes de escala completa ($n\leq512$, 127 subconjuntos) publicadas nas versões anteriores deste relatório não puderam ser regeneradas localmente sob o esquema atual porque os resultados brutos dessa execução não estão persistidos neste repositório (Apêndice~B); os resultados numéricos de escala completa para o Random Forest no SUPPORT2 são reportados como indisponíveis no Capítulo~7}
 \end{figure}
 \end{landscape}
 
@@ -276,7 +276,7 @@ A Figura~\ref{fig:construcao-ar-sr} esquematiza a construção progressiva de $\
   \label{fig:construcao-ar-sr}
   \includegraphics[width=0.86\textwidth]{figures/conceptual/construcao_ar_sr.pdf}
   \sourcebelow{elaboração própria}
-  \notailustracao{A cada prefixo, a matriz de inversões $\mathbf{R}$ é recomputada para os braços real e sintético; $A_R$ e $S_R$ são calculados separadamente a partir dela e nunca combinados.}
+  \notailustracao{A cada prefixo, a matriz de inversões $\mathbf{R}$ é recomputada para os braços real e sintético; $A_R$ e $S_R$ são calculados separadamente a partir dela e nunca combinados}
 \end{figure}
 
 \section{Leitura integrada do perfil}

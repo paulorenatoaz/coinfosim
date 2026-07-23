@@ -77,7 +77,12 @@ Diferentemente dos quatro cenários da Seção~\ref{ap:resultados-cenarios}, a e
 
 \begin{itemize}
   \item registro de cenário: \texttt{scenario\_run\_id=0}, \texttt{scenario\_slug=support2\_baseline}, arquivo \texttt{scenario\_runs.json};
-  \item resultados brutos por braço: \texttt{simulations/000000\_support2\_real\_data\_smoke/result\_data\_smoke\_000000.json.gz} (\RealToReal), \texttt{simulations/000001\_..\_smoke/result\_data\_smoke\_000001.json.gz} (\GaussianToReal), \texttt{simulations/000002\_..\_smoke/result\_data\_smoke\_000002.json.gz} (\GMMToReal);
+  \item resultados brutos por braço (caminhos relativos a \texttt{simulations/}):
+  \begin{itemize}
+    \item \RealToReal:\newline\texttt{\small 000000\_support2\_real\_data\_smoke/}\newline\texttt{\small\quad result\_data\_smoke\_000000.json.gz};
+    \item \GaussianToReal:\newline\texttt{\small 000001\_support2\_single\_gaussian\_to\_real\_smoke/}\newline\texttt{\small\quad result\_data\_smoke\_000001.json.gz};
+    \item \GMMToReal:\newline\texttt{\small 000002\_support2\_gmm\_to\_real\_smoke/}\newline\texttt{\small\quad result\_data\_smoke\_000002.json.gz};
+  \end{itemize}
   \item grade: $n\in\{2,4,8,16,32\}$; classificadores: \texttt{linear\_svm}, \texttt{random\_forest}.
 \end{itemize}
 

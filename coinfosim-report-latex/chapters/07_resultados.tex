@@ -60,7 +60,7 @@ Essa diferença visual é relevante porque estabelece um teste difícil para a h
     \subcaption{GMM: a mistura acompanha melhor a forma empírica}
   \end{minipage}
   \sourcebelow{relatório publicado do cenário Occupancy Detection 000002}
-  \notailustracao{A fidelidade geométrica é uma inspeção descritiva e não substitui os indicadores de preservação do perfil.}
+  \notailustracao{A fidelidade geométrica é uma inspeção descritiva e não substitui os indicadores de preservação do perfil}
 \end{figure}
 
 \subsection{Ordenação global e relações efetivas de vencedor}
@@ -124,7 +124,7 @@ A Figura~\ref{fig:occupancy-winner-matrices} usa o resultado par a par observado
     \subcaption{$n=512$}
   \end{minipage}
   \sourcebelow{relatório publicado do cenário Occupancy Detection 000002}
-  \notailustracao{A implementação numérica usa apenas os pares não ordenados da região triangular. A matriz quadrada é uma visualização redundante: a diagonal não se aplica e cada célula indica se o subconjunto da linha vence, perde ou está indefinido contra o da coluna. Os painéis publicados exibem os melhores subconjuntos de cada cardinalidade.}
+  \notailustracao{A implementação numérica usa apenas os pares não ordenados da região triangular. A matriz quadrada é uma visualização redundante: a diagonal não se aplica e cada célula indica se o subconjunto da linha vence, perde ou está indefinido contra o da coluna. Os painéis publicados exibem os melhores subconjuntos de cada cardinalidade}
 \end{figure}
 
 \subsection{Existência e tamanho amostral das inversões}
@@ -251,7 +251,7 @@ O cenário 000008 (execução \textit{full}, $n\leq512$) executou somente Random
   \caption{Menor perda do Random Forest no SUPPORT2 em $n=512$ (execução \textit{full}, cenário 000008)}
   \includegraphics[width=0.80\textwidth]{figures/support2_rf_best_losses.pdf}
   \sourcebelow{elaboração própria a partir do relatório publicado do cenário SUPPORT2 000008}
-  \notailustracao{A linha tracejada representa o erro de classificação obtido ao predizer sempre a classe majoritária no teste real. Este valor de perda não depende do esquema de métricas revisado e é reportado sem a ressalva de disponibilidade da Seção~\ref{sec:resultados-guia}.}
+  \notailustracao{A linha tracejada representa o erro de classificação obtido ao predizer sempre a classe majoritária no teste real. Este valor de perda não depende do esquema de métricas revisado e é reportado sem a ressalva de disponibilidade da Seção~\ref{sec:resultados-guia}}
 \end{figure}
 
 $\rankrho$ e $\AW$ herdados do cenário 000008 mostram que esse baixo desempenho absoluto não impediu preservação elevada da ordenação e das relações efetivas de vencedor: o braço treinado com amostras da Gaussiana única atingiu $\rankrho=0{,}8387$ e $\AW=0{,}8282$; o braço treinado com amostras do GMM atingiu $0{,}8665$ e $0{,}8429$. $\AR$, $\DR$ e $\SR$ de escala completa ($n\leq512$) não puderam ser recalculados para este cenário (Seção~\ref{sec:resultados-guia}); as antigas figuras de matrizes dirigidas de $\NstarHistorical$ e de curvas cooperativas com marcação de último cruzamento, publicadas para este cenário, dependiam do objeto retirado do arcabouço ativo e não são reproduzidas.
@@ -277,7 +277,7 @@ Para oferecer ao menos um exemplo de $\AR$, $\DR$ e $\SR$ calculado diretamente 
   \end{tabular}
   \end{adjustbox}
   \sourcebelow{recomputado diretamente dos resultados persistidos em \texttt{output/validation/support2-random-forest-smoke/}, usando \texttt{coinfosim.results.structural.scenario\_structural\_fidelity}; ver Apêndice~B para o comando exato}
-  \notailustracao{$q=127$ subconjuntos; $q(q-1)/2=8001$ pares não ordenados totais em todas as linhas. $\DR$ (distância média em $\log_2$, não tabulada por espaço) foi de $1{,}087$ (SVM, Gaussiana) e $1{,}245$ (SVM, GMM) contra $0{,}474$ (RF, Gaussiana) e $0{,}485$ (RF, GMM) --- o Random Forest concentrou as inversões compartilhadas em regimes amostrais mais próximos entre braços, mesmo com $\AR$ mais baixo.}
+  \notailustracao{$q=127$ subconjuntos; $q(q-1)/2=8001$ pares não ordenados totais em todas as linhas. $\DR$ (distância média em $\log_2$, não tabulada por espaço) foi de $1{,}087$ (SVM, Gaussiana) e $1{,}245$ (SVM, GMM) contra $0{,}474$ (RF, Gaussiana) e $0{,}485$ (RF, GMM) --- o Random Forest concentrou as inversões compartilhadas em regimes amostrais mais próximos entre braços, mesmo com $\AR$ mais baixo}
 \end{table}
 
 Nesta execução reduzida, o Random Forest preservou pior a \emph{existência} das inversões do que o SVM linear ($\AR\approx0{,}47$--$0{,}48$ contra $0{,}73$--$0{,}79$), mas, condicional aos pares que efetivamente invertem em ambos os braços, preservou melhor o \emph{regime amostral} dessas inversões ($\SR\approx0{,}88$ contra $0{,}69$--$0{,}73$). O SVM linear, por sua vez, teve ordenação global quase não preservada ($\rankrho$ próximo de zero) apesar de $\AW$ moderado --- um lembrete de que os quatro indicadores podem divergir fortemente mesmo em uma única execução. Esses achados são específicos da escala \textit{smoke} e não devem ser extrapolados para a escala completa sem regeneração dos dados brutos correspondentes.

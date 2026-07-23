@@ -16,14 +16,24 @@ A auditoria metodológica original e a redação dos resultados herdados (Seçã
 \textit{Merge feature/support2-random-forest (main)}
 \end{quote}
 
-na branch \texttt{feature/academic-report-revision}, que já inclui, fundido em \texttt{main}, o refatoramento de código descrito em \texttt{docs/tasks/predictive\_cooperation\_profile\_refactor\_tasks.md}. O commit final desta revisão editorial é
+na branch \texttt{feature/academic-report-revision}, que já inclui, fundido em \texttt{main}, o refatoramento de código descrito em
+
+\begin{center}
+\small\texttt{docs/tasks/\allowbreak predictive\_cooperation\_profile\_refactor\_tasks.md}
+\end{center}
+
+\noindent O commit final desta revisão editorial é
 
 \begin{quote}
 \texttt{f7cfb0b3}\\
 \textit{docs: professionally revise report and presentation for predictive profiles}
 \end{quote}
 
-registrado também no log de revisão \texttt{docs/tasks/academic\_documents\_predictive\_profile\_revision\_log.md}.
+\noindent registrado também no log de revisão
+
+\begin{center}
+\small\texttt{docs/tasks/\allowbreak academic\_documents\_predictive\_profile\_revision\_log.md}
+\end{center}
 
 A citação do software é fornecida em \texttt{CITATION.cff} e na entrada bibliográfica \texttt{azevedo2026coinfosim} \cite{azevedo2026coinfosim}.
 
@@ -127,23 +137,46 @@ from coinfosim.results.persistence import load_simulation_result
 from coinfosim.results.structural import scenario_structural_fidelity
 
 base = 'output/validation/support2-random-forest-smoke/simulations'
-paths = {
-    'real_to_real': f'{base}/000000_support2_real_data_smoke/'
-        'result_data_smoke_000000.json.gz',
-    'single_gaussian_to_real': f'{base}/000001_support2_single_gaussian_to_real_smoke/'
-        'result_data_smoke_000001.json.gz',
-    'gmm_to_real': f'{base}/000002_support2_gmm_to_real_smoke/'
-        'result_data_smoke_000002.json.gz',
+arm_dirs = {
+    'real_to_real': '000000_support2_real_data_smoke',
+    'single_gaussian_to_real':
+        '000001_support2_single_gaussian_to_real_smoke',
+    'gmm_to_real': '000002_support2_gmm_to_real_smoke',
 }
-results = {arm: load_simulation_result(p) for arm, p in paths.items()}
+suffixes = {
+    'real_to_real': '000000', 'single_gaussian_to_real': '000001',
+    'gmm_to_real': '000002',
+}
+paths = {
+    arm: f'{base}/{d}/result_data_smoke_{suffixes[arm]}.json.gz'
+    for arm, d in arm_dirs.items()
+}
+results = {
+    arm: load_simulation_result(p) for arm, p in paths.items()
+}
 labels = {'real_to_real': 'Real -> Real',
           'single_gaussian_to_real': 'Single Gaussian -> Real',
           'gmm_to_real': 'GMM -> Real'}
-fidelity = scenario_structural_fidelity(results, 'real_to_real', labels)
+fidelity = scenario_structural_fidelity(
+    results, 'real_to_real', labels
+)
 "
 \end{verbatim}
 
-O mesmo padrão, combinado com \texttt{coinfosim.reports.structural\_visualization.\allowbreak winner\_matrix\_figure} e \texttt{reversal\_matrix\_figure}, produziu as figuras em \texttt{figures/wr\_matrices/support2\_smoke/} usadas nos Capítulos~6 e~7. Este comando é reprodutível por qualquer pessoa com acesso ao repositório e ao diretório \texttt{output/validation/support2-random-forest-smoke/} (rastreado fora do controle de versão, mas presente no ambiente auditado); ele não requer, nem executa, nenhuma nova simulação.
+O mesmo padrão, combinado com as funções
+
+\begin{center}
+\small\texttt{coinfosim.reports.structural\_visualization.winner\_matrix\_figure}\\
+\small\texttt{coinfosim.reports.structural\_visualization.reversal\_matrix\_figure}
+\end{center}
+
+\noindent produziu as figuras em \texttt{figures/wr\_matrices/support2\_smoke/} usadas nos Capítulos~6 e~7. Este comando é reprodutível por qualquer pessoa com acesso ao repositório e ao diretório
+
+\begin{center}
+\small\texttt{output/validation/\allowbreak support2-random-forest-smoke/}
+\end{center}
+
+\noindent (rastreado fora do controle de versão, mas presente no ambiente auditado); ele não requer, nem executa, nenhuma nova simulação.
 
 \section{Compilação deste relatório}
 

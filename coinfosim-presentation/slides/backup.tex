@@ -273,44 +273,55 @@
   \end{columns}
 
   \vspace{.10cm}
-  \begin{beamercolorbox}[wd=\linewidth,sep=.11cm,rounded=true]{block body}
-    {\bfseries\color{CoInfoBlue}Concordância de existência ($A_R$) e similaridade amostral ($S_R$) --- nunca multiplicadas}\par\vspace{.05cm}
-    \begin{columns}[T,onlytextwidth]
-      \begin{column}{0.48\textwidth}
-        \resizebox{0.92\linewidth}{!}{$
-          A_R(n_t)=\dfrac{|\mathcal C_{\mathrm{real}}(n_t)\cap\mathcal C_g(n_t)|}
-          {|\mathcal C_{\mathrm{real}}(n_t)\cup\mathcal C_g(n_t)|}$}
-        \vspace{.06cm}
-
-        {\fontsize{8.2}{9.7}\selectfont $\mathcal C_g(n_t)$: pares com $R^{(g)}$ definido. União vazia: $A_R=1$ (ausência em ambos, não posições coincidentes).}
-      \end{column}
-      \begin{column}{0.49\textwidth}
-        \resizebox{0.92\linewidth}{!}{$
-          D_R(n_t)=\underset{\mathcal C_{\mathrm{real}}\cap\mathcal C_g}{\operatorname{média}}
-          |\log_2R^{(g)}_{ij}-\log_2R^{(\mathrm{real})}_{ij}|$}
-        \vspace{.06cm}
-
-        \resizebox{0.85\linewidth}{!}{$
-          S_R(n_t)=\operatorname{clip}_{[0,1]}\!\left(1-
-          \dfrac{D_R(n_t)}{\log_2 n_t-\log_2 n_1}\right)$}
-        \vspace{.04cm}
-
-        {\fontsize{8.0}{9.4}\selectfont Definida só no suporte compartilhado; sem pares compartilhados: indisponível, nunca 1.}
-      \end{column}
-    \end{columns}
-  \end{beamercolorbox}
-
-  \vspace{.06cm}
   {\fontsize{7.8}{9.4}\selectfont\color{CoInfoGray}
     $R$ (sobrescrito): braço real; $g$: braço sintético; $f$: classificador; $U_{ij}$: resultado par a par observado em $n_k$.}
   \sourcecite{capítulo 6 do relatório final; Spearman (1904).}
 \end{frame}
 
+% Apoio 1b ---------------------------------------------------------------------
+\begin{frame}{Definições formais: concordância de existência e similaridade amostral}
+  \vspace{.15cm}
+  \begin{beamercolorbox}[wd=\linewidth,sep=.14cm,rounded=true]{block body}
+    {\bfseries\color{CoInfoBlue}Concordância de existência ($A_R$) e similaridade amostral ($S_R$) --- nunca multiplicadas}\par\vspace{.08cm}
+    \begin{columns}[T,onlytextwidth]
+      \begin{column}{0.48\textwidth}
+        \resizebox{0.92\linewidth}{!}{$
+          A_R(n_t)=\dfrac{|\mathcal C_{\mathrm{real}}(n_t)\cap\mathcal C_g(n_t)|}
+          {|\mathcal C_{\mathrm{real}}(n_t)\cup\mathcal C_g(n_t)|}$}
+        \vspace{.10cm}
+
+        {\fontsize{9.0}{10.7}\selectfont $\mathcal C_g(n_t)$: pares com $R^{(g)}$ definido. União vazia: $A_R=1$ (ausência em ambos, não posições coincidentes).}
+      \end{column}
+      \begin{column}{0.49\textwidth}
+        \resizebox{0.92\linewidth}{!}{$
+          D_R(n_t)=\underset{\mathcal C_{\mathrm{real}}\cap\mathcal C_g}{\operatorname{média}}
+          |\log_2R^{(g)}_{ij}-\log_2R^{(\mathrm{real})}_{ij}|$}
+        \vspace{.10cm}
+
+        \resizebox{0.85\linewidth}{!}{$
+          S_R(n_t)=\operatorname{clip}_{[0,1]}\!\left(1-
+          \dfrac{D_R(n_t)}{\log_2 n_t-\log_2 n_1}\right)$}
+        \vspace{.08cm}
+
+        {\fontsize{9.0}{10.7}\selectfont Definida só no suporte compartilhado; sem pares compartilhados: indisponível, nunca 1.}
+      \end{column}
+    \end{columns}
+  \end{beamercolorbox}
+
+  \vspace{.12cm}
+  \begin{beamercolorbox}[wd=\linewidth,sep=.10cm,rounded=true]{takeaway}
+    \centering\bfseries\fontsize{9.8}{11.6}\selectfont
+    $A_R$ responde se os mesmos pares invertem; $S_R$, condicional a isso, responde se invertem no mesmo regime amostral. Nunca combinados em produto.
+  \end{beamercolorbox}
+
+  \sourcecite{capítulo 6, Seção 6.6--6.7, do relatório final.}
+\end{frame}
+
 % Apoio 2 ---------------------------------------------------------------------
 \begin{frame}{Datasets, partições e espaço de subconjuntos}
   \centering
-  \renewcommand{\arraystretch}{1.20}
-  \fontsize{8.3}{10}\selectfont
+  \renewcommand{\arraystretch}{1.08}
+  \fontsize{8.0}{9.6}\selectfont
   \begin{tabularx}{\linewidth}{>{\bfseries}p{1.60cm}cc>{\raggedright\arraybackslash}p{2.30cm}>{\raggedright\arraybackslash}p{2.30cm}>{\raggedright\arraybackslash}X}
     \toprule
     Dataset & Canais & Subconj. & Dados reais de treino & Teste real fixo & Partição e alvo \\
@@ -410,10 +421,10 @@
     \bottomrule
   \end{tabular}
 
-  \vspace{0.08cm}
-  {\fontsize{7.9}{9.4}\selectfont\color{CoInfoGray}
-    $\rankrho$ e $\AW{}$ são herdados dos relatórios publicados dos cenários Occupancy 000002 e Air Quality 000005/000006 (esquema anterior; ver Seção de disponibilidade de dados do relatório final, capítulo 7). $A_R$ e $S_R$ exigiriam os resultados brutos por réplica dessas execuções, não persistidos localmente nesta revisão --- por isso aparecem como travessão, nunca como zero, e não como o antigo valor de similaridade de $N^\star$, que media outro objeto.}
-  \sourcecite{relatórios dos cenários Occupancy 000002, Air Quality 000005 e 000006; tabelas do capítulo 7 do relatório final.}
+  \vspace{0.05cm}
+  {\fontsize{7.3}{8.7}\selectfont\color{CoInfoGray}
+    $\rankrho$/$\AW{}$: herdados dos relatórios publicados (esquema anterior, cap.\ 7). $A_R$/$S_R$: exigiriam dados brutos não persistidos localmente --- travessão, nunca zero nem o antigo valor de $N^\star$.}
+  \sourcecite{cenários Occupancy 000002, Air Quality 000005/000006; tabelas do capítulo 7 do relatório final.}
 \end{frame}
 
 % Apoio 5 ---------------------------------------------------------------------
@@ -449,9 +460,9 @@
     \bottomrule
   \end{tabular}
 
-  \vspace{0.14cm}
-  \eyebrow{Recalculado pelo código atual: execução smoke, $n\leq32$}
   \vspace{0.05cm}
+  \eyebrow{Recalculado pelo código atual: execução smoke, $n\leq32$}
+  \vspace{0.02cm}
   \fontsize{7.2}{8.6}\selectfont
   \begin{tabular}{lcccc}
     \toprule
@@ -464,10 +475,10 @@
     \bottomrule
   \end{tabular}
 
-  \vspace{0.10cm}
-  {\fontsize{7.6}{9.1}\selectfont\color{CoInfoGray}
-    Bloco superior: valores herdados do esquema anterior, cenários SUPPORT2 000007/000008 ($n=512$); $A_R$/$S_R$ exigiriam os dados brutos por réplica, não persistidos localmente. Bloco inferior: \texttt{scenario\_run\_id=0}, \texttt{output/validation/support2-random-forest-smoke/}, indicadores calculados diretamente por \texttt{coinfosim.results.structural} --- escala reduzida, não comparável linha a linha ao bloco superior.}
-  \sourcecite{cenários SUPPORT2 000007 e 000008 (herdados); execução smoke local (recalculada); capítulo 7 e apêndices A/B do relatório final.}
+  \vspace{0.02cm}
+  {\fontsize{6.6}{7.8}\selectfont\color{CoInfoGray}
+    Bloco inferior: escala reduzida (\texttt{scenario\_run\_id=0}), não comparável linha a linha ao bloco superior.\par}
+  \sourcecite{SUPPORT2 000007/000008 (herdados); execução smoke local (recalculada); cap.\ 7 e apênd.\ A/B.}
 \end{frame}
 
 % Apoio 7 ---------------------------------------------------------------------
@@ -475,7 +486,7 @@
   \fontsize{9.0}{10.7}\selectfont
   \begin{columns}[T,onlytextwidth]
     \begin{column}{0.32\textwidth}
-      \begin{beamercolorbox}[wd=\linewidth,sep=.17cm,rounded=true]{block body}
+      \begin{beamercolorbox}[wd=\linewidth,sep=.13cm,rounded=true]{block body}
         {\bfseries\color{CoInfoBlue}Validade experimental}\par\vspace{.08cm}
         \begin{itemize}\setlength{\itemsep}{.03cm}
           \item um particionamento por dataset;
@@ -486,7 +497,7 @@
       \end{beamercolorbox}
     \end{column}
     \begin{column}{0.32\textwidth}
-      \begin{beamercolorbox}[wd=\linewidth,sep=.17cm,rounded=true]{block body}
+      \begin{beamercolorbox}[wd=\linewidth,sep=.13cm,rounded=true]{block body}
         {\bfseries\color{CoInfoBlue}Validade externa}\par\vspace{.08cm}
         \begin{itemize}\setlength{\itemsep}{.03cm}
           \item três datasets binários, tabulares e de baixa dimensão;
@@ -497,13 +508,13 @@
       \end{beamercolorbox}
     \end{column}
     \begin{column}{0.32\textwidth}
-      \begin{beamercolorbox}[wd=\linewidth,sep=.17cm,rounded=true]{block body}
+      \begin{beamercolorbox}[wd=\linewidth,sep=.13cm,rounded=true]{block body}
         {\bfseries\color{CoInfoBlue}Limites de interpretação}\par\vspace{.08cm}
         \begin{itemize}\setlength{\itemsep}{.03cm}
           \item Spearman não iguala perdas;
-          \item \AW{} ignora magnitude; pares indefinidos são ignorados, não discordantes;
-          \item $\mathbf R$ guarda só a última inversão de cada par; $A_R$ ignora direção e magnitude; $S_R$ só existe no suporte compartilhado;
-          \item sem custos coletados e sem extrapolação validada além da grade.
+          \item \AW{} ignora magnitude; pares indefinidos são ignorados;
+          \item $\mathbf R$ guarda só a última inversão; $A_R$ ignora direção; $S_R$ só existe no suporte compartilhado;
+          \item sem custos coletados nem extrapolação além da grade.
         \end{itemize}
       \end{beamercolorbox}
     \end{column}

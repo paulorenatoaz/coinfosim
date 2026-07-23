@@ -146,8 +146,8 @@
     \end{column}
   \end{columns}
 
-  \vspace{0.06cm}
-  \takeaway{O perfil de cooperação preditiva descreve como o desempenho relativo dos subconjuntos de canais evolui à medida que o tamanho do conjunto de treinamento aumenta; não é apenas o subconjunto vencedor.}
+  \vspace{0.03cm}
+  \takeaway{O perfil de cooperação preditiva descreve como o desempenho relativo dos subconjuntos evolui com o tamanho do treinamento; não é apenas o subconjunto vencedor.}
   \sourcecite{elaboração própria; esquema conceitual, sem valores experimentais.}
 
   \speakernotes
@@ -214,10 +214,6 @@
   \hspace{0.04cm}
   \metricpill{CoInfoAmber}{Subconjuntos}{não vazios: 31 ou 127}
 
-  \vspace{0.06cm}
-  {\centering\fontsize{7.6}{9.1}\selectfont\color{CoInfoGray}
-    Quatro indicadores de preservação: correlação de ranking $\cdot$ concordância de vencedores $\cdot$ concordância de existência de inversões $\cdot$ similaridade dos tamanhos amostrais.\par}
-
   \sourcecite{elaboração própria (figura do protocolo experimental, também usada no relatório final).}
 
   \speakernotes
@@ -235,7 +231,7 @@
     \begin{column}{0.50\textwidth}
       \centering
       \vspace{0.10cm}
-      \includegraphics[height=3.92cm,trim=0 56 322 0,clip]{\figroot/conceptual/metricas_tres_paineis.pdf}
+      \includegraphics[height=3.92cm,trim=0 56 370 0,clip]{\figroot/conceptual/metricas_tres_paineis.pdf}
     \end{column}
     \begin{column}{0.47\textwidth}
       \vspace{0.12cm}
@@ -266,7 +262,7 @@
     \begin{column}{0.51\textwidth}
       \centering
       \vspace{0.10cm}
-      \includegraphics[height=3.85cm,trim=156 52 156 0,clip]{\figroot/conceptual/metricas_tres_paineis.pdf}
+      \includegraphics[height=3.85cm,trim=134 52 190 0,clip]{\figroot/conceptual/metricas_tres_paineis.pdf}
     \end{column}
     \begin{column}{0.46\textwidth}
       \vspace{0.16cm}
@@ -277,7 +273,7 @@
       \begin{tikzpicture}
         \node[rounded corners=3pt,draw=CoInfoMint!60,fill=CoInfoMint!7,
           font=\bfseries\fontsize{9.0}{10.7}\selectfont,text=CoInfoInk,inner sep=4.5pt]
-          {uma troca no topo $\neq$ colapso da estrutura};
+          {uma troca no topo $\neq$ colapso do perfil};
       \end{tikzpicture}
     \end{column}
   \end{columns}
@@ -301,35 +297,35 @@
     \begin{column}{0.54\textwidth}
       \centering
       \vspace{0.04cm}
-      \begin{tikzpicture}[x=1.55cm,y=0.50cm]
-        \draw[-{Stealth[length=2.3mm]},CoInfoGray,line width=.8pt] (0.2,0.4)--(5.85,0.4);
-        \node[font=\fontsize{7.6}{9}\selectfont,text=CoInfoGray] at (3.0,-0.32) {tamanho amostral $n$ (grade)};
+      \begin{tikzpicture}[x=1.55cm,y=0.85cm]
+        \draw[-{Stealth[length=2.3mm]},CoInfoGray,line width=.8pt] (0.2,0)--(5.85,0);
+        \node[font=\fontsize{7.6}{9}\selectfont,text=CoInfoGray] at (3.0,-0.62) {tamanho amostral $n$ (grade)};
 
         \foreach \x/\lab [count=\k from 0] in {0.6/{$n_1$},1.6/{$n_2$},2.6/{$n_3$},3.6/{$n_4$},4.6/{$n_5$}}{
-          \draw[CoInfoGray] (\x,0.48)--(\x,0.32);
-          \node[font=\fontsize{7.2}{8.6}\selectfont,text=CoInfoGray] at (\x,-0.02) {\lab};
+          \draw[CoInfoGray] (\x,0.08)--(\x,-0.08);
+          \node[font=\fontsize{7.2}{8.6}\selectfont,text=CoInfoGray] at (\x,-0.32) {\lab};
         }
 
-        \node[rounded corners=2pt,draw=CoInfoGray!70,fill=CoInfoPale,font=\fontsize{7.0}{8.2}\selectfont,
-          text=CoInfoInk,align=center,inner sep=2pt,minimum width=1.35cm] at (0.6,1.55) {empate\\indefinido};
-        \node[rounded corners=2pt,draw=CoInfoMint!75,fill=CoInfoMint!14,font=\fontsize{7.0}{8.2}\selectfont,
-          text=CoInfoInk,align=center,inner sep=2pt,minimum width=1.35cm] at (1.6,2.55) {$1^\circ$ vencedor\\$S_A$};
-        \node[rounded corners=2pt,draw=CoInfoBlue!70,fill=CoInfoBlue!10,font=\fontsize{7.0}{8.2}\selectfont,
-          text=CoInfoInk,align=center,inner sep=2pt,minimum width=1.35cm] at (2.6,2.55) {empate:\\mantém $S_A$};
-        \node[rounded corners=2pt,draw=CoInfoRose!80,fill=CoInfoRose!16,font=\fontsize{7.0}{8.4}\selectfont,
-          text=CoInfoInk,align=center,inner sep=2pt,minimum width=1.5cm] at (3.6,1.15) {\textbf{inversão}\\válida: $S_B$};
-        \node[rounded corners=2pt,draw=CoInfoRose!70,fill=CoInfoRose!8,font=\fontsize{7.0}{8.2}\selectfont,
-          text=CoInfoInk,align=center,inner sep=2pt,minimum width=1.35cm] at (4.6,1.15) {mantém\\$S_B$};
+        \node[rounded corners=2pt,draw=CoInfoGray!70,fill=CoInfoPale,font=\fontsize{6.8}{8.0}\selectfont,
+          text=CoInfoInk,align=center,inner sep=2pt,minimum width=1.3cm] at (0.6,0.75) {empate\\indefinido};
+        \node[rounded corners=2pt,draw=CoInfoMint!75,fill=CoInfoMint!14,font=\fontsize{6.8}{8.0}\selectfont,
+          text=CoInfoInk,align=center,inner sep=2pt,minimum width=1.3cm] at (1.6,2.05) {$1^\circ$ vencedor\\$S_A$};
+        \node[rounded corners=2pt,draw=CoInfoBlue!70,fill=CoInfoBlue!10,font=\fontsize{6.8}{8.0}\selectfont,
+          text=CoInfoInk,align=center,inner sep=2pt,minimum width=1.3cm] at (2.6,2.05) {empate:\\mantém $S_A$};
+        \node[rounded corners=2pt,draw=CoInfoRose!80,fill=CoInfoRose!16,font=\fontsize{6.8}{8.2}\selectfont,
+          text=CoInfoInk,align=center,inner sep=2pt,minimum width=1.4cm] at (3.6,0.75) {\textbf{inversão}\\válida: $S_B$};
+        \node[rounded corners=2pt,draw=CoInfoRose!70,fill=CoInfoRose!8,font=\fontsize{6.8}{8.0}\selectfont,
+          text=CoInfoInk,align=center,inner sep=2pt,minimum width=1.3cm] at (4.6,0.75) {mantém\\$S_B$};
 
-        \draw[CoInfoGray!70,dashed] (1.6,2.20)--(2.6,2.20);
-        \draw[CoInfoRose,line width=1.3pt,-{Stealth[length=2.1mm]}] (2.6,2.20)--(3.6,1.50);
-        \node[font=\bfseries\fontsize{7.4}{8.8}\selectfont,text=CoInfoRose] at (3.1,2.05) {inversão};
-        \draw[CoInfoGray!70,dashed] (3.6,0.80)--(4.6,0.80);
+        \draw[CoInfoGray!70,dashed] (1.6,1.65)--(2.6,1.65);
+        \draw[CoInfoRose,line width=1.3pt,-{Stealth[length=2.1mm]}] (2.6,1.65)--(3.6,1.15);
+        \node[font=\bfseries\fontsize{7.0}{8.4}\selectfont,text=CoInfoRose] at (3.35,1.55) {inversão};
+        \draw[CoInfoGray!70,dashed] (3.6,0.35)--(4.6,0.35);
 
-        \node[rounded corners=3pt,draw=CoInfoInk!55,fill=white,font=\fontsize{7.6}{9}\selectfont,
-          text=CoInfoInk,align=center,inner sep=3.5pt] at (3.0,3.55)
-          {$R_{ij}=n_4$: único valor guardado --\\a última inversão observada};
-        \draw[-{Stealth[length=2mm]},CoInfoInk!55] (3.6,1.42) -- (3.35,3.15);
+        \node[rounded corners=3pt,draw=CoInfoInk!55,fill=white,font=\fontsize{7.2}{8.6}\selectfont,
+          text=CoInfoInk,align=center,inner sep=3.5pt, text width=4.4cm] at (2.4,3.35)
+          {$R_{ij}=n_4$: único valor guardado --- a última inversão observada};
+        \draw[-{Stealth[length=2mm]},CoInfoInk!55] (3.6,1.18) to[out=90,in=-20] (3.55,2.95);
       \end{tikzpicture}
     \end{column}
     \begin{column}{0.43\textwidth}
@@ -421,17 +417,15 @@
     \bottomrule
   \end{tabular}\par
 
-  \vspace{0.18cm}
+  \vspace{0.12cm}
   \begin{tikzpicture}
-    \node[rounded corners=3pt,draw=CoInfoGray!60,fill=CoInfoGrayPale,
-      font=\fontsize{8.4}{10}\selectfont,text=CoInfoInk,inner sep=5pt,align=center,text width=9.6cm]
-      {$A_R$ e $S_R$ exigiriam os dados brutos por réplica do cenário full-scale 000006,\\
-       não persistidos localmente nesta revisão --- por isso aparecem como travessão,\\
-       nunca como zero.};
+    \node[rounded corners=3pt,draw=CoInfoGray!60,fill=CoInfoMist,
+      font=\fontsize{7.8}{9.2}\selectfont,text=CoInfoInk,inner sep=4pt,align=center,text width=9.6cm]
+      {$A_R$ e $S_R$ exigiriam dados brutos do cenário full-scale 000006, não persistidos localmente --- por isso aparecem como travessão, nunca como zero.};
   \end{tikzpicture}
 
-  \vspace{0.10cm}
-  \takeaway{Ordenação e vencedores são quase integralmente preservados; a existência e o regime amostral das inversões não puderam ser recalculados nesta revisão.}
+  \vspace{0.06cm}
+  \takeaway{Ordenação e vencedores quase integralmente preservados; existência e regime amostral das inversões não puderam ser recalculados nesta revisão.}
   \sourcecite{Air Quality: De Vito et al. (2008); cenário full 000005; $\rankrho$/\AW{} herdados; $\AR$/$\SR$ indisponíveis nesta revisão.}
 
   \speakernotes
@@ -448,15 +442,15 @@
   \begin{columns}[T,onlytextwidth]
     \begin{column}{0.46\textwidth}
       \centering
-      \includegraphics[width=\linewidth,height=3.0cm,keepaspectratio]{\figroot/support2_rf_best_losses.pdf}\par
-      \vspace{0.04cm}
-      {\raggedright\fontsize{7.6}{9.2}\selectfont\color{CoInfoGray}
-        Menor perda em $n=512$ (cenário full 000008): Real 0,4555; Gaussiana única 0,4554; GMM 0,4547. Sempre prever a classe majoritária: 0,4687.\par}
+      \includegraphics[width=\linewidth,height=2.5cm,keepaspectratio]{\figroot/support2_rf_best_losses.pdf}\par
+      \vspace{0.03cm}
+      {\raggedright\fontsize{7.3}{8.7}\selectfont\color{CoInfoGray}
+        Menor perda em $n=512$ (cenário full 000008): Real 0,4555; Gaussiana única 0,4554; GMM 0,4547; classe majoritária: 0,4687.\par}
     \end{column}
     \begin{column}{0.51\textwidth}
       \centering
-      {\bfseries\fontsize{8.4}{10}\selectfont Random Forest, execução \textit{smoke} ($n\leq32$)}\par\vspace{0.06cm}
-      \fontsize{7.6}{9.2}\selectfont
+      {\bfseries\fontsize{8.2}{9.8}\selectfont Random Forest, execução \textit{smoke} ($n\leq32$)}\par\vspace{0.05cm}
+      \fontsize{7.4}{8.9}\selectfont
       \begin{tabular}{lcccc}
         \toprule
         Braço & $\rankrho$ & \AW{} & $\AR$ & $\SR$ \\
@@ -465,13 +459,13 @@
         GMM $\rightarrow$ Real             & 0,533 & 0,687 & \textbf{0,467} & \textbf{0,879} \\
         \bottomrule
       \end{tabular}\par
-      \vspace{0.06cm}
-      {\raggedright\fontsize{7.4}{8.9}\selectfont\color{CoInfoGray}
+      \vspace{0.05cm}
+      {\raggedright\fontsize{7.1}{8.5}\selectfont\color{CoInfoGray}
         Indicadores recalculados diretamente pelo código atual; escala reduzida, não comparável a $n=512$.\par}
     \end{column}
   \end{columns}
 
-  \vspace{0.05cm}
+  \vspace{0.03cm}
   \takeaway{Perda absoluta e preservação do perfil respondem a perguntas diferentes; e $A_R$ pode discordar de $S_R$ mesmo para o mesmo par de braços.}
   \sourcecite{SUPPORT: The SUPPORT Principal Investigators (1995); Knaus et al. (1995); perda de cenário full 000008; $A_R$/$S_R$/$\rankrho$/\AW{} recalculados da execução smoke local.}
 
@@ -514,19 +508,19 @@
     \end{column}
   \end{columns}
 
-  \vspace{0.12cm}
+  \vspace{0.08cm}
   \takeaway{A preservação do perfil de cooperação preditiva depende da interação entre dataset, classificador, modelo gerador e tamanho amostral. Nenhum indicador isolado resume todas essas dimensões.}
 
-  \vspace{0.12cm}
-  \begin{beamercolorbox}[wd=\linewidth,sep=.16cm,rounded=true]{block title}
-    \centering\bfseries\fontsize{10.2}{12.5}\selectfont
-    O resultado principal não é que amostras sintéticas melhorem o classificador: em determinados cenários, o treinamento com amostras sintéticas preserva o perfil de cooperação preditiva observado com o treinamento real.
+  \vspace{0.06cm}
+  \begin{beamercolorbox}[wd=\linewidth,sep=.10cm,rounded=true]{block title}
+    \centering\bfseries\fontsize{9.0}{10.8}\selectfont
+    O resultado principal não é que amostras sintéticas melhorem o classificador: em determinados cenários, o treinamento sintético preserva o perfil de cooperação preditiva observado com o treinamento real.
   \end{beamercolorbox}
 
-  \vspace{0.04cm}
-  {\centering\fontsize{7.9}{9.4}\selectfont\color{CoInfoGray}
-    Extrapolação e decisões de custo não foram validadas; $A_R$/$S_R$ de escala completa permanecem pendentes para Occupancy, Air Quality e SUPPORT2.\par}
-  \sourcecite{síntese do relatório final do CoInfoSim; cenários full 000002, 000005, 000007, 000008 e execução smoke do SUPPORT2.}
+  \vspace{0.02cm}
+  {\centering\fontsize{6.8}{8.0}\selectfont\color{CoInfoGray}
+    Extrapolação, custos e $A_R$/$S_R$ de escala completa permanecem pendentes de validação futura.\par}
+  \sourcecite{síntese do relatório final; cenários full 000002/000005/000007/000008 e execução smoke do SUPPORT2.}
 
   \speakernotes
     {A conclusão tem três partes. Primeiro, a preservação do perfil é multidimensional: correlação de ranking, Winner Agreement, concordância de existência de inversões e similaridade dos tamanhos amostrais não devem ser fundidas em uma única afirmação, nem em um único número. Segundo, semelhança geométrica, desempenho preditivo absoluto e preservação do perfil de cooperação preditiva são propriedades diferentes. Terceiro, nenhum gerador foi universalmente superior nos cenários avaliados: a preservação do perfil depende da interação entre dataset, classificador, modelo gerador e tamanho amostral. Se o treinamento com amostras de um modelo ajustado aos dados reais reproduzir o perfil de referência dentro do intervalo observado, esse gerador poderá ser investigado como instrumento para simular regimes amostrais maiores e subsidiar futuras decisões sobre canais. Essa é uma possibilidade de pesquisa, não uma validação já concluída: a grade termina no maior $n$ avaliado em cada dataset, não medimos custos, não demonstramos extrapolação confiável, e a concordância de existência e de regime amostral das inversões em escala completa permanece pendente de regeneração dos dados brutos para Occupancy, Air Quality e SUPPORT2.}
