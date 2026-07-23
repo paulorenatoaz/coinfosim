@@ -77,7 +77,8 @@ _GMM_SUMMARY = (
 )
 _GMM_ROLE = (
     "This arm tests whether a multimodal class-conditional approximation better "
-    "preserves real-evaluation cooperative structure than a single Gaussian."
+    "preserves the real-evaluation predictive cooperation profile than a single "
+    "Gaussian."
 )
 _GMM_PROTOCOL = """
 <dl class="meta"><dt>Training source</dt><dd>Class-conditional GMM synthetic draws</dd>

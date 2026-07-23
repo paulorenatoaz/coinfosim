@@ -43,6 +43,12 @@ def discover_scenarios(reports_root: Path) -> list[dict[str, Any]]:
                     "title": _scenario_title(run),
                     "dataset": _dataset_name(run),
                     "question": run.get("question", ""),
+                    "semantic_manifest_path": _discover_semantic_artifact(
+                        reports_root, run, "semantic_manifest_path", "semantic_manifest.json"
+                    ),
+                    "provenance_path": _discover_semantic_artifact(
+                        reports_root, run, "provenance_path", "provenance.jsonld"
+                    ),
                 }
             )
         items.sort(key=lambda item: (item["dataset"], item["title"], item["path"].as_posix()))
@@ -75,6 +81,24 @@ def _find_scenario_report_for_run(reports_root: Path, run: dict):
         return None
     reports = sorted((reports_root / rel_run_dir).glob("*scenario_report*.html"))
     return reports[0] if reports else None
+
+
+def _discover_semantic_artifact(
+    reports_root: Path, run: dict, registry_field: str, filename: str
+) -> Path | None:
+    """Locate a per-run semantic/provenance artifact (registry field first, then a sibling file)."""
+
+    value = run.get(registry_field)
+    if value:
+        rel = _reports_relative_path(reports_root, value)
+        if rel is not None and (reports_root / rel).exists():
+            return rel
+    run_dir = run.get("run_dir")
+    if run_dir:
+        rel_run_dir = _reports_relative_path(reports_root, run_dir)
+        if rel_run_dir is not None and (reports_root / rel_run_dir / filename).exists():
+            return rel_run_dir / filename
+    return None
 
 
 def _reports_relative_path(reports_root: Path, path_value):
@@ -171,12 +195,29 @@ def _scenario_card_html(item: dict[str, Any], reports_rel: Path) -> str:
     path_text = html.escape(item["path"].as_posix())
     question = html.escape(item["question"])
     question_html = f"<p>{question}</p>" if question else ""
+    semantic_links = []
+    semantic_manifest_path = item.get("semantic_manifest_path")
+    if semantic_manifest_path:
+        semantic_links.append(
+            f'<a href="{html.escape(str(reports_rel / semantic_manifest_path))}">semantic manifest</a>'
+        )
+    provenance_path = item.get("provenance_path")
+    if provenance_path:
+        semantic_links.append(
+            f'<a href="{html.escape(str(reports_rel / provenance_path))}">provenance (JSON-LD)</a>'
+        )
+    semantic_html = (
+        f"<p class=\"path\">Machine-readable: {' &middot; '.join(semantic_links)}</p>"
+        if semantic_links
+        else ""
+    )
     return (
         "<article class=\"report-card\">"
         f"<h3>{title_text}</h3>"
         f"<p class=\"dataset-label\">Dataset: {dataset}</p>"
         f"{question_html}"
         f"<p class=\"path\">{path_text}</p>"
+        f"{semantic_html}"
         f"<p><a href=\"{href}\">Open scenario report</a></p>"
         "</article>"
     )

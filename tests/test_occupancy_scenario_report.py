@@ -123,7 +123,7 @@ def test_occupancy_scenario_report_academic_layout(tmp_path):
     assert "1. Scientific question" in text
     assert "2. Scenario summary" in text
     assert "Channel notation" not in text
-    assert "cooperative structure observed under real-data" in text
+    assert "predictive cooperation profile observed under real-data" in text
     assert "GMM synthetic data" in text
 
     # Main arms use the new transfer semantics across all three arms.
@@ -183,7 +183,7 @@ def test_occupancy_scenario_report_academic_layout(tmp_path):
     assert "data-group='scenario-top-ranked-linear_svm-arm'" in text
 
     # Structural fidelity is additive and keeps all metrics separate.
-    assert "7. Structural fidelity metrics" in text
+    assert "7. Predictive cooperation profile agreement" in text
     assert "predictive cooperation profile" in text
     assert "Winner Agreement" in text
     assert "Reversal existence agreement" in text
@@ -231,7 +231,7 @@ def test_occupancy_scenario_report_without_visualization(tmp_path):
     )
     text = out.read_text(encoding="utf-8")
     assert "Visualization panels were not generated" in text
-    assert "7. Structural fidelity metrics" in text
+    assert "7. Predictive cooperation profile agreement" in text
     assert "8. Interpretation notes" in text
     assert "N-star availability" not in text
     assert "1. Scientific question" in text

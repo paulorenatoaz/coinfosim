@@ -22,7 +22,7 @@ from coinfosim.reports.html_tabs import (
     TAB_JS as _TAB_JS,
     tab_group as _tab_group,
 )
-from coinfosim.reports.structural_visualization import (
+from coinfosim.reports.predictive_profile_visualization import (
     figure_to_data_uri,
     reversal_matrix_figure,
     winner_matrix_figure,
@@ -38,7 +38,7 @@ from coinfosim.results.analysis import (
     standard_threshold_comparisons,
 )
 from coinfosim.results.summary import summary_dataframe
-from coinfosim.results.structural import (
+from coinfosim.results.predictive_profile import (
     effective_winner_matrices,
     progressive_reversal_matrices,
     select_display_subsets_by_cardinality,
@@ -962,7 +962,7 @@ def _ranking_by_sample_size_panel(result: SimulationResult, classifier: str) -> 
     return _tab_group(f"rank-n-{classifier}", tabs, str(max(result.sample_sizes)))
 
 
-def _structural_dynamics_panel(
+def _pairwise_profile_dynamics_panel(
     result: SimulationResult,
     classifier: str,
 ) -> str:
@@ -1035,7 +1035,7 @@ def _structural_dynamics_panel(
         "<code>R</code> cell exists only for a pair with at least one valid "
         "winner reversal: a defined effective winner at both the previous and "
         "the current sample size that differs between the two.</p>"
-        + _tab_group(f"structural-{classifier}-n", n_tabs, str(sample_sizes[0]))
+        + _tab_group(f"pairwise-profile-dynamics-{classifier}-n", n_tabs, str(sample_sizes[0]))
     )
 
 
@@ -1154,7 +1154,7 @@ def generate_structured_monte_carlo_report(
 
     # --- Section 13: arm-local pairwise winner and reversal dynamics ------ #
     structural_tabs = [
-        (c, classifier_label(c), _structural_dynamics_panel(result, c))
+        (c, classifier_label(c), _pairwise_profile_dynamics_panel(result, c))
         for c in present
     ]
     structural_html = _tab_group("structural", structural_tabs, default_clf)

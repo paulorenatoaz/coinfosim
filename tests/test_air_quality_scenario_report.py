@@ -116,7 +116,7 @@ def test_air_quality_scenario_report_uses_generic_academic_structure(tmp_path):
         "4. Data visualization",
         "5. Best subset comparison at largest N",
         "6. Top-ranked subsets",
-        "7. Structural fidelity metrics",
+        "7. Predictive cooperation profile agreement",
         "8. Interpretation notes",
     ):
         assert section in text

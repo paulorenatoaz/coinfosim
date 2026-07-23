@@ -114,7 +114,7 @@ def test_scenario_json_has_question_and_simulation_refs(tmp_path):
         ).read_text(encoding="utf-8")
     )
 
-    assert "cooperative structure" in scenario_json["question"]
+    assert "predictive cooperation profile" in scenario_json["question"]
     assert scenario_json["scenario_family"] == "dataset"
     assert scenario_json["status"] == "completed"
     assert scenario_json["simulation_run_ids"] == [0, 1, 2]

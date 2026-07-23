@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 
-from coinfosim.reports.structural_visualization import (
-    metric_series_figure,
+from coinfosim.reports.predictive_profile_visualization import (
+    profile_metric_series_figure,
     reversal_matrix_figure,
     winner_matrix_figure,
 )
@@ -554,7 +554,7 @@ def test_metric_series_figure_labels_and_x_field_for_all_four_metrics():
         ("reversal_existence_agreement", reversal_rows),
         ("reversal_sample_size_similarity", reversal_rows),
     ):
-        fig = metric_series_figure(rows, metric, {"arm": "Arm"}, "Title")
+        fig = profile_metric_series_figure(rows, metric, {"arm": "Arm"}, "Title")
         assert fig.axes[0].get_ylabel() == expected_ylabels[metric]
         plt.close(fig)
 
