@@ -227,6 +227,101 @@ def winner_agreement_series(
     return rows
 
 
+def effective_winner_matrices(
+    result: SimulationResult,
+    classifier: str,
+    subsets: Optional[Sequence[Subset]] = None,
+) -> List[Dict[str, object]]:
+    """Return the carry-forward effective winner matrix `W` at each sample size.
+
+    Exact ties after a pair's first strict winner preserve the previous
+    winner instead of resetting to unresolved (Section 2.3 tie propagation).
+    """
+
+    catalog = tuple(tuple(s) for s in (subsets or result.subsets))
+    sample_sizes = tuple(int(n) for n in result.sample_sizes)
+    n_subsets = len(catalog)
+    state: Dict[Tuple[int, int], int] = {}
+    rows: List[Dict[str, object]] = []
+    for n in sample_sizes:
+        observed = winner_matrix(result, classifier, n, catalog)
+        matrix: List[List[Optional[int]]] = [[None] * n_subsets for _ in range(n_subsets)]
+        for i in range(n_subsets):
+            for j in range(i + 1, n_subsets):
+                outcome = observed[i][j]
+                if outcome != 0:
+                    state[(i, j)] = outcome
+                effective = state.get((i, j), 0)
+                matrix[i][j] = effective
+                matrix[j][i] = -effective if effective != 0 else 0
+        rows.append({"n_per_class": int(n), "matrix": matrix})
+    return rows
+
+
+def winner_reversal_events(
+    result: SimulationResult,
+    classifier: str,
+    subsets: Optional[Sequence[Subset]] = None,
+) -> List[Dict[str, int]]:
+    """Extract unordered valid pairwise winner reversals (Section 2.4).
+
+    A reversal at `n_k` requires a defined effective winner at both
+    `n_{k-1}` and `n_k` that differs between the two sample sizes.
+    """
+
+    catalog = tuple(tuple(s) for s in (subsets or result.subsets))
+    n_subsets = len(catalog)
+    effective = effective_winner_matrices(result, classifier, catalog)
+    events: List[Dict[str, int]] = []
+    for previous_item, current_item in zip(effective, effective[1:]):
+        previous_matrix = previous_item["matrix"]
+        current_matrix = current_item["matrix"]
+        n_reversal = int(current_item["n_per_class"])
+        for i in range(n_subsets):
+            for j in range(i + 1, n_subsets):
+                previous_value = previous_matrix[i][j]
+                current_value = current_matrix[i][j]
+                if previous_value != 0 and current_value != 0 and previous_value != current_value:
+                    events.append({"i": i, "j": j, "n_reversal": n_reversal})
+    return events
+
+
+def progressive_reversal_matrices(
+    result: SimulationResult,
+    classifier: str,
+    subsets: Optional[Sequence[Subset]] = None,
+) -> List[Dict[str, object]]:
+    """Reconstruct the progressive triangular reversal matrix `R` per prefix.
+
+    Each defined upper-triangle cell stores the last observed reversal
+    sample size through that prefix; the diagonal and lower triangle are
+    always `None`. The first prefix has no defined cells.
+    """
+
+    catalog = tuple(tuple(s) for s in (subsets or result.subsets))
+    sample_sizes = tuple(int(n) for n in result.sample_sizes)
+    n_subsets = len(catalog)
+    events = winner_reversal_events(result, classifier, catalog)
+    by_n: Dict[int, List[Dict[str, int]]] = {}
+    for event in events:
+        by_n.setdefault(event["n_reversal"], []).append(event)
+    latest: Dict[Tuple[int, int], int] = {}
+    rows: List[Dict[str, object]] = []
+    for n_prefix in sample_sizes:
+        for event in by_n.get(n_prefix, []):
+            latest[(event["i"], event["j"])] = event["n_reversal"]
+        matrix: List[List[Optional[int]]] = []
+        for i in range(n_subsets):
+            matrix.append(
+                [
+                    latest.get((i, j)) if i < j else None
+                    for j in range(n_subsets)
+                ]
+            )
+        rows.append({"n_prefix": int(n_prefix), "matrix": matrix})
+    return rows
+
+
 def directed_crossing_events(
     result: SimulationResult,
     classifier: str,

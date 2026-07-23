@@ -6,8 +6,10 @@ import pytest
 
 from coinfosim.results.structural import (
     directed_crossing_events,
+    effective_winner_matrices,
     progressive_directed_nstar,
     progressive_nstar_similarity,
+    progressive_reversal_matrices,
     rank_vector,
     ranking_fidelity_series,
     select_display_subsets_by_cardinality,
@@ -15,6 +17,7 @@ from coinfosim.results.structural import (
     validate_structural_compatibility,
     winner_agreement_series,
     winner_matrix,
+    winner_reversal_events,
 )
 
 
@@ -247,6 +250,91 @@ def test_progressive_crossing_keeps_latest_same_direction_across_alternations():
         for value in row
         if value is not None
     )
+
+
+def test_effective_winner_no_reversal_after_initial_tie_then_first_winner():
+    result = crossing_result({2: [0.5, 0.5], 4: [0.4, 0.5]})
+    effective = effective_winner_matrices(result, "clf")
+    assert effective[0]["matrix"] == [[None, 0], [0, None]]
+    assert effective[1]["matrix"] == [[None, 1], [-1, None]]
+    assert winner_reversal_events(result, "clf") == []
+
+
+def test_no_reversal_after_repeated_initial_ties_then_first_winner():
+    result = crossing_result({2: [0.5, 0.5], 4: [0.5, 0.5], 8: [0.4, 0.5]})
+    assert winner_reversal_events(result, "clf") == []
+
+
+def test_no_reversal_when_winner_repeats_across_intervening_tie():
+    result = crossing_result({2: [0.4, 0.5], 4: [0.5, 0.5], 6: [0.3, 0.5]})
+    assert winner_reversal_events(result, "clf") == []
+
+
+def test_single_reversal_after_tie_then_strict_opposite_winner():
+    result = crossing_result({2: [0.4, 0.5], 4: [0.5, 0.5], 6: [0.6, 0.5]})
+    assert winner_reversal_events(result, "clf") == [{"i": 0, "j": 1, "n_reversal": 6}]
+
+
+def test_single_reversal_between_two_strict_winners():
+    result = crossing_result({2: [0.4, 0.5], 4: [0.6, 0.5]})
+    assert winner_reversal_events(result, "clf") == [{"i": 0, "j": 1, "n_reversal": 4}]
+
+
+def test_multiple_alternations_retain_all_events_and_progressive_r_keeps_latest():
+    result = crossing_result(
+        {2: [0.6, 0.5], 4: [0.4, 0.5], 8: [0.6, 0.5], 16: [0.4, 0.5]}
+    )
+    events = winner_reversal_events(result, "clf")
+    assert events == [
+        {"i": 0, "j": 1, "n_reversal": 4},
+        {"i": 0, "j": 1, "n_reversal": 8},
+        {"i": 0, "j": 1, "n_reversal": 16},
+    ]
+    progressive = progressive_reversal_matrices(result, "clf")
+    assert progressive[0]["matrix"] == [[None, None], [None, None]]
+    assert progressive[1]["matrix"] == [[None, 4], [None, None]]
+    assert progressive[2]["matrix"] == [[None, 8], [None, None]]
+    assert progressive[3]["matrix"] == [[None, 16], [None, None]]
+
+
+def test_pair_with_no_reversal_remains_undefined_in_r():
+    result = make_result(
+        {"clf": {2: [0.4, 0.5, 0.9], 4: [0.6, 0.5, 0.9]}},
+        grid=(2, 4),
+        subsets=((0,), (1,), (2,)),
+    )
+    events = winner_reversal_events(result, "clf")
+    assert events == [{"i": 0, "j": 1, "n_reversal": 4}]
+    for item in progressive_reversal_matrices(result, "clf"):
+        assert item["matrix"][0][2] is None
+        assert item["matrix"][1][2] is None
+
+
+def test_reversal_events_use_only_i_lt_j_pairs():
+    result = crossing_result(
+        {2: [0.6, 0.5], 4: [0.4, 0.5], 8: [0.6, 0.5], 16: [0.4, 0.5]}
+    )
+    events = winner_reversal_events(result, "clf")
+    assert events and all(event["i"] < event["j"] for event in events)
+
+
+def test_progressive_reversal_matrix_has_values_only_in_upper_triangle():
+    result = crossing_result(
+        {2: [0.6, 0.5], 4: [0.4, 0.5], 8: [0.6, 0.5], 16: [0.4, 0.5]}
+    )
+    for item in progressive_reversal_matrices(result, "clf"):
+        matrix = item["matrix"]
+        for i in range(len(matrix)):
+            for j in range(len(matrix)):
+                if i >= j:
+                    assert matrix[i][j] is None
+
+
+def test_effective_winner_matrix_remains_antisymmetric_after_carry_forward():
+    result = crossing_result({2: [0.4, 0.5], 4: [0.5, 0.5], 6: [0.6, 0.5]})
+    for item in effective_winner_matrices(result, "clf"):
+        matrix = item["matrix"]
+        assert matrix[0][1] == -matrix[1][0]
 
 
 def test_nstar_similarity_is_unavailable_at_first_prefix_and_json_safe():
