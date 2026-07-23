@@ -93,9 +93,10 @@ _GMM2R_ARM_SUMMARY = (
 
 _GMM2R_SCIENTIFIC_ROLE = (
     "This arm tests whether a more flexible multimodal class-conditional "
-    "approximation better preserves real-data cooperative behavior than the "
-    "single-Gaussian approximation. If GMM results closely match Real → Real, "
-    "the multimodal synthetic distribution captures the key cooperative structure."
+    "approximation better preserves the real-data predictive cooperation profile "
+    "than the single-Gaussian approximation. If GMM results closely match "
+    "Real → Real, the multimodal synthetic distribution captures the same "
+    "predictive cooperation profile."
 )
 
 _GMM2R_TRAINING_PROTOCOL = """

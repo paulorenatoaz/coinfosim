@@ -9,16 +9,16 @@ from typing import Dict, List, Mapping, Optional, Sequence, Tuple
 from coinfosim.classifiers.registry import classifier_label
 from coinfosim.reports.html_tabs import TAB_CSS, TAB_JS, tab_group
 from coinfosim.reports.scenario_visualization import save_loss_vs_n
-from coinfosim.reports.structural_visualization import (
-    metric_series_figure,
+from coinfosim.reports.predictive_profile_visualization import (
+    profile_metric_series_figure as metric_series_figure,
     reversal_matrix_figure,
     save_figure,
     winner_matrix_figure,
 )
-from coinfosim.results.structural import (
+from coinfosim.results.predictive_profile import (
     effective_winner_matrices,
     progressive_reversal_matrices,
-    scenario_structural_fidelity,
+    scenario_predictive_profile_agreement,
 )
 from coinfosim.simulation.monte_carlo import SimulationResult
 
@@ -184,9 +184,9 @@ def _emit_structural_graph(
 
 
 # --------------------------------------------------------------------------- #
-# Structural fidelity and N-star availability
+# Predictive cooperation profile agreement (and historical N-star availability)
 # --------------------------------------------------------------------------- #
-def _structural_fidelity_section(
+def _predictive_cooperation_profile_section(
     arm_results: Mapping[str, SimulationResult],
     reference_arm: str,
     arm_labels: Mapping[str, str],
@@ -195,14 +195,14 @@ def _structural_fidelity_section(
     graphs_out: Optional[Dict],
     generate_graphs: bool,
 ) -> str:
-    structural = scenario_structural_fidelity(
+    structural = scenario_predictive_profile_agreement(
         arm_results, reference_arm, arm_labels
     )
     sample_sizes = [int(n) for n in structural["sample_sizes"]]
     n_max = sample_sizes[-1]
     ranking = structural["ranking_fidelity_series"]
     agreements = structural["winner_agreement_series"]
-    reversals = structural["reversal_fidelity_series"]
+    reversals = structural["reversal_agreement_series"]
     summaries = [
         row for row in structural["final_summary"] if row["arm"] != reference_arm
     ]
@@ -218,10 +218,10 @@ def _structural_fidelity_section(
             html.escape(str(row["winner_status"])),
             _fmt_num(row["reversal_existence_agreement"], ".4f"),
             _fmt_num(row["reversal_sample_size_similarity"], ".4f"),
-            str(row["n_reference_reversal_pairs"]),
-            str(row["n_arm_reversal_pairs"]),
-            str(row["n_shared_reversal_pairs"]),
-            str(row["n_union_reversal_pairs"]),
+            str(row["reference_reversal_pair_count"]),
+            str(row["arm_reversal_pair_count"]),
+            str(row["shared_reversal_pair_count"]),
+            str(row["union_reversal_pair_count"]),
             _fmt_num(row["mean_log2_reversal_distance"], ".4f"),
             html.escape(str(row["reversal_status"])),
         ]
@@ -378,9 +378,9 @@ def _structural_fidelity_section(
         )
 
     return (
-        "<h2>7. Structural fidelity metrics</h2>"
-        "<p>This section assesses predictive cooperation profile fidelity "
-        "across arms with three separate metrics. Ranking fidelity compares complete "
+        "<h2>7. Predictive cooperation profile agreement</h2>"
+        "<p>This section assesses predictive cooperation profile agreement "
+        "across arms with four separate metrics. Ranking fidelity compares complete "
         "subset rankings using Spearman correlation with average-rank tie "
         "handling. Winner Agreement compares effective pairwise winner "
         "relations, carried forward through exact ties, after excluding "
@@ -1194,9 +1194,9 @@ def generate_occupancy_scenario_report(
     report_spec = DatasetAnchoredScenarioReportSpec(
         title="CoInfoSim — Occupancy Detection Baseline Scenario",
         scientific_question=(
-            "Which training distribution best preserves the cooperative structure "
-            "observed under real-data evaluation in the Occupancy Detection dataset: "
-            "real data, single-Gaussian synthetic data, or GMM synthetic data?"
+            "Which training distribution best preserves the predictive cooperation "
+            "profile observed under real-data evaluation in the Occupancy Detection "
+            "dataset: real data, single-Gaussian synthetic data, or GMM synthetic data?"
         ),
         dataset_identity="Occupancy Detection",
         target_definition="Binary room-occupancy label",

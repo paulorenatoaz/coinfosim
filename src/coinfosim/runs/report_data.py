@@ -24,11 +24,11 @@ from coinfosim.results.analysis import (
     best_subset_rankings,
     standard_threshold_comparisons,
 )
-from coinfosim.results.summary import summary_dataframe
-from coinfosim.results.structural import (
-    scenario_structural_fidelity,
-    simulation_structural_dynamics,
+from coinfosim.results.predictive_profile import (
+    scenario_predictive_profile_agreement,
+    simulation_pairwise_profile_dynamics,
 )
+from coinfosim.results.summary import summary_dataframe
 from coinfosim.simulation.monte_carlo import SimulationResult
 
 
@@ -121,8 +121,8 @@ def simulation_report_data(
         "threshold_comparisons": _records(thresholds_df),
     }
     if include_structural_dynamics:
-        payload["structural_dynamics"] = _clean(
-            simulation_structural_dynamics(result)
+        payload["pairwise_profile_dynamics"] = _clean(
+            simulation_pairwise_profile_dynamics(result)
         )
     return payload
 
@@ -179,6 +179,8 @@ def dataset_anchored_scenario_report_data(
     scenario_metadata: Mapping[str, Any] | None = None,
     gmm_model_selection: Any = None,
     include_structural_snapshots: bool = True,
+    semantic_manifest_path: str | None = None,
+    provenance_path: str | None = None,
 ) -> Dict[str, Any]:
     """Generic report-ready snapshot for the standard dataset three-arm protocol."""
 
@@ -228,8 +230,10 @@ def dataset_anchored_scenario_report_data(
         ),
     }
     if include_structural_snapshots:
-        payload["structural_fidelity"] = generic_scenario_structural_report_data(
-            results, real_arm_id, arm_labels
+        payload["predictive_cooperation_profile"] = (
+            generic_scenario_predictive_profile_report_data(
+                results, real_arm_id, arm_labels
+            )
         )
     if dataset_metadata is not None:
         payload["dataset"] = _clean(dict(dataset_metadata))
@@ -243,16 +247,20 @@ def dataset_anchored_scenario_report_data(
         payload["exclusions"] = _clean(dict(exclusion_metadata))
     if scenario_metadata is not None:
         payload["scenario"] = _clean(dict(scenario_metadata))
+    if semantic_manifest_path is not None:
+        payload["semantic_manifest_path"] = str(semantic_manifest_path)
+    if provenance_path is not None:
+        payload["provenance_path"] = str(provenance_path)
     return payload
 
 
-def generic_scenario_structural_report_data(
+def generic_scenario_predictive_profile_report_data(
     arm_results: Mapping[str, SimulationResult],
     reference_arm: str,
     arm_labels: Mapping[str, str],
 ) -> Dict[str, Any]:
-    """Return strict-JSON-safe structural data for an arbitrary arm mapping."""
+    """Return strict-JSON-safe predictive cooperation profile data for an arbitrary arm mapping."""
 
     return _clean(
-        scenario_structural_fidelity(arm_results, reference_arm, arm_labels)
+        scenario_predictive_profile_agreement(arm_results, reference_arm, arm_labels)
     )

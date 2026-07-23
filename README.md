@@ -126,6 +126,8 @@ Regenerate the full report hierarchy for a completed scenario run from its persi
 coinfosim scenario regenerate air-quality --run-id 6 --output-dir output/reports
 ```
 
+Regeneration also (re)writes two machine-readable, provenance-ready artifacts next to the scenario report: `semantic_manifest.json` (vocabulary version, canonical metric IDs, dataset/classifier/training-condition identifiers, and source `result_data` hashes) and `provenance.jsonld` (a PROV-O-compatible graph linking the regenerated report back to its exact source result-data hashes and the commits that produced them). See [`docs/semantics/predictive_cooperation_vocabulary.md`](docs/semantics/predictive_cooperation_vocabulary.md) and [`docs/semantics/provenance_mapping.md`](docs/semantics/provenance_mapping.md).
+
 ## Development installation
 
 ```bash

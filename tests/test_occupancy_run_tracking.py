@@ -114,7 +114,7 @@ def test_scenario_json_has_question_and_simulation_refs(tmp_path):
         ).read_text(encoding="utf-8")
     )
 
-    assert "cooperative structure" in scenario_json["question"]
+    assert "predictive cooperation profile" in scenario_json["question"]
     assert scenario_json["scenario_family"] == "dataset"
     assert scenario_json["status"] == "completed"
     assert scenario_json["simulation_run_ids"] == [0, 1, 2]
@@ -142,7 +142,7 @@ def test_scenario_json_has_question_and_simulation_refs(tmp_path):
     real_arm = scenario_json["report_data"]["arms"]["real_to_real"]
     assert real_arm["train_source"] == "real_occupancy_training_pool"
     assert real_arm["test_source"] == "real_occupancy_evaluation_split"
-    assert "structural_fidelity" in scenario_json["report_data"]
+    assert "predictive_cooperation_profile" in scenario_json["report_data"]
 
 
 def test_simulation_json_has_report_ready_data(tmp_path):
@@ -170,7 +170,7 @@ def test_simulation_json_has_report_ready_data(tmp_path):
     assert sim_json["result_data"]["summary_table"]
     assert sim_json["result_data"]["best_subset_rankings"]
     assert sim_json["result_data"]["threshold_comparisons"]
-    assert sim_json["result_data"]["structural_dynamics"]["schema_version"] == 2
+    assert sim_json["result_data"]["pairwise_profile_dynamics"]["schema_version"] == 3
     # Pointer to full persisted result payload.
     assert sim_json["artifacts"]["result_data"].endswith(".json.gz")
 
@@ -315,10 +315,10 @@ def test_regeneration_does_not_rerun_monte_carlo(tmp_path, monkeypatch):
     regenerated_scenario = json.loads(
         Path(regenerated["scenario_json"]).read_text(encoding="utf-8")
     )
-    assert "structural_fidelity" in regenerated_scenario["report_data"]
+    assert "predictive_cooperation_profile" in regenerated_scenario["report_data"]
     for simulation_json in regenerated["simulation_jsons"]:
         simulation = json.loads(Path(simulation_json).read_text(encoding="utf-8"))
-        assert "structural_dynamics" in simulation["result_data"]
+        assert "pairwise_profile_dynamics" in simulation["result_data"]
 
     # Registries were not extended by regeneration.
     scenario_runs = json.loads(

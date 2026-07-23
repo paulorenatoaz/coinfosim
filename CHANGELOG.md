@@ -7,6 +7,28 @@ All notable changes to this project will be documented in this file.
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+- Add the canonical predictive-cooperation-profile semantic vocabulary
+  (`src/coinfosim/resources/scientific_vocabulary.json`, 17 concepts with
+  stable `coinfosim:` IDs, EN/PT labels and definitions) and a JSON-LD 1.1
+  context (`coinfosim-context.jsonld`) mapping canonical persisted keys to
+  those IDs. Canonicalize the analysis and visualization modules into
+  `coinfosim.results.predictive_profile` and
+  `coinfosim.reports.predictive_profile_visualization` (the previous
+  `structural.py`/`structural_visualization.py` modules remain as thin
+  compatibility shims). Version the persisted report schema to 3, replacing
+  the `structural_fidelity`/`structural_dynamics` top-level keys with
+  `predictive_cooperation_profile`/`pairwise_profile_dynamics` (each carrying
+  a `semantic_vocabulary_version` and `semantic_type`); provide
+  backward-compatible readers in `coinfosim.results.profile_schema` that
+  losslessly upgrade schema 2 but refuse to reinterpret schema 1's retired
+  composite metric as a new one. Add a PROV-O-compatible provenance layer
+  (`coinfosim.provenance`): every regenerated scenario now emits
+  `semantic_manifest.json` and `provenance.jsonld` recording source
+  `result_data` hashes, the recovered `gh-pages` commit, and the current
+  code commit as distinct agents. The publication page now links these
+  artifacts on each scenario's card when present. See
+  `docs/migration-predictive-profile-schema.md` for the full
+  deprecated-to-canonical mapping.
 - Replace the `N*` / directed-crossing / composite-similarity structural
   framework with an explicit pairwise winner-reversal framework: an effective
   winner matrix `W` with exact-tie carry-forward propagation, an unordered

@@ -79,6 +79,7 @@ def publish_pages(
     push: bool = False,
     dry_run: bool = False,
     init_branch_if_missing: bool = False,
+    mirror_reports: bool = False,
 ) -> PublishResult:
     """Regenerate and publish the CoInfoSim Pages site.
 
@@ -101,6 +102,11 @@ def publish_pages(
         If ``True`` and ``branch`` does not exist locally or on ``remote``,
         create it as a new orphan branch. Otherwise a missing branch is a
         hard error.
+    mirror_reports:
+        If ``True``, remove the branch's existing ``reports/``/``data/``
+        content before copying, so the published site exactly mirrors
+        ``output_dir``. Only pass this when ``output_dir`` is known to
+        contain every scenario that should remain published.
     """
 
     from coinfosim.datasets.catalog import list_datasets
@@ -130,7 +136,7 @@ def publish_pages(
                 _run_git(["checkout", "--orphan", branch], cwd=site_dir)
                 _run_git(["rm", "-rf", "--quiet", "."], cwd=site_dir, check=False)
 
-            sync_reports(output_dir, site_dir)
+            sync_reports(output_dir, site_dir, mirror=mirror_reports)
             copied_files = sync_dataset_files(repo_root, site_dir)
             manifest_path = site_dir / "datasets" / "manifest.json"
             write_dataset_manifest(manifest_path, source_commit=_current_commit(repo_root))

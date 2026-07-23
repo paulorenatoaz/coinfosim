@@ -5,27 +5,30 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 
-from coinfosim.reports.structural_visualization import (
-    metric_series_figure,
+from coinfosim.reports.predictive_profile_visualization import (
+    profile_metric_series_figure,
     reversal_matrix_figure,
     winner_matrix_figure,
 )
 from coinfosim.results.structural import (
     directed_crossing_events,
-    effective_winner_matrices,
     progressive_directed_nstar,
-    progressive_reversal_fidelity,
+)
+from coinfosim.results.predictive_profile import (
+    effective_winner_matrices,
+    progressive_reversal_agreement,
     progressive_reversal_matrices,
     rank_vector,
     ranking_fidelity_series,
-    scenario_structural_fidelity,
+    scenario_predictive_profile_agreement,
     select_display_subsets_by_cardinality,
-    simulation_structural_dynamics,
-    validate_structural_compatibility,
+    simulation_pairwise_profile_dynamics,
+    validate_predictive_profile_compatibility,
     winner_agreement_series,
     winner_matrix,
     winner_reversal_events,
 )
+from coinfosim.semantics import canonical_key_to_id, vocabulary_version
 
 
 class FakeAccumulator:
@@ -84,7 +87,7 @@ def test_compatibility_accepts_reordered_subsets_and_classifiers():
         subsets=((0, 1), (1,), (0,)),
         classifiers=("b", "a"),
     )
-    context = validate_structural_compatibility({"ref": ref, "arm": arm}, "ref")
+    context = validate_predictive_profile_compatibility({"ref": ref, "arm": arm}, "ref")
     assert context.subsets == ((0,), (1,), (0, 1))
     assert context.classifiers == ("a", "b")
 
@@ -94,14 +97,14 @@ def test_compatibility_rejects_invalid_or_mismatched_grid(grid):
     ref = make_result([0.1, 0.2, 0.3])
     arm = make_result([0.1, 0.2, 0.3], grid=grid)
     with pytest.raises(ValueError, match="sample"):
-        validate_structural_compatibility({"ref": ref, "arm": arm}, "ref")
+        validate_predictive_profile_compatibility({"ref": ref, "arm": arm}, "ref")
 
 
 def test_compatibility_rejects_classifier_mismatch():
     ref = make_result([0.1, 0.2, 0.3])
     arm = make_result([0.1, 0.2, 0.3], classifiers=("other",))
     with pytest.raises(ValueError, match="classifier"):
-        validate_structural_compatibility({"ref": ref, "arm": arm}, "ref")
+        validate_predictive_profile_compatibility({"ref": ref, "arm": arm}, "ref")
 
 
 @pytest.mark.parametrize(
@@ -111,7 +114,7 @@ def test_compatibility_rejects_missing_or_extra_subsets(subsets):
     ref = make_result([0.1, 0.2, 0.3])
     arm = make_result([0.1] * len(subsets), subsets=subsets)
     with pytest.raises(ValueError, match="subset"):
-        validate_structural_compatibility({"ref": ref, "arm": arm}, "ref")
+        validate_predictive_profile_compatibility({"ref": ref, "arm": arm}, "ref")
 
 
 def test_compatibility_rejects_missing_and_nonfinite_cells():
@@ -119,11 +122,11 @@ def test_compatibility_rejects_missing_and_nonfinite_cells():
     missing = make_result([0.1, 0.2, 0.3])
     missing.accumulator.values.pop((2, (0,), "clf"))
     with pytest.raises(ValueError, match="missing loss cell"):
-        validate_structural_compatibility({"ref": ref, "arm": missing}, "ref")
+        validate_predictive_profile_compatibility({"ref": ref, "arm": missing}, "ref")
 
     nonfinite = make_result([0.1, np.inf, 0.3])
     with pytest.raises(ValueError, match="non-finite"):
-        validate_structural_compatibility({"ref": ref, "arm": nonfinite}, "ref")
+        validate_predictive_profile_compatibility({"ref": ref, "arm": nonfinite}, "ref")
 
 
 def test_ranking_identical_and_reversed_rankings():
@@ -356,7 +359,7 @@ def test_winner_agreement_uses_carried_forward_effective_winner_through_tie():
 
 def test_reversal_fidelity_is_unavailable_at_first_prefix_and_json_safe():
     result = crossing_result({2: [0.6, 0.5], 4: [0.4, 0.5]})
-    rows = progressive_reversal_fidelity({"ref": result, "arm": result}, "ref")
+    rows = progressive_reversal_agreement({"ref": result, "arm": result}, "ref")
     first = metric_row(rows, n=2)
     assert first["reversal_existence_agreement"] is None
     assert first["mean_log2_reversal_distance"] is None
@@ -368,7 +371,7 @@ def test_reversal_fidelity_is_unavailable_at_first_prefix_and_json_safe():
 def test_reversal_fidelity_no_reversals_in_either():
     ref = crossing_result({2: [0.4, 0.5], 4: [0.3, 0.5]})
     arm = crossing_result({2: [0.2, 0.5], 4: [0.1, 0.5]})
-    row = metric_row(progressive_reversal_fidelity({"ref": ref, "arm": arm}, "ref"), n=4)
+    row = metric_row(progressive_reversal_agreement({"ref": ref, "arm": arm}, "ref"), n=4)
     assert row["reversal_existence_agreement"] == 1.0
     assert row["mean_log2_reversal_distance"] is None
     assert row["reversal_sample_size_similarity"] is None
@@ -378,9 +381,9 @@ def test_reversal_fidelity_no_reversals_in_either():
 def test_reversal_fidelity_no_shared_reversals_leaves_similarity_undefined():
     ref = crossing_result({2: [0.6, 0.5], 4: [0.4, 0.5]})
     arm = crossing_result({2: [0.4, 0.5], 4: [0.3, 0.5]})
-    row = metric_row(progressive_reversal_fidelity({"ref": ref, "arm": arm}, "ref"), n=4)
-    assert row["n_reference_reversal_pairs"] == 1
-    assert row["n_arm_reversal_pairs"] == 0
+    row = metric_row(progressive_reversal_agreement({"ref": ref, "arm": arm}, "ref"), n=4)
+    assert row["reference_reversal_pair_count"] == 1
+    assert row["arm_reversal_pair_count"] == 0
     assert row["reversal_existence_agreement"] == 0.0
     assert row["mean_log2_reversal_distance"] is None
     assert row["reversal_sample_size_similarity"] is None
@@ -411,12 +414,12 @@ def test_reversal_fidelity_partial_overlap_across_independent_pairs():
         subsets=((0,), (1,), (2,), (3,)),
     )
     row = metric_row(
-        progressive_reversal_fidelity({"ref": ref, "arm": arm}, "ref"), n=8
+        progressive_reversal_agreement({"ref": ref, "arm": arm}, "ref"), n=8
     )
-    assert row["n_reference_reversal_pairs"] == 2
-    assert row["n_arm_reversal_pairs"] == 1
-    assert row["n_shared_reversal_pairs"] == 1
-    assert row["n_union_reversal_pairs"] == 2
+    assert row["reference_reversal_pair_count"] == 2
+    assert row["arm_reversal_pair_count"] == 1
+    assert row["shared_reversal_pair_count"] == 1
+    assert row["union_reversal_pair_count"] == 2
     assert row["reversal_existence_agreement"] == pytest.approx(0.5)
     assert row["mean_log2_reversal_distance"] == pytest.approx(0.0)
     assert row["reversal_sample_size_similarity"] == pytest.approx(1.0)
@@ -426,7 +429,7 @@ def test_reversal_fidelity_partial_overlap_across_independent_pairs():
 def test_reversal_fidelity_full_overlap_identical_reversal_sample_sizes():
     ref = crossing_result({2: [0.6, 0.5], 4: [0.4, 0.5]})
     arm = crossing_result({2: [0.6, 0.5], 4: [0.4, 0.5]})
-    row = metric_row(progressive_reversal_fidelity({"ref": ref, "arm": arm}, "ref"), n=4)
+    row = metric_row(progressive_reversal_agreement({"ref": ref, "arm": arm}, "ref"), n=4)
     assert row["reversal_existence_agreement"] == 1.0
     assert row["mean_log2_reversal_distance"] == pytest.approx(0.0)
     assert row["reversal_sample_size_similarity"] == pytest.approx(1.0)
@@ -436,7 +439,7 @@ def test_reversal_fidelity_full_overlap_identical_reversal_sample_sizes():
 def test_reversal_fidelity_one_level_log2_displacement():
     ref = crossing_result({2: [0.6, 0.5], 4: [0.4, 0.5], 8: [0.4, 0.5]})
     arm = crossing_result({2: [0.6, 0.5], 4: [0.6, 0.5], 8: [0.4, 0.5]})
-    row = metric_row(progressive_reversal_fidelity({"ref": ref, "arm": arm}, "ref"), n=8)
+    row = metric_row(progressive_reversal_agreement({"ref": ref, "arm": arm}, "ref"), n=8)
     assert row["mean_log2_reversal_distance"] == pytest.approx(1.0)
     assert row["reversal_sample_size_similarity"] == pytest.approx(0.5)
     assert row["status"] == "ok"
@@ -445,7 +448,7 @@ def test_reversal_fidelity_one_level_log2_displacement():
 def test_reversal_fidelity_self_comparison_is_ok_with_zero_distance():
     result = crossing_result({2: [0.6, 0.5], 4: [0.4, 0.5]})
     row = metric_row(
-        progressive_reversal_fidelity({"ref": result}, "ref"), arm="ref", n=4
+        progressive_reversal_agreement({"ref": result}, "ref"), arm="ref", n=4
     )
     assert row["reversal_existence_agreement"] == 1.0
     assert row["mean_log2_reversal_distance"] == pytest.approx(0.0)
@@ -455,7 +458,7 @@ def test_reversal_fidelity_self_comparison_is_ok_with_zero_distance():
 
 def test_reversal_fidelity_has_no_composite_product_field():
     ref = crossing_result({2: [0.6, 0.5], 4: [0.4, 0.5]})
-    rows = progressive_reversal_fidelity({"ref": ref, "arm": ref}, "ref")
+    rows = progressive_reversal_agreement({"ref": ref, "arm": ref}, "ref")
     for row in rows:
         assert "nstar_similarity" not in row
         assert "crossing_jaccard" not in row
@@ -463,40 +466,49 @@ def test_reversal_fidelity_has_no_composite_product_field():
         assert not any("product" in key for key in row)
 
 
-def test_structural_schema_version_is_2_and_strict_json_safe():
+def test_predictive_profile_schema_version_is_3_and_strict_json_safe():
     result = crossing_result({2: [0.6, 0.5], 4: [0.4, 0.5]})
-    dynamics = simulation_structural_dynamics(result)
-    assert dynamics["schema_version"] == 2
-    fidelity = scenario_structural_fidelity(
+    dynamics = simulation_pairwise_profile_dynamics(result)
+    assert dynamics["schema_version"] == 3
+    assert dynamics["semantic_vocabulary_version"] == vocabulary_version()
+    assert dynamics["semantic_type"] == canonical_key_to_id("pairwise_profile_dynamics")
+    fidelity = scenario_predictive_profile_agreement(
         {"ref": result, "arm": result}, "ref", {"ref": "Ref", "arm": "Arm"}
     )
-    assert fidelity["schema_version"] == 2
-    assert "reversal_fidelity_series" in fidelity
+    assert fidelity["schema_version"] == 3
+    assert fidelity["semantic_vocabulary_version"] == vocabulary_version()
+    assert fidelity["semantic_type"] == canonical_key_to_id("predictive_cooperation_profile")
+    assert "reversal_agreement_series" in fidelity
     assert "nstar_similarity_series" not in fidelity
+    assert "structural_fidelity" not in fidelity
+    assert "structural_dynamics" not in dynamics
     encoded = json.dumps({"dynamics": dynamics, "fidelity": fidelity}, allow_nan=False)
     assert "NaN" not in encoded
 
 
 def test_serialization_uses_sparse_effective_winners_and_reversal_events():
     result = crossing_result({2: [0.6, 0.5], 4: [0.4, 0.5]})
-    data = simulation_structural_dynamics(result)
+    data = simulation_pairwise_profile_dynamics(result)
     assert data["subset_catalog"] == [[0], [1]]
     assert data["sample_sizes"] == [2, 4]
     classifier = data["classifiers"]["clf"]
-    assert classifier["effective_winner_pairs_by_n"] == {
-        "2": [{"i": 0, "j": 1, "outcome": -1}],
-        "4": [{"i": 0, "j": 1, "outcome": 1}],
-    }
+    assert classifier["effective_winner_relations_by_n"] == [
+        {"n_per_class": 2, "relations": [{"i": 0, "j": 1, "outcome": -1}]},
+        {"n_per_class": 4, "relations": [{"i": 0, "j": 1, "outcome": 1}]},
+    ]
     assert classifier["winner_reversal_events"] == [
         {"i": 0, "j": 1, "n_reversal": 4}
     ]
+    assert classifier["reversal_matrices_by_prefix"] == progressive_reversal_matrices(
+        result, "clf"
+    )
 
 
 def test_report_data_serialization_is_deterministic_and_strict_json_safe():
     ref = crossing_result({2: [0.1, 0.1], 4: [0.1, 0.1]})
     arm = crossing_result({2: [0.2, 0.2], 4: [0.2, 0.2]})
-    first = simulation_structural_dynamics(ref)
-    second = simulation_structural_dynamics(ref)
+    first = simulation_pairwise_profile_dynamics(ref)
+    second = simulation_pairwise_profile_dynamics(ref)
     assert first == second
 
     rows = ranking_fidelity_series({"ref": ref, "arm": arm}, "ref")
@@ -542,7 +554,7 @@ def test_metric_series_figure_labels_and_x_field_for_all_four_metrics():
         ("reversal_existence_agreement", reversal_rows),
         ("reversal_sample_size_similarity", reversal_rows),
     ):
-        fig = metric_series_figure(rows, metric, {"arm": "Arm"}, "Title")
+        fig = profile_metric_series_figure(rows, metric, {"arm": "Arm"}, "Title")
         assert fig.axes[0].get_ylabel() == expected_ylabels[metric]
         plt.close(fig)
 

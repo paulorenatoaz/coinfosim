@@ -42,6 +42,91 @@ def test_discover_scenarios_reads_completed_runs_from_registry(tmp_path):
     assert items[0]["title"] == "Occupancy Detection Baseline (smoke)"
 
 
+def test_discover_scenarios_links_semantic_manifest_and_provenance_when_present(tmp_path):
+    run_dir = tmp_path / "scenarios" / "000002_occupancy_baseline_full"
+    run_dir.mkdir(parents=True)
+    (run_dir / "scenario_report.html").write_text("<html></html>")
+    (run_dir / "semantic_manifest.json").write_text("{}")
+    (run_dir / "provenance.jsonld").write_text("{}")
+    registry = {
+        "runs": [
+            {
+                "status": "completed",
+                "scenario_slug": "occupancy_baseline",
+                "scenario_name": "Occupancy Detection Baseline",
+                "mode": "full",
+                "question": "does predictive cooperation help?",
+                "run_dir": str(run_dir),
+                "artifacts": {"scenario_report": str(run_dir / "scenario_report.html")},
+            }
+        ]
+    }
+    (tmp_path / "scenario_runs.json").write_text(json.dumps(registry), encoding="utf-8")
+
+    items = discover_scenarios(tmp_path)
+    assert len(items) == 1
+    assert items[0]["semantic_manifest_path"] == Path(
+        "scenarios/000002_occupancy_baseline_full/semantic_manifest.json"
+    )
+    assert items[0]["provenance_path"] == Path(
+        "scenarios/000002_occupancy_baseline_full/provenance.jsonld"
+    )
+
+
+def test_discover_scenarios_omits_semantic_links_when_absent(tmp_path):
+    registry = {
+        "runs": [
+            {
+                "status": "completed",
+                "scenario_slug": "occupancy_baseline",
+                "scenario_name": "Occupancy Detection Baseline",
+                "mode": "smoke",
+                "question": "does cooperation help?",
+                "artifacts": {"scenario_report": str(tmp_path / "scenarios" / "run0" / "report.html")},
+            },
+        ]
+    }
+    (tmp_path / "scenario_runs.json").write_text(json.dumps(registry), encoding="utf-8")
+    (tmp_path / "scenarios" / "run0").mkdir(parents=True)
+    (tmp_path / "scenarios" / "run0" / "report.html").write_text("<html></html>")
+
+    items = discover_scenarios(tmp_path)
+    assert items[0]["semantic_manifest_path"] is None
+    assert items[0]["provenance_path"] is None
+
+
+def test_scenario_card_renders_semantic_manifest_and_provenance_links():
+    from coinfosim.publish.site import _scenario_card_html
+
+    item = {
+        "path": Path("scenarios/000002/scenario_report.html"),
+        "title": "Occupancy Detection Baseline (full)",
+        "dataset": "Occupancy Detection",
+        "question": "",
+        "semantic_manifest_path": Path("scenarios/000002/semantic_manifest.json"),
+        "provenance_path": Path("scenarios/000002/provenance.jsonld"),
+    }
+    card = _scenario_card_html(item, Path("reports"))
+    assert "reports/scenarios/000002/semantic_manifest.json" in card
+    assert "reports/scenarios/000002/provenance.jsonld" in card
+    assert "semantic manifest" in card
+    assert "provenance (JSON-LD)" in card
+
+
+def test_scenario_card_omits_semantic_block_when_absent():
+    from coinfosim.publish.site import _scenario_card_html
+
+    item = {
+        "path": Path("evil.html"),
+        "title": "Title",
+        "dataset": "Occupancy",
+        "question": "",
+    }
+    card = _scenario_card_html(item, Path("reports"))
+    assert "semantic manifest" not in card
+    assert "provenance (JSON-LD)" not in card
+
+
 def test_discover_json_lists_and_sorts_by_name(tmp_path):
     (tmp_path / "b.json").write_text("{}")
     (tmp_path / "a.json").write_text("{}")
@@ -66,6 +151,34 @@ def test_sync_reports_tolerates_missing_output_dir(tmp_path):
     site_dir = tmp_path / "site"
     sync_reports(tmp_path / "does-not-exist", site_dir)
     assert site_dir.exists()
+
+
+def test_sync_reports_default_merges_and_keeps_orphaned_files(tmp_path):
+    output_dir = tmp_path / "output"
+    (output_dir / "reports").mkdir(parents=True)
+    (output_dir / "reports" / "new.html").write_text("<html>new</html>")
+
+    site_dir = tmp_path / "site"
+    (site_dir / "reports").mkdir(parents=True)
+    (site_dir / "reports" / "orphan.html").write_text("<html>orphan</html>")
+
+    sync_reports(output_dir, site_dir)
+    assert (site_dir / "reports" / "new.html").exists()
+    assert (site_dir / "reports" / "orphan.html").exists()
+
+
+def test_sync_reports_mirror_removes_orphaned_files_not_in_output_dir(tmp_path):
+    output_dir = tmp_path / "output"
+    (output_dir / "reports").mkdir(parents=True)
+    (output_dir / "reports" / "new.html").write_text("<html>new</html>")
+
+    site_dir = tmp_path / "site"
+    (site_dir / "reports").mkdir(parents=True)
+    (site_dir / "reports" / "orphan.html").write_text("<html>orphan</html>")
+
+    sync_reports(output_dir, site_dir, mirror=True)
+    assert (site_dir / "reports" / "new.html").exists()
+    assert not (site_dir / "reports" / "orphan.html").exists()
 
 
 def test_write_index_contains_seven_required_sections(tmp_path):

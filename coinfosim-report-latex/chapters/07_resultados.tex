@@ -1,31 +1,34 @@
 \chapter{RESULTADOS EXPERIMENTAIS}
 \label{chap:resultados}
 
-\section{Guia de leitura e seleção dos resultados}
+\section{Guia de leitura, disponibilidade de dados e escopo dos resultados}
+\label{sec:resultados-guia}
 
-O \CoInfoSim{} produz, para cada dataset, braço experimental, classificador e tamanho amostral, rankings completos dos subconjuntos, curvas de perda, comparações de \Nstar{}, matrizes de vencedores e séries progressivas das três métricas estruturais. A reprodução integral dessas saídas tornaria o relatório excessivamente volumoso. Por isso, o presente capítulo seleciona resultados capazes de responder às perguntas de pesquisa, enquanto os relatórios publicados preservam a inspeção exaustiva de cada cenário.
+O \CoInfoSim{} produz, para cada dataset, braço experimental, classificador e tamanho amostral, rankings completos dos subconjuntos, curvas de perda, a matriz de vencedores $\Wmat$, a matriz de inversões $\Rmat$ e as séries progressivas dos quatro indicadores de preservação definidos no Capítulo~6. A reprodução integral dessas saídas tornaria o relatório excessivamente volumoso; por isso, este capítulo seleciona resultados capazes de responder às perguntas de pesquisa.
 
-As comparações numéricas desta seção foram extraídas dos relatórios \textit{full} publicados: Occupancy Detection, cenário 000002; UCI Air Quality, cenário 000005; SUPPORT2 com os três classificadores originais, cenário 000007; e SUPPORT2 com Random Forest, cenário 000008. Os quatro documentos, juntamente com os relatórios por braço, estão disponíveis na página do projeto.\footnote{Índice dos relatórios publicados: \url{https://paulorenatoaz.github.io/coinfosim/}.}
+\begin{limitationbox}[Disponibilidade de dados nesta revisão]
+As versões anteriores deste relatório apresentavam tabelas e figuras em $n_{\max}=512$ para Occupancy Detection (cenário 000002), UCI Air Quality (cenário 000005) e SUPPORT2 (cenários 000007 e 000008), calculadas sob o antigo esquema de $\NstarHistorical$/similaridade composta. Essa revisão migra a definição científica para o esquema $\Wmat/\Rmat$ descrito no Capítulo~6, mas os resultados brutos de execução \textit{full} ($n$ até 512) dessas quatro execuções --- necessários para recalcular $\AR$, $\DR$ e $\SR$ sob a definição atual --- não estão persistidos neste repositório: apenas os relatórios HTML já renderizados desses cenários foram preservados como PDFs e capturas de tela extraídas (Apêndice~B), e o esquema atual não pode ser recalculado a partir de HTML já renderizado, apenas a partir dos resultados brutos por replicação. Consequentemente:
+\begin{itemize}
+  \item $\AR$, $\DR$ e $\SR$ são reportados como \textbf{indisponíveis} para Occupancy Detection, UCI Air Quality e para a escala completa ($n\leq512$) do SUPPORT2, em vez de serem recalculados a partir do antigo produto ou inferidos das figuras antigas;
+  \item $\rankrho$ e $\AW$ dessas quatro execuções são \textbf{herdados} das tabelas e figuras publicadas anteriormente: sua definição matemática não foi alterada por este esquema (a correlação de Spearman é a mesma; a única mudança em $\AW$ é usar o vencedor efetivo com propagação de empate em vez de excluir empates), e empates exatos de perda média estimada são raros em variáveis contínuas --- mas essa equivalência numérica \textbf{não foi reconfirmada computacionalmente} nesta revisão, por ausência dos dados brutos localmente;
+  \item o único conjunto de resultados \textbf{recalculado diretamente pelo código atual} nesta revisão é uma execução \textit{smoke} do SUPPORT2 (\texttt{scenario\_run\_id=0}, grade $n\in\{2,4,8,16,32\}$, classificadores Linear SVM e Random Forest), cujos resultados brutos por replicação estão persistidos neste repositório em \path{output/validation/support2-random-forest-smoke/}. Ela é apresentada na Seção~\ref{sec:support2-rf} como exemplo numérico corrente, em escala reduzida, e não substitui os resultados de escala completa reportados nas versões anteriores.
+\end{itemize}
+Nenhum valor antigo de similaridade de $\NstarHistorical$ é reportado nesta revisão, e nenhum valor de $\AR$ ou $\SR$ foi derivado algebricamente do antigo produto. Ver Apêndice~B para os caminhos exatos, identificadores de execução e comandos de regeneração.
+\end{limitationbox}
 
-Os valores apresentados nas tabelas correspondem ao maior tamanho amostral comum,
-\[
- n_{\max}=512\quad\text{amostras por classe}.
-\]
-Essa escolha não substitui a análise progressiva. Ela oferece um ponto de síntese para comparar os cenários, enquanto as figuras de métricas e as matrizes mostram que a estrutura se modifica ao longo da grade. Em particular, a similaridade de \Nstar{} em $n_{\max}$ resume todos os cruzamentos dirigidos registrados até esse prefixo, e não somente os eventos ocorridos em $n=512$.
-
-As visualizações geométricas foram mantidas como parte importante da interpretação. Elas não constituem uma métrica de fidelidade e não permitem concluir, isoladamente, em qual condição de treinamento sintético a estrutura de cooperação é melhor reproduzida. Sua função é mostrar quão diferente pode ser a aparência dos dados sintéticos e, em seguida, contrastar essa aparência com os resultados estruturais que emergem após o treinamento dos classificadores.
+As visualizações geométricas foram mantidas como parte importante da interpretação; elas não dependem do esquema de métricas e, portanto, não são afetadas pela limitação acima. Elas não constituem um indicador de preservação e não permitem concluir, isoladamente, em qual condição de treinamento sintético o perfil de cooperação preditiva é melhor reproduzido. Sua função é mostrar quão diferente pode ser a aparência dos dados sintéticos e, em seguida, contrastar essa aparência com os resultados de preservação do perfil observados após o treinamento dos classificadores.
 
 \section{Occupancy Detection}
 
 \subsection{Geometria real e aproximações sintéticas}
 
-As projeções do Occupancy exibem concentrações estreitas, formas alongadas, limites abruptos e regiões de alta densidade que não se ajustam naturalmente a uma única elipse por classe. A Gaussiana única substitui essa geometria por nuvens regulares e suaves, produzindo uma aproximação visualmente grosseira. O GMM acompanha melhor a multimodalidade e parte das concentrações presentes no reservatório real.
+As projeções do Occupancy exibem concentrações estreitas, formas alongadas, limites abruptos e regiões de alta densidade que não se ajustam naturalmente a uma única elipse por classe. A Gaussiana única substitui essa geometria por nuvens regulares e suaves, produzindo uma aproximação visualmente grosseira. O GMM acompanha melhor a multimodalidade e parte das concentrações presentes nos dados reais de treinamento.
 
 Essa diferença visual é relevante porque estabelece um teste difícil para a hipótese do trabalho: as amostras de um gerador que não imita bem a nuvem podem, ainda assim, induzir relações semelhantes entre subconjuntos após o treinamento do classificador. O painel geométrico da Figura~\ref{fig:geom-occupancy-resultados} é composto pelas projeções bidimensionais publicadas no cenário 000002, mantendo os mesmos pares de canais e a mesma escala em dados reais, Gaussiana única e GMM.
 
 \begin{figure}[H]
   \centering
-  \caption{Comparação geométrica entre o reservatório real e as amostras sintéticas do Occupancy Detection}
+  \caption{Comparação geométrica entre os dados reais de treinamento e as amostras sintéticas do Occupancy Detection}
   \label{fig:geom-occupancy-resultados}
   \begin{minipage}{\textwidth}
     \centering
@@ -38,7 +41,7 @@ Essa diferença visual é relevante porque estabelece um teste difícil para a h
 \begin{figure}[H]
   \ContinuedFloat
   \centering
-  \caption[]{Comparação geométrica entre o reservatório real e as amostras sintéticas do Occupancy Detection (continuação)}
+  \caption[]{Comparação geométrica entre os dados reais de treinamento e as amostras sintéticas do Occupancy Detection (continuação)}
   \begin{minipage}{\textwidth}
     \centering
     \includegraphics[width=\textwidth,height=0.80\textheight,keepaspectratio]{figures/geometry/occupancy/viz_2d_gaussian_full_000002.png}
@@ -50,64 +53,64 @@ Essa diferença visual é relevante porque estabelece um teste difícil para a h
 \begin{figure}[H]
   \ContinuedFloat
   \centering
-  \caption[]{Comparação geométrica entre o reservatório real e as amostras sintéticas do Occupancy Detection (continuação)}
+  \caption[]{Comparação geométrica entre os dados reais de treinamento e as amostras sintéticas do Occupancy Detection (continuação)}
   \begin{minipage}{\textwidth}
     \centering
     \includegraphics[width=\textwidth,height=0.80\textheight,keepaspectratio]{figures/geometry/occupancy/viz_2d_gmm_full_000002.png}
     \subcaption{GMM: a mistura acompanha melhor a forma empírica}
   \end{minipage}
   \sourcebelow{relatório publicado do cenário Occupancy Detection 000002}
-  \notailustracao{A fidelidade geométrica é uma inspeção descritiva e não substitui as métricas estruturais.}
+  \notailustracao{A fidelidade geométrica é uma inspeção descritiva e não substitui os indicadores de preservação do perfil}
 \end{figure}
 
-\subsection{Ranking e relações de vencedores}
+\subsection{Ordenação global e relações efetivas de vencedor}
 
-A Tabela~\ref{tab:occupancy-final} apresenta as três métricas no maior $n$. Para o SVM linear, o treinamento com amostras da Gaussiana única reproduziu melhor o ranking e as relações de vencedores do que o treinamento com amostras do GMM: $\rankrho=0{,}9528$ contra $0{,}8774$ e $A_W=0{,}9204$ contra $0{,}8624$. Isso ocorre apesar da inferioridade visual das amostras da Gaussiana única. Na regressão logística, o treinamento com amostras da Gaussiana única também apresentou correlação de ranking maior, enquanto aquele com amostras do GMM obteve \WinnersAgreement{} ligeiramente superior. No Gaussian Naive Bayes, ambos os braços reproduziram quase integralmente ranking e relações par a par.
+A Tabela~\ref{tab:occupancy-final} apresenta $\rankrho$ e $\AW$ no maior $n$ publicado anteriormente ($n=512$), herdados das versões anteriores deste relatório nos termos da nota da Seção~\ref{sec:resultados-guia}; $\AR$ e $\SR$ não puderam ser recalculados localmente e são reportados como indisponíveis. Para o SVM linear, o treinamento com amostras da Gaussiana única reproduziu melhor o ranking e as relações efetivas de vencedor do que o treinamento com amostras do GMM: $\rankrho=0{,}9528$ contra $0{,}8774$ e $\AW=0{,}9204$ contra $0{,}8624$. Isso ocorre apesar da inferioridade visual das amostras da Gaussiana única. Na regressão logística, o treinamento com amostras da Gaussiana única também apresentou correlação de ranking maior, enquanto aquele com amostras do GMM obteve \WinnersAgreement{} ligeiramente superior. No Gaussian Naive Bayes, ambos os braços reproduziram quase integralmente ranking e relações par a par.
 
 \begin{table}[H]
   \centering
-  \caption{Fidelidade estrutural no Occupancy Detection em $n=512$}
+  \caption{Ordenação global e relações efetivas de vencedor no Occupancy Detection em $n=512$ (valores herdados; ver nota da Seção~\ref{sec:resultados-guia})}
   \label{tab:occupancy-final}
   \begin{adjustbox}{max width=\textwidth}
-  \begin{tabular}{llSSS}
+  \begin{tabular}{llSSl}
     \toprule
-    Classificador & Braço de comparação & {$\rankrho$} & {$A_W$} & {Similaridade de $\Nstar$} \\
+    Classificador & Braço de comparação & {$\rankrho$} & {$\AW$} & {$\AR$ / $\SR$} \\
     \midrule
-    Linear SVM & Gaussiana única $\rightarrow$ Real & 0.9528 & 0.9204 & 0.4479 \\
-    Linear SVM & GMM $\rightarrow$ Real             & 0.8774 & 0.8624 & 0.4949 \\
-    Regressão Logística & Gaussiana única $\rightarrow$ Real & 0.9036 & 0.8839 & 0.5302 \\
-    Regressão Logística & GMM $\rightarrow$ Real             & 0.8738 & 0.8903 & 0.6243 \\
-    Gaussian Naive Bayes & Gaussiana única $\rightarrow$ Real & 0.9976 & 0.9892 & 0.2452 \\
-    Gaussian Naive Bayes & GMM $\rightarrow$ Real             & 0.9996 & 0.9978 & 0.5490 \\
+    Linear SVM & Gaussiana única $\rightarrow$ Real & 0.9528 & 0.9204 & indisponível \\
+    Linear SVM & GMM $\rightarrow$ Real             & 0.8774 & 0.8624 & indisponível \\
+    Regressão Logística & Gaussiana única $\rightarrow$ Real & 0.9036 & 0.8839 & indisponível \\
+    Regressão Logística & GMM $\rightarrow$ Real             & 0.8738 & 0.8903 & indisponível \\
+    Gaussian Naive Bayes & Gaussiana única $\rightarrow$ Real & 0.9976 & 0.9892 & indisponível \\
+    Gaussian Naive Bayes & GMM $\rightarrow$ Real             & 0.9996 & 0.9978 & indisponível \\
     \bottomrule
   \end{tabular}
   \end{adjustbox}
-  \sourcebelow{elaboração própria a partir do relatório do cenário Occupancy Detection 000002}
+  \sourcebelow{elaboração própria a partir do relatório publicado do cenário Occupancy Detection 000002; ver limitação na Seção~\ref{sec:resultados-guia}}
 \end{table}
 
 \begin{figure}[H]
   \centering
   \caption{Correlação dos rankings completos no Occupancy Detection em $n=512$}
   \includegraphics[width=0.87\textwidth]{figures/occupancy_ranking.pdf}
-  \sourcebelow{elaboração própria a partir do relatório do cenário Occupancy Detection 000002}
+  \sourcebelow{elaboração própria a partir do relatório publicado do cenário Occupancy Detection 000002}
 \end{figure}
 
 \begin{figure}[H]
   \centering
   \caption{\WinnersAgreement{} no Occupancy Detection em $n=512$}
   \includegraphics[width=0.87\textwidth]{figures/occupancy_winners.pdf}
-  \sourcebelow{elaboração própria a partir do relatório do cenário Occupancy Detection 000002}
+  \sourcebelow{elaboração própria a partir do relatório publicado do cenário Occupancy Detection 000002}
 \end{figure}
 
-Os rankings de topo ajudam a interpretar essas métricas sem reduzir a análise ao primeiro colocado. No SVM linear do braço real, $\{X_1,X_3\}$ foi o melhor subconjunto, com perda $0{,}0107$. No braço treinado com amostras do GMM, esse par também ficou em primeiro lugar, com perda $0{,}0120$. No braço treinado com amostras da Gaussiana única, o par caiu para a quinta posição e $\{X_1,X_2,X_3,X_4\}$ ocupou o topo, embora a ordenação global tenha ficado mais próxima da referência do que aquela obtida com o GMM. O exemplo mostra por que coincidência do primeiro colocado e fidelidade do ranking não são equivalentes.
+Os rankings de topo ajudam a interpretar essas métricas sem reduzir a análise ao primeiro colocado. No SVM linear do braço real, $\{X_1,X_3\}$ foi o melhor subconjunto, com perda $0{,}0107$. No braço treinado com amostras do GMM, esse par também ficou em primeiro lugar, com perda $0{,}0120$. No braço treinado com amostras da Gaussiana única, o par caiu para a quinta posição e $\{X_1,X_2,X_3,X_4\}$ ocupou o topo, embora a ordenação global tenha ficado mais próxima da referência do que aquela obtida com o GMM. O exemplo mostra por que coincidência do primeiro colocado e correlação de ranking não são equivalentes.
 
-\subsection{Evolução das matrizes de vencedores}
+\subsection{Evolução do resultado par a par observado}
 
-As matrizes de vencedores permitem observar como as relações par a par se reorganizam. No início da grade, com $n=2$, subconjuntos de baixa cardinalidade vencem muitas comparações porque os modelos maiores sofrem maior variância de estimação. Em $n=512$, a organização é mais estável e as combinações informativas passam a vencer uma parcela maior dos pares. A Figura~\ref{fig:occupancy-winner-matrices} utiliza as matrizes do braço \RealToReal{} com SVM linear, mantendo a mesma seleção de subconjuntos e escala.
+A Figura~\ref{fig:occupancy-winner-matrices} usa o resultado par a par observado do braço \RealToReal{} com SVM linear --- objeto que independe do esquema de métricas revisado nesta edição, pois corresponde diretamente à comparação $U_{ij}(n)$ definida na Equação~\eqref{eq:observed-outcome} --- para mostrar como as relações se reorganizam entre $n=2$ e $n=512$. No início da grade, subconjuntos de baixa cardinalidade vencem muitas comparações porque os modelos maiores sofrem maior variância de estimação; em $n=512$, a organização é mais estável e as combinações informativas passam a vencer uma parcela maior dos pares.
 
 \begin{figure}[H]
   \centering
-  \caption{Matrizes de vencedores do Occupancy Detection, \RealToReal{}, SVM linear}
+  \caption{Resultado par a par observado no Occupancy Detection, \RealToReal{}, SVM linear}
   \label{fig:occupancy-winner-matrices}
   \begin{minipage}[t]{0.47\textwidth}
     \centering
@@ -121,68 +124,22 @@ As matrizes de vencedores permitem observar como as relações par a par se reor
     \subcaption{$n=512$}
   \end{minipage}
   \sourcebelow{relatório publicado do cenário Occupancy Detection 000002}
-  \notailustracao{A implementação numérica usa apenas os pares não ordenados da região triangular. A matriz quadrada é uma visualização redundante das relações dirigidas: a diagonal não se aplica e cada célula indica se o subconjunto da linha vence, perde ou empata contra o da coluna. Os painéis publicados exibem os melhores subconjuntos de cada cardinalidade.}
+  \notailustracao{A implementação numérica usa apenas os pares não ordenados da região triangular. A matriz quadrada é uma visualização redundante: a diagonal não se aplica e cada célula indica se o subconjunto da linha vence, perde ou está indefinido contra o da coluna. Os painéis publicados exibem os melhores subconjuntos de cada cardinalidade}
 \end{figure}
 
-\subsection{Similaridade de \texorpdfstring{$\Nstar$}{N*}}
+\subsection{Existência e tamanho amostral das inversões}
 
-A similaridade de \Nstar{} foi substancialmente menor que as medidas de ranking e vencedores. No SVM, os valores foram $0{,}4479$ e $0{,}4949$; na regressão logística, $0{,}5302$ e $0{,}6243$. No Gaussian Naive Bayes, a Gaussiana única alcançou apenas $0{,}2452$, embora apresentasse ranking e Winners Agreement próximos de 1. O GMM elevou essa similaridade para $0{,}5490$.
-
-\begin{figure}[H]
-  \centering
-  \caption{Similaridade progressiva de $\Nstar$ no Occupancy Detection em $n=512$}
-  \includegraphics[width=0.87\textwidth]{figures/occupancy_nstar.pdf}
-  \sourcebelow{elaboração própria a partir do relatório do cenário Occupancy Detection 000002}
-\end{figure}
-
-A Figura~\ref{fig:occupancy-nstar-curva-sg} mostra as curvas cooperativas do braço \GaussianToReal{} com SVM linear, comparáveis diretamente com a referência \RealToReal{} da Figura~\ref{fig:nstar-curva-definicao}. O braço sintético reproduz a vantagem inicial do canal $\{X_3\}$ e a posterior superação pelos subconjuntos maiores, mas desloca a posição de parte dos últimos cruzamentos, o que ajuda a explicar por que a similaridade de $\Nstar$ permanece moderada mesmo com ranking e \WinnersAgreement{} elevados.
-
-\begin{figure}[H]
-  \centering
-  \caption{Curvas cooperativas do Occupancy Detection no braço \GaussianToReal{}, SVM linear}
-  \label{fig:occupancy-nstar-curva-sg}
-  \includegraphics[width=0.78\textwidth]{figures/nstar_curves/occupancy/nstar_curve_linear_svm_best1_single_gaussian_to_real_sim000007.png}
-  \sourcebelow{relatório da simulação 000007 (\GaussianToReal{}), vinculado ao cenário Occupancy Detection 000002}
-  \notailustracao{A referência é o melhor subconjunto singular, $\{X_3\}$, e as linhas verticais tracejadas marcam o último cruzamento dirigido observado de cada curva.}
-\end{figure}
-
-As séries progressivas das três métricas estruturais para o SVM linear, apresentadas na Figura~\ref{fig:occupancy-metricas-progressivas}, confirmam que a fidelidade estrutural varia ao longo da grade e que a similaridade de $\Nstar$ permanece sistematicamente abaixo das medidas de ranking e de vencedores nos dois braços sintéticos.
-
-\begin{figure}[H]
-  \centering
-  \caption{Métricas estruturais progressivas do Occupancy Detection, SVM linear}
-  \label{fig:occupancy-metricas-progressivas}
-  \begin{minipage}[t]{0.74\textwidth}
-    \centering
-    \includegraphics[width=\linewidth]{figures/structural_metrics/occupancy/graph_structural_metric_linear_svm_rho_rank_full_000002.png}
-    \subcaption{Correlação de ranking $\rankrho$}
-  \end{minipage}
-
-  \begin{minipage}[t]{0.74\textwidth}
-    \centering
-    \includegraphics[width=\linewidth]{figures/structural_metrics/occupancy/graph_structural_metric_linear_svm_winner_agreement_full_000002.png}
-    \subcaption{\WinnersAgreement{}}
-  \end{minipage}
-
-  \begin{minipage}[t]{0.74\textwidth}
-    \centering
-    \includegraphics[width=\linewidth]{figures/structural_metrics/occupancy/graph_structural_metric_linear_svm_nstar_similarity_full_000002.png}
-    \subcaption{Similaridade progressiva de $\Nstar$}
-  \end{minipage}
-  \sourcebelow{relatório publicado do cenário Occupancy Detection 000002}
-\end{figure}
-
-A discrepância confirma que preservar quem vence em um ponto da grade é mais fácil do que preservar a existência e a posição dos últimos cruzamentos ao longo de toda a progressão. Também confirma que a aproximação mais fiel visualmente não é automaticamente a que melhor preserva todas as componentes da estrutura.
+$\AR$, $\DR$ e $\SR$ para o Occupancy Detection não puderam ser recalculados nesta revisão pela ausência local dos resultados brutos da execução \textit{full} do cenário 000002 (Seção~\ref{sec:resultados-guia}). As figuras de matriz de inversões e as curvas de $\NstarHistorical$ anteriormente publicadas para este cenário dependiam do objeto retirado do arcabouço ativo e não são reproduzidas aqui. A leitura qualitativa preservável --- de que a ordenação e as relações efetivas de vencedor foram bem preservadas no Gaussian Naive Bayes e de forma mais heterogênea nos classificadores lineares --- permanece válida, mas não pode ser complementada, nesta revisão, por uma leitura numérica da existência ou do regime amostral das inversões.
 
 \section{UCI Air Quality}
 
-\subsection{Geometria e estrutura de referência}
+\subsection{Geometria e referência real}
 
 As projeções do Air Quality são mais compatíveis com regiões gaussianas do que as do Occupancy. Embora existam assimetrias, correlações fortes, sensibilidade cruzada e deriva temporal, as classes formam regiões mais regulares no espaço padronizado. A Gaussiana única e o GMM reproduzem visualmente uma parcela maior da organização real, sobretudo nos pares de sensores mais correlacionados com a referência de benzeno, como mostra a Figura~\ref{fig:geom-air-resultados}.
 
 \begin{figure}[H]
   \centering
-  \caption{Comparação geométrica entre o reservatório real e as amostras sintéticas do UCI Air Quality}
+  \caption{Comparação geométrica entre os dados reais de treinamento e as amostras sintéticas do UCI Air Quality}
   \label{fig:geom-air-resultados}
   \begin{minipage}{\textwidth}
     \centering
@@ -195,7 +152,7 @@ As projeções do Air Quality são mais compatíveis com regiões gaussianas do 
 \begin{figure}[H]
   \ContinuedFloat
   \centering
-  \caption[]{Comparação geométrica entre o reservatório real e as amostras sintéticas do UCI Air Quality (continuação)}
+  \caption[]{Comparação geométrica entre os dados reais de treinamento e as amostras sintéticas do UCI Air Quality (continuação)}
   \begin{minipage}{\textwidth}
     \centering
     \includegraphics[width=\textwidth,height=0.80\textheight,keepaspectratio]{figures/geometry/air_quality/viz_2d_gaussian_full_000005.png}
@@ -207,7 +164,7 @@ As projeções do Air Quality são mais compatíveis com regiões gaussianas do 
 \begin{figure}[H]
   \ContinuedFloat
   \centering
-  \caption[]{Comparação geométrica entre o reservatório real e as amostras sintéticas do UCI Air Quality (continuação)}
+  \caption[]{Comparação geométrica entre os dados reais de treinamento e as amostras sintéticas do UCI Air Quality (continuação)}
   \begin{minipage}{\textwidth}
     \centering
     \includegraphics[width=\textwidth,height=0.80\textheight,keepaspectratio]{figures/geometry/air_quality/viz_2d_gmm_full_000005.png}
@@ -216,284 +173,134 @@ As projeções do Air Quality são mais compatíveis com regiões gaussianas do 
   \sourcebelow{relatório publicado do cenário Air Quality 000005}
 \end{figure}
 
-\subsection{Resultados estruturais}
+\subsection{Ordenação global e relações efetivas de vencedor}
 
-A Tabela~\ref{tab:air-final} mostra uma preservação elevada do ranking e dos vencedores para todos os classificadores. O treinamento com amostras do GMM superou aquele com amostras da Gaussiana única para SVM e regressão logística nas três métricas. O resultado mais forte ocorreu com Gaussian Naive Bayes: o braço da Gaussiana única alcançou $\rankrho=1$ e $A_W=1$, enquanto o braço do GMM alcançou $0{,}9996$ e $0{,}9978$. A similaridade de \Nstar{} também foi alta, chegando a $0{,}7294$ e $0{,}8085$.
+A Tabela~\ref{tab:air-final} mostra uma preservação elevada do ranking e das relações efetivas de vencedor para todos os classificadores, nos mesmos termos herdados descritos na Seção~\ref{sec:resultados-guia}. O treinamento com amostras do GMM superou aquele com amostras da Gaussiana única para SVM e regressão logística em ambos os indicadores disponíveis. O resultado mais forte ocorreu com Gaussian Naive Bayes: o braço da Gaussiana única alcançou $\rankrho=1$ e $\AW=1$, enquanto o braço do GMM alcançou $0{,}9996$ e $0{,}9978$.
 
 \begin{table}[H]
   \centering
-  \caption{Fidelidade estrutural no UCI Air Quality em $n=512$}
+  \caption{Ordenação global e relações efetivas de vencedor no UCI Air Quality em $n=512$ (valores herdados; ver nota da Seção~\ref{sec:resultados-guia})}
   \label{tab:air-final}
   \begin{adjustbox}{max width=\textwidth}
-  \begin{tabular}{llSSS}
+  \begin{tabular}{llSSl}
     \toprule
-    Classificador & Braço de comparação & {$\rankrho$} & {$A_W$} & {Similaridade de $\Nstar$} \\
+    Classificador & Braço de comparação & {$\rankrho$} & {$\AW$} & {$\AR$ / $\SR$} \\
     \midrule
-    Linear SVM & Gaussiana única $\rightarrow$ Real & 0.8944 & 0.8882 & 0.2087 \\
-    Linear SVM & GMM $\rightarrow$ Real             & 0.9580 & 0.9333 & 0.2965 \\
-    Regressão Logística & Gaussiana única $\rightarrow$ Real & 0.9359 & 0.9118 & 0.4646 \\
-    Regressão Logística & GMM $\rightarrow$ Real             & 0.9839 & 0.9613 & 0.6102 \\
-    Gaussian Naive Bayes & Gaussiana única $\rightarrow$ Real & 1.0000 & 1.0000 & 0.7294 \\
-    Gaussian Naive Bayes & GMM $\rightarrow$ Real             & 0.9996 & 0.9978 & 0.8085 \\
+    Linear SVM & Gaussiana única $\rightarrow$ Real & 0.8944 & 0.8882 & indisponível \\
+    Linear SVM & GMM $\rightarrow$ Real             & 0.9580 & 0.9333 & indisponível \\
+    Regressão Logística & Gaussiana única $\rightarrow$ Real & 0.9359 & 0.9118 & indisponível \\
+    Regressão Logística & GMM $\rightarrow$ Real             & 0.9839 & 0.9613 & indisponível \\
+    Gaussian Naive Bayes & Gaussiana única $\rightarrow$ Real & 1.0000 & 1.0000 & indisponível \\
+    Gaussian Naive Bayes & GMM $\rightarrow$ Real             & 0.9996 & 0.9978 & indisponível \\
     \bottomrule
   \end{tabular}
   \end{adjustbox}
-  \sourcebelow{elaboração própria a partir do relatório do cenário Air Quality 000005}
+  \sourcebelow{elaboração própria a partir do relatório publicado do cenário Air Quality 000005; ver limitação na Seção~\ref{sec:resultados-guia}}
 \end{table}
 
 \begin{figure}[H]
   \centering
   \caption{Correlação dos rankings completos no UCI Air Quality em $n=512$}
   \includegraphics[width=0.87\textwidth]{figures/air_quality_ranking.pdf}
-  \sourcebelow{elaboração própria a partir do relatório do cenário Air Quality 000005}
+  \sourcebelow{elaboração própria a partir do relatório publicado do cenário Air Quality 000005}
 \end{figure}
 
 \begin{figure}[H]
   \centering
   \caption{\WinnersAgreement{} no UCI Air Quality em $n=512$}
   \includegraphics[width=0.87\textwidth]{figures/air_quality_winners.pdf}
-  \sourcebelow{elaboração própria a partir do relatório do cenário Air Quality 000005}
+  \sourcebelow{elaboração própria a partir do relatório publicado do cenário Air Quality 000005}
 \end{figure}
 
-\begin{figure}[H]
-  \centering
-  \caption{Similaridade progressiva de $\Nstar$ no UCI Air Quality em $n=512$}
-  \includegraphics[width=0.87\textwidth]{figures/air_quality_nstar.pdf}
-  \sourcebelow{elaboração própria a partir do relatório do cenário Air Quality 000005}
-\end{figure}
-
-A Figura~\ref{fig:air-nstar-curvas-gnb} apresenta as curvas cooperativas do Gaussian Naive Bayes nos três braços. A organização das curvas é quase idêntica: o canal $\{X_2\}$ domina desde amostras pequenas e os melhores subconjuntos de cada cardinalidade convergem para perdas próximas sem inversões tardias relevantes. Essa coincidência sustenta a preservação quase perfeita do ranking e da \WinnersAgreement{}; ainda assim, a similaridade de $\Nstar$ não atinge 1, o que evidencia que a preservação dos últimos cruzamentos é uma propriedade distinta e mais estrita do que a preservação da ordenação.
-
-As séries progressivas das três métricas para o Gaussian Naive Bayes, apresentadas na Figura~\ref{fig:air-metricas-progressivas}, mostram ranking e \WinnersAgreement{} próximos de 1 em praticamente toda a grade, enquanto a similaridade de $\Nstar$ cresce mais lentamente e permanece abaixo das demais medidas.
-
-\begin{figure}[H]
-  \centering
-  \caption{Curvas cooperativas do UCI Air Quality, Gaussian Naive Bayes, nos três braços}
-  \label{fig:air-nstar-curvas-gnb}
-  \begin{minipage}[t]{0.62\textwidth}
-    \centering
-    \includegraphics[width=\linewidth]{figures/nstar_curves/air_quality/nstar_curve_gaussian_nb_best1_real_to_real_sim000015.png}
-    \subcaption{\RealToReal{}}
-  \end{minipage}
-
-  \begin{minipage}[t]{0.62\textwidth}
-    \centering
-    \includegraphics[width=\linewidth]{figures/nstar_curves/air_quality/nstar_curve_gaussian_nb_best1_single_gaussian_to_real_sim000016.png}
-    \subcaption{\GaussianToReal{}}
-  \end{minipage}
-
-  \begin{minipage}[t]{0.62\textwidth}
-    \centering
-    \includegraphics[width=\linewidth]{figures/nstar_curves/air_quality/nstar_curve_gaussian_nb_best1_gmm_to_real_sim000017.png}
-    \subcaption{\GMMToReal{}}
-  \end{minipage}
-  \sourcebelow{relatórios das simulações 000015, 000016 e 000017, vinculados ao cenário Air Quality 000005}
-  \notailustracao{A referência de cada painel é o melhor subconjunto singular, $\{X_2\}$.}
-\end{figure}
-
-\begin{figure}[H]
-  \centering
-  \caption{Métricas estruturais progressivas do UCI Air Quality, Gaussian Naive Bayes}
-  \label{fig:air-metricas-progressivas}
-  \begin{minipage}[t]{0.74\textwidth}
-    \centering
-    \includegraphics[width=\linewidth]{figures/structural_metrics/air_quality/graph_structural_metric_gaussian_nb_rho_rank_full_000005.png}
-    \subcaption{Correlação de ranking $\rankrho$}
-  \end{minipage}
-
-  \begin{minipage}[t]{0.74\textwidth}
-    \centering
-    \includegraphics[width=\linewidth]{figures/structural_metrics/air_quality/graph_structural_metric_gaussian_nb_winner_agreement_full_000005.png}
-    \subcaption{\WinnersAgreement{}}
-  \end{minipage}
-
-  \begin{minipage}[t]{0.74\textwidth}
-    \centering
-    \includegraphics[width=\linewidth]{figures/structural_metrics/air_quality/graph_structural_metric_gaussian_nb_nstar_similarity_full_000005.png}
-    \subcaption{Similaridade progressiva de $\Nstar$}
-  \end{minipage}
-  \sourcebelow{relatório publicado do cenário Air Quality 000005}
-\end{figure}
-
-A combinação Air Quality--Gaussian Naive Bayes é a evidência mais clara de preservação quase integral da organização dos subconjuntos. Ela também impede uma conclusão simplista de que o Random Forest do SUPPORT2 produziu o maior valor de \NstarSimilarity{} de todo o estudo. O Random Forest foi o melhor nessa métrica \emph{dentro do SUPPORT2}; o maior valor global em $n=512$ foi $0{,}8085$, obtido pelo GMM com Gaussian Naive Bayes no Air Quality.
+A combinação Air Quality--Gaussian Naive Bayes permanece a evidência mais clara, entre os indicadores disponíveis nesta revisão, de preservação quase integral da ordenação global e das relações efetivas de vencedor. A existência e o regime amostral das inversões para esse par dataset--classificador não puderam ser recalculados nesta revisão (Seção~\ref{sec:resultados-guia}) e não são, portanto, comparados aqui ao exemplo do SUPPORT2 apresentado na Seção~\ref{sec:support2-rf}.
 
 \section{SUPPORT2}
 
-\subsection{Estrutura com classificadores lineares e Gaussian Naive Bayes}
+\subsection{Ordenação global e relações efetivas de vencedor com classificadores lineares e Gaussian Naive Bayes}
 
-O SUPPORT2 amplia o problema para sete canais e 127 subconjuntos. A Tabela~\ref{tab:support2-original} resume o cenário 000007. Ranking e Winners Agreement permaneceram elevados em várias configurações, particularmente no SVM com GMM e na regressão logística. A similaridade de \Nstar{}, entretanto, ficou entre $0{,}2932$ e $0{,}4590$.
+O SUPPORT2 amplia o problema para sete canais e 127 subconjuntos. A Tabela~\ref{tab:support2-original} resume o cenário 000007 (execução \textit{full}, $n\leq512$), nos mesmos termos herdados da Seção~\ref{sec:resultados-guia}. Ranking e relações efetivas de vencedor permaneceram elevados em várias configurações, particularmente no SVM com GMM e na regressão logística.
 
 \begin{table}[H]
   \centering
-  \caption{Fidelidade estrutural no SUPPORT2, cenário 000007, em $n=512$}
+  \caption{Ordenação global e relações efetivas de vencedor no SUPPORT2, cenário 000007, em $n=512$ (valores herdados; ver nota da Seção~\ref{sec:resultados-guia})}
   \label{tab:support2-original}
   \begin{adjustbox}{max width=\textwidth}
-  \begin{tabular}{llSSS}
+  \begin{tabular}{llSSl}
     \toprule
-    Classificador & Braço de comparação & {$\rankrho$} & {$A_W$} & {Similaridade de $\Nstar$} \\
+    Classificador & Braço de comparação & {$\rankrho$} & {$\AW$} & {$\AR$ / $\SR$} \\
     \midrule
-    Linear SVM & Gaussiana única $\rightarrow$ Real & 0.8672 & 0.8614 & 0.3076 \\
-    Linear SVM & GMM $\rightarrow$ Real             & 0.9708 & 0.9344 & 0.4145 \\
-    Regressão Logística & Gaussiana única $\rightarrow$ Real & 0.9853 & 0.9514 & 0.2932 \\
-    Regressão Logística & GMM $\rightarrow$ Real             & 0.9827 & 0.9461 & 0.3169 \\
-    Gaussian Naive Bayes & Gaussiana única $\rightarrow$ Real & 0.7915 & 0.7951 & 0.3196 \\
-    Gaussian Naive Bayes & GMM $\rightarrow$ Real             & 0.9144 & 0.8715 & 0.4590 \\
+    Linear SVM & Gaussiana única $\rightarrow$ Real & 0.8672 & 0.8614 & indisponível \\
+    Linear SVM & GMM $\rightarrow$ Real             & 0.9708 & 0.9344 & indisponível \\
+    Regressão Logística & Gaussiana única $\rightarrow$ Real & 0.9853 & 0.9514 & indisponível \\
+    Regressão Logística & GMM $\rightarrow$ Real             & 0.9827 & 0.9461 & indisponível \\
+    Gaussian Naive Bayes & Gaussiana única $\rightarrow$ Real & 0.7915 & 0.7951 & indisponível \\
+    Gaussian Naive Bayes & GMM $\rightarrow$ Real             & 0.9144 & 0.8715 & indisponível \\
     \bottomrule
   \end{tabular}
   \end{adjustbox}
-  \sourcebelow{elaboração própria a partir do relatório do cenário SUPPORT2 000007}
+  \sourcebelow{elaboração própria a partir do relatório publicado do cenário SUPPORT2 000007; ver limitação na Seção~\ref{sec:resultados-guia}}
 \end{table}
 
-\subsection{Random Forest: baixa qualidade preditiva e alta similaridade de \texorpdfstring{$\Nstar$}{N*}}
+\subsection{Random Forest: desempenho absoluto e preservação do perfil}
+\label{sec:support2-rf}
 
-O cenário 000008 executou somente Random Forest, com a mesma grade, os mesmos 127 subconjuntos e o mesmo teste real fixo. No maior $n$, a menor perda de cada braço permaneceu próxima de $0{,}455$. Como a classe minoritária representa 832 das 1.775 observações de teste, o erro de um classificador que sempre prediz a classe majoritária é aproximadamente $0{,}4687$. O ganho absoluto do melhor Random Forest sobre esse referencial é, portanto, pequeno.
+O cenário 000008 (execução \textit{full}, $n\leq512$) executou somente Random Forest, com a mesma grade, os mesmos 127 subconjuntos e o mesmo teste real fixo. No maior $n$ publicado, a menor perda de cada braço permaneceu próxima de $0{,}455$. Como a classe minoritária representa 832 das 1.775 observações de teste, o erro de um classificador que sempre prediz a classe majoritária é aproximadamente $0{,}4687$. O ganho absoluto do melhor Random Forest sobre esse referencial é, portanto, pequeno.
 
 \begin{figure}[H]
   \centering
-  \caption{Menor perda do Random Forest no SUPPORT2 em $n=512$}
+  \caption{Menor perda do Random Forest no SUPPORT2 em $n=512$ (execução \textit{full}, cenário 000008)}
   \includegraphics[width=0.80\textwidth]{figures/support2_rf_best_losses.pdf}
-  \sourcebelow{elaboração própria a partir do cenário SUPPORT2 000008}
-  \notailustracao{A linha tracejada representa o erro de classificação obtido ao predizer sempre a classe majoritária no teste real.}
+  \sourcebelow{elaboração própria a partir do relatório publicado do cenário SUPPORT2 000008}
+  \notailustracao{A linha tracejada representa o erro de classificação obtido ao predizer sempre a classe majoritária no teste real. Este valor de perda não depende do esquema de métricas revisado e é reportado sem a ressalva de disponibilidade da Seção~\ref{sec:resultados-guia}}
 \end{figure}
 
-Esse baixo desempenho absoluto não impediu elevada fidelidade estrutural. O braço treinado com amostras da Gaussiana única atingiu $\rankrho=0{,}8387$, $A_W=0{,}8282$ e similaridade de \Nstar{} igual a $0{,}6799$. O braço treinado com amostras do GMM atingiu $0{,}8665$, $0{,}8429$ e $0{,}6340$. Assim, o treinamento com amostras do GMM reproduziu melhor o ranking e as relações de vencedores, mas aquele com amostras da Gaussiana única reproduziu melhor a combinação entre o conjunto de cruzamentos e seus tempos.
+$\rankrho$ e $\AW$ herdados do cenário 000008 mostram que esse baixo desempenho absoluto não impediu preservação elevada da ordenação e das relações efetivas de vencedor: o braço treinado com amostras da Gaussiana única atingiu $\rankrho=0{,}8387$ e $\AW=0{,}8282$; o braço treinado com amostras do GMM atingiu $0{,}8665$ e $0{,}8429$. $\AR$, $\DR$ e $\SR$ de escala completa ($n\leq512$) não puderam ser recalculados para este cenário (Seção~\ref{sec:resultados-guia}); as antigas figuras de matrizes dirigidas de $\NstarHistorical$ e de curvas cooperativas com marcação de último cruzamento, publicadas para este cenário, dependiam do objeto retirado do arcabouço ativo e não são reproduzidas.
+
+\begin{keyresultbox}[Exemplo numérico corrente: SUPPORT2, execução \textit{smoke}]
+Para oferecer ao menos um exemplo de $\AR$, $\DR$ e $\SR$ calculado diretamente pelo código atual sobre resultados brutos localmente persistidos, a Tabela~\ref{tab:support2-smoke} e a Figura~\ref{fig:wr-matrices-support2-cap7} usam a execução \textit{smoke} do SUPPORT2 (\texttt{scenario\_run\_id=0}, grade $n\in\{2,4,8,16,32\}$, sete subconjuntos de referência selecionados um por cardinalidade). Esta execução \textbf{não é comparável em escala} à execução \textit{full} discutida acima ($n\leq512$, 127 subconjuntos completos): ela serve apenas para demonstrar, com números genuínos, a leitura conjunta dos quatro indicadores, e não para substituir ou estender os resultados de escala completa publicados anteriormente.
+\end{keyresultbox}
 
 \begin{table}[H]
   \centering
-  \caption{Fidelidade estrutural do Random Forest no SUPPORT2 em $n=512$}
-  \label{tab:support2-rf}
+  \caption{Indicadores de preservação do perfil no SUPPORT2, execução \textit{smoke} (\texttt{scenario\_run\_id=0}), $n_t\leq32$, recalculados diretamente pelo código atual}
+  \label{tab:support2-smoke}
   \begin{adjustbox}{max width=\textwidth}
-  \begin{tabular}{lSSSrrrrSS}
+  \begin{tabular}{llSSSSl}
     \toprule
-    Braço & {$\rankrho$} & {$A_W$} & {Sim. $\Nstar$} & {Cruz. ref.} & {Cruz. braço} & {Compart.} & {Jaccard} & {Sim. temporal} \\
+    Classificador & Braço & {$\rankrho$} & {$\AW$} & {$\AR$} & {$\SR$} & {Pares (ref./braço/compart./união)} \\
     \midrule
-    Gaussiana única $\rightarrow$ Real & 0.8387 & 0.8282 & 0.6799 & 11948 & 11637 & 10521 & 0.8053 & 0.8442 \\
-    GMM $\rightarrow$ Real             & 0.8665 & 0.8429 & 0.6340 & 11948 & 11531 & 10200 & 0.7681 & 0.8254 \\
+    Linear SVM & Gaussiana única $\rightarrow$ Real & 0.0105 & 0.5043 & 0.7280 & 0.7283 & 6651 / 6886 / 5703 / 7834 \\
+    Linear SVM & GMM $\rightarrow$ Real             & 0.2712 & 0.5909 & 0.7937 & 0.6886 & 6651 / 7446 / 6238 / 7859 \\
+    Random Forest & Gaussiana única $\rightarrow$ Real & 0.6236 & 0.7309 & 0.4790 & 0.8815 & 4826 / 5737 / 3421 / 7142 \\
+    Random Forest & GMM $\rightarrow$ Real             & 0.5335 & 0.6869 & 0.4668 & 0.8787 & 4826 / 5629 / 3327 / 7128 \\
     \bottomrule
   \end{tabular}
   \end{adjustbox}
-  \sourcebelow{elaboração própria a partir do relatório do cenário SUPPORT2 000008}
+  \sourcebelow{recomputado diretamente dos resultados persistidos em \texttt{output/validation/support2-random-forest-smoke/}, usando \texttt{coinfosim.results.structural.scenario\_structural\_fidelity}; ver Apêndice~B para o comando exato}
+  \notailustracao{$q=127$ subconjuntos; $q(q-1)/2=8001$ pares não ordenados totais em todas as linhas. $\DR$ (distância média em $\log_2$, não tabulada por espaço) foi de $1{,}087$ (SVM, Gaussiana) e $1{,}245$ (SVM, GMM) contra $0{,}474$ (RF, Gaussiana) e $0{,}485$ (RF, GMM) --- o Random Forest concentrou as inversões compartilhadas em regimes amostrais mais próximos entre braços, mesmo com $\AR$ mais baixo}
 \end{table}
 
-\begin{figure}[H]
-  \centering
-  \caption{Perfil de fidelidade estrutural do Random Forest no SUPPORT2}
-  \includegraphics[width=0.82\textwidth]{figures/support2_rf_metrics.pdf}
-  \sourcebelow{elaboração própria a partir do cenário SUPPORT2 000008}
-\end{figure}
+Nesta execução reduzida, o Random Forest preservou pior a \emph{existência} das inversões do que o SVM linear ($\AR\approx0{,}47$--$0{,}48$ contra $0{,}73$--$0{,}79$), mas, condicional aos pares que efetivamente invertem em ambos os braços, preservou melhor o \emph{regime amostral} dessas inversões ($\SR\approx0{,}88$ contra $0{,}69$--$0{,}73$). O SVM linear, por sua vez, teve ordenação global quase não preservada ($\rankrho$ próximo de zero) apesar de $\AW$ moderado --- um lembrete de que os quatro indicadores podem divergir fortemente mesmo em uma única execução. Esses achados são específicos da escala \textit{smoke} e não devem ser extrapolados para a escala completa sem regeneração dos dados brutos correspondentes.
 
 \begin{figure}[H]
   \centering
-  \caption{Decomposição da similaridade progressiva de $\Nstar$ para o Random Forest}
-  \includegraphics[width=0.82\textwidth]{figures/support2_rf_nstar_components.pdf}
-  \sourcebelow{elaboração própria a partir do cenário SUPPORT2 000008}
-\end{figure}
-
-As séries progressivas das três métricas para o Random Forest, na Figura~\ref{fig:support2-rf-metricas-progressivas}, mostram que a similaridade de $\Nstar$ se estabiliza cedo em patamar elevado nos dois braços sintéticos, enquanto ranking e \WinnersAgreement{} crescem de forma mais gradual ao longo da grade.
-
-\begin{figure}[H]
-  \centering
-  \caption{Métricas estruturais progressivas do SUPPORT2, Random Forest}
-  \label{fig:support2-rf-metricas-progressivas}
-  \begin{minipage}[t]{0.74\textwidth}
-    \centering
-    \includegraphics[width=\linewidth]{figures/structural_metrics/support2/graph_structural_metric_random_forest_rho_rank_full_000008.png}
-    \subcaption{Correlação de ranking $\rankrho$}
-  \end{minipage}
-
-  \begin{minipage}[t]{0.74\textwidth}
-    \centering
-    \includegraphics[width=\linewidth]{figures/structural_metrics/support2/graph_structural_metric_random_forest_winner_agreement_full_000008.png}
-    \subcaption{\WinnersAgreement{}}
-  \end{minipage}
-
-  \begin{minipage}[t]{0.74\textwidth}
-    \centering
-    \includegraphics[width=\linewidth]{figures/structural_metrics/support2/graph_structural_metric_random_forest_nstar_similarity_full_000008.png}
-    \subcaption{Similaridade progressiva de $\Nstar$}
-  \end{minipage}
-  \sourcebelow{relatório publicado do cenário SUPPORT2 000008}
-\end{figure}
-
-A quantidade de cruzamentos afasta a hipótese de uma concordância trivial por ausência de eventos. A matriz real possuía 11.948 células dirigidas com cruzamento definido; os braços sintéticos possuíam 11.637 e 11.531. Mais de dez mil cruzamentos foram compartilhados em cada comparação. Portanto, a similaridade elevada ocorreu em uma estrutura densa e não em uma matriz quase vazia. A Figura~\ref{fig:support2-rf-nstar-matrices} apresenta as matrizes dirigidas dos três braços no maior prefixo.
-
-As curvas do Random Forest são visualmente irregulares e podem cruzar várias vezes, como mostram as curvas cooperativas da Figura~\ref{fig:support2-rf-nstar-curvas}. A métrica não afirma que todas essas inversões foram reproduzidas. Ela compara a presença de células dirigidas e o \emph{último cruzamento observado} até o prefixo. A interpretação precisa é que os braços sintéticos preservaram, em grande escala, quais relações par a par apresentaram transição e em qual regime ocorreu sua última inversão disponível.
-
-\begin{figure}[H]
-  \centering
-  \caption{Curvas cooperativas do SUPPORT2, Random Forest, nos três braços}
-  \label{fig:support2-rf-nstar-curvas}
-  \begin{minipage}[t]{0.57\textwidth}
-    \centering
-    \includegraphics[width=\linewidth]{figures/nstar_curves/support2/nstar_curve_random_forest_best1_real_to_real_sim000024.png}
-    \subcaption{\RealToReal{}}
-  \end{minipage}
-
-  \begin{minipage}[t]{0.57\textwidth}
-    \centering
-    \includegraphics[width=\linewidth]{figures/nstar_curves/support2/nstar_curve_random_forest_best1_single_gaussian_to_real_sim000025.png}
-    \subcaption{\GaussianToReal{}}
-  \end{minipage}
-
-  \begin{minipage}[t]{0.57\textwidth}
-    \centering
-    \includegraphics[width=\linewidth]{figures/nstar_curves/support2/nstar_curve_random_forest_best1_gmm_to_real_sim000026.png}
-    \subcaption{\GMMToReal{}}
-  \end{minipage}
-  \sourcebelow{relatórios das simulações 000024, 000025 e 000026, vinculados ao cenário SUPPORT2 000008}
-  \notailustracao{As trajetórias são irregulares e apresentam múltiplos cruzamentos; as linhas verticais tracejadas marcam apenas o último cruzamento dirigido observado de cada curva em relação à referência singular $\{X_3\}$.}
-\end{figure}
-
-\begin{landscape}
-\begin{figure}[H]
-  \centering
-  \caption{Matrizes progressivas de $\Nstar$ do SUPPORT2 com Random Forest no prefixo $n=512$}
-  \label{fig:support2-rf-nstar-matrices}
-  \begin{minipage}[t]{0.48\linewidth}
-    \centering
-    \includegraphics[width=\linewidth]{figures/nstar_matrices/support2_random_forest/graph_structural_nstar_random_forest_real_to_real_prefix512_full_000008.png}
-    \subcaption{\RealToReal{}: referência com 11.948 células dirigidas com cruzamento definido na estrutura completa}
-  \end{minipage}
+  \caption{Matriz de vencedores $\mathbf{W}$ e matriz de inversões $\mathbf{R}$, SUPPORT2 \textit{smoke}, Random Forest, \RealToReal{} e \GaussianToReal{}}
+  \label{fig:wr-matrices-support2-cap7}
+  \includegraphics[width=0.46\textwidth]{figures/wr_matrices/support2_smoke/winner_matrix_single_gaussian_to_real_n32.png}
   \hfill
-  \begin{minipage}[t]{0.48\linewidth}
-    \centering
-    \includegraphics[width=\linewidth]{figures/nstar_matrices/support2_random_forest/graph_structural_nstar_random_forest_single_gaussian_to_real_prefix512_full_000008.png}
-    \subcaption{\GaussianToReal{}: 11.637 cruzamentos definidos e 10.521 compartilhados com a referência}
-  \end{minipage}
-  \sourcebelow{relatório publicado do cenário SUPPORT2 000008}
+  \includegraphics[width=0.46\textwidth]{figures/wr_matrices/support2_smoke/reversal_matrix_single_gaussian_to_real_n32.png}
+  \sourcebelow{recomputado diretamente dos resultados persistidos da execução \textit{smoke} do SUPPORT2; mesmas matrizes já apresentadas na Figura~\ref{fig:wr-matrices-support2} do Capítulo~6, reproduzidas aqui em contexto de resultados}
 \end{figure}
-
-\begin{figure}[H]
-  \ContinuedFloat
-  \centering
-  \caption[]{Matrizes progressivas de $\Nstar$ do SUPPORT2 com Random Forest no prefixo $n=512$ (continuação)}
-  \begin{minipage}[t]{0.48\linewidth}
-    \centering
-    \includegraphics[width=\linewidth]{figures/nstar_matrices/support2_random_forest/graph_structural_nstar_random_forest_gmm_to_real_prefix512_full_000008.png}
-    \subcaption{\GMMToReal{}: 11.531 cruzamentos definidos e 10.200 compartilhados com a referência}
-  \end{minipage}
-  \sourcebelow{relatório publicado do cenário SUPPORT2 000008}
-  \notailustracao{Os três painéis mantêm a mesma ordem dos subconjuntos, escala e convenção de células. Os painéis publicados exibem os melhores subconjuntos de cada cardinalidade; as contagens informadas referem-se à estrutura dirigida completa dos 127 subconjuntos registrada no relatório do cenário.}
-\end{figure}
-\end{landscape}
 
 \subsection{Comparação do Random Forest com os demais classificadores}
 
-A Figura~\ref{fig:support2-nstar-classifiers} mostra que o Random Forest obteve as maiores similaridades de \Nstar{} entre os classificadores avaliados no SUPPORT2. Seu menor valor, $0{,}6340$, ainda superou o maior valor do cenário 000007, $0{,}4590$. Esse contraste é central: o classificador de pior desempenho absoluto pode produzir a estrutura de últimos cruzamentos mais bem preservada entre braços.
-
-\begin{figure}[H]
-  \centering
-  \caption{Similaridade progressiva de $\Nstar$ por classificador no SUPPORT2 em $n=512$}
-  \label{fig:support2-nstar-classifiers}
-  \includegraphics[width=0.90\textwidth]{figures/support2_nstar_all_classifiers.pdf}
-  \sourcebelow{elaboração própria a partir dos cenários SUPPORT2 000007 e 000008}
-\end{figure}
+Sob os indicadores herdados $\rankrho$ e $\AW$, o Random Forest do cenário 000008 não se destacou por um valor de similaridade de $\NstarHistorical$ mais alto do que os demais classificadores do SUPPORT2 --- essa comparação, central nas versões anteriores deste relatório, dependia inteiramente do objeto retirado do arcabouço ativo e não pode ser refeita sob o esquema atual sem os dados brutos das execuções \textit{full} correspondentes (Seção~\ref{sec:resultados-guia}). O que permanece observável é que o Random Forest combinou o menor desempenho preditivo absoluto entre os classificadores estudados (perda próxima do referencial majoritário) com valores de $\rankrho$ e $\AW$ comparáveis aos dos classificadores lineares no mesmo cenário --- reforçando, já nos indicadores herdados, que desempenho absoluto e preservação da ordenação/relações de vencedor são propriedades distintas. A relação desse classificador com a existência e o regime amostral das inversões, especificamente, só pôde ser reexaminada na escala reduzida da execução \textit{smoke} (Seção~\ref{sec:support2-rf}).
 
 Esse resultado não pode ser generalizado para Occupancy e Air Quality, pois o Random Forest não foi executado nesses datasets. A execução foi aproximadamente três a cinco vezes mais lenta que as simulações com classificadores mais simples, inviabilizando a repetição completa dentro do prazo do trabalho. O resultado é, portanto, evidência de uma interação específica entre SUPPORT2, Random Forest e os geradores avaliados.
 
 \section{Síntese dos cenários}
 
-A Tabela~\ref{tab:cross-synthesis} resume os padrões mais informativos. Não existe um gerador universalmente superior. O treinamento com amostras do GMM frequentemente melhora a similaridade de \Nstar{}, mas aquele com amostras da Gaussiana única pode reproduzir melhor o ranking ou a Winners Agreement. O classificador também é decisivo: Gaussian Naive Bayes no Air Quality apresentou a preservação mais alta do estudo, enquanto Random Forest no SUPPORT2 produziu a maior similaridade de \Nstar{} dentro daquele dataset, apesar da baixa qualidade preditiva.
+A Tabela~\ref{tab:cross-synthesis} resume os padrões mais informativos observáveis nos indicadores disponíveis nesta revisão. Não existe um gerador universalmente superior. O classificador é decisivo: Gaussian Naive Bayes no Air Quality apresentou a preservação mais alta de ordenação e relações de vencedor do estudo, enquanto o Random Forest no SUPPORT2 combinou baixa qualidade preditiva absoluta com preservação de ordenação e relações de vencedor comparável à dos classificadores lineares --- e, no exemplo em escala reduzida da Seção~\ref{sec:support2-rf}, com um perfil particular de $\AR$ mais baixo e $\SR$ mais alto do que o SVM linear.
 
 \begin{table}[H]
   \centering
@@ -503,22 +310,15 @@ A Tabela~\ref{tab:cross-synthesis} resume os padrões mais informativos. Não ex
     \toprule
     Dataset & Configuração destacada & Resultado central \\
     \midrule
-    Occupancy & SVM, Gaussiana única & Geometria visualmente pobre, mas ranking e Winners Agreement superiores aos do GMM em $n=512$. \\
-    Occupancy & GNB, GMM & Ranking e relações de vencedores quase perfeitos; similaridade de $\Nstar$ moderada. \\
-    Air Quality & GNB, ambos os braços sintéticos & Preservação quase integral do ranking e dos vencedores; maior similaridade de $\Nstar$ do estudo com GMM. \\
-    SUPPORT2 & SVM e regressão logística & Ranking e Winners Agreement altos, mas similaridade de $\Nstar$ limitada. \\
-    SUPPORT2 & Random Forest & Perda próxima ao referencial majoritário, matrizes densas e maior similaridade de $\Nstar$ entre os classificadores do dataset. \\
+    Occupancy & SVM, Gaussiana única & Geometria visualmente pobre, mas $\rankrho$ e $\AW$ superiores aos do GMM em $n=512$ (valores herdados). \\
+    Occupancy & GNB, GMM & $\rankrho$ e $\AW$ quase perfeitos (valores herdados); $\AR$/$\SR$ indisponíveis nesta revisão. \\
+    Air Quality & GNB, ambos os braços sintéticos & Preservação quase integral de $\rankrho$ e $\AW$ (valores herdados); $\AR$/$\SR$ indisponíveis nesta revisão. \\
+    SUPPORT2 & SVM e regressão logística & $\rankrho$ e $\AW$ altos em $n=512$ (valores herdados); $\AR$/$\SR$ indisponíveis nesta revisão. \\
+    SUPPORT2 & Random Forest (\textit{full}, $n=512$) & Perda próxima ao referencial majoritário; $\rankrho$/$\AW$ herdados comparáveis aos classificadores lineares; $\AR$/$\SR$ indisponíveis nesta revisão. \\
+    SUPPORT2 & Random Forest e SVM (\textit{smoke}, $n\leq32$) & Único exemplo com $\AR$ e $\SR$ recalculados pelo código atual: RF preserva pior a existência das inversões, mas melhor seu regime amostral, do que o SVM linear. \\
     \bottomrule
   \end{tabularx}
   \sourcebelow{elaboração própria}
 \end{table}
 
-\begin{figure}[H]
-  \centering
-  \caption{Valores selecionados de similaridade progressiva de $\Nstar$ em $n=512$}
-  \includegraphics[width=0.90\textwidth]{figures/selected_nstar_cross_dataset.pdf}
-  \sourcebelow{elaboração própria a partir dos relatórios publicados}
-  \notailustracao{A seleção destaca os casos discutidos no texto; não representa um ranking completo de todas as configurações.}
-\end{figure}
-
-Em conjunto, os resultados respondem afirmativamente, mas de forma condicionada, à pergunta central. As estruturas que emergem do treinamento de classificadores com amostras sintéticas, produzidas por geradores parametrizados a partir de dados reais, podem reproduzir componentes importantes da estrutura que emerge do treinamento com amostras reais. Essa preservação não é uniforme, não coincide obrigatoriamente com semelhança visual e não pode ser inferida apenas da perda absoluta. Ela deve ser descrita como um perfil dependente de dataset, gerador, classificador, tamanho amostral e componente estrutural observado.
+Em conjunto, os resultados disponíveis nesta revisão respondem afirmativamente, mas de forma condicionada, à pergunta central, no que se refere à ordenação global e às relações efetivas de vencedor: os perfis de cooperação preditiva que emergem do treinamento de classificadores com amostras sintéticas, produzidas por geradores ajustados aos dados reais de treinamento, podem reproduzir componentes importantes do perfil que emerge do treinamento com amostras reais. Essa preservação não é uniforme, não coincide obrigatoriamente com semelhança visual e não pode ser inferida apenas da perda absoluta. Quanto à existência e ao regime amostral das inversões --- as duas questões mais finas do perfil ---, esta revisão só pôde oferecer evidência numérica corrente em escala reduzida (SUPPORT2 \textit{smoke}); a caracterização completa dessas duas dimensões nos três datasets em escala publicada permanece pendente de regeneração dos dados brutos correspondentes, conforme detalhado no Apêndice~B.

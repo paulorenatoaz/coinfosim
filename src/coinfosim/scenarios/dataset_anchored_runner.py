@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import subprocess
 import tempfile
 import time
 from dataclasses import dataclass
@@ -16,6 +17,14 @@ from coinfosim.classifiers.registry import (
     ClassifierExecutionPlan,
     default_execution_plan,
     resolve_classifier_names,
+)
+from coinfosim.provenance import (
+    build_provenance_graph,
+    build_semantic_manifest,
+    sha256_of_file,
+    to_repo_relative,
+    write_provenance_graph,
+    write_semantic_manifest,
 )
 from coinfosim.reports.scenario_visualization import (
     build_balanced_sample,
@@ -31,6 +40,7 @@ from coinfosim.runs.report_data import (
     simulation_report_data,
     simulation_summary_snapshot,
 )
+from coinfosim.semantics import canonical_key_to_id, vocabulary_version
 from coinfosim.samplers.gaussian import GaussianClassConditionalSampler
 from coinfosim.samplers.gmm import GMMClassConditionalSampler
 from coinfosim.samplers.real import RealDatasetSampler
@@ -170,6 +180,36 @@ def _scenario_report_metadata(spec: DatasetAnchoredExecutionSpec) -> Dict[str, A
 
 def _relpath(target: Path | str, start: Path | str) -> str:
     return os.path.relpath(str(target), str(start))
+
+
+def _current_code_commit_sha() -> Optional[str]:
+    """Best-effort current git HEAD SHA; ``None`` outside a git checkout."""
+
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        return result.stdout.strip() or None
+    except (OSError, subprocess.CalledProcessError):
+        return None
+
+
+def _default_recovered_source_commit_sha(
+    manifest_path: Path | str = "docs/provenance/gh_pages_recovery_manifest.json",
+) -> Optional[str]:
+    """Best-effort ``gh-pages`` recovery commit SHA from the tracked recovery manifest."""
+
+    path = Path(manifest_path)
+    if not path.exists():
+        return None
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        return data.get("source_commit_sha")
+    except (OSError, json.JSONDecodeError):
+        return None
 
 
 def _write_json(path: Path | str, payload: Dict[str, Any]) -> Path:
@@ -998,10 +1038,66 @@ def regenerate_dataset_anchored_scenario(
         )
         _write_json(ref["simulation_json_path"], updated.to_dict())
         simulation_jsons.append(str(ref["simulation_json_path"]))
+
+    repo_root = Path.cwd()
+    code_commit_sha = _current_code_commit_sha()
+    recovered_source_commit_sha = _default_recovered_source_commit_sha()
+    source_result_data = [
+        {
+            "path": to_repo_relative(ref["result_data_path"], repo_root),
+            "sha256": sha256_of_file(ref["result_data_path"]),
+        }
+        for ref, _result in simulation_updates
+    ]
+    report_artifact_sha256 = sha256_of_file(scenario_report)
+    report_artifact_relpath = to_repo_relative(scenario_report, repo_root)
+    semantic_manifest = build_semantic_manifest(
+        scenario_run_id=scenario_run_id,
+        scenario_slug=record.scenario_slug,
+        dataset_id=spec.dataset_name,
+        classifier_ids=list(real_result.classifier_names),
+        training_condition_ids=[REAL_ARM_ID, GAUSSIAN_ARM_ID, GMM_ARM_ID],
+        sample_sizes=list(real_result.sample_sizes),
+        source_simulation_run_ids=[
+            int(ref["simulation_run_id"]) for ref, _result in simulation_updates
+        ],
+        source_result_data=source_result_data,
+        code_commit_sha=code_commit_sha,
+        recovered_source_commit_sha=recovered_source_commit_sha,
+        report_artifact_hashes={report_artifact_relpath: report_artifact_sha256},
+    )
+    semantic_manifest_path = scenario_dir / "semantic_manifest.json"
+    write_semantic_manifest(semantic_manifest_path, semantic_manifest)
+
+    provenance_graph = build_provenance_graph(
+        scenario_run_id=scenario_run_id,
+        source_result_data=source_result_data,
+        source_simulation_run_ids=[
+            int(ref["simulation_run_id"]) for ref, _result in simulation_updates
+        ],
+        code_commit_sha=code_commit_sha,
+        report_artifact_path=report_artifact_relpath,
+        report_artifact_sha256=report_artifact_sha256,
+        recovered_source_commit_sha=recovered_source_commit_sha,
+    )
+    provenance_path = scenario_dir / "provenance.jsonld"
+    write_provenance_graph(provenance_path, provenance_graph)
+
+    semantic_manifest_relpath = to_repo_relative(semantic_manifest_path, repo_root)
+    provenance_relpath = to_repo_relative(provenance_path, repo_root)
+    prepared_report_data["semantic_manifest_path"] = semantic_manifest_relpath
+    prepared_report_data["provenance_path"] = provenance_relpath
+    artifacts["semantic_manifest"] = semantic_manifest_relpath
+    artifacts["provenance"] = provenance_relpath
+
     updated_scenario = scenario_registry.update_run(
         scenario_run_id,
         artifacts=artifacts,
         report_data=prepared_report_data,
+        semantic_schema_version=vocabulary_version(),
+        semantic_manifest_path=semantic_manifest_relpath,
+        provenance_path=provenance_relpath,
+        scientific_object_type=canonical_key_to_id("predictive_cooperation_profile"),
     )
     _write_json(record.scenario_json_path, updated_scenario.to_dict())
     reporter.info("Regeneration complete (Monte Carlo was not rerun).")
@@ -1012,6 +1108,8 @@ def regenerate_dataset_anchored_scenario(
         "gmm_to_real_report": str(gmm_report),
         "scenario_json": str(record.scenario_json_path),
         "simulation_jsons": simulation_jsons,
+        "semantic_manifest": str(semantic_manifest_path),
+        "provenance": str(provenance_path),
     }
 
 

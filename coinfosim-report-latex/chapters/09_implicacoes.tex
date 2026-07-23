@@ -1,7 +1,7 @@
 \chapter{IMPLICAÇÕES OPERACIONAIS E AGENDA DE CUSTOS}
 \label{chap:implicacoes}
 
-\section{Da preservação estrutural à configuração de canais}
+\section{Do perfil de cooperação preditiva à configuração de canais}
 
 A motivação operacional deste trabalho parte de uma situação recorrente: sistemas de classificação dependem de múltiplas fontes de informação, mas a aquisição, a transmissão, o processamento e a manutenção dessas fontes têm custos distintos. Em tal contexto, a decisão relevante raramente é apenas identificar o subconjunto com menor perda em uma única execução. É necessário compreender quais configurações permanecem competitivas, quais relações de superioridade são estáveis e em que regime amostral os canais adicionais passam a justificar sua utilização.
 
@@ -14,7 +14,7 @@ Essa ideia pode ser formalizada, para cada tamanho amostral $n$, pelo conjunto d
 \]
 em que $\varepsilon$ representa uma tolerância definida pelo domínio. O \CoInfoSim{} não determina o valor dessa tolerância, mas fornece os rankings e as comparações par a par necessárias para construir $\mathcal{A}(n)$. Uma análise de custo pode então selecionar, entre as alternativas estatisticamente aceitáveis, aquela que melhor satisfaz as restrições operacionais.
 
-A similaridade de \Nstar{} acrescenta outra dimensão. Ela informa se o modelo sintético recupera aproximadamente o regime em que uma configuração passa a superar outra de forma final dentro da grade observada. Essa informação é relevante para planejamento de coleta: um canal adicional pode não ser vantajoso em $n$ pequeno, mas tornar-se útil quando a operação acumula dados suficientes. O uso operacional de \Nstar{}, contudo, exige a cautela discutida nos capítulos anteriores: a métrica considera o último cruzamento observado e não garante que a relação permanecerá inalterada além de $n=512$.
+A matriz de inversões $\Rmat$ e seus dois indicadores derivados, $\AR$ e $\SR$, acrescentam outra dimensão. Eles informam, respectivamente, se o modelo sintético recupera aproximadamente os mesmos pares que trocam de vencedor e se essas trocas ocorrem em regimes amostrais semelhantes dentro da grade observada. Essa informação é relevante para planejamento de coleta: um canal adicional pode não ser vantajoso em $n$ pequeno, mas tornar-se útil quando a operação acumula dados suficientes. O uso operacional de $\Rmat$, contudo, exige a cautela discutida nos capítulos anteriores: a matriz considera apenas a última inversão observada e não garante que a relação permanecerá inalterada além do maior $n$ avaliado.
 
 \section{Custos não se reduzem ao número de canais}
 
@@ -41,7 +41,7 @@ Uma modelagem realista pode incluir:
 A presença de infraestrutura compartilhada impede assumir que o custo de um subconjunto seja a soma dos custos individuais. Um único equipamento pode produzir vários canais; nesse caso, retirar uma variável derivada não elimina o custo do procedimento. Inversamente, dois canais aparentemente semelhantes podem exigir sensores independentes, calibrações distintas e manutenção separada. Também não é correto assumir que o custo de $Y$ seja simplesmente proporcional a $n$: um rótulo pode depender de acompanhamento longitudinal, análise laboratorial em lote, auditoria especializada ou sensor de referência já instalado.
 
 \begin{interpretationbox}[Alcance da análise de custos]
-O presente trabalho não propõe uma função universal de custo nem demonstra que os subconjuntos identificados gerem economia. Sua contribuição é anterior: organizar a estrutura de desempenho à qual uma função de custo específica poderá ser acoplada.
+O presente trabalho não propõe uma função universal de custo nem demonstra que os subconjuntos identificados gerem economia. Sua contribuição é anterior: organizar o perfil de desempenho ao qual uma função de custo específica poderá ser acoplada.
 \end{interpretationbox}
 
 \section{Exemplos operacionais por domínio}
@@ -80,10 +80,10 @@ As métricas de preservação poderiam então ser usadas como condição de conf
 \begin{enumerate}
   \item a ordenação das alternativas relevantes;
   \item as comparações par a par próximas da fronteira eficiente;
-  \item os limiares de \Nstar{} usados para planejar expansão amostral.
+  \item a existência e o regime amostral das inversões relevantes para planejar expansão amostral.
 \end{enumerate}
 
-Essa formulação também permite reconhecer que diferentes decisões exigem diferentes métricas. Para escolher entre várias configurações de custo semelhante, ranking e Winners Agreement podem ser prioritários. Para planejar quando instalar um canal adicional ou ampliar a coleta, \Nstar{} pode ser mais informativo. Não há necessidade de condensar todas essas propriedades em um índice único.
+Essa formulação também permite reconhecer que diferentes decisões exigem diferentes indicadores. Para escolher entre várias configurações de custo semelhante, $\rankrho$ e \WinnersAgreement{} podem ser prioritários. Para planejar quando instalar um canal adicional ou ampliar a coleta, $\AR$ e $\SR$ podem ser mais informativos. Não há necessidade de condensar todas essas propriedades em um índice único.
 
 \section{Hipótese de projeção para regimes amostrais maiores}
 
@@ -106,4 +106,4 @@ Uma validação futura deve ocultar deliberadamente parte da grade: parametrizar
 
 O resultado operacional mais importante não é a identificação de um subconjunto universalmente ótimo. O trabalho fornece uma linguagem para analisar sistemas multicanais sob três perspectivas complementares: organização global das alternativas, relações par a par e transições ao longo de $n$. Essa estrutura pode ser integrada a modelos de custo, mas a integração deve respeitar as particularidades de cada domínio.
 
-A agenda futura consiste, portanto, em transformar o \CoInfoSim{} de um simulador de preservação estrutural em uma plataforma de análise custo-eficiência. A extensão deverá receber custos explícitos, identificar fronteiras não dominadas, quantificar incerteza econômica e testar projeções para regimes maiores. As conclusões atuais permanecem metodológicas: classificadores treinados com amostras sintéticas podem preservar componentes relevantes da cooperação, mas nenhuma economia ou decisão operacional específica foi demonstrada.
+A agenda futura consiste, portanto, em transformar o \CoInfoSim{} de um simulador de preservação do perfil de cooperação preditiva em uma plataforma de análise custo-eficiência. A extensão deverá receber custos explícitos, identificar fronteiras não dominadas, quantificar incerteza econômica e testar projeções para regimes maiores. As conclusões atuais permanecem metodológicas: classificadores treinados com amostras sintéticas podem preservar componentes relevantes do perfil de cooperação preditiva, mas nenhuma economia ou decisão operacional específica foi demonstrada.

@@ -12,11 +12,11 @@
   \begin{columns}[c,onlytextwidth]
     \begin{column}{0.71\textwidth}
       {\bfseries\fontsize{19.5}{23.5}\selectfont\color{CoInfoInk}
-        Preservação da estrutura\\de cooperação entre\\canais de informação\par}
+        Preservação do perfil\\de cooperação preditiva\\entre canais de informação\par}
 
       \vspace{0.26cm}
       {\fontsize{11.6}{14.6}\selectfont\color{CoInfoBlue}
-        O treinamento com amostras sintéticas reproduz a\\evolução da cooperação observada com amostras reais?\par}
+        O treinamento com amostras sintéticas preserva o\\perfil observado com treinamento real?\par}
 
       \vspace{0.32cm}
       {\fontsize{9.4}{11.6}\selectfont
@@ -43,11 +43,11 @@
   \takeaway{Amostras sintéticas não são usadas para aumentar a acurácia: investigamos se o treinamento sintético reproduz a cooperação observada com o treinamento real.}
 
   \speakernotes
-    {Neste trabalho, as amostras sintéticas não são usadas para aumentar a acurácia do classificador. Elas são usadas para investigar se o treinamento sintético reproduz o comportamento cooperativo dos subconjuntos de canais observado com treinamento real. O objeto de interesse é comparativo: treinamos os mesmos classificadores com amostras reais ou sintéticas, avaliamos no mesmo teste real fixo e observamos se o desempenho relativo dos subconjuntos evolui da mesma forma. Essa estrutura só aparece depois do treinamento e da avaliação dos classificadores; ela não está pronta dentro das amostras nem pertence ao modelo gerador. A pergunta é simples, mas exigente: ao trocar a origem das amostras de treinamento, preservamos quem tende a cooperar com quem e em quais regimes amostrais?}
+    {Neste trabalho, as amostras sintéticas não são usadas para aumentar a acurácia do classificador. Elas são usadas para investigar se o treinamento sintético reproduz o perfil de cooperação preditiva dos subconjuntos de canais observado com treinamento real. O objeto de interesse é comparativo: treinamos os mesmos classificadores com amostras reais ou sintéticas, avaliamos no mesmo teste real fixo e observamos se o desempenho relativo dos subconjuntos evolui da mesma forma. Esse perfil só aparece depois do treinamento e da avaliação dos classificadores; ele não está pronto dentro das amostras nem pertence ao modelo gerador. A pergunta é simples, mas exigente: ao trocar a origem das amostras de treinamento, preservamos quem tende a cooperar com quem e em quais regimes amostrais?}
     {Para entender por que essa pergunta importa, começo pela decisão operacional que existe antes de qualquer gerador sintético.}
-    {O estudo avalia a reprodução do comportamento cooperativo, não o aumento de acurácia.}
+    {O estudo avalia a reprodução do perfil de cooperação preditiva, não o aumento de acurácia.}
     {45 segundos.}
-    {Não atribuir a estrutura às amostras sintéticas ou ao gerador; ela emerge das perdas após o treinamento e a avaliação dos classificadores.}
+    {Não atribuir o perfil às amostras sintéticas ou ao gerador; ele emerge das perdas após o treinamento e a avaliação dos classificadores.}
 \end{frame}
 
 % Slide 2 ---------------------------------------------------------------------
@@ -93,15 +93,15 @@
   \sourcecite{Guyon e Elisseeff (2003); Brown et al. (2012); Hughes (1968); Raudys e Jain (1991).}
 
   \speakernotes
-    {Em operações reais, cada variável pode representar um sensor ambiental, um exame, uma medição fisiológica, uma saída de equipamento ou informação produzida por um especialista. Adicionar canais pode trazer sinal complementar, mas também redundância, maior dimensionalidade, complexidade de integração e custo operacional. Com poucas amostras, acrescentar dimensões pode inclusive aumentar a dificuldade de estimação, o conhecido efeito de pequenas amostras associado ao fenômeno de Hughes. O trabalho não resolve a decisão econômica. Ele constrói uma etapa anterior: mapear como todos os subconjuntos de canais se comportam na tarefa de classificação, treinando um classificador para cada subconjunto. Se a estrutura resultante puder ser reproduzida pelo treinamento com amostras sintéticas, teremos informação estrutural para estudos operacionais posteriores.}
-    {A motivação operacional leva à definição precisa do que chamo de estrutura de cooperação.}
+    {Em operações reais, cada variável pode representar um sensor ambiental, um exame, uma medição fisiológica, uma saída de equipamento ou informação produzida por um especialista. Adicionar canais pode trazer sinal complementar, mas também redundância, maior dimensionalidade, complexidade de integração e custo operacional. Com poucas amostras, acrescentar dimensões pode inclusive aumentar a dificuldade de estimação, o conhecido efeito de pequenas amostras associado ao fenômeno de Hughes. O trabalho não resolve a decisão econômica. Ele constrói uma etapa anterior: mapear como todos os subconjuntos de canais se comportam na tarefa de classificação, treinando um classificador para cada subconjunto. Se o perfil resultante puder ser reproduzido pelo treinamento com amostras sintéticas, teremos esses objetos disponíveis para estudos operacionais posteriores.}
+    {A motivação operacional leva à definição precisa do que chamo de perfil de cooperação preditiva.}
     {Compreender a cooperação vem antes de escolher, retirar ou precificar canais.}
     {1 minuto e 20 segundos.}
     {Custo aparece apenas como motivação e camada futura; este experimento não otimiza custos nem demonstra economia.}
 \end{frame}
 
 % Slide 3 ---------------------------------------------------------------------
-\begin{frame}{O que é a estrutura de cooperação?}
+\begin{frame}{O que é o perfil de cooperação preditiva?}
   \slidetime{2:00}
   \centering
   \begin{tikzpicture}[x=1.02cm,y=0.42cm]
@@ -146,14 +146,14 @@
     \end{column}
   \end{columns}
 
-  \vspace{0.06cm}
-  \takeaway{A estrutura de cooperação descreve como o desempenho relativo dos subconjuntos de canais evolui à medida que o tamanho do conjunto de treinamento aumenta.}
+  \vspace{0.03cm}
+  \takeaway{O perfil de cooperação preditiva descreve como o desempenho relativo dos subconjuntos evolui com o tamanho do treinamento; não é apenas o subconjunto vencedor.}
   \sourcecite{elaboração própria; esquema conceitual, sem valores experimentais.}
 
   \speakernotes
-    {A estrutura começa com curvas de perda no mesmo teste real. Para cada tamanho de treinamento por classe, cada subconjunto origina um classificador e uma perda média estimada por Monte Carlo. Para cada tamanho amostral, os subconjuntos são então ordenados por seu desempenho preditivo, medido pela perda média no teste real. Com poucas amostras, um canal isolado pode ter menor perda porque exige menos estimação; à medida que o treinamento cresce, um par ou um conjunto maior pode aproveitar informação complementar e ultrapassá-lo. A hierarquia tem três degraus: o desempenho preditivo pertence a cada subconjunto; o ranking de desempenho compara os subconjuntos em um dado $n$; e a estrutura de cooperação é a evolução dessas posições relativas quando $n$ cresce. Portanto, cooperação não é correlação bruta entre variáveis nem uma propriedade inscrita nas amostras: é uma organização dinâmica produzida pelo treinamento dos classificadores e pela comparação de suas perdas ao longo da grade amostral.}
+    {O perfil começa com curvas de perda no mesmo teste real. Para cada tamanho de treinamento por classe, cada subconjunto origina um classificador e uma perda média estimada por Monte Carlo. Para cada tamanho amostral, os subconjuntos são então ordenados por seu desempenho preditivo, medido pela perda média no teste real. Com poucas amostras, um canal isolado pode ter menor perda porque exige menos estimação; à medida que o treinamento cresce, um par ou um conjunto maior pode aproveitar informação complementar e ultrapassá-lo. A hierarquia tem três degraus: o desempenho preditivo pertence a cada subconjunto; o ranking de desempenho compara os subconjuntos em um dado $n$; e o perfil de cooperação preditiva é a evolução dessas posições relativas, incluindo quando um vencedor é substituído por outro, quando $n$ cresce. Portanto, cooperação preditiva não é correlação bruta entre variáveis nem uma propriedade inscrita nas amostras: é uma organização dinâmica produzida pelo treinamento dos classificadores e pela comparação de suas perdas ao longo da grade amostral. Um padrão de cooperação preditiva, por sua vez, é uma regularidade interpretada a partir desse perfil, não o objeto quantitativo em si.}
     {Com o objeto definido, posso formular a pergunta científica sem confundi-la com aumento de dados ou melhoria preditiva.}
-    {A estrutura não é um ranking estático: é a evolução do desempenho relativo ao longo de $n$.}
+    {O perfil não é um ranking estático: é a evolução do desempenho relativo ao longo de $n$.}
     {2 minutos.}
     {O gráfico é conceitual, sem valores experimentais; não interpretar os cruzamentos desenhados como resultados de um dataset.}
 \end{frame}
@@ -164,7 +164,7 @@
   \vspace{0.22cm}
   \begin{beamercolorbox}[wd=\linewidth,sep=0.34cm,rounded=true]{block body}
     \centering\bfseries\fontsize{14.6}{18.6}\selectfont\color{CoInfoInk}
-    Em que medida a estrutura de cooperação que emerge do treinamento de classificadores com amostras sintéticas reproduz aquela que emerge do treinamento dos mesmos classificadores com amostras reais?
+    Em que medida o treinamento com amostras sintéticas preserva o perfil de cooperação preditiva observado com treinamento real?
   \end{beamercolorbox}
 
   \vspace{0.54cm}
@@ -184,7 +184,7 @@
     \begin{column}{0.31\textwidth}
       \begin{beamercolorbox}[wd=\linewidth,ht=1.24cm,dp=.20cm,sep=.12cm,rounded=true]{block body}
         \centering\bfseries\fontsize{11.2}{13.6}\selectfont\color{CoInfoMint}
-        É avaliar a preservação da\\estrutura de cooperação.
+        É avaliar a preservação\\do perfil observado.
       \end{beamercolorbox}
     \end{column}
   \end{columns}
@@ -193,9 +193,9 @@
   \sourcecite{estratégia inspirada em Train on Synthetic, Test on Real: Esteban, Hyland e Rätsch (2017).}
 
   \speakernotes
-    {A comparação é entre duas estruturas emergentes. Na referência, os classificadores são treinados com amostras reais. Nos braços sintéticos, os mesmos classificadores são treinados com amostras produzidas por modelos geradores parametrizados a partir do reservatório real. Em todos os casos, a avaliação ocorre no mesmo teste real fixo. Esse desenho se aproxima da lógica Train on Synthetic, Test on Real, mas o desfecho principal não é a perda isolada: o que se compara é o padrão relativo entre todos os subconjuntos, isto é, a ordenação por perda média, as vitórias par a par e a dinâmica das transições. Por isso, uma condição sintética pode reproduzir a estrutura de cooperação sem produzir a menor perda absoluta, e o inverso também pode ocorrer.}
+    {A comparação é entre dois perfis emergentes. Na referência, os classificadores são treinados com amostras reais de treinamento. Nos braços sintéticos, os mesmos classificadores são treinados com amostras sintéticas produzidas por modelos geradores ajustados aos dados reais de treinamento. Em todos os casos, a avaliação ocorre no mesmo teste real fixo. Esse desenho se aproxima da lógica Train on Synthetic, Test on Real, mas o desfecho principal não é a perda isolada: o que se compara é o padrão relativo entre todos os subconjuntos, isto é, a ordenação por perda média, os vencedores par a par e as inversões de vencedor. Por isso, uma condição sintética pode reproduzir o perfil de cooperação preditiva sem produzir a menor perda absoluta, e o inverso também pode ocorrer.}
     {A pergunta exige um protocolo em que somente a origem das amostras de treinamento mude.}
-    {O alvo é a preservação da estrutura de cooperação, não aumento de dados nem ganho de acurácia.}
+    {O alvo é a preservação do perfil de cooperação preditiva, não aumento de dados nem ganho de acurácia.}
     {1 minuto e 20 segundos.}
     {Não nomear os braços como se o modelo gerador treinasse o classificador; são classificadores treinados com amostras produzidas por esses modelos.}
 \end{frame}
@@ -210,15 +210,15 @@
   \vspace{0.10cm}
   \metricpill{CoInfoBlue}{Grade}{\(n=2,\ldots,512\) por classe}
   \hspace{0.04cm}
-  \metricpill{CoInfoMint}{Monte Carlo}{replicações até precisão alvo}
+  \metricpill{CoInfoMint}{Monte Carlo}{réplicas até perda média estimada com precisão alvo}
   \hspace{0.04cm}
   \metricpill{CoInfoAmber}{Subconjuntos}{não vazios: 31 ou 127}
 
   \sourcecite{elaboração própria (figura do protocolo experimental, também usada no relatório final).}
 
   \speakernotes
-    {O ponto de partida é um reservatório real de treinamento. A padronização e a parametrização dos modelos geradores usam somente esse reservatório. No primeiro braço, Real para Real, cada replicação sorteia amostras reais balanceadas por classe. No segundo, uma Gaussiana única por classe, parametrizada a partir dos dados reais de treinamento no espaço completo de canais, produz as amostras sintéticas. No terceiro, um GMM por classe é parametrizado a partir dos mesmos dados; o número de componentes é escolhido por BIC. Para cada tamanho da grade, repetimos o treinamento de cada classificador em todos os subconjuntos não vazios: 31 quando há cinco canais e 127 quando há sete. As replicações Monte Carlo estimam as perdas médias. A única coisa que muda entre os braços é a origem das amostras de treinamento. O conjunto de teste real é fixo e compartilhado; é ele que permite comparar, em uma base comum, as estruturas obtidas após o treinamento. No cenário full-scale do Air Quality, a mesma grade é estendida até 1024 amostras por classe.}
-    {Das perdas médias desse protocolo derivam as três métricas, começando pela visão mais global.}
+    {O ponto de partida são os dados reais de treinamento. A padronização e o ajuste dos modelos geradores usam somente esses dados. No primeiro braço, Real para Real, cada replicação sorteia amostras reais balanceadas por classe. No segundo, uma Gaussiana única por classe, ajustada a partir dos dados reais de treinamento no espaço completo de canais, produz as amostras sintéticas. No terceiro, um GMM por classe é ajustado a partir dos mesmos dados; o número de componentes é escolhido por BIC. Para cada tamanho da grade, repetimos o treinamento de cada classificador em todos os subconjuntos não vazios: 31 quando há cinco canais e 127 quando há sete. As replicações Monte Carlo estimam a perda média estimada no teste real. A única coisa que muda entre os braços é a origem das amostras de treinamento. O conjunto de teste real é fixo e compartilhado; é ele que permite comparar, em uma base comum, os perfis obtidos após o treinamento. No cenário full-scale do Air Quality, a mesma grade é estendida até 1024 amostras por classe.}
+    {Da perda média estimada desse protocolo derivam os quatro indicadores, começando pela visão mais global.}
     {Real, Gaussiana única e GMM mudam a origem do treinamento; o teste real permanece exatamente o mesmo.}
     {2 minutos.}
     {``Gaussiana única \(\rightarrow\) Real'' e ``GMM \(\rightarrow\) Real'' significam treinamento com amostras sintéticas e teste no conjunto real fixo; a estrutura não pertence ao gerador.}
@@ -231,7 +231,7 @@
     \begin{column}{0.50\textwidth}
       \centering
       \vspace{0.10cm}
-      \includegraphics[height=3.92cm,trim=0 56 322 0,clip]{\figroot/conceptual/metricas_tres_paineis.pdf}
+      \includegraphics[height=3.92cm,trim=0 56 370 0,clip]{\figroot/conceptual/metricas_tres_paineis.pdf}
     \end{column}
     \begin{column}{0.47\textwidth}
       \vspace{0.12cm}
@@ -248,8 +248,8 @@
   \sourcecite{figura conceitual do relatório final; Spearman (1904).}
 
   \speakernotes
-    {Em cada tamanho amostral, ordenamos todos os subconjuntos pela perda média no teste real. A correlação de Spearman compara os vetores de postos do braço sintético com a referência Real para Real. É uma medida global: se dois subconjuntos quase empatados trocam de posição, a correlação pode continuar muito alta. Isso é importante porque a estrutura não deve ser reduzida ao primeiro colocado. No Occupancy, por exemplo, o braço treinado com amostras do GMM repetiu o vencedor do braço real no SVM, mas o braço da Gaussiana única produziu um ranking completo mais próximo da referência. Portanto, ``acertar o melhor'' e preservar a ordenação da lista inteira são afirmações diferentes.}
-    {A ordenação global ainda pode esconder quais decisões específicas entre pares foram preservadas; a segunda métrica abre essa estrutura.}
+    {Em cada tamanho amostral, ordenamos todos os subconjuntos pela perda média no teste real. A correlação de Spearman compara os vetores de postos do braço sintético com a referência Real para Real. É uma medida global: se dois subconjuntos quase empatados trocam de posição, a correlação pode continuar muito alta. Isso é importante porque o perfil não deve ser reduzido ao primeiro colocado. No Occupancy, por exemplo, o braço treinado com amostras do GMM repetiu o vencedor do braço real no SVM, mas o braço da Gaussiana única produziu um ranking completo mais próximo da referência. Portanto, ``acertar o melhor'' e preservar a ordenação da lista inteira são afirmações diferentes.}
+    {A ordenação global ainda pode esconder quais decisões específicas entre pares foram preservadas; a segunda métrica abre esse perfil.}
     {Ranking de desempenho significa a lista inteira ordenada por perda média, não somente quem ficou em primeiro.}
     {1 minuto e 20 segundos.}
     {Correlação alta não implica igualdade das perdas nem identidade do topo; ela mede associação entre postos.}
@@ -262,18 +262,18 @@
     \begin{column}{0.51\textwidth}
       \centering
       \vspace{0.10cm}
-      \includegraphics[height=3.85cm,trim=156 52 156 0,clip]{\figroot/conceptual/metricas_tres_paineis.pdf}
+      \includegraphics[height=3.85cm,trim=134 52 190 0,clip]{\figroot/conceptual/metricas_tres_paineis.pdf}
     \end{column}
     \begin{column}{0.46\textwidth}
       \vspace{0.16cm}
-      \infocard{Para cada par de subconjuntos}{vence o que obtém menor perda média; empates exatos são excluídos}
+      \infocard{Para cada par de subconjuntos}{vence quem tem menor perda média; empate exato inicial fica indefinido, empate posterior mantém o vencedor anterior}
       \vspace{0.20cm}
-      \infocard{\WA{}}{proporção de pares com o mesmo vencedor nos braços real e sintético}
+      \infocard{\WA{} (\AW)}{proporção de pares com o mesmo vencedor efetivo nos braços real e sintético}
       \vspace{0.20cm}
       \begin{tikzpicture}
         \node[rounded corners=3pt,draw=CoInfoMint!60,fill=CoInfoMint!7,
           font=\bfseries\fontsize{9.0}{10.7}\selectfont,text=CoInfoInk,inner sep=4.5pt]
-          {uma troca no topo $\neq$ colapso da estrutura};
+          {uma troca no topo $\neq$ colapso do perfil};
       \end{tikzpicture}
     \end{column}
   \end{columns}
@@ -283,72 +283,75 @@
   \sourcecite{definição e figura conceitual do relatório final do CoInfoSim.}
 
   \speakernotes
-    {Agora comparamos cada par de subconjuntos. Se a perda média de A é menor que a de B, registramos que A vence B. A Winners Agreement é a proporção dessas decisões que coincide entre o braço sintético e a referência real, excluindo empates exatos, que não têm vencedor estrito comparável. Para 31 subconjuntos existem 465 pares; para 127, 8.001. A métrica é operacionalmente intuitiva: mesmo que haja uma troca residual entre os dois primeiros lugares, centenas de relações entre alternativas podem permanecer idênticas. Ela informa quanto do mapa decisório foi conservado, não apenas quem ocupa a primeira linha.}
-    {Ranking e vencedores observam um ponto da grade; a terceira métrica adiciona explicitamente a dinâmica do tamanho amostral.}
-    {Winners Agreement mede a preservação das decisões par a par.}
+    {Agora comparamos cada par de subconjuntos. Se a perda média de A é menor que a de B, A vence B nesse ponto da grade. Mas um empate exato de perda não deve apagar um vencedor já estabelecido: por isso, a relação \emph{efetiva} de vencedor propaga o vencedor anterior quando ocorre um empate exato posterior à inicialização; apenas o empate exato inicial, antes de qualquer vencedor estrito, permanece indefinido. A Winner Agreement é a proporção dessas relações efetivas que coincide entre o braço sintético e a referência real, entre os pares em que ambos os braços já têm um vencedor definido. Para 31 subconjuntos existem 465 pares; para 127, 8.001. A métrica é operacionalmente intuitiva: mesmo que haja uma troca residual entre os dois primeiros lugares, centenas de relações entre alternativas podem permanecer idênticas. Ela informa quanto do mapa decisório foi conservado, não apenas quem ocupa a primeira linha.}
+    {Ranking e vencedores observam um ponto da grade; as métricas seguintes adicionam explicitamente a dinâmica do tamanho amostral.}
+    {Winner Agreement mede a preservação das relações efetivas de vencedor, com empates exatos posteriores mantendo o vencedor anterior.}
     {1 minuto e 20 segundos.}
-    {Não interpretar a matriz quadrada como pares duplicados na métrica; o cálculo usa cada par não ordenado uma única vez e exclui empates.}
+    {Não dizer que empates são simplesmente excluídos: apenas o empate exato inicial fica indefinido; um empate exato posterior mantém o vencedor já estabelecido.}
 \end{frame}
 
 % Slide 8 ---------------------------------------------------------------------
-\begin{frame}{Métrica 3 — quando a superioridade muda?}
+\begin{frame}{Métricas 3 e 4 — quais pares invertem e em que regime amostral?}
   \slidetime{1:50}
   \begin{columns}[T,onlytextwidth]
-    \begin{column}{0.56\textwidth}
+    \begin{column}{0.54\textwidth}
       \centering
       \vspace{0.04cm}
-      \begin{tikzpicture}[x=0.72cm,y=0.465cm]
-        % regiões antes/depois do cruzamento
-        \fill[CoInfoPale!60] (0.65,0.6) rectangle (6.0,5.30);
-        \fill[CoInfoCream!75] (6.0,0.6) rectangle (9.55,5.30);
-        \draw[-{Stealth[length=2.3mm]},CoInfoGray,line width=.8pt] (0.65,0.6)--(9.80,0.6);
-        \draw[-{Stealth[length=2.3mm]},CoInfoGray,line width=.8pt] (0.65,0.6)--(0.65,5.50);
-        \node[rotate=90,font=\fontsize{8.4}{10}\selectfont,text=CoInfoGray] at (0.10,3.0) {perda média no teste real};
-        \node[font=\fontsize{8.4}{10}\selectfont,text=CoInfoGray] at (5.1,0.02) {amostras de treinamento por classe, $n$};
+      \begin{tikzpicture}[x=1.55cm,y=0.85cm]
+        \draw[-{Stealth[length=2.3mm]},CoInfoGray,line width=.8pt] (0.2,0)--(5.85,0);
+        \node[font=\fontsize{7.6}{9}\selectfont,text=CoInfoGray] at (3.0,-0.62) {tamanho amostral $n$ (grade)};
 
-        % duas curvas suaves, decrescentes, com um único cruzamento
-        \draw[CoInfoBlue,line width=1.9pt]
-          plot[smooth] coordinates {(0.90,2.55) (2.2,2.18) (4.0,1.97) (6.0,1.85) (7.6,1.80) (9.1,1.77)};
-        \draw[CoInfoAmber,line width=1.9pt]
-          plot[smooth] coordinates {(0.90,4.85) (2.2,3.62) (4.0,2.62) (6.0,1.85) (7.6,1.42) (9.1,1.26)};
+        \foreach \x/\lab [count=\k from 0] in {0.6/{$n_1$},1.6/{$n_2$},2.6/{$n_3$},3.6/{$n_4$},4.6/{$n_5$}}{
+          \draw[CoInfoGray] (\x,0.08)--(\x,-0.08);
+          \node[font=\fontsize{7.2}{8.6}\selectfont,text=CoInfoGray] at (\x,-0.32) {\lab};
+        }
 
-        % cruzamento único, marcado como N*
-        \draw[dashed,CoInfoPlum,line width=0.9pt] (6.0,0.6)--(6.0,4.55);
-        \fill[CoInfoPlum] (6.0,1.85) circle (2.3pt);
-        \node[font=\bfseries\fontsize{10.5}{12}\selectfont,text=CoInfoPlum] at (6.0,4.95) {$N^{\star}$};
+        \node[rounded corners=2pt,draw=CoInfoGray!70,fill=CoInfoPale,font=\fontsize{6.8}{8.0}\selectfont,
+          text=CoInfoInk,align=center,inner sep=2pt,minimum width=1.3cm] at (0.6,0.75) {empate\\indefinido};
+        \node[rounded corners=2pt,draw=CoInfoMint!75,fill=CoInfoMint!14,font=\fontsize{6.8}{8.0}\selectfont,
+          text=CoInfoInk,align=center,inner sep=2pt,minimum width=1.3cm] at (1.6,2.05) {$1^\circ$ vencedor\\$S_A$};
+        \node[rounded corners=2pt,draw=CoInfoBlue!70,fill=CoInfoBlue!10,font=\fontsize{6.8}{8.0}\selectfont,
+          text=CoInfoInk,align=center,inner sep=2pt,minimum width=1.3cm] at (2.6,2.05) {empate:\\mantém $S_A$};
+        \node[rounded corners=2pt,draw=CoInfoRose!80,fill=CoInfoRose!16,font=\fontsize{6.8}{8.2}\selectfont,
+          text=CoInfoInk,align=center,inner sep=2pt,minimum width=1.4cm] at (3.6,0.75) {\textbf{inversão}\\válida: $S_B$};
+        \node[rounded corners=2pt,draw=CoInfoRose!70,fill=CoInfoRose!8,font=\fontsize{6.8}{8.0}\selectfont,
+          text=CoInfoInk,align=center,inner sep=2pt,minimum width=1.3cm] at (4.6,0.75) {mantém\\$S_B$};
 
-        % rótulos das curvas
-        \node[anchor=west,font=\bfseries\scriptsize,text=CoInfoBlue] at (9.15,1.79) {$S_A$};
-        \node[anchor=west,font=\bfseries\scriptsize,text=CoInfoAmber] at (9.15,1.24) {$S_B$};
+        \draw[CoInfoGray!70,dashed] (1.6,1.65)--(2.6,1.65);
+        \draw[CoInfoRose,line width=1.3pt,-{Stealth[length=2.1mm]}] (2.6,1.65)--(3.6,1.15);
+        \node[font=\bfseries\fontsize{7.0}{8.4}\selectfont,text=CoInfoRose] at (3.35,1.55) {inversão};
+        \draw[CoInfoGray!70,dashed] (3.6,0.35)--(4.6,0.35);
 
-        % anotações das regiões
-        \node[font=\fontsize{8.2}{9.8}\selectfont,text=CoInfoInk,align=center] at (3.15,1.22)
-          {Antes de $N^{\star}$:\\$S_A$ apresenta menor perda.};
-        \node[font=\fontsize{8.2}{9.8}\selectfont,text=CoInfoInk,align=center] at (7.85,2.85)
-          {Após $N^{\star}$:\\$S_B$ apresenta menor perda.};
-        \node[anchor=west,font=\fontsize{7.4}{9}\selectfont,text=CoInfoGray] at (0.72,5.62) {exemplo canônico, esquemático};
+        \node[rounded corners=3pt,draw=CoInfoInk!55,fill=white,font=\fontsize{7.2}{8.6}\selectfont,
+          text=CoInfoInk,align=center,inner sep=3.5pt, text width=4.4cm] at (2.4,3.35)
+          {$R_{ij}=n_4$: único valor guardado --- a última inversão observada};
+        \draw[-{Stealth[length=2mm]},CoInfoInk!55] (3.6,1.18) to[out=90,in=-20] (3.55,2.95);
       \end{tikzpicture}
     \end{column}
-    \begin{column}{0.41\textwidth}
+    \begin{column}{0.43\textwidth}
+      \vspace{0.10cm}
+      \infocard{$\AR$ --- concordância de existência}{os mesmos pares apresentam ao menos uma inversão válida nos dois braços?}
       \vspace{0.14cm}
-      \infocard{1. Existência}{os mesmos pares cruzam nos dois braços?}
-      \vspace{0.08cm}
-      \infocard{2. Posição}{o último cruzamento ocorre em regime semelhante?}
-      \vspace{0.08cm}
-      \infocard{Similaridade progressiva de \Nstar}{existência $\times$ posição, em prefixos crescentes}
+      \infocard{$\SR$ --- similaridade amostral}{nos pares compartilhados, as últimas inversões ocorrem em tamanhos amostrais semelhantes?}
+      \vspace{0.14cm}
+      \begin{tikzpicture}
+        \node[rounded corners=3pt,draw=CoInfoRose!70,fill=CoInfoRose!8,
+          font=\bfseries\fontsize{8.6}{10.2}\selectfont,text=CoInfoInk,inner sep=5pt,align=center,text width=5.0cm]
+          {Existência e tamanho amostral respondem\\a perguntas diferentes;\\não há produto entre as métricas.};
+      \end{tikzpicture}
     \end{column}
   \end{columns}
 
-  \vspace{0.04cm}
-  \takeaway{\Nstar{} pergunta não só quem vence, mas quando a superioridade muda.}
+  \vspace{0.06cm}
+  \takeaway{$\Rmat$ guarda só a última inversão válida de cada par; $\AR$ e $\SR$ são calculados separadamente a partir dela.}
   \sourcecite{elaboração própria; definição no relatório final do CoInfoSim.}
 
   \speakernotes
-    {Este é o caso canônico observado nos experimentos: duas curvas de perda suaves e decrescentes, com um único cruzamento. Antes de $N^\star$, o subconjunto $S_A$ apresenta menor perda; depois, $S_B$ passa a ser superior. Para cada par dirigido, um evento ocorre quando o primeiro subconjunto não era estritamente melhor e passa a ser melhor no próximo ponto observado da grade, sem interpolação. Na prática, a maioria dos pares exibe zero ou um cruzamento; dois cruzamentos são incomuns e três ou mais são raríssimos nos cenários avaliados. Para permanecer bem definida nesses casos excepcionais, a implementação registra o último cruzamento dirigido observado até cada prefixo. A similaridade compara duas coisas: o índice de Jaccard verifica se os mesmos pares possuem cruzamento definido; entre os cruzamentos compartilhados, uma componente temporal mede quão próximas estão as posições na escala logarítmica da grade. O produto combina existência e posição. Essa exigência explica por que ranking e Winners Agreement podem estar próximos de um enquanto a similaridade de $N^\star$ permanece moderada: preservar a ordenação é mais fácil do que reproduzir o regime das transições.}
-    {Com as três lentes definidas, passo aos resultados; o primeiro caso separa aparência geométrica de preservação da estrutura.}
-    {$N^\star$ acrescenta o regime amostral da transição e, por isso, é a métrica mais sensível.}
+    {A relação efetiva de vencedor $W_{ij}$ segue uma regra simples: o primeiro empate exato fica indefinido; o primeiro vencedor estrito inicializa a relação; um empate exato posterior mantém esse vencedor; e uma inversão válida ocorre quando um vencedor já definido é substituído pelo outro. No exemplo, $S_A$ vence em $n_2$, o empate em $n_3$ mantém $S_A$, e a inversão em $n_4$ substitui $S_A$ por $S_B$ --- essa é a única informação que a matriz de inversões $R$ guarda para o par: o tamanho amostral $n_4$ da última inversão observada. A partir de $R$, calculamos dois indicadores independentes. $A_R$ pergunta se os mesmos pares invertem nos braços real e sintético, por concordância de Jaccard sobre os pares com inversão definida. $S_R$, apenas para os pares que invertem nos dois braços, mede se essas inversões ocorrem em tamanhos amostrais semelhantes, numa escala logarítmica de base 2. Os dois indicadores nunca são multiplicados: um braço pode concordar bem sobre quais pares invertem e mal sobre quando, ou o oposto, e essa distinção seria perdida em um produto único.}
+    {Com os quatro indicadores definidos, passo aos resultados; o primeiro caso separa aparência geométrica de preservação do perfil.}
+    {$R$ guarda a última inversão; $A_R$ é existência, $S_R$ é regime amostral, e nunca se multiplicam.}
     {1 minuto e 50 segundos.}
-    {O caso típico é um único cruzamento; cruzamentos múltiplos são exceção tratada pela regra do último evento observado, não a intuição central da métrica.}
+    {Não anunciar um produto ou índice único combinando $A_R$ e $S_R$; o relatório e esta apresentação os mantêm sempre separados.}
 \end{frame}
 
 % Slide 9 ---------------------------------------------------------------------
@@ -357,7 +360,7 @@
   \vspace{-0.12cm}
   \begin{columns}[T,onlytextwidth]
     \begin{column}{0.322\textwidth}
-      \centering\eyebrow{Reservatório real}\par\vspace{0.05cm}
+      \centering\eyebrow{Dados reais de treinamento}\par\vspace{0.05cm}
       \includegraphics[width=\linewidth,height=2.02cm,keepaspectratio,trim=13 857 749 29,clip]{\figroot/geometry/occupancy/viz_2d_real_full_000002.png}
     \end{column}
     \begin{column}{0.322\textwidth}
@@ -375,80 +378,103 @@
     {\bfseries\fontsize{9.2}{11.0}\selectfont Linear SVM, $n=512$ por classe}\par\vspace{0.04cm}
     \renewcommand{\arraystretch}{1.08}
     \fontsize{8.9}{10.6}\selectfont
-    \begin{tabular}{lccc}
+    \begin{tabular}{lcccc}
       \toprule
-      Treinamento $\rightarrow$ teste & $\rankrho$ & \WA{} & Sim. de \Nstar{} \\
+      Treinamento $\rightarrow$ teste & $\rankrho$ & \AW{} & $\AR$ & $\SR$ \\
       \midrule
-      Gaussiana única $\rightarrow$ Real & \textbf{0,9528} & \textbf{0,9204} & 0,4479 \\
-      GMM $\rightarrow$ Real             & 0,8774 & 0,8624 & \textbf{0,4949} \\
+      Gaussiana única $\rightarrow$ Real & \textbf{0,9528} & \textbf{0,9204} & --- & --- \\
+      GMM $\rightarrow$ Real             & 0,8774 & 0,8624 & --- & --- \\
       \bottomrule
     \end{tabular}
   \par}
 
   \vspace{0.08cm}
-  \takeaway{A distribuição que parece mais realista não é necessariamente aquela cujo treinamento melhor reproduz a estrutura de cooperação.}
-  \sourcecite{painéis geométricos sem classificador. Candanedo e Feldheim (2016); cenário full 000002; valores auditados.}
+  \takeaway{A distribuição que parece mais realista não é necessariamente aquela cujo treinamento melhor reproduz o perfil de cooperação preditiva.}
+  \sourcecite{painéis geométricos sem classificador. Candanedo e Feldheim (2016); cenário full 000002; $\rankrho$/\AW{} herdados do relatório anterior; $\AR$/$\SR$ indisponíveis nesta revisão (dados brutos não regenerados).}
 
   \speakernotes
-    {No Occupancy, a projeção real de temperatura e umidade apresenta trajetórias estreitas, concentrações e formas pouco elípticas. A Gaussiana única regulariza fortemente essa geometria; o GMM recupera melhor a multimodalidade visível. Mas o resultado estrutural do SVM linear não segue automaticamente essa aparência. Em $n=512$, classificadores treinados com amostras produzidas por uma Gaussiana única alcançaram correlação de ranking 0,9528 e Winners Agreement 0,9204, acima de 0,8774 e 0,8624 obtidos por classificadores treinados com amostras produzidas por um GMM. O braço do GMM foi ligeiramente melhor em similaridade de $N^\star$: 0,4949 contra 0,4479. Portanto, semelhança geométrica, preservação da ordenação global e preservação da dinâmica dos cruzamentos são critérios distintos.}
+    {No Occupancy, a projeção real de temperatura e umidade apresenta trajetórias estreitas, concentrações e formas pouco elípticas. A Gaussiana única regulariza fortemente essa geometria; o GMM recupera melhor a multimodalidade visível. Mas o resultado de preservação do SVM linear não segue automaticamente essa aparência. Em $n=512$, classificadores treinados com amostras produzidas por uma Gaussiana única alcançaram correlação de ranking 0,9528 e Winner Agreement 0,9204, acima de 0,8774 e 0,8624 obtidos por classificadores treinados com amostras produzidas por um GMM. Esses dois valores são herdados do relatório publicado anteriormente; $A_R$ e $S_R$ não puderam ser recalculados nesta revisão porque os dados brutos dessa execução não estão persistidos localmente, por isso aparecem como travessão na tabela. Semelhança geométrica e preservação da ordenação global já são, de todo modo, critérios distintos.}
     {O segundo caso mostra o extremo positivo: uma organização global praticamente reproduzida ao longo de toda a grade.}
-    {Aparência geométrica mais fiel não garante maior preservação da estrutura de cooperação.}
+    {Aparência geométrica mais fiel não garante maior preservação do perfil.}
     {1 minuto e 40 segundos.}
-    {Os painéis geométricos são amostras balanceadas para inspeção, sem SVM; os números emergem após treinar o SVM. Não dizer que a Gaussiana ``preserva'' a estrutura: a comparação é entre estruturas obtidas após o treinamento.}
+    {Não preencher $A_R$/$S_R$ com valores antigos de $N^\star$; são indisponíveis, não zero. Não dizer que a Gaussiana ``preserva'' o perfil: a comparação é entre perfis obtidos após o treinamento.}
 \end{frame}
 
 % Slide 10 --------------------------------------------------------------------
-\begin{frame}{Air Quality + Gaussian NB: preservação ao longo de $n$}
+\begin{frame}{Air Quality + Gaussian NB: ordenação e vencedores quase perfeitos}
   \slidetime{1:40}
   \centering
-  \vspace{0.02cm}
-  \includegraphics[width=0.94\linewidth]{figures/air_quality_gnb_metricas_progressivas_000006.pdf}\par
-  \vspace{0.03cm}
-  {\fontsize{7.6}{9.1}\selectfont\color{CoInfoGray}
-    Séries persistidas do cenário full-scale 000006; grade até $n=1024$; mesmo teste real fixo.\par}
+  \vspace{0.10cm}
+  {\bfseries\fontsize{9.4}{11.2}\selectfont Gaussian Naive Bayes, $n=512$ por classe}\par\vspace{0.10cm}
+  \renewcommand{\arraystretch}{1.15}
+  \fontsize{9.4}{11.2}\selectfont
+  \begin{tabular}{lcccc}
+    \toprule
+    Treinamento $\rightarrow$ teste & $\rankrho$ & \AW{} & $\AR$ & $\SR$ \\
+    \midrule
+    Gaussiana única $\rightarrow$ Real & \textbf{1,0000} & \textbf{1,0000} & --- & --- \\
+    GMM $\rightarrow$ Real             & 0,9996 & 0,9978 & --- & --- \\
+    \bottomrule
+  \end{tabular}\par
 
-  \vspace{0.05cm}
-  \takeaway{Ranking e relações de vitória são quase integralmente preservados; \Nstar{} permanece mais exigente.}
-  \sourcecite{Air Quality: De Vito et al. (2008); cenário full-scale 000006; valores auditados.}
+  \vspace{0.12cm}
+  \begin{tikzpicture}
+    \node[rounded corners=3pt,draw=CoInfoGray!60,fill=CoInfoMist,
+      font=\fontsize{7.8}{9.2}\selectfont,text=CoInfoInk,inner sep=4pt,align=center,text width=9.6cm]
+      {$A_R$ e $S_R$ exigiriam dados brutos do cenário full-scale 000006, não persistidos localmente --- por isso aparecem como travessão, nunca como zero.};
+  \end{tikzpicture}
+
+  \vspace{0.06cm}
+  \takeaway{Ordenação e vencedores quase integralmente preservados; existência e regime amostral das inversões não puderam ser recalculados nesta revisão.}
+  \sourcecite{Air Quality: De Vito et al. (2008); cenário full 000005; $\rankrho$/\AW{} herdados; $\AR$/$\SR$ indisponíveis nesta revisão.}
 
   \speakernotes
-    {Aqui acompanhamos a preservação ao longo de toda a grade, não apenas no ponto final. Cada painel corresponde a um braço sintético: à esquerda, classificadores treinados com amostras produzidas por uma Gaussiana única; à direita, com amostras produzidas por um GMM, ambos parametrizados a partir dos dados reais de treinamento. A correlação de ranking e a Winners Agreement ficam próximas de 1 desde os menores prefixos, nos dois braços: a ordenação global por perda média e as decisões par a par são quase integralmente preservadas. A similaridade progressiva de $N^\star$ é claramente menor e evolui de forma diferente: cresce ao longo da grade e estabiliza em torno de 0,73 no braço da Gaussiana única e 0,81 no braço do GMM. Em $n=1024$, ranking e vitórias atingem exatamente 1 nos dois braços. A leitura correta é que a preservação é multidimensional: os dois treinamentos sintéticos reproduzem fortemente a ordenação global e as relações de vencedores, mas reproduzir a posição dos últimos cruzamentos é uma exigência mais estrita, que permanece abaixo de 1.}
-    {O terceiro caso separa outra dupla de conceitos: qualidade preditiva absoluta e preservação da estrutura.}
-    {Ranking e vitórias quase perfeitos ao longo de toda a grade; $N^\star$ continua revelando diferenças.}
+    {Aqui, os dois braços sintéticos treinados com Gaussian Naive Bayes reproduzem quase integralmente a ordenação global e as relações efetivas de vencedor da referência real: correlação de ranking e Winner Agreement muito próximas de 1 no braço da Gaussiana única e no braço do GMM. Esses valores são herdados do relatório publicado anteriormente para o cenário 000005. O que esta revisão não pôde fazer é recalcular a concordância de existência de inversões e a similaridade dos tamanhos amostrais: os dados brutos por réplica dessa execução não estão persistidos neste repositório, então preferimos mostrar um travessão explícito a inventar um número ou reaproveitar o antigo valor de similaridade de $N^\star$, que media outra coisa. A leitura honesta é que, para ranking e vencedores, este é o caso mais forte de preservação do estudo; para existência e regime amostral das inversões, não temos evidência numérica corrente neste dataset.}
+    {O terceiro caso separa outra dupla de conceitos: qualidade preditiva absoluta e preservação do perfil.}
+    {Ranking e vencedores quase perfeitos; existência e regime amostral das inversões ficam indisponíveis nesta revisão.}
     {1 minuto e 40 segundos.}
-    {Não afirmar preservação perfeita de todos os aspectos: a similaridade de $N^\star$ permanece abaixo de 1. Este cenário full-scale estende a grade até 1024; em $n=512$ os valores coincidem com os do cenário full 000005 citado no relatório.}
+    {Não reaproveitar o antigo valor de similaridade de $N^\star$ como se fosse $A_R$ ou $S_R$; são objetos matemáticos diferentes.}
 \end{frame}
 
 % Slide 11 --------------------------------------------------------------------
-\begin{frame}{SUPPORT2 — predição $\neq$ estrutura}
+\begin{frame}{SUPPORT2 — desempenho absoluto e perfil são dimensões distintas}
   \slidetime{1:40}
   \begin{columns}[T,onlytextwidth]
-    \begin{column}{0.48\textwidth}
+    \begin{column}{0.46\textwidth}
       \centering
-      \includegraphics[width=\linewidth,height=3.42cm,keepaspectratio]{\figroot/support2_rf_best_losses.pdf}\par
-      \vspace{0.06cm}
-      {\raggedright\fontsize{7.8}{9.4}\selectfont\color{CoInfoGray}
-        Menor perda em $n=512$: Real 0,4555; Gaussiana única 0,4554; GMM 0,4547. Sempre prever a classe majoritária: 0,4687.\par}
+      \includegraphics[width=\linewidth,height=2.5cm,keepaspectratio]{\figroot/support2_rf_best_losses.pdf}\par
+      \vspace{0.03cm}
+      {\raggedright\fontsize{7.3}{8.7}\selectfont\color{CoInfoGray}
+        Menor perda em $n=512$ (cenário full 000008): Real 0,4555; Gaussiana única 0,4554; GMM 0,4547; classe majoritária: 0,4687.\par}
     \end{column}
-    \begin{column}{0.49\textwidth}
+    \begin{column}{0.51\textwidth}
       \centering
-      \includegraphics[width=\linewidth,height=3.42cm,keepaspectratio]{\figroot/support2_rf_metrics.pdf}\par
-      \vspace{0.06cm}
-      {\raggedright\fontsize{7.8}{9.4}\selectfont\color{CoInfoGray}
-        Em $n=512$: GMM melhor em correlação de ranking (0,8665) e \WA{} (0,8429); Gaussiana única melhor em \Nstar{} (0,6799 contra 0,6340).\par}
+      {\bfseries\fontsize{8.2}{9.8}\selectfont Random Forest, execução \textit{smoke} ($n\leq32$)}\par\vspace{0.05cm}
+      \fontsize{7.4}{8.9}\selectfont
+      \begin{tabular}{lcccc}
+        \toprule
+        Braço & $\rankrho$ & \AW{} & $\AR$ & $\SR$ \\
+        \midrule
+        Gaussiana única $\rightarrow$ Real & 0,624 & 0,731 & \textbf{0,479} & \textbf{0,882} \\
+        GMM $\rightarrow$ Real             & 0,533 & 0,687 & \textbf{0,467} & \textbf{0,879} \\
+        \bottomrule
+      \end{tabular}\par
+      \vspace{0.05cm}
+      {\raggedright\fontsize{7.1}{8.5}\selectfont\color{CoInfoGray}
+        Indicadores recalculados diretamente pelo código atual; escala reduzida, não comparável a $n=512$.\par}
     \end{column}
   \end{columns}
 
   \vspace{0.03cm}
-  \takeaway{Perda absoluta e preservação da estrutura de cooperação respondem a perguntas diferentes.}
-  \sourcecite{SUPPORT: The SUPPORT Principal Investigators (1995); Knaus et al. (1995); cenário full 000008; valores auditados.}
+  \takeaway{Perda absoluta e preservação do perfil respondem a perguntas diferentes; e $A_R$ pode discordar de $S_R$ mesmo para o mesmo par de braços.}
+  \sourcecite{SUPPORT: The SUPPORT Principal Investigators (1995); Knaus et al. (1995); perda de cenário full 000008; $A_R$/$S_R$/$\rankrho$/\AW{} recalculados da execução smoke local.}
 
   \speakernotes
-    {No SUPPORT2, o Random Forest teve perda mínima próxima de 0,455 nos três braços. O classificador que sempre escolhe a classe majoritária erra 0,4687; portanto, a melhoria absoluta é pequena e o desempenho preditivo é fraco. Ainda assim, a comparação relativa dos 127 subconjuntos mostra que uma parte substancial da estrutura de cooperação foi preservada entre os treinamentos real e sintético. Para classificadores treinados com amostras produzidas pela Gaussiana única, correlação de ranking, Winners Agreement e similaridade de $N^\star$ foram 0,8387, 0,8282 e 0,6799. Com amostras produzidas pelo GMM, 0,8665, 0,8429 e 0,6340. O braço do GMM reproduziu melhor as relações estáticas; o da Gaussiana única, a dinâmica dos últimos cruzamentos. Isso não torna o Random Forest um bom classificador para esse problema: mostra que perda absoluta e preservação estrutural respondem a perguntas diferentes.}
+    {No SUPPORT2, o Random Forest teve perda mínima próxima de 0,455 nos três braços do cenário full. O classificador que sempre escolhe a classe majoritária erra 0,4687; portanto, a melhoria absoluta é pequena e o desempenho preditivo é fraco. Para ilustrar os quatro indicadores com números correntes, uso uma execução em escala reduzida, com grade até $n=32$, cujos dados brutos estão persistidos neste repositório. Nela, o Random Forest preservou razoavelmente ranking e vencedores efetivos, mas teve concordância de existência de inversões relativamente baixa, ao redor de 0,47--0,48: os braços sintéticos e o real frequentemente não trocam de vencedor no mesmo par. Por outro lado, para os pares que efetivamente invertem nos dois braços, a similaridade dos tamanhos amostrais é alta, acima de 0,87: quando a inversão é compartilhada, ela tende a ocorrer em regimes amostrais semelhantes. Esse contraste---existência baixa, regime amostral alto---é exatamente o tipo de padrão que um produto entre as métricas esconderia.}
     {Os três estudos de caso permitem uma síntese cuidadosa sobre o que foi e o que não foi demonstrado.}
-    {Qualidade preditiva absoluta e preservação da estrutura de cooperação não são equivalentes.}
+    {Qualidade preditiva absoluta e preservação do perfil não são equivalentes; $A_R$ e $S_R$ podem até apontar em direções opostas.}
     {1 minuto e 40 segundos.}
-    {Não recomendar Random Forest como melhor classificador e não transformar a elevada preservação estrutural em evidência de boa predição clínica.}
+    {Não recomendar Random Forest como melhor classificador; não comparar os números de $n\leq32$ diretamente com os de $n=512$ do cenário full; não transformar preservação em evidência de boa predição clínica.}
 \end{frame}
 
 % Slide 12 --------------------------------------------------------------------
@@ -461,15 +487,15 @@
         \centering\bfseries\fontsize{10.0}{12.0}\selectfont\color{CoInfoBlue}
         Preservação é\\multidimensional\par\vspace{.07cm}
         \mdseries\fontsize{8.3}{9.9}\selectfont\color{CoInfoInk}
-        ranking, vitórias e \Nstar{}\\são complementares
+        ordenação, vencedores,\\existência e regime\\amostral das inversões
       \end{beamercolorbox}
     \end{column}
     \begin{column}{0.32\textwidth}
       \begin{beamercolorbox}[wd=\linewidth,sep=.12cm,rounded=true]{block body}
         \centering\bfseries\fontsize{10.0}{12.0}\selectfont\color{CoInfoBlue}
-        Geometria, perda e\\estrutura são distintas\par\vspace{.07cm}
+        Geometria, perda e\\perfil são distintos\par\vspace{.07cm}
         \mdseries\fontsize{8.3}{9.9}\selectfont\color{CoInfoInk}
-        nenhuma permite inferir\\as outras
+        nenhum permite inferir\\os outros
       \end{beamercolorbox}
     \end{column}
     \begin{column}{0.32\textwidth}
@@ -482,24 +508,24 @@
     \end{column}
   \end{columns}
 
-  \vspace{0.12cm}
-  \takeaway{A preservação da estrutura de cooperação depende da interação entre dataset, classificador, modelo gerador e tamanho amostral.}
+  \vspace{0.08cm}
+  \takeaway{A preservação do perfil de cooperação preditiva depende da interação entre dataset, classificador, modelo gerador e tamanho amostral. Nenhum indicador isolado resume todas essas dimensões.}
 
-  \vspace{0.12cm}
-  \begin{beamercolorbox}[wd=\linewidth,sep=.16cm,rounded=true]{block title}
-    \centering\bfseries\fontsize{10.2}{12.5}\selectfont
-    O resultado principal não é que amostras sintéticas melhorem o classificador: em determinados cenários, o treinamento com amostras sintéticas reproduz a organização cooperativa observada com o treinamento real.
+  \vspace{0.06cm}
+  \begin{beamercolorbox}[wd=\linewidth,sep=.10cm,rounded=true]{block title}
+    \centering\bfseries\fontsize{9.0}{10.8}\selectfont
+    O resultado principal não é que amostras sintéticas melhorem o classificador: em determinados cenários, o treinamento sintético preserva o perfil de cooperação preditiva observado com o treinamento real.
   \end{beamercolorbox}
 
-  \vspace{0.04cm}
-  {\centering\fontsize{7.9}{9.4}\selectfont\color{CoInfoGray}
-    Extrapolação e decisões de custo não foram validadas; permanecem hipóteses para pesquisa futura.\par}
-  \sourcecite{síntese do relatório final do CoInfoSim; cenários full 000002, 000008 e full-scale 000006.}
+  \vspace{0.02cm}
+  {\centering\fontsize{6.8}{8.0}\selectfont\color{CoInfoGray}
+    Extrapolação, custos e $A_R$/$S_R$ de escala completa permanecem pendentes de validação futura.\par}
+  \sourcecite{síntese do relatório final; cenários full 000002/000005/000007/000008 e execução smoke do SUPPORT2.}
 
   \speakernotes
-    {A conclusão tem três partes. Primeiro, a preservação estrutural é um perfil multidimensional: correlação de ranking, Winners Agreement e similaridade de $N^\star$ não devem ser fundidas em uma única afirmação. Segundo, semelhança geométrica, desempenho preditivo absoluto e preservação da estrutura de cooperação são propriedades diferentes. Terceiro, nenhum gerador foi universalmente superior nos cenários avaliados: a preservação da estrutura de cooperação depende da interação entre dataset, classificador, modelo gerador e tamanho amostral. Se o treinamento com amostras de um modelo parametrizado a partir dos dados reais reproduzir a estrutura de referência dentro do intervalo observado, esse gerador poderá ser investigado como instrumento para simular regimes amostrais maiores e subsidiar futuras decisões sobre canais. Essa é uma possibilidade de pesquisa, não uma validação já concluída: a grade termina em 512 por classe, 1024 no cenário full-scale, não medimos custos e não demonstramos extrapolação confiável.}
+    {A conclusão tem três partes. Primeiro, a preservação do perfil é multidimensional: correlação de ranking, Winner Agreement, concordância de existência de inversões e similaridade dos tamanhos amostrais não devem ser fundidas em uma única afirmação, nem em um único número. Segundo, semelhança geométrica, desempenho preditivo absoluto e preservação do perfil de cooperação preditiva são propriedades diferentes. Terceiro, nenhum gerador foi universalmente superior nos cenários avaliados: a preservação do perfil depende da interação entre dataset, classificador, modelo gerador e tamanho amostral. Se o treinamento com amostras de um modelo ajustado aos dados reais reproduzir o perfil de referência dentro do intervalo observado, esse gerador poderá ser investigado como instrumento para simular regimes amostrais maiores e subsidiar futuras decisões sobre canais. Essa é uma possibilidade de pesquisa, não uma validação já concluída: a grade termina no maior $n$ avaliado em cada dataset, não medimos custos, não demonstramos extrapolação confiável, e a concordância de existência e de regime amostral das inversões em escala completa permanece pendente de regeneração dos dados brutos para Occupancy, Air Quality e SUPPORT2.}
     {Encerrar retomando a tese inicial e, se houver perguntas, usar os slides de apoio para fórmulas, configurações e resultados adicionais.}
-    {Em alguns cenários, a estrutura obtida após o treinamento com amostras sintéticas reproduz a organização de referência; isso não prova ganho de acurácia, economia ou extrapolação.}
+    {Em alguns cenários, o perfil obtido após o treinamento com amostras sintéticas reproduz o perfil de referência; isso não prova ganho de acurácia, economia ou extrapolação.}
     {1 minuto e 20 segundos. Duração principal acumulada: 18 minutos e 15 segundos.}
-    {Evitar qualquer promessa operacional: custo e extrapolação são hipóteses para validação futura.}
+    {Evitar qualquer promessa operacional: custo e extrapolação são hipóteses para validação futura; não afirmar que $A_R$/$S_R$ de escala completa foram demonstrados para os três datasets.}
 \end{frame}

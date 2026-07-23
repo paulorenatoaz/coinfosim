@@ -15,8 +15,8 @@ from coinfosim.reports.occupancy_scenario import (
     _carousel_html,
     _interpretation_html,
     _legend_html,
+    _predictive_cooperation_profile_section,
     _protocol_html,
-    _structural_fidelity_section,
     _summary_table,
     _top_ranked_html,
 )
@@ -170,7 +170,7 @@ def generate_dataset_anchored_scenario_report(
 
 {_top_ranked_html(real_result, gaussian_result, gmm_result, n_max, output_dir, graph_suffix, graphs_out, generate_graphs=generate_graphs, arm_labels=report_spec.arm_labels)}
 
-{_structural_fidelity_section(arm_results, "real_to_real", report_spec.arm_labels, output_dir, graph_suffix, graphs_out, generate_graphs)}
+{_predictive_cooperation_profile_section(arm_results, "real_to_real", report_spec.arm_labels, output_dir, graph_suffix, graphs_out, generate_graphs)}
 
 {_interpretation_html(report_spec.interpretation_notes, report_spec.limitations)}
 

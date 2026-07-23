@@ -76,6 +76,10 @@ docs/build/
 output/
 output/block4_report_previews/
 output/validation/
+output/academic_revision_validation/
+output/predictive_profile_regenerated/
+output/predictive_profile_smoke_validation/
+output/recovered_gh_pages/
 
 # Local virtual environments
 .venv/
@@ -93,5 +97,5 @@ TASKS_*.md
 REFACTOR_PLAN.md
 
 # LaTeX report build artifacts
-coinfosim-report-latex/
-coinfosim-presentation/
+#coinfosim-report-latex/
+#coinfosim-presentation/

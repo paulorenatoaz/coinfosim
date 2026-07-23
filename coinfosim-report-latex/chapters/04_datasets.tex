@@ -6,7 +6,7 @@ A passagem dos cenários gaussianos idealizados para experimentos ancorados em d
 
 Esses critérios são importantes porque a disponibilidade pública de um arquivo tabular não garante que suas linhas possam ser tratadas como observações independentes. Vazamento de informação pode ocorrer quando variáveis relacionadas ao desfecho, etapas de pré-processamento ou observações correlacionadas aparecem simultaneamente no treinamento e na avaliação \cite{Kaufman2012}. Em dados com estrutura temporal, espacial, hierárquica ou por grupos, divisões aleatórias podem produzir estimativas excessivamente otimistas; nesses casos, a estratégia de validação deve representar a forma de generalização de interesse \cite{Roberts2017,Bergmeir2012}.
 
-Foram priorizados problemas binários de pequena ou média dimensionalidade, com canais fisicamente ou semanticamente interpretáveis e reservatórios de treinamento capazes de sustentar amostragem balanceada em diferentes valores de $n$. A dimensionalidade foi deliberadamente mantida baixa: com $d$ canais, o número de subconjuntos não vazios é $2^d-1$, de modo que o custo do experimento cresce exponencialmente antes mesmo de considerar classificadores, braços, tamanhos amostrais e replicações.
+Foram priorizados problemas binários de pequena ou média dimensionalidade, com canais fisicamente ou semanticamente interpretáveis e conjuntos de dados reais de treinamento capazes de sustentar amostragem balanceada em diferentes valores de $n$. A dimensionalidade foi deliberadamente mantida baixa: com $d$ canais, o número de subconjuntos não vazios é $2^d-1$, de modo que o custo do experimento cresce exponencialmente antes mesmo de considerar classificadores, braços, tamanhos amostrais e replicações.
 
 \section{Datasets considerados e não incorporados}
 
@@ -42,13 +42,13 @@ O alvo \texttt{Occupancy} assume 0 para sala desocupada e 1 para sala ocupada. C
 
 \subsection{Particionamento e preparação}
 
-Foi preservada a divisão distribuída com o dataset. O arquivo \texttt{datatraining.txt}, com 8.143 linhas, constitui o reservatório finito de treinamento. Os arquivos \texttt{datatest.txt} e \texttt{datatest2.txt}, com 2.665 e 9.752 linhas, respectivamente, são concatenados para formar um teste real fixo com 12.417 observações. No reservatório de treinamento, as classes 0 e 1 possuem 6.414 e 1.729 registros. No teste combinado, os totais correspondentes são 9.396 e 3.021.
+Foi preservada a divisão distribuída com o dataset. O arquivo \texttt{datatraining.txt}, com 8.143 linhas, constitui os dados reais de treinamento. Os arquivos \texttt{datatest.txt} e \texttt{datatest2.txt}, com 2.665 e 9.752 linhas, respectivamente, são concatenados para formar um teste real fixo com 12.417 observações. Nos dados reais de treinamento, as classes 0 e 1 possuem 6.414 e 1.729 registros. No teste combinado, os totais correspondentes são 9.396 e 3.021.
 
-A média e o desvio-padrão de cada canal são estimados exclusivamente no reservatório de treinamento, usando desvio populacional ($\mathrm{ddof}=0$), e aplicados aos dois conjuntos. Não há imputação, e os arquivos empregados não apresentam valores ausentes nas colunas obrigatórias. A amostragem Monte Carlo do braço real é balanceada, sem reposição dentro de cada replicação, sendo seu maior $n$ limitado pela classe minoritária do reservatório.
+A média e o desvio-padrão de cada canal são estimados exclusivamente nos dados reais de treinamento, usando desvio populacional ($\mathrm{ddof}=0$), e aplicados aos dois conjuntos. Não há imputação, e os arquivos empregados não apresentam valores ausentes nas colunas obrigatórias. A amostragem Monte Carlo do braço real é balanceada, sem reposição dentro de cada replicação, sendo seu maior $n$ limitado pela classe minoritária dos dados reais de treinamento.
 
 \subsection{Geometria observada}
 
-A inspeção das projeções padronizadas mostra classes com formas irregulares, concentrações alongadas e regiões cuja geometria se distancia de uma única elipse gaussiana. Essa característica torna o cenário especialmente informativo: a Gaussiana única produz pontos visualmente muito diferentes dos dados reais, enquanto o GMM acompanha melhor parte da forma empírica. Ainda assim, como será discutido nos resultados, fidelidade visual e fidelidade estrutural não coincidem necessariamente. No maior $n$, a Gaussiana única pode apresentar correlação de ranking e \WinnersAgreement{} ligeiramente superiores às do GMM, mesmo quando o GMM parece imitar melhor a nuvem real. A Figura~\ref{fig:geom-occupancy-dataset} apresenta as projeções bidimensionais padronizadas dos três braços, extraídas do relatório do cenário 000002.
+A inspeção das projeções padronizadas mostra classes com formas irregulares, concentrações alongadas e regiões cuja geometria se distancia de uma única elipse gaussiana. Essa característica torna o cenário especialmente informativo: a Gaussiana única produz pontos visualmente muito diferentes dos dados reais, enquanto o GMM acompanha melhor parte da forma empírica. Ainda assim, como será discutido nos resultados, fidelidade visual e preservação do perfil de cooperação preditiva não coincidem necessariamente. No maior $n$, a Gaussiana única pode apresentar correlação de ranking e \WinnersAgreement{} ligeiramente superiores às do GMM, mesmo quando o GMM parece imitar melhor a nuvem real. A Figura~\ref{fig:geom-occupancy-dataset} apresenta as projeções bidimensionais padronizadas dos três braços, extraídas do relatório do cenário 000002.
 
 \begin{figure}[H]
   \centering
@@ -84,7 +84,7 @@ A inspeção das projeções padronizadas mostra classes com formas irregulares,
     \subcaption{GMM}
   \end{minipage}
   \sourcebelow{relatório publicado do cenário Occupancy Detection 000002 do \CoInfoSim}
-  \notailustracao{A comparação geométrica é descritiva. A preservação estrutural é avaliada separadamente pelas métricas definidas no Capítulo 6.}
+  \notailustracao{A comparação geométrica é descritiva. A preservação do perfil de cooperação preditiva é avaliada separadamente pelos indicadores definidos no Capítulo 6}
 \end{figure}
 
 \section{UCI Air Quality}
@@ -109,7 +109,7 @@ A variável \texttt{C6H6(GT)}, obtida por analisador de referência, não é for
 
 O arquivo possui 9.357 linhas não vazias. O valor sentinela $-200$ é convertido em ausente, e são mantidas apenas as observações completas nos cinco canais e na referência de benzeno. A coorte resultante contém 8.991 linhas; 366 observações são descartadas, sem imputação.
 
-Depois da ordenação temporal, as primeiras 7.192 observações, correspondentes a 80\% da coorte, formam o reservatório de treinamento; as 1.799 observações posteriores formam o teste real fixo. O treinamento cobre o período de 10 de março de 2004, às 18h, até 16 de janeiro de 2005, à 1h. O teste começa imediatamente depois, às 2h, e termina em 4 de abril de 2005, às 14h. Esse corte preserva uma tarefa de generalização para observações futuras e impede que medições posteriores participem da parametrização dos geradores.
+Depois da ordenação temporal, as primeiras 7.192 observações, correspondentes a 80\% da coorte, formam os dados reais de treinamento; as 1.799 observações posteriores formam o teste real fixo. O treinamento cobre o período de 10 de março de 2004, às 18h, até 16 de janeiro de 2005, à 1h. O teste começa imediatamente depois, às 2h, e termina em 4 de abril de 2005, às 14h. Esse corte preserva uma tarefa de generalização para observações futuras e impede que medições posteriores participem da parametrização dos geradores.
 
 O limiar do alvo é o percentil 75 da referência \texttt{C6H6(GT)} calculado somente no treinamento, igual a 14,5 na preparação atual. A classe positiva satisfaz \texttt{C6H6(GT) >= 14.5}. O treinamento contém 5.374 negativos e 1.818 positivos; o teste, 1.524 negativos e 275 positivos. Os parâmetros de padronização são estimados apenas no treinamento e aplicados ao teste.
 
@@ -186,7 +186,7 @@ Com sete canais, são avaliados 127 subconjuntos não vazios. O arquivo original
 
 \subsection{Particionamento e padronização}
 
-Foi construído um particionamento fixo 80/20 com semente 0 e estratificação conjunta por mortalidade em 180 dias e grupo diagnóstico. O reservatório de treinamento contém 7.098 pacientes, com 3.768 negativos e 3.330 positivos; o teste possui 1.775 pacientes, com 943 negativos e 832 positivos. Todos os 16 estratos conjuntos aparecem nas duas partições. Após o sorteio, as linhas são ordenadas pelo identificador, e os conjuntos são auditados por impressões digitais dos IDs.
+Foi construído um particionamento fixo 80/20 com semente 0 e estratificação conjunta por mortalidade em 180 dias e grupo diagnóstico. Os dados reais de treinamento contêm 7.098 pacientes, com 3.768 negativos e 3.330 positivos; o teste possui 1.775 pacientes, com 943 negativos e 832 positivos. Todos os 16 estratos conjuntos aparecem nas duas partições. Após o sorteio, as linhas são ordenadas pelo identificador, e os conjuntos são auditados por impressões digitais dos IDs.
 
 A padronização utiliza somente o treinamento e $\mathrm{ddof}=0$. Não há imputação, transformação não linear ou recorte de valores. Essa escolha mantém o protocolo transparente, mas restringe as conclusões à coorte de casos completos e não equivale a uma recomendação clínica de exclusão de pacientes com exames ausentes.
 
@@ -232,7 +232,7 @@ As projeções selecionadas do SUPPORT2 mostram regiões mais compatíveis com a
 
 \section{Síntese comparativa}
 
-A Tabela \ref{tab:datasets-comparison} resume as diferenças que condicionam a interpretação dos resultados. Os três cenários compartilham avaliação exaustiva dos subconjuntos e teste real fixo, mas diferem na origem do alvo, na estrutura temporal e na quantidade de combinações. Consequentemente, a preservação estrutural não deve ser interpretada como atributo isolado do gerador: ela emerge da interação entre dataset, classificador, tamanho amostral e protocolo de avaliação.
+A Tabela \ref{tab:datasets-comparison} resume as diferenças que condicionam a interpretação dos resultados. Os três cenários compartilham avaliação exaustiva dos subconjuntos e teste real fixo, mas diferem na origem do alvo, na estrutura temporal e na quantidade de combinações. Consequentemente, a preservação do perfil de cooperação preditiva não deve ser interpretada como propriedade isolada do gerador: ela emerge da interação entre dataset, classificador, tamanho amostral e protocolo de avaliação.
 
 \begin{table}[H]
   \centering
@@ -246,7 +246,7 @@ A Tabela \ref{tab:datasets-comparison} resume as diferenças que condicionam a i
     Alvo & Ocupação da sala & Benzeno elevado, derivado da referência & Mortalidade em até 180 dias \\
     Canais & 5 & 5 & 7 \\
     Subconjuntos & 31 & 31 & 127 \\
-    Reservatório de treinamento & 8.143 & 7.192 & 7.098 \\
+    Dados reais de treinamento & 8.143 & 7.192 & 7.098 \\
     Teste real fixo & 12.417 & 1.799 & 1.775 \\
     Tipo de particionamento & Partição original do dataset & Cronológico 80/20 & Estratificado conjunto 80/20 \\
     Origem de $Y$ & Fotografias marcadas no tempo & Analisador de referência excluído de $X$ & Evento e tempo de acompanhamento \\

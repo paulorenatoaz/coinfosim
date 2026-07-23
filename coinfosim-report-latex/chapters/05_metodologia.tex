@@ -29,7 +29,7 @@ O simulador calcula perda empírica no teste; não estima erro de treinamento, e
 
 \section{Padronização e espaço de modelagem}
 
-Para cada canal $j$, a média $\widehat{\mu}_j$ e o desvio-padrão $\widehat{\sigma}_j$ são calculados somente no reservatório de treinamento. As observações são transformadas por
+Para cada canal $j$, a média $\widehat{\mu}_j$ e o desvio-padrão $\widehat{\sigma}_j$ são calculados somente nos dados reais de treinamento. As observações são transformadas por
 \begin{equation}
   Z_j=\frac{X_j-\widehat{\mu}_j}{\widehat{\sigma}_j}.
   \label{eq:zscore}
@@ -45,7 +45,7 @@ O protocolo separa seis operações:
 \begin{enumerate}
   \item definição ou derivação do alvo;
   \item determinação da coorte elegível;
-  \item construção do reservatório de treinamento e do teste real fixo;
+  \item construção dos dados reais de treinamento e do teste real fixo;
   \item estimação dos parâmetros de padronização somente no treinamento;
   \item parametrização dos modelos geradores e eventual calibração do classificador somente no treinamento;
   \item avaliação de todos os braços no mesmo teste real fixo.
@@ -62,9 +62,9 @@ O desenho ancorado em datasets possui três braços:
   &\GMMToReal.\label{eq:method-arm-gmm}
 \end{align}
 
-No braço \RealToReal, amostras balanceadas são retiradas do reservatório real padronizado. Nos dois braços sintéticos, modelos geradores parametrizados a partir desse mesmo reservatório produzem as amostras usadas para treinar os classificadores. Em todos os casos, a avaliação ocorre no teste real fixo. Essa assimetria é intencional: o gerador não é avaliado por produzir um teste artificial fácil para si próprio, mas por sustentar classificadores capazes de reproduzir relações que emergem quando o treinamento usa dados reais. O desenho é relacionado ao protocolo \textit{Train on Synthetic, Test on Real} \cite{esteban2017}, porém o objeto principal aqui não é apenas a utilidade preditiva global, e sim a estrutura de cooperação entre subconjuntos.
+No braço \RealToReal, amostras balanceadas são retiradas dos dados reais de treinamento padronizados. Nos dois braços sintéticos, modelos geradores ajustados a partir desses mesmos dados reais de treinamento produzem as amostras sintéticas usadas para treinar os classificadores. Em todos os casos, a avaliação ocorre no mesmo teste real fixo. Essa assimetria é intencional: o gerador não é avaliado por produzir um teste artificial fácil para si próprio, mas por sustentar classificadores capazes de reproduzir relações que emergem quando o treinamento usa dados reais. O desenho é relacionado ao protocolo \textit{Train on Synthetic, Test on Real} \cite{esteban2017}, porém o objeto principal aqui não é apenas a utilidade preditiva global, e sim o perfil de cooperação preditiva entre subconjuntos.
 
-A Figura~\ref{fig:conceito-pipeline} resume o fluxo completo. Os três braços partem do mesmo reservatório real de treinamento, divergem apenas na origem das amostras de treinamento e convergem novamente na avaliação, realizada sempre sobre o mesmo conjunto de teste real fixo. As perdas resultantes alimentam as métricas estruturais definidas no Capítulo~6.
+A Figura~\ref{fig:conceito-pipeline} resume o fluxo completo. Os três braços partem dos mesmos dados reais de treinamento, divergem apenas na origem das amostras de treinamento e convergem novamente na avaliação, realizada sempre sobre o mesmo conjunto de teste real fixo. As perdas resultantes alimentam os indicadores de preservação do perfil definidos no Capítulo~6.
 
 \begin{figure}[H]
   \centering
@@ -81,7 +81,7 @@ Para cada classe $c$, a Gaussiana única é parametrizada como
   Z\mid Y=c\sim\mathcal{N}(\widehat{\bm\mu}_c,\widehat{\bm\Sigma}_c),
   \label{eq:single-gaussian}
 \end{equation}
-em que $\widehat{\bm\mu}_c$ e $\widehat{\bm\Sigma}_c$ são, respectivamente, a média e a covariância amostrais calculadas no espaço completo dos canais, utilizando apenas o reservatório de treinamento. As covariâncias podem diferir entre classes. Quando necessário para garantir definição positiva, é adicionada uma pequena regularização diagonal, registrada nos metadados.
+em que $\widehat{\bm\mu}_c$ e $\widehat{\bm\Sigma}_c$ são, respectivamente, a média e a covariância amostrais calculadas no espaço completo dos canais, utilizando apenas os dados reais de treinamento. As covariâncias podem diferir entre classes. Quando necessário para garantir definição positiva, é adicionada uma pequena regularização diagonal, registrada nos metadados.
 
 \subsection{Mistura gaussiana por classe}
 
@@ -93,7 +93,7 @@ O segundo gerador sintético é parametrizado como uma mistura finita por classe
 \end{equation}
 com pesos não negativos e soma unitária. A parametrização utiliza covariâncias completas, regularização numérica, cinco inicializações e semente fixa. São considerados de um a cinco componentes, respeitando o mínimo de 50 observações por componente; o número $K_c$ é escolhido separadamente em cada classe pelo menor BIC \cite{mclachlan2000,schwarz1978}.
 
-A comparação entre os geradores não é formulada como um campeonato no qual o GMM deveria necessariamente vencer. Uma única Gaussiana é computacionalmente mais simples e mais interpretável. O ganho do modelo mais flexível só é relevante quando o treinamento com as amostras que ele produz modifica de modo substantivo a fidelidade estrutural.
+A comparação entre os geradores não é formulada como um campeonato no qual o GMM deveria necessariamente vencer. Uma única Gaussiana é computacionalmente mais simples e mais interpretável. O ganho do modelo mais flexível só é relevante quando o treinamento com as amostras que ele produz modifica de modo substantivo a preservação do perfil de cooperação preditiva.
 
 \section{Enumeração dos subconjuntos e classificadores}
 
@@ -180,11 +180,11 @@ A quantidade efetiva de processos de trabalho é o mínimo entre o valor solicit
 
 \section{Calibração do Random Forest}
 
-O Random Forest do SUPPORT2 foi calibrado uma única vez usando exclusivamente o reservatório real de treinamento. A configuração aprovada é armazenada em um artefato versionado e validada por hash do arquivo bruto, impressão digital da partição, definição do alvo, ordem dos canais, semente do particionamento, versão do \textit{scikit-learn} e parâmetros do estimador.
+O Random Forest do SUPPORT2 foi calibrado uma única vez usando exclusivamente os dados reais de treinamento. A configuração aprovada é armazenada em um artefato versionado e validada por hash do arquivo bruto, impressão digital da partição, definição do alvo, ordem dos canais, semente do particionamento, versão do \textit{scikit-learn} e parâmetros do estimador.
 
 Depois de congelada, a mesma configuração é reutilizada sem alteração nos três braços, em todos os subconjuntos, tamanhos amostrais e replicações. A política de semente do estimador depende da semente-base, do namespace do classificador e do ID da replicação; a mesma replicação utiliza, portanto, a mesma semente de Random Forest entre braços, subconjuntos e valores de $n$. Esse pareamento controla uma fonte de variabilidade interna, mas não torna iguais os dados de treinamento.
 
-A calibração não é executada automaticamente durante um cenário, e não há configuração alternativa silenciosa quando o artefato está ausente ou incompatível. Essa separação impede que o teste real ou cada braço sintético conduza a uma configuração diferente, o que inviabilizaria a comparação estrutural.
+A calibração não é executada automaticamente durante um cenário, e não há configuração alternativa silenciosa quando o artefato está ausente ou incompatível. Essa separação impede que o teste real ou cada braço sintético conduza a uma configuração diferente, o que inviabilizaria a comparação do perfil de cooperação preditiva entre braços.
 
 \section{Persistência, rastreabilidade e reprodutibilidade}
 

@@ -43,6 +43,12 @@ def discover_scenarios(reports_root: Path) -> list[dict[str, Any]]:
                     "title": _scenario_title(run),
                     "dataset": _dataset_name(run),
                     "question": run.get("question", ""),
+                    "semantic_manifest_path": _discover_semantic_artifact(
+                        reports_root, run, "semantic_manifest_path", "semantic_manifest.json"
+                    ),
+                    "provenance_path": _discover_semantic_artifact(
+                        reports_root, run, "provenance_path", "provenance.jsonld"
+                    ),
                 }
             )
         items.sort(key=lambda item: (item["dataset"], item["title"], item["path"].as_posix()))
@@ -75,6 +81,24 @@ def _find_scenario_report_for_run(reports_root: Path, run: dict):
         return None
     reports = sorted((reports_root / rel_run_dir).glob("*scenario_report*.html"))
     return reports[0] if reports else None
+
+
+def _discover_semantic_artifact(
+    reports_root: Path, run: dict, registry_field: str, filename: str
+) -> Path | None:
+    """Locate a per-run semantic/provenance artifact (registry field first, then a sibling file)."""
+
+    value = run.get(registry_field)
+    if value:
+        rel = _reports_relative_path(reports_root, value)
+        if rel is not None and (reports_root / rel).exists():
+            return rel
+    run_dir = run.get("run_dir")
+    if run_dir:
+        rel_run_dir = _reports_relative_path(reports_root, run_dir)
+        if rel_run_dir is not None and (reports_root / rel_run_dir / filename).exists():
+            return rel_run_dir / filename
+    return None
 
 
 def _reports_relative_path(reports_root: Path, path_value):
@@ -119,13 +143,28 @@ def discover_json(data_root: Path) -> list[Path]:
     return files
 
 
-def sync_reports(output_dir: Path, site_dir: Path) -> None:
-    """Copy ``output_dir/reports`` and ``output_dir/data`` into the worktree."""
+def sync_reports(output_dir: Path, site_dir: Path, *, mirror: bool = False) -> None:
+    """Copy ``output_dir/reports`` and ``output_dir/data`` into the worktree.
+
+    By default this merges into any existing ``reports/``/``data/`` content
+    already in ``site_dir`` (safe for publishing a partial local output
+    without deleting other previously published scenarios). Pass
+    ``mirror=True`` to first remove the existing ``reports/``/``data/``
+    trees so the published site exactly matches local output -- use this
+    only when the local output directory is known to be complete (e.g.
+    after regenerating every scenario), since anything published previously
+    but absent locally will be removed.
+    """
 
     reports_source = output_dir / "reports"
     data_source = output_dir / "data"
     reports_target = site_dir / "reports"
     data_target = site_dir / "data"
+    if mirror:
+        if reports_target.exists():
+            shutil.rmtree(reports_target)
+        if data_target.exists():
+            shutil.rmtree(data_target)
     reports_target.mkdir(parents=True, exist_ok=True)
     data_target.mkdir(parents=True, exist_ok=True)
     if reports_source.is_dir():
@@ -171,12 +210,29 @@ def _scenario_card_html(item: dict[str, Any], reports_rel: Path) -> str:
     path_text = html.escape(item["path"].as_posix())
     question = html.escape(item["question"])
     question_html = f"<p>{question}</p>" if question else ""
+    semantic_links = []
+    semantic_manifest_path = item.get("semantic_manifest_path")
+    if semantic_manifest_path:
+        semantic_links.append(
+            f'<a href="{html.escape(str(reports_rel / semantic_manifest_path))}">semantic manifest</a>'
+        )
+    provenance_path = item.get("provenance_path")
+    if provenance_path:
+        semantic_links.append(
+            f'<a href="{html.escape(str(reports_rel / provenance_path))}">provenance (JSON-LD)</a>'
+        )
+    semantic_html = (
+        f"<p class=\"path\">Machine-readable: {' &middot; '.join(semantic_links)}</p>"
+        if semantic_links
+        else ""
+    )
     return (
         "<article class=\"report-card\">"
         f"<h3>{title_text}</h3>"
         f"<p class=\"dataset-label\">Dataset: {dataset}</p>"
         f"{question_html}"
         f"<p class=\"path\">{path_text}</p>"
+        f"{semantic_html}"
         f"<p><a href=\"{href}\">Open scenario report</a></p>"
         "</article>"
     )

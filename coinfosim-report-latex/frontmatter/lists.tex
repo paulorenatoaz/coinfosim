@@ -13,12 +13,22 @@
 \chapter*{LISTA DE SÍMBOLOS}
 \addcontentsline{toc}{chapter}{LISTA DE SÍMBOLOS}
 \begin{description}[style=multiline,leftmargin=3.2cm,labelwidth=2.6cm]
-  \item[$X_j$] canal de informação de índice $j$;
+  \item[$X_j$] atributo formal associado ao canal de informação de índice $j$;
   \item[$I$] conjunto de índices dos canais selecionados;
-  \item[$S_I$] subconjunto de canais associado a $I$;
+  \item[$S_i$] subconjunto não vazio de canais associado ao índice $i$;
   \item[$n$] número de amostras de treinamento por classe;
-  \item[$\Nstar$] último limiar de cruzamento entre curvas de perda, conforme a definição operacional do projeto;
-  \item[$\rankrho$] correlação de postos entre rankings real e sintético.
+  \item[$f$] classificador;
+  \item[$g$] condição de treinamento (real, Gaussiana única ou GMM);
+  \item[$\widehat{L}_{S_i,f}^{(g)}(n)$] perda média estimada no conjunto de teste para o subconjunto $S_i$, classificador $f$, condição $g$ e tamanho amostral $n$;
+  \item[$U_{ij}(n)$] resultado par a par observado entre $S_i$ e $S_j$ em $n$: $+1$ se $S_i$ vence, $-1$ se $S_j$ vence, $0$ em empate exato;
+  \item[$\Wmat(n)$] matriz de vencedores: relação efetiva de vencedor par a par em $n$, com propagação do vencedor anterior sob empate exato;
+  \item[$\Rmat(n_t)$] matriz de inversões: para cada par não ordenado, o maior tamanho amostral do prefixo em que ocorreu a inversão de vencedor mais recente, ou indefinido se nenhuma inversão ocorreu até $n_t$;
+  \item[$\rankrho$] correlação de postos (Spearman) entre a ordenação completa dos subconjuntos nas condições real e sintética;
+  \item[$\AW$] \WinnersAgreement: concordância entre relações efetivas de vencedor par a par;
+  \item[$\ReversalSupport_g(n_t)$] conjunto de pares não ordenados com inversão de vencedor definida em $\Rmat^{(g)}(n_t)$;
+  \item[$\AR$] \ReversalExistenceAgreement: concordância de Jaccard entre $\ReversalSupport_{\mathrm{real}}$ e $\ReversalSupport_{g}$;
+  \item[$\DR$] \MeanLogReversalDistance{} para os pares de inversão compartilhados;
+  \item[$\SR$] \ReversalSampleSizeSimilarity, condicional ao suporte de inversões compartilhado.
 \end{description}
 
 \clearpage

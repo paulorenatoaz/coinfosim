@@ -32,6 +32,15 @@ def publish_pages(
         "--init-branch",
         help="Create the target branch as a new orphan branch if it does not exist.",
     ),
+    mirror: bool = typer.Option(
+        False,
+        "--mirror",
+        help=(
+            "Remove the branch's existing reports/data before copying, so the "
+            "published site exactly mirrors --output-dir. Only use when "
+            "--output-dir contains every scenario that should remain published."
+        ),
+    ),
 ) -> None:
     """Regenerate and publish the CoInfoSim reports/datasets Pages site."""
 
@@ -49,6 +58,7 @@ def publish_pages(
             push=push,
             dry_run=dry_run,
             init_branch_if_missing=init_branch_if_missing,
+            mirror_reports=mirror,
         )
     except PublishError as exc:
         fail(console, PackagingEnvironmentCLIError(str(exc)), debug=cli_ctx.debug)
