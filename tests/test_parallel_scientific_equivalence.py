@@ -214,7 +214,7 @@ def _assert_simulation_products_equal(sequential, process, arm):
         "summary_table",
         "best_subset_rankings",
         "threshold_comparisons",
-        "structural_dynamics",
+        "pairwise_profile_dynamics",
     ):
         assert sequential_report_data[key] == process_report_data[key]
 
@@ -284,10 +284,10 @@ def test_scenario_report_data_is_exact_and_json_safe(equivalent_results):
             "real_occupancy_evaluation_split",
         ),
     }
-    structural = sequential_science["structural_fidelity"]
+    structural = sequential_science["predictive_cooperation_profile"]
     assert structural["ranking_fidelity_series"]
     assert structural["winner_agreement_series"]
-    assert structural["reversal_fidelity_series"]
+    assert structural["reversal_agreement_series"]
     assert structural["reference_display_subsets_by_classifier"]
     encoded = json.dumps(sequential_science, allow_nan=False, sort_keys=True)
     assert encoded == json.dumps(process_science, allow_nan=False, sort_keys=True)
