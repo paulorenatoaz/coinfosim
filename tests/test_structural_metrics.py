@@ -1,9 +1,15 @@
 from dataclasses import dataclass
 import json
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 
+from coinfosim.reports.structural_visualization import (
+    metric_series_figure,
+    reversal_matrix_figure,
+    winner_matrix_figure,
+)
 from coinfosim.results.structural import (
     directed_crossing_events,
     effective_winner_matrices,
@@ -503,3 +509,69 @@ def test_report_data_serialization_is_deterministic_and_strict_json_safe():
     )
     assert '"rho_rank": null' in encoded
     assert "NaN" not in encoded
+
+
+def test_metric_series_figure_labels_and_x_field_for_all_four_metrics():
+    winner_rows = [
+        {"arm": "arm", "n_per_class": 2, "rho_rank": 0.5, "winner_agreement": 0.5},
+        {"arm": "arm", "n_per_class": 4, "rho_rank": 0.8, "winner_agreement": 0.9},
+    ]
+    reversal_rows = [
+        {
+            "arm": "arm",
+            "n_prefix": 2,
+            "reversal_existence_agreement": None,
+            "reversal_sample_size_similarity": None,
+        },
+        {
+            "arm": "arm",
+            "n_prefix": 4,
+            "reversal_existence_agreement": 1.0,
+            "reversal_sample_size_similarity": 1.0,
+        },
+    ]
+    expected_ylabels = {
+        "rho_rank": "Ranking fidelity",
+        "winner_agreement": "Winner agreement",
+        "reversal_existence_agreement": "Reversal existence agreement",
+        "reversal_sample_size_similarity": "Reversal sample-size similarity",
+    }
+    for metric, rows in (
+        ("rho_rank", winner_rows),
+        ("winner_agreement", winner_rows),
+        ("reversal_existence_agreement", reversal_rows),
+        ("reversal_sample_size_similarity", reversal_rows),
+    ):
+        fig = metric_series_figure(rows, metric, {"arm": "Arm"}, "Title")
+        assert fig.axes[0].get_ylabel() == expected_ylabels[metric]
+        plt.close(fig)
+
+
+def test_reversal_matrix_figure_masks_diagonal_and_lower_triangle():
+    matrix = [
+        [99, 4, None],
+        [7, 88, 8],
+        [None, None, 77],
+    ]
+    fig = reversal_matrix_figure(matrix, ["A", "B", "C"], "Reversal matrix")
+    ax = fig.axes[0]
+    assert ax.get_title() == "Reversal matrix"
+    values = np.ma.filled(ax.images[0].get_array(), np.nan)
+    assert np.isnan(values[0][0])
+    assert np.isnan(values[1][0])
+    assert np.isnan(values[2][2])
+    assert values[0][1] == 4
+    assert values[1][2] == 8
+    colorbar_label = fig.axes[-1].yaxis.get_label().get_text()
+    assert colorbar_label == "Last observed reversal sample size"
+    plt.close(fig)
+
+
+def test_winner_matrix_figure_uses_unresolved_legend_label():
+    matrix = [[None, 0], [0, None]]
+    fig = winner_matrix_figure(matrix, ["A", "B"], "Winner matrix")
+    colorbar_labels = [
+        tick.get_text() for tick in fig.axes[-1].get_yticklabels()
+    ]
+    assert colorbar_labels == ["row loses", "unresolved", "row wins"]
+    plt.close(fig)

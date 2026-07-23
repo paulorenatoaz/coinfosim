@@ -25,7 +25,11 @@ def metric_series_figure(
 
     fig, ax = plt.subplots(figsize=(8.2, 4.8))
     arms = list(dict.fromkeys(str(row["arm"]) for row in rows))
-    x_field = "n_prefix" if metric == "nstar_similarity" else "n_per_class"
+    x_field = (
+        "n_prefix"
+        if metric in ("reversal_existence_agreement", "reversal_sample_size_similarity")
+        else "n_per_class"
+    )
     for arm in arms:
         arm_rows = sorted(
             (row for row in rows if row["arm"] == arm),
@@ -45,7 +49,8 @@ def metric_series_figure(
     ylabel = {
         "rho_rank": "Ranking fidelity",
         "winner_agreement": "Winner agreement",
-        "nstar_similarity": "Progressive N-star similarity",
+        "reversal_existence_agreement": "Reversal existence agreement",
+        "reversal_sample_size_similarity": "Reversal sample-size similarity",
     }[metric]
     ax.set_ylabel(ylabel)
     ax.set_ylim((-1.0, 1.0) if metric == "rho_rank" else (0.0, 1.0))
@@ -62,7 +67,11 @@ def winner_matrix_figure(
     subset_labels: Sequence[str],
     title: str,
 ):
-    """Build a directed winner-matrix heatmap."""
+    """Build a directed effective-winner-matrix heatmap.
+
+    `0` denotes an unresolved effective winner; an exact tie after
+    initialization is already carried forward before reaching this figure.
+    """
 
     values = np.asarray(
         [[np.nan if value is None else float(value) for value in row] for row in matrix]
@@ -83,7 +92,58 @@ def winner_matrix_figure(
             if np.isfinite(values[i, j]):
                 ax.text(j, i, f"{int(values[i, j]):+d}", ha="center", va="center")
     colorbar = fig.colorbar(image, ax=ax, ticks=[-1, 0, 1], fraction=0.046)
-    colorbar.ax.set_yticklabels(["row loses", "tie", "row wins"])
+    colorbar.ax.set_yticklabels(["row loses", "unresolved", "row wins"])
+    fig.tight_layout()
+    return fig
+
+
+def reversal_matrix_figure(
+    matrix: Sequence[Sequence[object]],
+    subset_labels: Sequence[str],
+    title: str,
+):
+    """Build a triangular reversal-matrix (`R`) heatmap.
+
+    Only upper-triangle cells (`i < j`) are shown; the diagonal and lower
+    triangle are always masked, and missing (never-reversed) pairs are
+    rendered as visually unavailable rather than zero.
+    """
+
+    n = len(subset_labels)
+    values = np.full((n, n), np.nan)
+    for i in range(n):
+        for j in range(i + 1, n):
+            value = matrix[i][j]
+            if value is not None:
+                values[i, j] = float(value)
+    finite = values[np.isfinite(values)]
+    vmin = float(np.min(finite)) if finite.size else 0.0
+    vmax = float(np.max(finite)) if finite.size else 1.0
+    if vmin == vmax:
+        vmax = vmin + 1.0
+    cmap = plt.get_cmap("viridis").copy()
+    cmap.set_bad("#ffffff")
+    size = max(5.0, 1.05 * n)
+    fig, ax = plt.subplots(figsize=(size, size))
+    image = ax.imshow(values, cmap=cmap, vmin=vmin, vmax=vmax)
+    ax.set_xticks(range(n), subset_labels, rotation=45, ha="right")
+    ax.set_yticks(range(n), subset_labels)
+    ax.set_xlabel("Column subset")
+    ax.set_ylabel("Row subset")
+    ax.set_title(title)
+    for i in range(n):
+        for j in range(n):
+            if np.isfinite(values[i, j]):
+                ax.text(
+                    j,
+                    i,
+                    str(int(values[i, j])),
+                    ha="center",
+                    va="center",
+                    color="white" if values[i, j] > (vmin + vmax) / 2 else "black",
+                )
+    colorbar = fig.colorbar(image, ax=ax, fraction=0.046)
+    colorbar.set_label("Last observed reversal sample size")
     fig.tight_layout()
     return fig
 
