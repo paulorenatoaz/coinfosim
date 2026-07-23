@@ -121,15 +121,36 @@ No product/composite-metric figure other than the ones above was found within th
 
 ## 8. Build attempts and results
 
-- Report: `cd coinfosim-report-latex && latexmk -xelatex -interaction=nonstopmode -halt-on-error -f main.tex`. `type xelatex` → *not found*; latexmk's forced mode salvaged a **stale, pre-session** `build/main.xdv` (timestamp predates any edit in this block) and failed at `xdvipdfmx` on a filename already renamed by this revision (`figures/conceptual/nstar_progressivo.pdf` → `construcao_ar_sr.pdf`), producing a misleading partial `build/main.pdf` that was deleted immediately (never a real compile of the current sources).
-- Presentation: `cd coinfosim-presentation && latexmk -xelatex -interaction=nonstopmode -halt-on-error -outdir=build presentation.tex` (no force flag) → clean failure, `xelatex: Run of rule 'xelatex' gave a non-zero error code`, no partial artifact produced.
-- **Conclusion: this environment cannot compile either document.** `xelatex` and `biber` are not installed (`texlive-xetex`, `biber` packages absent); both documents require `fontspec` (report + presentation) and `biblatex`+`biber` (presentation). Installing packages was out of scope. This blocker was identified *before* editing (Section 3) and is unchanged by the edits themselves — it is an environment limitation, not a defect introduced by this revision.
-- Repair-compile budget (one attempt each, as allotted) was therefore not usable for actual error-fixing; both attempts above are the full allotment.
-- Both `build/` directories were cleaned of stale/partial artifacts after the attempts; no gitignored build output is tracked.
+**Update:** the owner explicitly approved installing the missing toolchain mid-session (`sudo apt-get install -y texlive-xetex biber`, later `texlive-publishers` for `abntex2.cls`), run by the owner in their own shell. With the toolchain present, both documents were compiled for real:
+
+- Report: `xelatex` → `biber --input-directory=build --output-directory=build main` → `xelatex` ×2, from `coinfosim-report-latex/`. Final state: **120 pages**, 0 undefined references/citations, 0 multiply-defined labels, 0 overfull `\hbox` warnings exceeding 30pt (down from a worst case of 254pt before fixes; see §8.1). `main.pdf` and `main.bbl` installed at the tracked paths.
+- Presentation: same `xelatex`/`biber`/`xelatex`×2 sequence from `coinfosim-presentation/`. Final state: **30 pages** (one overloaded backup slide, "Definições formais dos quatro indicadores", was split into two frames to fix a genuine content overflow — see §8.1), 0 undefined references. `presentation.pdf` and `presentation.bbl` installed at the tracked paths.
+- The original blocker analysis (missing `xelatex`/`biber`, `abntex2.cls` requiring `texlive-publishers`) was correct; it is recorded here as historical context for why compilation was initially deferred, not as the final state.
+
+### 8.1 Defects found only by compiling and rendering (not visible from source review)
+
+Compiling and visually inspecting the actual PDFs surfaced real defects that a source-only pass could not have caught:
+
+- **Landscape figure overflow:** the SUPPORT2 paired `W`/`R` matrix figure (Ch. 6) used `width=\linewidth` on four stacked PNG panels, overflowing the landscape page height and clipping the second row. Fixed by constraining to `height=6.2cm,keepaspectratio`.
+- **TikZ node overlap:** presentation slide 8's redesigned winner-reversal trajectory diagram had the `R_{ij}` callout box overlapping the state nodes below it. Rebuilt with a taller canvas and a curved leader line.
+- **Footer/content collisions:** slides 3, 5, 9, 10, 11, 12 and backup slides "Apoio 1" (formal definitions), "Apoio 2" (datasets table), "Apoio 4" (Occupancy/Air Quality results), "Apoio 6" (SUPPORT2 results), "Apoio 7" (limitations) all had added text push slide content into the footer bar. Fixed by shortening captions, reducing font sizes/`\vspace`, and — for "Apoio 1", which had six formula blocks — splitting into two frames ("Apoio 1a"/"Apoio 1b").
+- **Stale commit hash in BibTeX:** `coinfosim-presentation/references.bib`'s `azevedo2026coinfosim` entry carried a `note` field with a pre-refactor commit hash (`ec5b70b...`, not `git log`-resolvable in this repository) that surfaced in the compiled bibliography slide. Updated to this revision's actual commit and re-ran biber.
+- **Stale terms embedded in TikZ image text, invisible to a chapter-prose grep:** the `quadrante_desempenho` conceptual figure's axis label and all four quadrant labels still said "estrutura [de cooperação/preservada/pouco preservada]" (only one caption line had been fixed earlier); presentation slide 7 had a leftover "colapso da estrutura" callout. Both are inside TikZ node text, not `.tex` chapter prose, so the original `grep`-based stale-term sweep over chapter files could not see them — only the post-compile `pdftotext` audit on the actual PDF caught them (see §9).
+- **Macro-driven double periods:** the shared `\notailustracao{#1}` macro appends its own trailing period; five figure notes in the report supplied text that already ended in a period, rendering as "..". Fixed by stripping the redundant periods.
+
+All fixes were re-verified by recompiling and re-rendering the affected pages/slides to PNG via `pdftoppm` and visually inspecting them again.
 
 ## 9. Stale-term PDF audit and visual QA — status
 
-Both are **blocked** by Section 8: `pdftotext` on `main.pdf`/`presentation.pdf` would only audit the **old, pre-revision, still-tracked compiled PDFs** (untouched by this session, since nothing could recompile them), which are *expected* to still contain every retired term — auditing them would not test this revision's actual output and is not reported as if it validated anything. The **source-level** stale-term audit (Sections 6–7, plus the final sweep below) is the audit that actually covers this revision's changes, and it is complete. Visual/page-level QA (Section 11.3 of the master task) could not be performed for the same reason: there is no freshly compiled PDF to inspect. Both remain pending a future session with a full TeXLive XeTeX/biber toolchain, which should run `latexmk` in each source tree and then repeat the `pdftotext` + visual-QA steps exactly as specified.
+Both completed against the **actual final compiled PDFs**, not just source:
+
+```bash
+pdftotext main.pdf - | grep -inE "estrutura de coopera|fidelidade estrutural|N-star|último cruzamento|cruzamento dirigido|timing similarity|similaridade temporal|crossing jaccard|produto final|reservat[oó]rio real|reservat[oó]rio de treinamento"
+```
+
+- **Report** (`main.pdf`, 120 pages): exactly the same two explicitly historical/contrastive sentences identified in the source-level sweep (§9 below), nothing else.
+- **Presentation** (`presentation.pdf`, 30 pages): **zero** matches of any kind, including historical ones.
+- Visual QA was performed on: title page, Resumo, Abstract, list of symbols, Ch. 6 opening + all 4 new/edited conceptual figures (rendered from actual compiled PDF, not just the standalone figure), the paired `W`/`R` SUPPORT2 figure, Ch. 7's Occupancy results table, Ch. 8's performance/preservation quadrant figure, Ch. 10's limitations table, Ch. 11's conclusion page, and — for the presentation — all 12 main slides plus 6 backup slides with tables/formulas ("Apoio 1a", "Apoio 1b", "Apoio 2", "Apoio 4", "Apoio 6", "Apoio 7"). Every defect found (§8.1) was fixed and re-verified visually.
 
 ### Final source-level stale-term sweep (this session)
 
