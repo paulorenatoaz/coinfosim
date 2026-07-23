@@ -83,9 +83,15 @@ def test_support2_scenario_report_links_hierarchy_and_identifies_protocol(tmp_pa
     assert "Real → Real" in text
     assert "Single Gaussian → Real" in text
     assert "GMM → Real" in text
-    assert "Ranking Structural Fidelity" in text
+    assert "predictive cooperation profile" in text
     assert "Winner Agreement" in text
-    assert "Progressive N-star Similarity" in text
+    assert "Reversal existence agreement" in text
+    assert "Reversal sample-size similarity" in text
+    assert "Progressive N-star similarity" not in text
+    assert "Progressive N-star Similarity" not in text
+    assert "Timing similarity" not in text
+    assert "Interpolated N-star" not in text
+    assert "composite structural index" not in text
     assert "exact-tie-aware" in text.lower()
     assert "127" in text
     assert "Linear SVM, Random Forest" in text

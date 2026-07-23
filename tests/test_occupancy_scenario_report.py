@@ -182,34 +182,35 @@ def test_occupancy_scenario_report_academic_layout(tmp_path):
     assert "data-group='scenario-top-ranked-classifier'" in text
     assert "data-group='scenario-top-ranked-linear_svm-arm'" in text
 
-    # Structural fidelity is additive and keeps both metrics separate.
+    # Structural fidelity is additive and keeps all metrics separate.
     assert "7. Structural fidelity metrics" in text
-    assert "Ranking Structural Fidelity" in text
+    assert "predictive cooperation profile" in text
     assert "Winner Agreement" in text
-    assert "Progressive N-star Similarity" in text
+    assert "Reversal existence agreement" in text
+    assert "Reversal sample-size similarity" in text
+    assert "Winner matrix" in text
+    assert "Reversal matrix" in text
     assert "no composite index is reported" in text
+    assert "composite structural index" not in text
+    assert "Progressive N-star similarity" not in text
+    assert "Progressive N-star Similarity" not in text
+    assert "Timing similarity" not in text
+    assert "Interpolated N-star" not in text
     assert any(k.startswith("graph_structural_metric_") for k in graphs)
     assert any(k.startswith("graph_structural_winner_") for k in graphs)
-    assert any(k.startswith("graph_structural_nstar_") for k in graphs)
+    assert any(k.startswith("graph_structural_reversal_") for k in graphs)
     assert "unavailable_first_prefix" in text
-    assert "no_crossings_in_either" in text
-    assert "no_shared_crossings" in text
+    assert "no_reversals_in_either" in text
+    assert "data-group='scenario-structural-dynamics-classifier'" in text
 
-    # N-star availability: columns, dash rule, and one graph per table.
-    assert "8. N-star availability" in text
-    assert "<th>VS</th><th>N*</th><th>Interpolated N*</th><th>Winner</th>" in text
-    assert "N_before" not in text
-    assert "threshold_status" not in text
-    assert "Reference subset:" in text
-    assert "A dash indicates that no crossing was detected" in text
-    assert "&mdash;" in text  # no-crossing cases render a dash
-    assert any(k.startswith("graph_nstar_") for k in graphs)
-    assert "data-group='scenario-nstar-classifier'" in text
-    assert "data-group='scenario-nstar-linear_svm-cardinality'" in text
-    assert "data-group='scenario-nstar-linear_svm-k1-arm'" in text
+    # N-star availability section is removed entirely (superseded by 7.3).
+    assert "N-star availability" not in text
+    assert "<th>VS</th><th>N*</th><th>Interpolated N*</th><th>Winner</th>" not in text
+    assert "graph_nstar_" not in text
+    assert not any(k.startswith("graph_nstar_") for k in graphs)
 
-    # Interpretation notes renumbered to section 9.
-    assert "9. Interpretation notes" in text
+    # Interpretation notes renumbered to section 8.
+    assert "8. Interpretation notes" in text
 
     # Subset set-notation used in tables.
     assert "{X" in text
@@ -231,7 +232,8 @@ def test_occupancy_scenario_report_without_visualization(tmp_path):
     text = out.read_text(encoding="utf-8")
     assert "Visualization panels were not generated" in text
     assert "7. Structural fidelity metrics" in text
-    assert "8. N-star availability" in text
+    assert "8. Interpretation notes" in text
+    assert "N-star availability" not in text
     assert "1. Scientific question" in text
     assert "GMM → Real" in text
 
@@ -291,25 +293,3 @@ def test_nstar_multiple_crossings_stores_all_reports_last(tmp_path):
         # if multiple genuine crossings, reported is the last
         genuine = [c for c in entry["all_crossings"] if c["status"] != "left_censored"]
         assert entry["n_star"] == genuine[-1]["n_star_grid"]
-
-
-def test_nstar_no_crossing_shows_dash(tmp_path):
-    """Test that no-crossing comparison shows dashes in the table."""
-    data, real_result, gaussian_result, gmm_result = _results()
-    graphs: dict = {}
-    out = generate_occupancy_scenario_report(
-        real_result,
-        gaussian_result,
-        gmm_result,
-        output_dir=tmp_path,
-        channel_names=data.channel_names,
-        graphs_out=graphs,
-    )
-    text = out.read_text(encoding="utf-8")
-    # At least some N-star entries should render dashes
-    assert "&mdash;" in text
-    # No raw "1.0" or bare "1" N* values appearing in the table
-    # (they appear as cell content); hard to assert on small data,
-    # but confirm the multiple-crossings explanation is present.
-    assert "only the last N* is reported" in text
-    assert "Dashed vertical lines on the graphs mark" in text
