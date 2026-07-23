@@ -46,7 +46,7 @@
   \sourcecite{Relatório final, capítulo 4 e seção 10.6.}
 
   \speakernotes
-    {A busca começou com várias bases públicas, mas disponibilidade não era o critério decisivo. O protocolo precisava de um alvo defensável, canais interpretáveis, volume para as simulações de Monte Carlo e documentação que permitisse reconstruir a preparação. Dois candidatos foram adiados: dados CSI de Wi-Fi e monitoramento de um sistema hidráulico. Neles, sessões, janelas e ciclos introduzem dependência temporal. Incorporá-los corretamente exigiria definir outra unidade amostral, agrupar observações correlacionadas e adotar validação temporal ou por sessão. Isso desviaria o trabalho do objetivo central, que é comparar a estrutura de cooperação entre subconjuntos em uma representação tabular. Por isso foram selecionados Occupancy, Air Quality e SUPPORT2, cada um ainda com decisões próprias de alvo, partição e preditores.}
+    {A busca começou com várias bases públicas, mas disponibilidade não era o critério decisivo. O protocolo precisava de um alvo defensável, canais interpretáveis, volume para as simulações de Monte Carlo e documentação que permitisse reconstruir a preparação. Dois candidatos foram adiados: dados CSI de Wi-Fi e monitoramento de um sistema hidráulico. Neles, sessões, janelas e ciclos introduzem dependência temporal. Incorporá-los corretamente exigiria definir outra unidade amostral, agrupar observações correlacionadas e adotar validação temporal ou por sessão. Isso desviaria o trabalho do objetivo central, que é comparar o perfil de cooperação preditiva entre subconjuntos em uma representação tabular. Por isso foram selecionados Occupancy, Air Quality e SUPPORT2, cada um ainda com decisões próprias de alvo, partição e preditores.}
     {Depois da seleção, o próximo passo é controlar e registrar o caminho percorrido pelos dados em cada cenário.}
     {A seleção foi orientada pela compatibilidade entre o dataset e o protocolo, não apenas pela disponibilidade pública.}
     {Entre 45 e 60 segundos; slide opcional, fora da duração principal.}
@@ -71,7 +71,7 @@
     \begin{column}{0.24\textwidth}
       \begin{beamercolorbox}[wd=\linewidth,sep=.12cm,rounded=true]{block body}
         {\sffamily\bfseries\fontsize{9.0}{10.7}\selectfont\color{CoInfoBlue}Papéis explícitos}\par\vspace{.04cm}
-        {\fontsize{8.0}{9.5}\selectfont Reservatório de treinamento separado do teste real fixo.}
+        {\fontsize{8.0}{9.5}\selectfont Dados reais de treinamento separados do teste real fixo.}
       \end{beamercolorbox}
     \end{column}
     \begin{column}{0.24\textwidth}
@@ -100,7 +100,7 @@
   \sourcecite{Relatório final, capítulos 4 e 5; catálogos e relatórios de datasets do CoInfoSim.}
 
   \speakernotes
-    {Em Ciência de Dados, proveniência não significa apenas saber de qual site veio um arquivo. Ela descreve toda a trajetória: qual arquivo canônico foi usado, como sua integridade foi verificada, como o alvo e a coorte foram definidos, como as linhas foram particionadas e em que etapa cada transformação foi estimada. No CoInfoSim, os papéis de reservatório de treinamento e teste real fixo são explícitos. Padronização e parametrização dos modelos geradores usam somente o treinamento; o teste fica reservado para avaliação comum dos três braços. Os hashes dos arquivos e as impressões digitais das partições ajudam a detectar trocas silenciosas de dados.}
+    {Em Ciência de Dados, proveniência não significa apenas saber de qual site veio um arquivo. Ela descreve toda a trajetória: qual arquivo canônico foi usado, como sua integridade foi verificada, como o alvo e a coorte foram definidos, como as linhas foram particionadas e em que etapa cada transformação foi estimada. No CoInfoSim, os papéis de dados reais de treinamento e teste real fixo são explícitos. Padronização e ajuste dos modelos geradores usam somente o treinamento; o teste fica reservado para avaliação comum dos três braços. Os hashes dos arquivos e as impressões digitais das partições ajudam a detectar trocas silenciosas de dados.}
     {Se houver interesse na infraestrutura que torna esse controle auditável, o próximo slide mostra o que foi persistido.}
     {Proveniência é a história completa do dado dentro do experimento, não apenas sua origem externa.}
     {Cerca de 1 minuto; slide opcional, fora da duração principal.}
@@ -220,7 +220,7 @@
   \sourcecite{SUPPORT2: DOI 10.3886/ICPSR02957.v2; HBiostat; protocolo descrito no capítulo 4 do relatório final.}
 
   \speakernotes
-    {No SUPPORT2, responsabilidade é apresentada por meio de decisões metodológicas verificáveis. A origem e a versão da base estão documentadas. O identificador sequencial participa apenas da preparação e da auditoria das partições e é removido antes do treinamento. As variáveis \texttt{death} e \texttt{d.time} são usadas para construir o alvo de mortalidade em 180 dias e, por isso, não entram como preditores. Também são excluídos o desfecho hospitalar e as estimativas de sobrevivência \texttt{hospdead}, \texttt{surv2m} e \texttt{surv6m}, que poderiam antecipar diretamente o resultado. O objetivo é metodológico e agregado: avaliar preservação estrutural, não produzir diagnóstico individual ou recomendação clínica.}
+    {No SUPPORT2, responsabilidade é apresentada por meio de decisões metodológicas verificáveis. A origem e a versão da base estão documentadas. O identificador sequencial participa apenas da preparação e da auditoria das partições e é removido antes do treinamento. As variáveis \texttt{death} e \texttt{d.time} são usadas para construir o alvo de mortalidade em 180 dias e, por isso, não entram como preditores. Também são excluídos o desfecho hospitalar e as estimativas de sobrevivência \texttt{hospdead}, \texttt{surv2m} e \texttt{surv6m}, que poderiam antecipar diretamente o resultado. O objetivo é metodológico e agregado: avaliar preservação do perfil de cooperação preditiva, não produzir diagnóstico individual ou recomendação clínica.}
     {A partir daqui, os demais slides de apoio retomam fórmulas, configurações e tabelas detalhadas do experimento.}
     {Responsabilidade aparece em proveniência, prevenção de vazamento e limites de interpretação.}
     {Entre 45 e 60 segundos; slide opcional, fora da duração principal.}
@@ -228,64 +228,81 @@
 \end{frame}
 
 % Apoio 1 ---------------------------------------------------------------------
-\begin{frame}{Definições formais das três métricas}
+\begin{frame}{Definições formais dos quatro indicadores}
   \begin{columns}[T,onlytextwidth]
     \begin{column}{0.49\textwidth}
       \begin{beamercolorbox}[wd=\linewidth,sep=.11cm,rounded=true]{block body}
         {\bfseries\color{CoInfoBlue}Correlação de ranking}\par
-        {\fontsize{8.5}{10.1}\selectfont Postos por perda média nos dois braços:}\par\vspace{.05cm}
+        {\fontsize{8.5}{10.1}\selectfont Postos por perda média estimada nos dois braços:}\par\vspace{.05cm}
         \resizebox{0.86\linewidth}{!}{$
           \rho_{\mathrm{rank}}^{(g,f)}(n)=
           \operatorname{corr}_{\mathrm{Spearman}}
           \!\left(\mathbf r^{(R,f)}(n),\mathbf r^{(g,f)}(n)\right).$}
       \end{beamercolorbox}
+      \vspace{.09cm}
+      \begin{beamercolorbox}[wd=\linewidth,sep=.11cm,rounded=true]{block body}
+        {\bfseries\color{CoInfoBlue}Matriz de vencedores $\mathbf W$}\par
+        {\fontsize{8.3}{9.8}\selectfont Empate exato inicial: indefinido; empate posterior: mantém o vencedor anterior:}\par\vspace{.05cm}
+        \resizebox{0.92\linewidth}{!}{$
+          W_{ij}(n_k)=\begin{cases}
+            U_{ij}(n_k), & U_{ij}(n_k)\neq0\\
+            W_{ij}(n_{k-1}), & U_{ij}(n_k)=0,\ \exists\text{ vencedor anterior}\\
+            0, & \text{caso contrário}
+          \end{cases}$}
+      \end{beamercolorbox}
     \end{column}
     \begin{column}{0.49\textwidth}
       \begin{beamercolorbox}[wd=\linewidth,sep=.11cm,rounded=true]{block body}
-        {\bfseries\color{CoInfoBlue}\WA}\par
-        {\fontsize{8.5}{10.1}\selectfont $\mathcal P_{\mathrm{valid}}$: pares sem empate em ambos os braços.}\par\vspace{.05cm}
+        {\bfseries\color{CoInfoBlue}\WA{} ($A_W$)}\par
+        {\fontsize{8.5}{10.1}\selectfont $\mathcal P_{\mathrm{valid}}$: pares com $W$ definido nos dois braços.}\par\vspace{.05cm}
         \resizebox{0.88\linewidth}{!}{$
-          \mathrm{WA}^{(g,f)}(n)=
+          A_W^{(g,f)}(n)=
           \frac{\sum_{(i,j)\in\mathcal P_{\mathrm{valid}}}
-          \mathbf 1\!\left\{W^{(R,f)}_{ij}=W^{(g,f)}_{ij}\right\}}
+          \mathbf 1\!\left\{W^{(R,f)}_{ij}(n)=W^{(g,f)}_{ij}(n)\right\}}
           {|\mathcal P_{\mathrm{valid}}|}.$}
+      \end{beamercolorbox}
+      \vspace{.09cm}
+      \begin{beamercolorbox}[wd=\linewidth,sep=.11cm,rounded=true]{block body}
+        {\bfseries\color{CoInfoBlue}Matriz de inversões $\mathbf R$}\par
+        {\fontsize{8.3}{9.8}\selectfont Existe se e somente se houve ao menos uma inversão válida:}\par\vspace{.05cm}
+        \resizebox{0.92\linewidth}{!}{$
+          R_{ij}(n_t)=\max\{n_k\le n_t: W_{ij}(n_{k-1})\neq0,\,
+          W_{ij}(n_k)\neq0,\, W_{ij}(n_k)\neq W_{ij}(n_{k-1})\}$}
       \end{beamercolorbox}
     \end{column}
   \end{columns}
 
   \vspace{.10cm}
   \begin{beamercolorbox}[wd=\linewidth,sep=.11cm,rounded=true]{block body}
-    {\bfseries\color{CoInfoBlue}Último cruzamento dirigido e similaridade progressiva}\par\vspace{.05cm}
+    {\bfseries\color{CoInfoBlue}Concordância de existência ($A_R$) e similaridade amostral ($S_R$) --- nunca multiplicadas}\par\vspace{.05cm}
     \begin{columns}[T,onlytextwidth]
       \begin{column}{0.48\textwidth}
-        \resizebox{0.90\linewidth}{!}{$
-          N_{ij}^{\star}(n_t)=\max\!\left\{n_k\le n_t:
-          \Delta_{ij}(n_{k-1})\ge0,\ \Delta_{ij}(n_k)<0\right\}.$}
+        \resizebox{0.92\linewidth}{!}{$
+          A_R(n_t)=\dfrac{|\mathcal C_{\mathrm{real}}(n_t)\cap\mathcal C_g(n_t)|}
+          {|\mathcal C_{\mathrm{real}}(n_t)\cup\mathcal C_g(n_t)|}$}
         \vspace{.06cm}
 
-        {\fontsize{8.2}{9.7}\selectfont O evento é dirigido e atribuído ao ponto observado da grade, sem interpolação; registra-se o último evento do prefixo.}
+        {\fontsize{8.2}{9.7}\selectfont $\mathcal C_g(n_t)$: pares com $R^{(g)}$ definido. União vazia: $A_R=1$ (ausência em ambos, não posições coincidentes).}
       \end{column}
       \begin{column}{0.49\textwidth}
-        \resizebox{0.90\linewidth}{!}{$
-          J(t)=\frac{|C_R(t)\cap C_g(t)|}{|C_R(t)\cup C_g(t)|},\qquad
-          d(t)=\underset{C_R\cap C_g}{\operatorname{média}}
-          |\log_2N^{\star,g}_{ij}-\log_2N^{\star,R}_{ij}|.$}
-        \vspace{.08cm}
+        \resizebox{0.92\linewidth}{!}{$
+          D_R(n_t)=\underset{\mathcal C_{\mathrm{real}}\cap\mathcal C_g}{\operatorname{média}}
+          |\log_2R^{(g)}_{ij}-\log_2R^{(\mathrm{real})}_{ij}|$}
+        \vspace{.06cm}
 
-        \resizebox{0.88\linewidth}{!}{$
-          T(t)=\operatorname{clip}_{[0,1]}\!\left(1-
-          \frac{d(t)}{\log_2 n_t-\log_2 n_1}\right),\qquad
-          \mathrm{NS}(t)=J(t)\,T(t).$}
-        \vspace{.05cm}
+        \resizebox{0.85\linewidth}{!}{$
+          S_R(n_t)=\operatorname{clip}_{[0,1]}\!\left(1-
+          \dfrac{D_R(n_t)}{\log_2 n_t-\log_2 n_1}\right)$}
+        \vspace{.04cm}
 
-        {\fontsize{8.2}{9.7}\selectfont $C_R,C_g$: células dirigidas com cruzamento definido.}
+        {\fontsize{8.0}{9.4}\selectfont Definida só no suporte compartilhado; sem pares compartilhados: indisponível, nunca 1.}
       \end{column}
     \end{columns}
   \end{beamercolorbox}
 
-  \vspace{.08cm}
+  \vspace{.06cm}
   {\fontsize{7.8}{9.4}\selectfont\color{CoInfoGray}
-    $R$: braço real; $g$: braço sintético; $f$: classificador; $\Delta_{ij}$: diferença das perdas médias do par dirigido.}
+    $R$ (sobrescrito): braço real; $g$: braço sintético; $f$: classificador; $U_{ij}$: resultado par a par observado em $n_k$.}
   \sourcecite{capítulo 6 do relatório final; Spearman (1904).}
 \end{frame}
 
@@ -296,7 +313,7 @@
   \fontsize{8.3}{10}\selectfont
   \begin{tabularx}{\linewidth}{>{\bfseries}p{1.60cm}cc>{\raggedright\arraybackslash}p{2.30cm}>{\raggedright\arraybackslash}p{2.30cm}>{\raggedright\arraybackslash}X}
     \toprule
-    Dataset & Canais & Subconj. & Reservatório de treino & Teste real fixo & Partição e alvo \\
+    Dataset & Canais & Subconj. & Dados reais de treino & Teste real fixo & Partição e alvo \\
     \midrule
     Occupancy & 5 & 31 & 8.143 (6.414/1.729) & 12.417 (9.396/3.021) & Partição original; ocupação binária; sem imputação. \\
     Air Quality & 5 & 31 & 7.192 (5.374/1.818) & 1.799 (1.524/275) & Corte cronológico 80/20; $C6H6(GT)\ge14{,}5$, percentil 75 calculado apenas no treino. \\
@@ -358,7 +375,7 @@
       \end{beamercolorbox}
       \vspace{0.10cm}
       {\fontsize{8.7}{10.4}\selectfont
-        A configuração do Random Forest foi calibrada somente no reservatório real e congelada antes dos três braços.}
+        A configuração do Random Forest foi calibrada somente nos dados reais de treinamento e congelada antes dos três braços.}
     \end{column}
   \end{columns}
   \sourcecite{McLachlan e Peel (2000); Schwarz (1978); Cortes e Vapnik (1995); Hosmer et al. (2013); Hand e Yu (2001); Breiman (2001); Pedregosa et al. (2011).}
@@ -366,36 +383,36 @@
 
 % Apoio 4 ---------------------------------------------------------------------
 \begin{frame}{Resultados adicionais — Occupancy e Air Quality}
-  \eyebrow{Métricas estruturais em $n=512$}
+  \eyebrow{Indicadores herdados em $n=512$; $A_R$/$S_R$ indisponíveis nesta revisão}
   \vspace{0.06cm}
   \centering
   \renewcommand{\arraystretch}{1.0}
   \fontsize{7.4}{8.9}\selectfont
-  \begin{tabular}{llccc}
+  \begin{tabular}{llcccc}
     \toprule
-    Dataset / classificador & Treinamento $\rightarrow$ teste & $\rankrho$ & \WA{} & Sim. de \Nstar{} \\
+    Dataset / classificador & Treinamento $\rightarrow$ teste & $\rankrho$ & \AW{} & $A_R$ & $S_R$ \\
     \midrule
     \multirow{6}{*}{\shortstack[l]{Occupancy}}
-      & SVM, Gaussiana única $\rightarrow$ Real & 0,9528 & 0,9204 & 0,4479 \\
-      & SVM, GMM $\rightarrow$ Real & 0,8774 & 0,8624 & 0,4949 \\
-      & Reg. Logística, Gaussiana única $\rightarrow$ Real & 0,9036 & 0,8839 & 0,5302 \\
-      & Reg. Logística, GMM $\rightarrow$ Real & 0,8738 & 0,8903 & 0,6243 \\
-      & Gaussian NB, Gaussiana única $\rightarrow$ Real & 0,9976 & 0,9892 & 0,2452 \\
-      & Gaussian NB, GMM $\rightarrow$ Real & 0,9996 & 0,9978 & 0,5490 \\
+      & SVM, Gaussiana única $\rightarrow$ Real & 0,9528 & 0,9204 & --- & --- \\
+      & SVM, GMM $\rightarrow$ Real & 0,8774 & 0,8624 & --- & --- \\
+      & Reg. Logística, Gaussiana única $\rightarrow$ Real & 0,9036 & 0,8839 & --- & --- \\
+      & Reg. Logística, GMM $\rightarrow$ Real & 0,8738 & 0,8903 & --- & --- \\
+      & Gaussian NB, Gaussiana única $\rightarrow$ Real & 0,9976 & 0,9892 & --- & --- \\
+      & Gaussian NB, GMM $\rightarrow$ Real & 0,9996 & 0,9978 & --- & --- \\
     \midrule
     \multirow{6}{*}{\shortstack[l]{Air Quality}}
-      & SVM, Gaussiana única $\rightarrow$ Real & 0,8944 & 0,8882 & 0,2087 \\
-      & SVM, GMM $\rightarrow$ Real & 0,9580 & 0,9333 & 0,2965 \\
-      & Reg. Logística, Gaussiana única $\rightarrow$ Real & 0,9359 & 0,9118 & 0,4646 \\
-      & Reg. Logística, GMM $\rightarrow$ Real & 0,9839 & 0,9613 & 0,6102 \\
-      & Gaussian NB, Gaussiana única $\rightarrow$ Real & 1,0000 & 1,0000 & 0,7294 \\
-      & Gaussian NB, GMM $\rightarrow$ Real & 0,9996 & 0,9978 & 0,8085 \\
+      & SVM, Gaussiana única $\rightarrow$ Real & 0,8944 & 0,8882 & --- & --- \\
+      & SVM, GMM $\rightarrow$ Real & 0,9580 & 0,9333 & --- & --- \\
+      & Reg. Logística, Gaussiana única $\rightarrow$ Real & 0,9359 & 0,9118 & --- & --- \\
+      & Reg. Logística, GMM $\rightarrow$ Real & 0,9839 & 0,9613 & --- & --- \\
+      & Gaussian NB, Gaussiana única $\rightarrow$ Real & 1,0000 & 1,0000 & --- & --- \\
+      & Gaussian NB, GMM $\rightarrow$ Real & 0,9996 & 0,9978 & --- & --- \\
     \bottomrule
   \end{tabular}
 
   \vspace{0.08cm}
   {\fontsize{7.9}{9.4}\selectfont\color{CoInfoGray}
-    Para \Nstar{}, o valor em 512 resume os últimos cruzamentos dirigidos no prefixo $2,\ldots,512$. No full-scale 000006 (grade até 1.024), os valores do Gaussian NB em $n=512$ coincidem; em $n=1024$: 1,0000 / 1,0000 / 0,7319 (Gaussiana única) e 1,0000 / 1,0000 / 0,8095 (GMM).}
+    $\rankrho$ e $\AW{}$ são herdados dos relatórios publicados dos cenários Occupancy 000002 e Air Quality 000005/000006 (esquema anterior; ver Seção de disponibilidade de dados do relatório final, capítulo 7). $A_R$ e $S_R$ exigiriam os resultados brutos por réplica dessas execuções, não persistidos localmente nesta revisão --- por isso aparecem como travessão, nunca como zero, e não como o antigo valor de similaridade de $N^\star$, que media outro objeto.}
   \sourcecite{relatórios dos cenários Occupancy 000002, Air Quality 000005 e 000006; tabelas do capítulo 7 do relatório final.}
 \end{frame}
 
@@ -412,44 +429,45 @@
 
 % Apoio 6 ---------------------------------------------------------------------
 \begin{frame}{Resultados adicionais — SUPPORT2}
-  \begin{columns}[T,onlytextwidth]
-    \begin{column}{0.61\textwidth}
-      \centering
-      \renewcommand{\arraystretch}{1.07}
-      \fontsize{6.9}{8.3}\selectfont
-      \begin{tabular}{lccc}
-        \toprule
-        Classificador, treinamento $\rightarrow$ teste & $\rankrho$ & WA & Sim. \Nstar{} \\
-        \midrule
-        SVM, Gaussiana única $\rightarrow$ Real & 0,8672 & 0,8614 & 0,3076 \\
-        SVM, GMM $\rightarrow$ Real & 0,9708 & 0,9344 & 0,4145 \\
-        Reg. Log., Gaussiana única $\rightarrow$ Real & 0,9853 & 0,9514 & 0,2932 \\
-        Reg. Log., GMM $\rightarrow$ Real & 0,9827 & 0,9461 & 0,3169 \\
-        Gaussian NB, Gaussiana única $\rightarrow$ Real & 0,7915 & 0,7951 & 0,3196 \\
-        Gaussian NB, GMM $\rightarrow$ Real & 0,9144 & 0,8715 & 0,4590 \\
-        \midrule
-        Random Forest, Gaussiana única $\rightarrow$ Real & 0,8387 & 0,8282 & 0,6799 \\
-        Random Forest, GMM $\rightarrow$ Real & 0,8665 & 0,8429 & 0,6340 \\
-        \bottomrule
-      \end{tabular}
-    \end{column}
-    \begin{column}{0.36\textwidth}
-      \eyebrow{Random Forest: \Nstar{} denso}
-      \vspace{0.12cm}
-      \begin{beamercolorbox}[wd=\linewidth,sep=.14cm,rounded=true]{block body}
-        \fontsize{8.5}{10.2}\selectfont
-        \textbf{Referência real:} 11.948 cruzamentos definidos.\par
-        \vspace{.09cm}
-        \textbf{Gaussiana única:} 11.637 definidos; 10.521 compartilhados; Jaccard 0,8053; temporal 0,8442.\par
-        \vspace{.09cm}
-        \textbf{GMM:} 11.531 definidos; 10.200 compartilhados; Jaccard 0,7681; temporal 0,8254.\par
-      \end{beamercolorbox}
-      \vspace{.14cm}
-      {\fontsize{8.2}{9.8}\selectfont\color{CoInfoGray}
-        A concordância não resulta de matrizes quase vazias.\par}
-    \end{column}
-  \end{columns}
-  \sourcecite{cenários SUPPORT2 000007 e 000008; tabelas do capítulo 7 do relatório final.}
+  \eyebrow{Herdados (full, $n=512$): $\rankrho$/\AW{} apenas; $A_R$/$S_R$ indisponíveis}
+  \vspace{0.05cm}
+  \centering
+  \renewcommand{\arraystretch}{1.0}
+  \fontsize{6.9}{8.3}\selectfont
+  \begin{tabular}{lcccc}
+    \toprule
+    Classificador, treinamento $\rightarrow$ teste & $\rankrho$ & \AW{} & $A_R$ & $S_R$ \\
+    \midrule
+    SVM, Gaussiana única $\rightarrow$ Real & 0,8672 & 0,8614 & --- & --- \\
+    SVM, GMM $\rightarrow$ Real & 0,9708 & 0,9344 & --- & --- \\
+    Reg. Log., Gaussiana única $\rightarrow$ Real & 0,9853 & 0,9514 & --- & --- \\
+    Reg. Log., GMM $\rightarrow$ Real & 0,9827 & 0,9461 & --- & --- \\
+    Gaussian NB, Gaussiana única $\rightarrow$ Real & 0,7915 & 0,7951 & --- & --- \\
+    Gaussian NB, GMM $\rightarrow$ Real & 0,9144 & 0,8715 & --- & --- \\
+    Random Forest, Gaussiana única $\rightarrow$ Real & 0,8387 & 0,8282 & --- & --- \\
+    Random Forest, GMM $\rightarrow$ Real & 0,8665 & 0,8429 & --- & --- \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{0.14cm}
+  \eyebrow{Recalculado pelo código atual: execução smoke, $n\leq32$}
+  \vspace{0.05cm}
+  \fontsize{7.2}{8.6}\selectfont
+  \begin{tabular}{lcccc}
+    \toprule
+    Classificador, treinamento $\rightarrow$ teste & $\rankrho$ & \AW{} & $A_R$ & $S_R$ \\
+    \midrule
+    Linear SVM, Gaussiana única $\rightarrow$ Real & 0,011 & 0,504 & 0,728 & 0,728 \\
+    Linear SVM, GMM $\rightarrow$ Real             & 0,271 & 0,591 & 0,794 & 0,689 \\
+    Random Forest, Gaussiana única $\rightarrow$ Real & 0,624 & 0,731 & 0,479 & 0,882 \\
+    Random Forest, GMM $\rightarrow$ Real             & 0,533 & 0,687 & 0,467 & 0,879 \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{0.10cm}
+  {\fontsize{7.6}{9.1}\selectfont\color{CoInfoGray}
+    Bloco superior: valores herdados do esquema anterior, cenários SUPPORT2 000007/000008 ($n=512$); $A_R$/$S_R$ exigiriam os dados brutos por réplica, não persistidos localmente. Bloco inferior: \texttt{scenario\_run\_id=0}, \texttt{output/validation/support2-random-forest-smoke/}, indicadores calculados diretamente por \texttt{coinfosim.results.structural} --- escala reduzida, não comparável linha a linha ao bloco superior.}
+  \sourcecite{cenários SUPPORT2 000007 e 000008 (herdados); execução smoke local (recalculada); capítulo 7 e apêndices A/B do relatório final.}
 \end{frame}
 
 % Apoio 7 ---------------------------------------------------------------------
@@ -483,8 +501,8 @@
         {\bfseries\color{CoInfoBlue}Limites de interpretação}\par\vspace{.08cm}
         \begin{itemize}\setlength{\itemsep}{.03cm}
           \item Spearman não iguala perdas;
-          \item \WA{} ignora magnitude e empates;
-          \item \Nstar{} guarda apenas o último cruzamento;
+          \item \AW{} ignora magnitude; pares indefinidos são ignorados, não discordantes;
+          \item $\mathbf R$ guarda só a última inversão de cada par; $A_R$ ignora direção e magnitude; $S_R$ só existe no suporte compartilhado;
           \item sem custos coletados e sem extrapolação validada além da grade.
         \end{itemize}
       \end{beamercolorbox}
@@ -492,7 +510,7 @@
   \end{columns}
 
   \vspace{0.05cm}
-  \takeaway{As figuras geométricas são inspeções exploratórias, não testes formais de ajuste nem provas de preservação da estrutura de cooperação.}
+  \takeaway{As figuras geométricas são inspeções exploratórias, não testes formais de ajuste nem provas de preservação do perfil de cooperação preditiva.}
   \sourcecite{capítulo 10 do relatório final.}
 \end{frame}
 
@@ -521,7 +539,8 @@
         Repositório:\par
         \href{https://github.com/paulorenatoaz/coinfosim}{\texttt{github.com/paulorenatoaz/coinfosim}}\par\medskip
         Commit científico auditado:\par
-        {\fontsize{7.0}{8.4}\selectfont\texttt{ec5b70baf53bbc67714a61bed64c06358111fb90}}\par\medskip
+        {\fontsize{7.0}{8.4}\selectfont\texttt{ce1bafd83a34fc3aeef504ab450fa8d75dbcaff3}}\par\medskip
+        {\fontsize{6.6}{8.0}\selectfont\color{CoInfoGray}(base da revisão de perfis de cooperação preditiva; ver apêndice B do relatório final para o commit desta revisão editorial)}\par\medskip
         Índice dos relatórios:\par
         \href{https://paulorenatoaz.github.io/coinfosim/}{\texttt{paulorenatoaz.github.io/coinfosim/}}}
 

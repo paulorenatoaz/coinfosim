@@ -85,14 +85,14 @@ O fenômeno não deve ser interpretado como uma lei segundo a qual o melhor cana
 
 Dados sintéticos podem ser avaliados sob diferentes critérios. Uma avaliação puramente distributiva compara estatísticas, densidades, projeções ou distâncias entre dados reais e gerados. Uma avaliação orientada à tarefa verifica se amostras sintéticas sustentam modelos úteis em uma aplicação real. \textcite{esteban2017} propõem, entre outras estratégias, treinar um modelo supervisionado em dados sintéticos e testá-lo em dados reais, protocolo conhecido como \emph{Train on Synthetic, Test on Real}.
 
-O desenho do \CoInfoSim{} adota a mesma direção geral, mas amplia o objeto avaliado. O reservatório real de treinamento é usado para parametrizar um modelo gerador condicional à classe. Esse gerador produz as amostras usadas para treinar os classificadores, enquanto a avaliação ocorre sobre um conjunto real fixo que não participa da parametrização. Para cada dataset são comparados três braços:
+O desenho do \CoInfoSim{} adota a mesma direção geral, mas amplia o objeto avaliado. Os dados reais de treinamento são usados para ajustar um modelo gerador condicional à classe. Esse gerador produz as amostras sintéticas de treinamento usadas para treinar os classificadores, enquanto a avaliação ocorre sobre o mesmo conjunto de teste real fixo, que não participa do ajuste do gerador. Para cada dataset são comparados três braços:
 \begin{align}
   &\RealToReal,\label{eq:arm-real}\\
   &\GaussianToReal,\label{eq:arm-gaussian}\\
   &\GMMToReal.\label{eq:arm-gmm}
 \end{align}
 
-No primeiro braço, o treinamento também utiliza amostras reais balanceadas retiradas do reservatório. Nos demais, o treinamento dos classificadores utiliza amostras artificiais produzidas por modelos geradores parametrizados exclusivamente a partir do mesmo reservatório. O teste é compartilhado pelos três braços. Essa escolha reduz uma fonte de variação: as diferenças observadas não decorrem de conjuntos de avaliação distintos.
+No primeiro braço, o treinamento também utiliza amostras reais de treinamento balanceadas. Nos demais, o treinamento dos classificadores utiliza amostras sintéticas de treinamento produzidas por modelos geradores ajustados exclusivamente aos dados reais de treinamento. O teste é compartilhado pelos três braços. Essa escolha reduz uma fonte de variação: as diferenças observadas não decorrem de conjuntos de avaliação distintos.
 
 Uma comparação Synthetic$\rightarrow$Real convencional pode ser resumida por uma métrica de desempenho de um único modelo. No \CoInfoSim{}, cada braço produz uma família de curvas indexada por subconjunto, classificador e tamanho amostral. A pergunta deixa de ser apenas ``o treinamento sintético prediz bem?'' e passa a incluir ``o treinamento sintético preserva as relações entre configurações de canais?''.
 
@@ -100,24 +100,33 @@ Essa mudança permite separar três tipos de fidelidade:
 
 \begin{description}
   \item[Fidelidade geométrica:] proximidade visual ou estatística entre a distribuição real e a distribuição gerada;
-  \item[Fidelidade preditiva:] proximidade das perdas absolutas obtidas por treinamento real e sintético;
-  \item[Fidelidade estrutural:] preservação da ordenação, das relações de vitória e dos limiares cooperativos entre subconjuntos.
+  \item[Fidelidade preditiva absoluta:] proximidade das perdas absolutas obtidas por treinamento real e sintético;
+  \item[Preservação do \PredictiveCooperationProfile:] preservação da ordenação, das relações efetivas de vencedor e da dinâmica de inversões entre subconjuntos.
 \end{description}
 
 Os três tipos podem se relacionar, mas nenhum implica automaticamente os demais. Essa separação será retomada na análise dos resultados, especialmente nos cenários Occupancy e SUPPORT2.
 
-\section{Estrutura de cooperação}
+\section{Perfil de cooperação preditiva}
 
-A estrutura de cooperação é definida a partir das curvas de perda dos subconjuntos. Para cada $n$, a ordenação das perdas produz um ranking. Comparações par a par identificam qual subconjunto vence cada outro no prefixo analisado. Os cruzamentos das curvas permitem estimar limiares $\Nstar$, que representam transições de superioridade ao longo do tamanho amostral.
-
-Esses objetos possuem níveis diferentes de sensibilidade. Uma correlação de ranking elevada pode coexistir com uma discordância em posições adjacentes. Uma relação de vitória pode mudar por uma diferença pequena de perda. O valor de $\Nstar$ pode se deslocar mesmo quando as curvas mantêm forma geral semelhante, porque depende da posição do cruzamento. Em curvas irregulares, um mesmo par pode cruzar várias vezes; o protocolo atual registra o último cruzamento observado, interpretado como a última transição de superioridade dentro da grade experimental.
-
-A preservação estrutural é, portanto, multidimensional. O trabalho não procura declarar que um braço ``preservou'' ou ``não preservou'' por meio de uma única medida. Em vez disso, compara:
+O \PredictiveCooperationProfile{} é a representação quantitativa de como o desempenho preditivo relativo dos subconjuntos de canais evolui ao longo do tamanho amostral, para um dataset, um classificador e uma condição de treinamento determinados. Ele é definido a partir das curvas de perda média estimada dos subconjuntos e organizado em três níveis analíticos crescentes de detalhe:
 
 \begin{enumerate}
-  \item a ordenação global dos subconjuntos;
-  \item as relações de vitória entre pares;
-  \item a dinâmica amostral expressa por $\Nstar$.
+  \item a \textbf{ordenação global} dos subconjuntos em cada $n$, comparável por correlação de ranking;
+  \item a \textbf{relação efetiva de vencedor par a par}, que resume, para cada par de subconjuntos, qual deles tem menor perda estimada em cada $n$, com uma regra explícita de propagação sob empate exato;
+  \item a \textbf{dinâmica de inversões}, isto é, os momentos em que a relação efetiva de vencedor de um par troca de sentido ao longo do tamanho amostral.
+\end{enumerate}
+
+É importante distinguir o perfil de um \PredictiveCooperationPattern{}: o perfil é o objeto quantitativo --- a série de rankings, matrizes de vencedores e matrizes de inversões ao longo de $n$ --- enquanto um padrão é uma regularidade interpretada a partir de um ou mais perfis, como "pares redundantes raramente invertem" ou "o vencedor entre duas famílias de subconjuntos se estabiliza cedo". O relatório reporta perfis diretamente e discute padrões apenas como leitura interpretativa desses perfis, nunca como o dado bruto.
+
+Esses três níveis possuem sensibilidades diferentes. Uma correlação de ranking elevada pode coexistir com uma discordância de vencedor em pares específicos. Uma relação de vencedor pode ser idêntica entre duas condições mesmo que os regimes amostrais em que ela se estabilizou sejam distintos. A dinâmica de inversões, por sua vez, decompõe-se em duas perguntas logicamente separadas: os mesmos pares invertem (uma questão de \emph{existência}) e, entre os pares que invertem em ambas as condições, as inversões ocorrem em tamanhos amostrais semelhantes (uma questão de \emph{regime amostral})? Essas duas perguntas geram dois indicadores distintos, nunca combinados em um único índice.
+
+A preservação do perfil de cooperação preditiva é, portanto, multidimensional. O trabalho não procura declarar que um braço "preservou" ou "não preservou" por meio de uma única medida. Em vez disso, compara:
+
+\begin{enumerate}
+  \item a ordenação global dos subconjuntos ($\rankrho$);
+  \item as relações efetivas de vencedor entre pares (\WinnersAgreement, $\AW$);
+  \item a existência de inversões válidas de vencedor (\ReversalExistenceAgreement, $\AR$);
+  \item o regime amostral das inversões compartilhadas (\ReversalSampleSizeSimilarity, $\SR$).
 \end{enumerate}
 
 As definições formais e os procedimentos de cálculo são apresentados no Capítulo 6.
@@ -132,7 +141,7 @@ O modelo sintético mais simples considera uma distribuição normal multivariad
   \qquad c=1,\ldots,K.
   \label{eq:class-gaussian}
 \end{equation}
-Nos cenários ancorados, a Gaussiana de cada classe é parametrizada no espaço padronizado a partir do reservatório de treinamento: $\widehat{\mu}_c$ e $\widehat{\Sigma}_c$ correspondem, respectivamente, à média e à covariância amostrais calculadas nesse reservatório. As matrizes de covariância podem diferir entre classes.
+Nos cenários ancorados, a Gaussiana de cada classe é ajustada no espaço padronizado a partir dos dados reais de treinamento: $\widehat{\mu}_c$ e $\widehat{\Sigma}_c$ correspondem, respectivamente, à média e à covariância amostrais calculadas nesses dados reais de treinamento. As matrizes de covariância podem diferir entre classes.
 
 A Gaussiana única resume cada classe por um centro e uma estrutura global de dispersão e correlação. Sua capacidade de representar assimetrias, caudas, multimodalidade e regiões desconectadas é limitada. Essa limitação, contudo, não a torna cientificamente desinteressante. O modelo é leve, interpretável e permite perguntar quanto da estrutura cooperativa depende apenas de momentos de primeira e segunda ordem.
 
@@ -150,9 +159,9 @@ Uma mistura gaussiana representa a distribuição de cada classe por uma combina
 \end{equation}
 em que $\pi_{ck}\geq 0$, $\sum_k\pi_{ck}=1$ e $K_c$ é o número de componentes da classe $c$. Misturas finitas constituem uma família flexível para representar heterogeneidade e multimodalidade \cite{mclachlan2000}.
 
-No protocolo implementado, um GMM é parametrizado separadamente para cada classe no espaço completo dos canais, usando apenas o reservatório real de treinamento. A parametrização de cada candidato é obtida por máxima verossimilhança, e o número de componentes é selecionado pelo menor BIC. Esse critério combina a log-verossimilhança maximizada com uma penalização pela quantidade de parâmetros \cite{schwarz1978}, buscando evitar que a flexibilidade cresça sem controle.
+No protocolo implementado, um GMM é ajustado separadamente para cada classe no espaço completo dos canais, usando apenas os dados reais de treinamento. A parametrização de cada candidato é obtida por máxima verossimilhança, e o número de componentes é selecionado pelo menor BIC. Esse critério combina a log-verossimilhança maximizada com uma penalização pela quantidade de parâmetros \cite{schwarz1978}, buscando evitar que a flexibilidade cresça sem controle.
 
-O GMM pode aproximar formas visuais que uma única elipse gaussiana não representa. Ainda assim, maior fidelidade geométrica não garante maior fidelidade estrutural. A divisão dos dados em componentes pode melhorar a representação global da densidade sem preservar exatamente as regiões que determinam as fronteiras de um classificador ou as diferenças relativas entre subconjuntos. Essa possibilidade será importante no Occupancy, em que o GMM parece reproduzir melhor a forma dos dados, mas a Gaussiana única apresenta indicadores estruturais ligeiramente superiores em determinadas configurações finais.
+O GMM pode aproximar formas visuais que uma única elipse gaussiana não representa. Ainda assim, maior fidelidade geométrica não garante maior preservação do perfil de cooperação preditiva. A divisão dos dados em componentes pode melhorar a representação global da densidade sem preservar exatamente as regiões que determinam as fronteiras de um classificador ou as diferenças relativas entre subconjuntos. Essa possibilidade será importante no Occupancy, em que o GMM parece reproduzir melhor a forma dos dados, mas a Gaussiana única apresenta indicadores de preservação ligeiramente superiores em determinadas configurações finais.
 
 \section{Classificadores}
 
@@ -174,7 +183,7 @@ O Gaussian Naive Bayes supõe independência condicional entre canais dada a cla
 
 Random Forest combina múltiplas árvores construídas sob aleatoriedade de amostras e de variáveis, agregando suas previsões \cite{breiman2001}. O classificador introduz não linearidade e interações que não estão disponíveis aos modelos lineares. Em contrapartida, seu custo computacional é substancialmente maior em um protocolo que exige centenas de ajustes para cada subconjunto, tamanho amostral e replicação.
 
-Por essa razão, o Random Forest não integra uma comparação simétrica entre todos os datasets nesta versão do trabalho. Ele foi incorporado como estudo adicional no SUPPORT2, com calibração realizada apenas no reservatório real de treinamento e configuração congelada para todos os braços. O resultado deve ser interpretado como evidência específica da interação entre esse classificador, o SUPPORT2 e os geradores avaliados, e não como demonstração de superioridade geral.
+Por essa razão, o Random Forest não integra uma comparação simétrica entre todos os datasets nesta versão do trabalho. Ele foi incorporado como estudo adicional no SUPPORT2, com calibração realizada apenas nos dados reais de treinamento e configuração congelada para todos os braços. O resultado deve ser interpretado como evidência específica da interação entre esse classificador, o SUPPORT2 e os geradores avaliados, e não como demonstração de superioridade geral.
 
 As implementações utilizadas pertencem ao ecossistema scikit-learn, cuja arquitetura e conjunto de algoritmos são descritos por \textcite{pedregosa2011}.
 
@@ -199,4 +208,4 @@ O problema de seleção de sensores sob restrições possui literatura própria,
 
 A modelagem econômica deverá respeitar a unidade real de decisão. Em um exame que produz várias variáveis, o custo pode estar associado ao procedimento, e não a cada canal separadamente. Em uma rede de sensores, parte do custo é fixa e parte depende da taxa de coleta. Em uma auditoria, o custo pode ser por documento, por lote ou por hora de especialista. O rótulo $Y$ pode ser obtido imediatamente ou exigir acompanhamento posterior. Portanto, uma expressão aditiva simples pode ser utilizada como exemplo didático, mas não deve ser confundida com uma definição universal.
 
-A motivação de custos permanece, contudo, cientificamente conectada às métricas estruturais. Um ranking preservado permite comparar famílias de configurações; a \WinnersAgreement{} resume relações par a par relevantes para substituir ou eliminar alternativas; e $\Nstar$ indica em que regime amostral uma configuração mais complexa passa a justificar seu uso. Essas informações precedem qualquer otimização monetária e ajudam a formular o problema de decisão adequado a cada domínio.
+A motivação de custos permanece, contudo, cientificamente conectada aos indicadores de preservação do perfil. Um ranking preservado permite comparar famílias de configurações; a \WinnersAgreement{} resume relações par a par relevantes para substituir ou eliminar alternativas; e a matriz de inversões $\Rmat$ indica em que regime amostral uma configuração mais complexa passou a superar outra. Essas informações precedem qualquer otimização monetária e ajudam a formular o problema de decisão adequado a cada domínio.

@@ -13,15 +13,17 @@ Este capítulo delimita o alcance das evidências antes de detalhar cada ameaça
     \toprule
     \textbf{Tipo} & \textbf{Limitação central} & \textbf{Consequência} & \textbf{Mitigação prioritária} \\
     \midrule
-    Interna & Um particionamento fixo e critérios de precisão definidos sobre as perdas médias. & Sensibilidade ao conjunto de teste e incerteza não quantificada diretamente nas métricas estruturais. & Repetir particionamentos válidos e estimar intervalos das métricas por reamostragem. \\
+    Interna & Um particionamento fixo e critérios de precisão definidos sobre as perdas médias. & Sensibilidade ao conjunto de teste e incerteza não quantificada diretamente nos indicadores de preservação. & Repetir particionamentos válidos e estimar intervalos dos indicadores por reamostragem. \\
     \addlinespace
-    Construto & Ranking, vencedores e \Nstar{} representam componentes distintos e usam perda 0--1. & Nenhuma métrica isolada descreve toda a cooperação ou a utilidade da decisão. & Interpretar o perfil conjunto e avaliar métricas preditivas e custos alternativos. \\
+    Construto & $\rankrho$, $\AW$, $\AR$ e $\SR$ representam componentes distintos e usam perda 0--1. & Nenhum indicador isolado descreve todo o perfil de cooperação preditiva ou a utilidade da decisão. & Interpretar o perfil conjunto e avaliar métricas preditivas e custos alternativos. \\
     \addlinespace
     Externa & Três datasets binários, tabulares e de baixa dimensão; Random Forest apenas no SUPPORT2. & Os resultados não se generalizam automaticamente a outros domínios ou classificadores. & Ampliar datasets, dimensionalidades, classes e famílias de modelos. \\
     \addlinespace
     Computacional & A enumeração cresce como $2^d-1$. & O custo restringe o protocolo exaustivo a poucos canais. & Avaliar busca estruturada ou amostragem de subconjuntos sem perder comparações relevantes. \\
     \addlinespace
-    Extrapolação & A grade termina em $n=512$. & O último cruzamento observado pode não ser o último fora da grade. & Validar previsões em tamanhos amostrais deliberadamente ocultados. \\
+    Extrapolação & A grade termina no maior $n$ avaliado em cada dataset. & A última inversão observada pode não ser a última fora da grade. & Validar previsões em tamanhos amostrais deliberadamente ocultados. \\
+    \addlinespace
+    Dados desta revisão & Resultados brutos das execuções \textit{full} anteriores não estão persistidos localmente. & $\AR$, $\DR$ e $\SR$ são indisponíveis para Occupancy, Air Quality e SUPPORT2 em escala completa nesta edição. & Regenerar ou repersistir os resultados brutos dessas execuções (Apêndice~B). \\
     \bottomrule
   \end{tabularx}
   \sourcebelow{elaboração própria}
@@ -37,9 +39,9 @@ Uma extensão desejável é repetir o protocolo com múltiplos particionamentos 
 
 \subsection{Incerteza Monte Carlo}
 
-O critério de parada controla a meia-largura máxima do intervalo de confiança das perdas médias, mas as métricas estruturais são funções derivadas dessas perdas. Não foi aplicado um critério de parada diretamente sobre $\rankrho$, Winners Agreement ou similaridade de \Nstar{}. Pequenas alterações nas perdas podem mudar rankings, empates e cruzamentos mesmo depois de as médias atingirem a precisão estabelecida.
+O critério de parada controla a meia-largura máxima do intervalo de confiança das perdas médias estimadas, mas $\rankrho$, $\AW$, $\AR$ e $\SR$ são funções derivadas dessas perdas, não alvos diretos do critério de parada. Pequenas alterações nas perdas podem mudar rankings, o vencedor efetivo $\Wmat$ e as inversões registradas em $\Rmat$ mesmo depois de as médias atingirem a precisão estabelecida. Empates exatos de perda são tratados de forma determinística por propagação do vencedor anterior após a inicialização (Seção~\ref{sec:winner-relation}); essa regra remove ambiguidade na definição de $\Wmat$, mas não elimina a sensibilidade de $\Wmat$ e $\Rmat$ a deslocamentos pequenos na perda estimada próximos de um cruzamento.
 
-Amostras aninhadas e sementes controladas reduzem o ruído das comparações, porém também induzem dependência entre pontos de $n$ e entre condições experimentais. A dependência é intencional e melhora a comparação pareada, mas impede interpretar as curvas como séries de observações independentes. Trabalhos futuros podem estimar intervalos de confiança das próprias métricas estruturais por reamostragem das replicações.
+Amostras aninhadas e sementes controladas reduzem o ruído das comparações, porém também induzem dependência entre pontos de $n$ e entre condições experimentais. A dependência é intencional e melhora a comparação pareada, mas impede interpretar as curvas como séries de observações independentes. Trabalhos futuros podem estimar intervalos de confiança dos próprios indicadores de preservação por reamostragem das replicações.
 
 \subsection{Balanceamento das amostras de treinamento}
 
@@ -49,37 +51,37 @@ O teste permanece real e fixo, mas o treinamento balanceado representa um experi
 
 \subsection{Parametrização dos geradores}
 
-A Gaussiana única e o GMM são parametrizados a partir do reservatório real de treinamento. A incerteza dos parâmetros, as escolhas de regularização e a seleção do número de componentes influenciam as amostras produzidas e, por consequência, as estruturas que emergem após o treinamento dos classificadores nos braços sintéticos. O BIC controla complexidade, mas não garante que o GMM selecionado produza amostras capazes de reproduzir melhor a estrutura de cooperação de referência. A maior fidelidade visual do GMM em alguns cenários também não assegura melhor fidelidade estrutural.
+A Gaussiana única e o GMM são ajustados a partir dos dados reais de treinamento. A incerteza dos parâmetros, as escolhas de regularização e a seleção do número de componentes influenciam as amostras produzidas e, por consequência, os perfis que emergem após o treinamento dos classificadores nos braços sintéticos. O BIC controla complexidade, mas não garante que o GMM selecionado produza amostras capazes de reproduzir melhor o perfil de cooperação preditiva de referência. A maior fidelidade visual do GMM em alguns cenários também não assegura melhor preservação do perfil.
 
 Os geradores são condicionais à classe e não modelam explicitamente deriva da distribuição, dependência temporal, censura, ausência de dados ou mecanismos de coleta. O protocolo trabalha com uma representação tabular padronizada. A simplificação é adequada ao escopo atual, mas limita a interpretação em processos nos quais a ordem ou a dependência entre observações faz parte do fenômeno.
 
 \subsection{Calibração e aleatoriedade do Random Forest}
 
-O Random Forest foi calibrado uma vez no reservatório real do SUPPORT2, e a configuração foi mantida nas três condições. Essa decisão evita favorecer um gerador específico, mas os resultados dependem da grade de calibração e do critério adotado. Outra configuração poderia produzir perdas e estruturas diferentes.
+O Random Forest foi calibrado uma vez nos dados reais de treinamento do SUPPORT2, e a configuração foi mantida nas três condições. Essa decisão evita favorecer um gerador específico, mas os resultados dependem da grade de calibração e do critério adotado. Outra configuração poderia produzir perdas e estruturas diferentes.
 
 As sementes do estimador são pareadas entre condições por replicação. Esse desenho controla a variabilidade interna do algoritmo e torna a comparação mais precisa, mas pode elevar a concordância em relação a uma execução com sementes independentes. Um estudo de sensibilidade deve comparar políticas pareadas e independentes para separar a preservação atribuível aos dados da redução de variância causada pelo desenho experimental.
 
 \section{Validade de construto}
 
-\subsection{O que as métricas representam}
+\subsection{O que os quatro indicadores representam}
 
-A correlação de Spearman mede associação entre rankings, não igualdade de perdas. Duas condições podem apresentar $\rankrho$ alto e diferenças relevantes no desempenho absoluto. A \WinnersAgreement{} mede a proporção de pares com a mesma relação de superioridade, mas ignora a magnitude da vantagem e exclui pares empatados em qualquer condição. Em situações com muitos quase-empates, pequenas diferenças numéricas podem gerar decisões discretas distintas.
+A correlação de Spearman mede associação entre rankings completos, não igualdade de perdas. Duas condições podem apresentar $\rankrho$ alto e diferenças relevantes no desempenho absoluto. A \WinnersAgreement{} ($\AW$) mede a proporção de pares com a mesma relação efetiva de vencedor, mas ignora a magnitude da vantagem; pares em que a relação permanece indefinida em qualquer condição são ignorados, não tratados como discordância.
 
-A similaridade progressiva de \Nstar{} combina concordância sobre células com cruzamento e proximidade temporal do último cruzamento. Ela é mais estrita, mas não descreve toda a trajetória das curvas. Dois braços podem compartilhar o último cruzamento e divergir em múltiplas inversões intermediárias; podem também discordar por uma posição da grade apesar de exibirem comportamento praticamente equivalente.
+A \ReversalExistenceAgreement{} ($\AR$) é um indicador \textbf{baseado em conjuntos}: ela ignora a direção de cada inversão (recuperável apenas em $\Wmat$) e sua magnitude em perda, respondendo somente se o par inverteu ou não. A \ReversalSampleSizeSimilarity{} ($\SR$) é definida \textbf{apenas no suporte compartilhado de inversões} --- pares que invertem em ambas as condições --- e sua normalização depende explicitamente do prefixo avaliado, $\log_2 n_t-\log_2 n_1$; o mesmo par de tamanhos amostrais absolutos produz valores de $\SR$ diferentes conforme o prefixo em que é avaliado. Além disso, a matriz $\Rmat$ armazena apenas a \textbf{última} inversão de cada par: ela descarta o número total de inversões, sua ordem, sua duração e a magnitude da perda envolvida em cada uma. Dois braços podem compartilhar a última inversão de um par e divergir substancialmente em inversões intermediárias, ou podem discordar sobre a última inversão apesar de exibirem trajetórias de perda praticamente equivalentes.
 
-As três métricas são, portanto, indicadores parciais de um construto mais amplo. A decisão de não combiná-las em um índice único evita esconder essas diferenças, mas exige interpretação conjunta.
+Os quatro indicadores são, portanto, componentes parciais de um construto mais amplo --- o perfil de cooperação preditiva --- e nenhum deles, isoladamente, o resume. A decisão de não combiná-los em um índice único evita esconder essas diferenças, mas exige interpretação conjunta.
 
-\subsection{Definição pelo último cruzamento}
+\subsection{Dependência da grade amostral avaliada}
 
-A regra do último cruzamento foi adotada porque representa o ponto mais tardio em que a superioridade entre duas configurações se inverte na grade observada. Ela é conservadora para planejamento amostral, mas depende do limite $n_{\max}$. Um par pode apresentar novo cruzamento além de 512, invalidando a interpretação de estabilização final.
+A matriz de inversões $\Rmat(n_t)$ e os indicadores derivados $\AR(n_t)$ e $\SR(n_t)$ dependem explicitamente da grade de tamanhos amostrais avaliada e do prefixo $n_t$ considerado. A última inversão registrada é a mais tardia \emph{dentro da grade}, não necessariamente a última que ocorreria se a grade se estendesse além do maior $n$ avaliado em cada dataset. Um par pode apresentar uma nova inversão além desse limite, invalidando a interpretação de estabilização final.
 
-Também existe uma assimetria entre ausência de cruzamento e cruzamento não observado. Uma célula vazia pode significar que uma configuração foi superior em toda a grade ou que a inversão ocorreria fora dela. O relatório distingue estados de disponibilidade, mas não elimina essa ambiguidade substantiva.
+Também existe uma assimetria entre ausência de inversão e inversão não observada. Uma célula indefinida de $\Rmat$ pode significar que um subconjunto foi superior ao outro durante toda a grade avaliada ou que uma inversão ocorreria além dela. O relatório distingue estados de disponibilidade explicitamente (Seção~\ref{sec:reversal-matrix}), mas não elimina essa ambiguidade substantiva sobre o que existe fora do intervalo observado.
 
 \subsection{Perda 0--1 como medida de desempenho}
 
 A métrica básica é a perda de classificação 0--1. Ela é simples e comparável, porém não incorpora calibração probabilística, gravidade dos erros, sensibilidade, especificidade ou utilidade clínica. No SUPPORT2, por exemplo, dois classificadores com a mesma taxa de erro podem ter perfis de falso positivo e falso negativo muito diferentes.
 
-A estrutura cooperativa pode depender da métrica de desempenho. Trabalhos futuros devem verificar se rankings e \Nstar{} se mantêm com acurácia balanceada, macro-F1, AUC, perda logarítmica ou funções de custo específicas.
+O perfil de cooperação preditiva pode depender da métrica de desempenho utilizada como base. Trabalhos futuros devem verificar se $\rankrho$, $\AW$, $\AR$ e $\SR$ se mantêm com acurácia balanceada, macro-F1, AUC, perda logarítmica ou funções de custo específicas.
 
 \section{Validade externa}
 
@@ -91,7 +93,7 @@ Não foram incluídos problemas de alta dimensão, múltiplas classes, imagens, 
 
 \subsection{Classificadores avaliados}
 
-SVM linear, regressão logística e Gaussian Naive Bayes foram avaliados nos cenários principais. O Random Forest foi executado apenas no SUPPORT2. Portanto, não é possível afirmar que esse algoritmo preserva melhor \Nstar{} em outros datasets. Seu resultado deve ser atribuído à interação entre SUPPORT2, configuração calibrada, gerador e política de sementes.
+SVM linear, regressão logística e Gaussian Naive Bayes foram avaliados nos cenários principais. O Random Forest foi executado apenas no SUPPORT2. Portanto, não é possível afirmar que esse algoritmo preserva melhor o perfil de cooperação preditiva em outros datasets. Seu resultado deve ser atribuído à interação entre SUPPORT2, configuração calibrada, gerador e política de sementes.
 
 Modelos não lineares adicionais, como SVM com kernel, boosting, k-NN e redes neurais, podem responder de forma diferente às distribuições sintéticas. A preservação não é propriedade exclusiva do gerador e deve ser reavaliada para cada família de decisão.
 
@@ -115,6 +117,10 @@ As visualizações geométricas são exploratórias. A percepção de maior ou m
 
 \section{Limites da extrapolação}
 
-Nenhum resultado demonstra que a estrutura preservada até $n=512$ continuará válida para amostras maiores. O último cruzamento observado é relativo à grade experimental. Projetar \Nstar{} para $n+a$ exige validação fora da faixa usada para parametrizar e selecionar o gerador.
+Nenhum resultado demonstra que o perfil preservado até o maior $n$ avaliado continuará válido para amostras maiores. A última inversão registrada em $\Rmat$ é relativa à grade experimental. Projetar $\Rmat$ para $n+a$ exige validação fora da faixa usada para ajustar e selecionar o gerador.
 
-Os resultados tampouco se transferem automaticamente entre domínios. Nem a elevada preservação do Gaussian Naive Bayes no Air Quality nem a alta similaridade de \Nstar{} do Random Forest no SUPPORT2 autorizam generalizações para outros conjuntos de sensores ou classificadores. As conclusões constituem evidência de viabilidade em alguns cenários, não uma validação geral: a intensidade e a utilidade da preservação devem ser novamente demonstradas em cada aplicação.
+Os resultados tampouco se transferem automaticamente entre domínios. Nem a elevada preservação herdada de $\rankrho$/$\AW$ do Gaussian Naive Bayes no Air Quality, nem o padrão de $\AR$/$\SR$ observado no exemplo em escala reduzida do Random Forest no SUPPORT2 (Seção~\ref{sec:support2-rf}), autorizam generalizações para outros conjuntos de sensores ou classificadores. As conclusões constituem evidência de viabilidade em alguns cenários, não uma validação geral: a intensidade e a utilidade da preservação devem ser novamente demonstradas em cada aplicação.
+
+\section{Disponibilidade dos dados brutos sob o esquema atual}
+
+Esta revisão migrou a definição científica do arcabouço retirado de $\NstarHistorical$ para o esquema $\Wmat/\Rmat$ (Capítulo~6), mas não pôde recalcular $\AR$, $\DR$ e $\SR$ para Occupancy, Air Quality e para a escala completa do SUPPORT2, porque os resultados brutos por replicação dessas execuções não estão persistidos neste repositório (Seção~\ref{sec:resultados-guia}; Apêndice~B). Essa é uma limitação da \textbf{disponibilidade de dados nesta revisão editorial}, não do esquema $\Wmat/\Rmat$ em si: o código atual (\texttt{coinfosim.results.structural}) calcula corretamente os quatro indicadores a partir de resultados brutos persistidos, como demonstrado pelo exemplo do SUPPORT2 em escala \textit{smoke} (Seção~\ref{sec:support2-rf}). A caracterização completa do perfil de cooperação preditiva nos três datasets, na escala anteriormente publicada, permanece como trabalho imediato de regeneração, não como questão em aberto sobre a validade do esquema.

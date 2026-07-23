@@ -93,5 +93,5 @@ TASKS_*.md
 REFACTOR_PLAN.md
 
 # LaTeX report build artifacts
-coinfosim-report-latex/
-coinfosim-presentation/
+#coinfosim-report-latex/
+#coinfosim-presentation/

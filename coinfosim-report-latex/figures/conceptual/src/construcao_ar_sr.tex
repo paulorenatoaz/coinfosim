@@ -1,0 +1,57 @@
+% Diagrama E — construção separada de A_R e S_R: prefixos crescentes da
+% grade, matrizes de inversão R recomputadas e duas comparações independentes
+% (nunca combinadas em um produto).
+\documentclass[tikz,border=6pt]{standalone}
+\input{preamble_diagrams}
+\begin{document}
+\begin{tikzpicture}[node distance=4mm]
+  \tikzset{mini/.style={draw=CoinGray, minimum size=3.2mm, inner sep=0pt, font=\tiny}}
+
+  % Função auxiliar visual: mini-matriz 3x3 esquemática (células preenchidas = R definido)
+  \newcommand{\minimatriz}[3]{% x, y, lista de células preenchidas r/c
+    \begin{scope}[shift={(#1,#2)}]
+      \foreach \r in {1,2,3}\foreach \c in {1,2,3}{
+        \node[mini] at (\c*0.32,-\r*0.32) {};
+      }
+      \foreach \r/\c in {#3}{
+        \node[mini, fill=CoinAccent!55] at (\c*0.32,-\r*0.32) {};
+      }
+    \end{scope}}
+
+  % Linhas de prefixo
+  \foreach \i/\pref in {0/{$\{2,4\}$}, 1/{$\{2,4,8\}$}, 2/{$\{2,4,8,16\}$}}{
+    \node[bloconeutro, minimum width=2.9cm, font=\small] (p\i) at (0,-\i*1.75) {prefixo \pref};
+  }
+  \node[rotulo] (dots) at (0,-3*1.75+0.35) {$\vdots$};
+  \node[bloconeutro, minimum width=2.9cm, font=\small] (pfim) at (0,-3*1.75-0.6) {prefixo $\{2,\ldots,512\}$};
+
+  % Matrizes R (real / sintético) por prefixo, apenas pares acima da diagonal
+  \minimatriz{2.35}{0.75}{1/2}
+  \minimatriz{3.85}{0.75}{1/2}
+  \minimatriz{2.35}{-1.0}{1/2,2/3}
+  \minimatriz{3.85}{-1.0}{1/2}
+  \minimatriz{2.35}{-2.75}{1/2,2/3,1/3}
+  \minimatriz{3.85}{-2.75}{1/2,2/3,1/3}
+  \minimatriz{2.35}{-5.1}{1/2,2/3,1/3}
+  \minimatriz{3.85}{-5.1}{1/2,2/3}
+
+  \node[rotulo] at (2.85,1.2) {\RealToReal{}};
+  \node[rotulo] at (4.35,1.2) {sintético};
+  \node[rotulo, text width=3.2cm, font=\tiny] at (3.6,-7.0)
+    {matriz de inversões $\mathbf{R}$\\recomputada em cada prefixo\\(esquemático; apenas $i<j$)};
+
+  % Duas comparações independentes, nunca combinadas em produto
+  \node[bloco, text width=4.7cm, font=\small] (jac) at (8.1,-0.4)
+    {\textbf{$A_R$: concordância de existência}\\Jaccard sobre os pares com inversão definida em $\mathbf{R}$};
+  \node[bloco, text width=4.7cm, font=\small] (tim) at (8.1,-2.6)
+    {\textbf{$S_R$: similaridade amostral}\\condicional ao suporte compartilhado; usa $D_R$ (distância média em $\log_2$)};
+  \node[draw=CoinLose, thick, rounded corners=1pt, text width=4.7cm, font=\small\bfseries,
+        fill=white, align=center, inner sep=4pt] (ns) at (8.1,-5.2)
+    {$A_R$ e $S_R$ permanecem separados\\nenhum produto é calculado ou reportado};
+
+  \draw[seta] (5.1,-0.4) -- (jac.west);
+  \draw[seta] (5.1,-2.6) -- (tim.west);
+  \draw[seta, CoinGray, dashed] (jac.east) -- ++(0.45,0) |- ($(ns.east)+(0.0,0.30)$);
+  \draw[seta, CoinGray, dashed] (tim.east) -- ++(0.45,0) |- ($(ns.east)+(0.0,-0.30)$);
+\end{tikzpicture}
+\end{document}

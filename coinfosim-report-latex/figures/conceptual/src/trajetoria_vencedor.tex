@@ -1,0 +1,59 @@
+% Diagrama F — trajetória da relação efetiva de vencedor W_ij ao longo de n:
+% empate inicial não resolvido, primeiro vencedor, empate posterior que
+% mantém o vencedor, e inversão válida que atualiza W e define uma célula em R.
+\documentclass[tikz,border=6pt]{standalone}
+\input{preamble_diagrams}
+\begin{document}
+\begin{tikzpicture}[node distance=6mm]
+  \def\ngrid{2/{$n_1{=}2$}, 1/{$n_2{=}4$}, 0/{$n_3{=}8$}, -1/{$n_4{=}16$}, -2/{$n_5{=}32$}}
+  \def\xstep{2.35}
+
+  % Eixo horizontal (grade de n)
+  \draw[->, CoinGray] (-0.6,0) -- (11.0,0) node[below right, rotulo] {$n$ (grade de potências de 2)};
+  \foreach \i/\lab [count=\k from 0] in {2/{$n_1{=}2$},1/{$n_2{=}4$},0/{$n_3{=}8$},-1/{$n_4{=}16$},-2/{$n_5{=}32$}}{
+    \pgfmathsetmacro{\x}{\k*\xstep}
+    \draw[CoinGray] (\x,0.08) -- (\x,-0.08);
+    \node[rotulo] at (\x,-0.42) {\lab};
+  }
+
+  % Estados de U_ij e W_ij em cada ponto (0=empate exato / observado; +1 = S_i vence; -1 = S_j vence)
+  % n1: empate exato inicial -> W indefinido (0)
+  % n2: S_i vence estritamente -> primeiro vencedor, inicializa W (NÃO é inversão)
+  % n3: empate exato -> W mantém S_i (carry-forward; NÃO é inversão)
+  % n4: S_j vence estritamente -> INVERSÃO VÁLIDA (W_{n3}=S_i != 0, W_{n4}=S_j != 0, muda de sinal)
+  % n5: S_j continua vencendo -> W mantém S_j
+  \foreach \k/\y/\txt/\cor in {
+    0/0/{$U{=}0$\\vazio, indefinido}/CoinGray,
+    1/1.35/{$U{=}{+1}$\\primeiro vencedor}/CoinWin,
+    2/1.35/{$U{=}0$\\empate: mantém $S_i$}/CoinAccent,
+    3/-1.35/{$U{=}{-1}$\\\textbf{inversão válida}}/CoinLose,
+    4/-1.35/{$U{=}{-1}$\\mantém $S_j$}/CoinLose
+  }{
+    \pgfmathsetmacro{\x}{\k*\xstep}
+    \node[draw=\cor, fill=\cor!15, rounded corners=1pt, font=\scriptsize, align=center,
+          text width=2.05cm, inner sep=2pt, minimum height=9mm] (pt\k) at (\x,\y) {\txt};
+  }
+
+  % Linha de base do vencedor efetivo W_ij (S_i ou S_j) sob os pontos
+  \node[rotulo, font=\tiny] at (0,-1.0) {$W_{ij}$: indefinido};
+  \node[rotulo, font=\tiny] at (\xstep,-1.0) {$W_{ij}=S_i$};
+  \node[rotulo, font=\tiny] at (2*\xstep,-1.0) {$W_{ij}=S_i$};
+  \node[rotulo, font=\tiny] at (3*\xstep,-1.0) {$W_{ij}=S_j$};
+  \node[rotulo, font=\tiny] at (4*\xstep,-1.0) {$W_{ij}=S_j$};
+
+  % Conectores tracejados destacando a transição de inversão entre n3 e n4
+  \draw[CoinGray, dashed] (pt1.south) -- (pt2.north);
+  \draw[CoinLose, thick] (pt2.south) -- (pt3.north)
+    node[midway, right=1mm, rotulo, text=CoinLose, font=\tiny] {inversão};
+  \draw[CoinGray, dashed] (pt3.south) -- (pt4.north);
+
+  % Célula resultante em R
+  \node[draw=CoinAccentDark, thick, rounded corners=1pt, fill=CoinAccentPale, font=\small,
+        align=center, text width=5.4cm, inner sep=5pt] (rcell) at (5.0,-3.1)
+    {$R_{ij}(n_5)=16$\\ \normalfont\footnotesize única célula de $\mathbf{R}$ para o par $(i,j)$: o tamanho amostral da última inversão válida observada};
+  \draw[seta] (pt3.south) -- ++(0,-0.4) -| (rcell.north);
+
+  \node[rotulo, text width=9.5cm] at (5.0,-4.1)
+    {$n_1$: empate exato inicial, indefinido. $\quad n_2$: primeiro vencedor estrito, inicializa $W_{ij}$ (não é inversão). $\quad n_3$: empate exato posterior mantém o vencedor anterior (não é inversão). $\quad n_4$: vencedor definido substituído pelo outro --- inversão válida. $\quad n_5$: vencedor mantido.};
+\end{tikzpicture}
+\end{document}

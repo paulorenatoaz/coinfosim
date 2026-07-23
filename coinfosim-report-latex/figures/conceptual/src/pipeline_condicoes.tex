@@ -3,9 +3,9 @@
 \input{preamble_diagrams}
 \begin{document}
 \begin{tikzpicture}[node distance=5mm and 7mm]
-  % Reservatório real
+  % Dados reais de treinamento
   \node[bloco, minimum width=15.2cm] (reserv)
-    {\textbf{Reservatório real de treinamento} (parâmetros de padronização estimados somente aqui)};
+    {\textbf{Dados reais de treinamento} (parâmetros de padronização estimados somente aqui)};
 
   % Colunas: real / gaussiana / gmm
   \node[blocoreal, below=9mm of reserv.south west, anchor=north west, xshift=1mm,
@@ -36,7 +36,7 @@
   \node[bloconeutro, below=of teste, minimum width=15.2cm] (perdas)
     {Perdas médias $\overline{L}_{S_I,f}(n)$ por subconjunto, classificador e tamanho amostral};
   \node[bloco, below=of perdas, minimum width=15.2cm] (metricas)
-    {\textbf{Métricas estruturais:} correlação de ranking \; $\cdot$ \; \textit{Winners Agreement} \; $\cdot$ \; similaridade progressiva de $N^{\star}$};
+    {\textbf{Indicadores de preservação do perfil:} correlação de ranking \; $\cdot$ \; \textit{Winner Agreement} \; $\cdot$ \; concordância de existência de inversões \; $\cdot$ \; similaridade dos tamanhos amostrais};
 
   % Setas
   \draw[seta] (reserv.south -| amostraReal) -- (amostraReal.north);

@@ -1,31 +1,32 @@
-\chapter{OBJETOS ESTRUTURAIS E MÉTRICAS DE PRESERVAÇÃO}
+\chapter{PERFIL DE COOPERAÇÃO PREDITIVA: OBJETOS FORMAIS E INDICADORES DE PRESERVAÇÃO}
 
-\section{Da perda aos objetos estruturais}
+\section{Da perda média estimada ao perfil de cooperação preditiva}
 
-A perda média definida na Equação \eqref{eq:mean-loss} é a matéria-prima do estudo, mas o objeto científico não se reduz ao menor valor absoluto de erro. Para cada braço, classificador e tamanho amostral, as perdas induzem três representações complementares:
+A perda média definida na Equação \eqref{eq:mean-loss} é a matéria-prima do estudo, mas o objeto científico não se reduz ao menor valor absoluto de erro. Para cada braço, classificador e tamanho amostral, as perdas médias estimadas induzem o \PredictiveCooperationProfile{}, organizado em três níveis analíticos de detalhe crescente:
 
 \begin{enumerate}
-  \item uma ordenação global dos subconjuntos;
-  \item relações par a par de superioridade, empate ou inferioridade;
-  \item eventos de cruzamento que registram quando essas relações mudam ao longo de $n$.
+  \item a \textbf{ordenação global} dos subconjuntos em cada $n$ (Seção~\ref{sec:ranking});
+  \item a \textbf{relação efetiva de vencedor} par a par, representada pela matriz $\Wmat(n)$, com uma regra explícita de propagação sob empate exato (Seções~\ref{sec:winner-relation}--\ref{sec:winner-agreement});
+  \item a \textbf{dinâmica de inversões}, representada pela matriz triangular $\Rmat(n_t)$, que por sua vez produz dois indicadores de preservação logicamente distintos --- existência (Seção~\ref{sec:ar}) e regime amostral (Seção~\ref{sec:sr}) --- nunca combinados em um único índice.
 \end{enumerate}
 
-Os relatórios de simulação disponibilizam todas as curvas e rankings. O PDF emprega apenas exemplos selecionados, pois reproduzir cada ordenação para 31 ou 127 subconjuntos em todos os braços e classificadores impediria a leitura da argumentação principal.
+Os relatórios de simulação disponibilizam todas as curvas, rankings e matrizes. O PDF emprega apenas exemplos selecionados, pois reproduzir cada objeto para 31 ou 127 subconjuntos em todos os braços e classificadores impediria a leitura da argumentação principal.
 
-A Figura~\ref{fig:conceito-metricas} antecipa, em um exemplo esquemático, as três métricas que este capítulo formaliza. Elas são complementares porque observam componentes diferentes da mesma estrutura: a correlação de ranking compara a ordenação global; a \WinnersAgreement{} compara decisões par a par; e a similaridade de $\Nstar$ compara o momento amostral das últimas transições de superioridade.
+A Figura~\ref{fig:conceito-metricas} antecipa, em um exemplo esquemático, os três níveis analíticos que este capítulo formaliza.
 
 \begin{figure}[H]
   \centering
-  \caption{Visão esquemática das três métricas estruturais e de sua complementaridade}
+  \caption{Visão esquemática dos três níveis analíticos do perfil de cooperação preditiva}
   \label{fig:conceito-metricas}
   \includegraphics[width=\textwidth]{figures/conceptual/metricas_tres_paineis.pdf}
   \sourcebelow{elaboração própria}
-  \notailustracao{No painel (b), o objeto formal armazena apenas os pares não ordenados; a matriz quadrada é uma visualização redundante. No painel (c), as curvas podem cruzar mais de uma vez e o protocolo registra o último cruzamento observado na grade.}
+  \notailustracao{No painel (b), o objeto formal armazena apenas os pares não ordenados; a matriz quadrada exibida nos relatórios é uma visualização redundante. No painel (c), $A_R$ e $S_R$ são construídos separadamente e nunca multiplicados.}
 \end{figure}
 
-\section{Ranking por tamanho amostral}
+\section{Ordenação dos subconjuntos e correlação de ranking}
+\label{sec:ranking}
 
-Sejam $q=|\mathcal{S}|$ subconjuntos em uma ordem canônica. Para um braço $g$, classificador $f$ e tamanho $n$, o vetor de perdas é
+Sejam $q=|\mathcal{S}|$ subconjuntos em uma ordem canônica. Para um braço $g$, classificador $f$ e tamanho $n$, o vetor de perdas médias estimadas é
 \begin{equation}
   \bm\ell^{(g,f)}(n)=
   \left(
@@ -35,7 +36,7 @@ Sejam $q=|\mathcal{S}|$ subconjuntos em uma ordem canônica. Para um braço $g$,
 \end{equation}
 O vetor de postos $\bm r^{(g,f)}(n)$ atribui posto 1 à menor perda e utiliza o posto médio em empates exatos. O ranking completo permite observar não apenas qual subconjunto aparece primeiro, mas se grupos de alternativas permanecem próximos e se configurações menores conservam vantagem sobre configurações mais caras.
 
-A fidelidade de ranking entre um braço sintético $g$ e o braço real $R$ é a correlação de Spearman \cite{spearman1904}:
+A correlação de ranking entre um braço sintético $g$ e o braço real de referência $R$ é a correlação de Spearman \cite{spearman1904}:
 \begin{equation}
   \rankrho^{(g,f)}(n)
   =\operatorname{corr}_{\mathrm{Spearman}}
@@ -44,70 +45,64 @@ A fidelidade de ranking entre um braço sintético $g$ e o braço real $R$ é a 
 \end{equation}
 Valores próximos de 1 indicam ordenações semelhantes; valores próximos de 0 indicam ausência de associação monotônica; valores negativos representam inversão ampla. Quando um dos rankings é constante, a correlação não é definida. A autocorrelação do braço de referência é fixada em 1.
 
-A medida é global: uma troca entre dois subconjuntos quase empatados pode ter efeito pequeno em $\rankrho$, enquanto muitas inversões reduzem a correlação. Essa propriedade é desejável para planejamento operacional, pois não transforma automaticamente uma diferença mínima no primeiro lugar em falha estrutural total.
+A medida é global: uma troca entre dois subconjuntos quase empatados pode ter efeito pequeno em $\rankrho$, enquanto muitas trocas reduzem a correlação. Essa propriedade é desejável para planejamento operacional, pois não transforma automaticamente uma diferença mínima no primeiro lugar em falha de preservação total. Por descrever apenas a ordenação, $\rankrho$ não distingue, por si só, \emph{qual} par mudou de vencedor nem \emph{quando} --- essas perguntas são respondidas pelos objetos das seções seguintes.
 
-\section{Curvas cooperativas e \texorpdfstring{$\Nstar$}{N*}}
+\section{Relação efetiva de vencedor e matriz de vencedores \texorpdfstring{$\Wmat$}{W}}
+\label{sec:winner-relation}
 
-Para facilitar a interpretação das curvas, os relatórios selecionam, em cada cardinalidade, o subconjunto com menor perda no maior $n$ e exibem sua trajetória. O melhor subconjunto singular funciona como referência. Em muitos cenários, um canal isolado apresenta vantagem em amostras pequenas, enquanto pares ou conjuntos maiores passam a explorar informação adicional quando $n$ cresce. A Figura~\ref{fig:nstar-curva-definicao} ilustra esse comportamento com um caso didático: o braço \RealToReal{} do Occupancy Detection com SVM linear.
-
-\begin{figure}[H]
-  \centering
-  \caption{Curvas cooperativas e definição visual de $\Nstar$ no braço \RealToReal{} do Occupancy Detection, SVM linear}
-  \label{fig:nstar-curva-definicao}
-  \includegraphics[width=0.78\textwidth]{figures/nstar_curves/occupancy/nstar_curve_linear_svm_best1_real_to_real_sim000006.png}
-  \sourcebelow{relatório da simulação 000006 (\RealToReal{}), vinculado ao cenário Occupancy Detection 000002}
-  \notailustracao{A curva de referência é o melhor subconjunto singular, $\{X_3\}$. As demais curvas correspondem ao melhor subconjunto de cada cardinalidade no maior $n$, e as linhas verticais tracejadas marcam, para cada curva, o último cruzamento dirigido observado em relação à referência, isto é, o valor de $\Nstar$.}
-\end{figure}
-
-O gráfico apresenta simultaneamente a perda preditiva, o efeito do tamanho amostral e a emergência da vantagem cooperativa. Por isso, não é necessária uma seção autônoma de acurácia ou desempenho preditivo. A análise estrutural deriva das posições relativas das curvas.
-
-\section{Relações de vencedores por pares}
-
-Para dois subconjuntos $S_i$ e $S_j$, define-se a relação orientada pelo menor erro:
+Para dois subconjuntos $S_i$ e $S_j$ ($i<j$), o resultado par a par observado em $n_k$ é
 \begin{equation}
-  W^{(g,f)}_{ij}(n)=
+  U^{(g,f)}_{ij}(n_k)=
   \begin{cases}
-    +1, & \overline{L}^{(g)}_{S_i,f}(n)<\overline{L}^{(g)}_{S_j,f}(n),\\
-    -1, & \overline{L}^{(g)}_{S_i,f}(n)>\overline{L}^{(g)}_{S_j,f}(n),\\
-    0,  & \overline{L}^{(g)}_{S_i,f}(n)=\overline{L}^{(g)}_{S_j,f}(n).
+    +1, & \overline{L}^{(g)}_{S_i,f}(n_k)<\overline{L}^{(g)}_{S_j,f}(n_k),\\
+    -1, & \overline{L}^{(g)}_{S_i,f}(n_k)>\overline{L}^{(g)}_{S_j,f}(n_k),\\
+    0,  & \overline{L}^{(g)}_{S_i,f}(n_k)=\overline{L}^{(g)}_{S_j,f}(n_k),
+  \end{cases}
+  \label{eq:observed-outcome}
+\end{equation}
+com $+1$ indicando que $S_i$ tem menor perda, $-1$ que $S_j$ tem menor perda, e $0$ um empate exato observado naquele ponto da grade.
+
+Um resultado observado isolado, porém, não é uma boa base para comparar braços ao longo de $n$: um empate exato --- comum quando duas curvas se cruzam exatamente sobre um ponto da grade --- não deveria apagar o vencedor já estabelecido no ponto anterior. Por isso, define-se a \textbf{relação efetiva de vencedor} $\Wmat$ por propagação determinística:
+\begin{equation}
+  W^{(g,f)}_{ij}(n_k)=
+  \begin{cases}
+    U^{(g,f)}_{ij}(n_k), & U^{(g,f)}_{ij}(n_k)\neq0,\\[2pt]
+    W^{(g,f)}_{ij}(n_{k-1}), & U^{(g,f)}_{ij}(n_k)=0 \text{ e existe vencedor anterior},\\[2pt]
+    0, & U^{(g,f)}_{ij}(n_k)=0 \text{ e não existe vencedor anterior}.
   \end{cases}
   \label{eq:winner-relation}
 \end{equation}
+
+A regra tem quatro consequências diretas, usadas em todo o restante deste capítulo:
+
+\begin{itemize}
+  \item empates exatos iniciais permanecem indefinidos ($W=0$);
+  \item o primeiro vencedor estrito inicializa a relação;
+  \item um empate exato posterior \textbf{mantém} o vencedor efetivo anterior;
+  \item um empate nunca cria, apaga ou inverte a relação efetiva de vencedor.
+\end{itemize}
+
+A Figura~\ref{fig:trajetoria-vencedor} ilustra a trajetória de $W_{ij}$ para um par didático ao longo de cinco pontos da grade, incluindo um empate inicial não resolvido, o primeiro vencedor, um empate posterior que mantém esse vencedor, e uma inversão válida --- objeto definido formalmente na Seção~\ref{sec:reversal-matrix}.
+
+\begin{figure}[H]
+  \centering
+  \caption{Trajetória didática da relação efetiva de vencedor $W_{ij}$ com empate inicial, primeiro vencedor, empate propagado e inversão válida}
+  \label{fig:trajetoria-vencedor}
+  \includegraphics[width=0.92\textwidth]{figures/conceptual/trajetoria_vencedor.pdf}
+  \sourcebelow{elaboração própria}
+  \notailustracao{Exemplo esquemático; não corresponde a um par específico de nenhum dataset. A Seção~\ref{sec:reversal-matrix} define formalmente quando uma inversão é válida.}
+\end{figure}
 
 O objeto formal precisa armazenar somente as $q(q-1)/2$ comparações não ordenadas,
 \begin{equation}
   \mathcal{P}=\{(i,j):1\leq i<j\leq q\},
 \end{equation}
-porque $W_{ji}=-W_{ij}$ fora dos empates. A matriz quadrada mostrada nos relatórios duplica essas relações para facilitar a leitura visual: a diagonal é vazia, um triângulo determina o outro e as cores identificam qual elemento do par possui menor perda. Ela não constitui uma estrutura matemática adicional.
-
-Essa representação contém muito mais informação do que a identidade do primeiro colocado. Se o vencedor absoluto muda por uma diferença residual, a maioria das relações entre alternativas pode continuar preservada. Para decisões de custo, interessa saber se um subconjunto mais barato permanece superior a numerosas alternativas, não apenas se ocupa exatamente a primeira linha do ranking.
-
-\section{\WinnersAgreement}
-
-A \WinnersAgreement{} compara as relações par a par do braço sintético com as do braço real. Pares com empate exato em qualquer um dos braços são excluídos, pois não apresentam um vencedor estrito comparável. Seja
-\begin{equation}
-  \mathcal{P}_{\mathrm{valid}}^{(g,f)}(n)
-  =\left\{(i,j)\in\mathcal{P}:
-  W^{(R,f)}_{ij}(n)\neq0\;\land\;
-  W^{(g,f)}_{ij}(n)\neq0\right\}.
-\end{equation}
-A métrica é
-\begin{equation}
-  \mathrm{WA}^{(g,f)}(n)=
-  \frac{
-    \displaystyle\sum_{(i,j)\in\mathcal{P}_{\mathrm{valid}}^{(g,f)}(n)}
-    \mathbf{1}\!\left\{W^{(R,f)}_{ij}(n)=W^{(g,f)}_{ij}(n)\right\}
-  }{
-    \left|\mathcal{P}_{\mathrm{valid}}^{(g,f)}(n)\right|
-  }.
-  \label{eq:winners-agreement}
-\end{equation}
-Se não houver pares válidos, o valor é reportado como indisponível. Além da proporção, os relatórios registram número total de pares, pares válidos, concordantes e ignorados por empate. A autocorrelação do braço real é 1 quando há pares comparáveis. A Figura~\ref{fig:winners-evolucao} ilustra como essas relações par a par se reorganizam ao longo da grade amostral no braço \RealToReal{} do Occupancy Detection.
+porque $W_{ji}=-W_{ij}$ fora dos casos indefinidos. A matriz quadrada mostrada nos relatórios duplica essas relações para facilitar a leitura visual: a diagonal é vazia, um triângulo determina o outro e as cores identificam qual elemento do par possui menor perda. Ela não constitui uma estrutura matemática adicional. A Figura~\ref{fig:winners-evolucao} ilustra, com dados reais do cenário Occupancy Detection, como o resultado par a par observado se reorganiza ao longo da grade amostral; neste exemplo específico não há empates exatos observados, de modo que a relação efetiva $W$ coincide com o resultado observado $U$ em todos os pontos exibidos.
 
 \begin{landscape}
 \begin{figure}[H]
   \centering
-  \caption{Evolução das matrizes de vencedores no cenário Occupancy Full, braço Real para Real, Linear SVM}
+  \caption{Evolução do resultado par a par observado no cenário Occupancy Full, braço Real para Real, Linear SVM}
   \label{fig:winners-evolucao}
   \begin{minipage}[t]{0.31\linewidth}
     \centering
@@ -127,135 +122,174 @@ Se não houver pares válidos, o valor é reportado como indisponível. Além da
     \subcaption{Fim: $n=512$}
   \end{minipage}
   \sourcebelow{relatório publicado do cenário Occupancy Detection 000002 do \CoInfoSim}
-  \notailustracao{A visualização é quadrada e redundante: a diagonal não se aplica e um triângulo determina o outro fora dos empates. Cada célula indica se o subconjunto da linha vence ($+1$), perde ($-1$) ou empata ($0$) contra o subconjunto da coluna. A \WinnersAgreement{} usa apenas uma ocorrência de cada par, correspondente à estrutura triangular superior. Os painéis publicados exibem os melhores subconjuntos de cada cardinalidade; em $n=2$ o subconjunto singular $\{X_3\}$ vence todas as comparações exibidas, em $n=32$ o par $\{X_1,X_3\}$ já o supera e em $n=512$ as combinações maiores vencem o singular.}
+  \notailustracao{A visualização é quadrada e redundante: a diagonal não se aplica e um triângulo determina o outro fora dos casos indefinidos. Cada célula indica se o subconjunto da linha vence ($+1$), perde ($-1$) ou está indefinido ($0$) contra o subconjunto da coluna. A \WinnersAgreement{} usa apenas uma ocorrência de cada par, correspondente ao triângulo superior. Os painéis exibem os melhores subconjuntos de cada cardinalidade; em $n=2$ o subconjunto singular $\{X_3\}$ vence todas as comparações exibidas, em $n=32$ o par $\{X_1,X_3\}$ já o supera e em $n=512$ as combinações maiores vencem o singular.}
 \end{figure}
 \end{landscape}
 
-\section{Cruzamentos dirigidos e último \texorpdfstring{$\Nstar$}{N*}}
+Essa representação contém muito mais informação do que a identidade do primeiro colocado. Se o vencedor absoluto muda por uma diferença residual, a maioria das relações entre alternativas pode continuar preservada. Para decisões de custo, interessa saber se um subconjunto mais barato permanece superior a numerosas alternativas, não apenas se ocupa exatamente a primeira linha do ranking.
 
-Considere a grade estritamente crescente
+\section{\WinnersAgreement}
+\label{sec:winner-agreement}
+
+A \WinnersAgreement{} ($\AW$) compara as relações efetivas de vencedor do braço sintético com as do braço real, usando $\Wmat$ --- e não o resultado observado $U$ --- de modo que um empate exato posterior não é tratado como perda de informação. Pares em que $\Wmat$ permanece indefinido em qualquer um dos braços são ignorados, pois não apresentam um vencedor efetivo comparável. Seja
 \begin{equation}
-  \mathcal{N}=(n_1,n_2,\ldots,n_P).
+  \mathcal{P}_{\mathrm{valid}}^{(g,f)}(n)
+  =\left\{(i,j)\in\mathcal{P}:
+  W^{(R,f)}_{ij}(n)\neq0\;\land\;
+  W^{(g,f)}_{ij}(n)\neq0\right\}.
 \end{equation}
-Para um par dirigido $(i,j)$, defina a diferença
+A métrica é
 \begin{equation}
-  \Delta^{(g,f)}_{ij}(n)=
-  \overline{L}^{(g)}_{S_i,f}(n)-
-  \overline{L}^{(g)}_{S_j,f}(n).
+  \AW^{(g,f)}(n)=
+  \frac{
+    \displaystyle\sum_{(i,j)\in\mathcal{P}_{\mathrm{valid}}^{(g,f)}(n)}
+    \mathbf{1}\!\left\{W^{(R,f)}_{ij}(n)=W^{(g,f)}_{ij}(n)\right\}
+  }{
+    \left|\mathcal{P}_{\mathrm{valid}}^{(g,f)}(n)\right|
+  }.
+  \label{eq:winners-agreement}
 \end{equation}
-Um evento em $n_k$, para $k\geq2$, é registrado quando $S_i$ não era estritamente melhor que $S_j$ no ponto anterior e passa a ser estritamente melhor no ponto atual:
+Se não houver pares válidos, o valor é reportado como indisponível. Além da proporção, os relatórios registram o número total de pares, pares válidos, concordantes e ignorados por indefinição. A autocorrelação do braço real é 1 quando há pares comparáveis.
+
+\section{Inversões de superioridade preditiva e matriz de inversões \texorpdfstring{$\Rmat$}{R}}
+\label{sec:reversal-matrix}
+
+A relação efetiva de vencedor $\Wmat$ descreve quem vence em cada $n$, mas não descreve, por si só, quando essa relação mudou. Uma \textbf{\PairwiseSuperiorityReversal{}} (\WinnerReversal{}) ocorre em $n_k$, $k\geq2$, exatamente quando um vencedor efetivo já definido é substituído pelo outro elemento do par:
 \begin{equation}
-  \Delta_{ij}(n_{k-1})\geq0
-  \quad\land\quad
-  \Delta_{ij}(n_k)<0.
-  \label{eq:crossing-event}
-\end{equation}
-Não há interpolação entre os valores da grade; o cruzamento é atribuído ao ponto $n_k$ em que a nova superioridade é observada.
-
-Como curvas irregulares podem inverter sua relação várias vezes, o \CoInfoSim{} mantém, em cada prefixo $\mathcal{N}_p=(n_1,\ldots,n_p)$, o evento mais recente naquela direção:
-\begin{equation}
-  \Nstar_{ij}(n_p)=
-  \max\left\{n_k\leq n_p:
-  \Delta_{ij}(n_{k-1})\geq0,\;
-  \Delta_{ij}(n_k)<0\right\},
-  \label{eq:last-nstar}
-\end{equation}
-quando o conjunto não é vazio. Portanto, $\Nstar$ não representa necessariamente o primeiro momento em que um subconjunto vence, nem resume todas as inversões. Ele registra o \textbf{último cruzamento dirigido observado} até o prefixo, interpretado como a transição final disponível naquele intervalo.
-
-Essa escolha é especialmente relevante para o Random Forest no SUPPORT2. Suas curvas apresentam numerosas oscilações e múltiplos cruzamentos; ainda assim, os braços podem concordar sobre quais pares possuem transição e sobre a posição do último evento. A alta similaridade não deve ser confundida com reprodução integral das curvas.
-
-\section{\texorpdfstring{Similaridade progressiva de $\Nstar$}{Progressive N*-Similarity}}
-
-Para um prefixo terminado em $n_p$, seja $C_R(p)$ o conjunto de células dirigidas com $\Nstar$ definido no braço real e $C_g(p)$ o conjunto correspondente no braço sintético. A concordância sobre a existência dos cruzamentos é medida pelo índice de Jaccard:
-\begin{equation}
-  J^{(g,f)}(p)=
-  \frac{|C_R(p)\cap C_g(p)|}{|C_R(p)\cup C_g(p)|}.
-  \label{eq:nstar-jaccard}
+  W^{(g,f)}_{ij}(n_{k-1})\neq0,\qquad
+  W^{(g,f)}_{ij}(n_k)\neq0,\qquad
+  W^{(g,f)}_{ij}(n_k)\neq W^{(g,f)}_{ij}(n_{k-1}).
+  \label{eq:valid-reversal}
 \end{equation}
 
-Nos cruzamentos compartilhados, a diferença de posição é calculada na escala logarítmica de base 2, coerente com a grade de potências de dois:
+Não constituem inversão: um empate inicial; empates iniciais repetidos; o aparecimento do primeiro vencedor estrito (Seção~\ref{sec:winner-relation}); um empate posterior, que apenas mantém o vencedor anterior; ou a simples aproximação das curvas sem troca do vencedor efetivo.
+
+Para o prefixo terminado em $n_t$, o conjunto de tamanhos amostrais em que o par $(i,j)$ sofreu inversão válida é
 \begin{equation}
-  d^{(g,f)}(p)=
-  \frac{1}{|C_R(p)\cap C_g(p)|}
-  \sum_{(i,j)\in C_R(p)\cap C_g(p)}
-  \left|
-    \log_2 N^{\star,(g,f)}_{ij}(n_p)
-    -\log_2 N^{\star,(R,f)}_{ij}(n_p)
-  \right|.
-  \label{eq:nstar-distance}
+  \mathcal{E}^{(g,f)}_{ij}(n_t)=
+  \left\{
+    n_k\leq n_t:
+    W^{(g,f)}_{ij}(n_{k-1})\neq0,\;
+    W^{(g,f)}_{ij}(n_k)\neq0,\;
+    W^{(g,f)}_{ij}(n_k)\neq W^{(g,f)}_{ij}(n_{k-1})
+  \right\},
 \end{equation}
-A distância média é normalizada pela amplitude logarítmica do prefixo:
+e a \textbf{matriz de inversões} armazena apenas o mais recente:
 \begin{equation}
-  T^{(g,f)}(p)=
-  \operatorname{clip}_{[0,1]}
-  \left(
-    1-\frac{d^{(g,f)}(p)}{\log_2 n_p-\log_2 n_1}
-  \right).
-  \label{eq:nstar-timing}
-\end{equation}
-Finalmente,
-\begin{equation}
-  \mathrm{NS}^{(g,f)}(p)=J^{(g,f)}(p)\,T^{(g,f)}(p).
-  \label{eq:nstar-similarity}
+  R^{(g,f)}_{ij}(n_t)=
+  \begin{cases}
+    \max\mathcal{E}^{(g,f)}_{ij}(n_t), & \mathcal{E}^{(g,f)}_{ij}(n_t)\neq\varnothing,\\
+    \varnothing, & \mathcal{E}^{(g,f)}_{ij}(n_t)=\varnothing.
+  \end{cases}
+  \label{eq:reversal-matrix}
 \end{equation}
 
-A métrica penaliza duas falhas distintas: ausência de uma transição que existe na referência, por meio de $J$, e deslocamento do último cruzamento, por meio de $T$. Se nenhum braço apresenta cruzamentos, a similaridade é definida como 1; se existem cruzamentos, mas nenhum é compartilhado, ela é 0. O primeiro prefixo não pode conter transição entre pontos da grade e é reportado como indisponível.
+\begin{definitionbox}[Regra de existência de $R_{ij}$]
+A célula $R_{ij}(n_t)$ existe \textbf{se e somente se} o par $(i,j)$ sofreu ao menos uma inversão válida de vencedor no prefixo avaliado. Ela não existe apenas porque um subconjunto vence desde o primeiro ponto da grade, apenas porque o primeiro vencedor aparece depois de empates iniciais, apenas porque as curvas se aproximam, ou apenas porque um subconjunto permanece vencedor durante todo o prefixo.
+\end{definitionbox}
 
-A Figura~\ref{fig:conceito-nstar-progressivo} esquematiza o procedimento. A cada prefixo da grade, a matriz dirigida de $\Nstar$ é recomputada para os braços real e sintético; a comparação combina a concordância sobre \emph{quais} células possuem cruzamento definido, medida por $J(p)$, com a proximidade das posições dos últimos cruzamentos compartilhados, medida por $T(p)$. Nenhuma das componentes, isoladamente, determina a similaridade final.
-
-\begin{figure}[H]
-  \centering
-  \caption{Construção da similaridade progressiva de $\Nstar$ em prefixos crescentes da grade amostral}
-  \label{fig:conceito-nstar-progressivo}
-  \includegraphics[width=0.74\textwidth]{figures/conceptual/nstar_progressivo.pdf}
-  \sourcebelow{elaboração própria}
-\end{figure}
-
-Ao contrário das matrizes de vencedores, a matriz de $\Nstar$ é dirigida: $(i,j)$ registra o momento em que $S_i$ passa a superar $S_j$, e a célula inversa pode conter outro evento ou permanecer vazia. Assim, a matriz quadrada menos a diagonal não é apenas uma duplicação visual. A Figura~\ref{fig:nstar-matrizes-definicao} apresenta as matrizes dirigidas do maior prefixo no cenário SUPPORT2 com Random Forest, cenário 000008.
+Diferentemente de $\Wmat$, a matriz $\Rmat$ não é antissimétrica: ela armazena um único valor por par não ordenado, no triângulo superior ($i<j$); a diagonal e o triângulo inferior são indisponíveis. $\Rmat$ não guarda separadamente qual subconjunto passou a vencer após a inversão --- essa informação é recuperável diretamente em $\Wmat(n_t)$. A Figura~\ref{fig:wr-matrices-support2} mostra, com dados reais do cenário SUPPORT2 (execução \textit{smoke}, prefixo $n_t\leq32$, classificador Random Forest, sete subconjuntos de referência selecionados um por cardinalidade), a matriz de vencedores $\Wmat$ e a matriz de inversões $\Rmat$ lado a lado para os braços \RealToReal{} e \GaussianToReal.
 
 \begin{landscape}
 \begin{figure}[H]
   \centering
-  \caption{Matrizes progressivas de $\Nstar$ no maior prefixo do cenário SUPPORT2 000008, Random Forest, $n=512$}
-  \label{fig:nstar-matrizes-definicao}
+  \caption{Matrizes pareadas $\mathbf{W}$ e $\mathbf{R}$ no maior prefixo disponível do cenário SUPPORT2 (execução \textit{smoke}, $n\leq32$), Random Forest}
+  \label{fig:wr-matrices-support2}
   \begin{minipage}[t]{0.48\linewidth}
     \centering
-    \includegraphics[width=\linewidth]{figures/nstar_matrices/support2_random_forest/graph_structural_nstar_random_forest_real_to_real_prefix512_full_000008.png}
-    \subcaption{\RealToReal{}: referência com 11.948 células dirigidas com cruzamento definido na estrutura completa}
+    \includegraphics[width=\linewidth]{figures/wr_matrices/support2_smoke/winner_matrix_real_to_real_n32.png}
+    \subcaption{$\mathbf{W}(n{=}32)$, \RealToReal}
   \end{minipage}
   \hfill
   \begin{minipage}[t]{0.48\linewidth}
     \centering
-    \includegraphics[width=\linewidth]{figures/nstar_matrices/support2_random_forest/graph_structural_nstar_random_forest_single_gaussian_to_real_prefix512_full_000008.png}
-    \subcaption{\GaussianToReal{}: 11.637 cruzamentos definidos, 10.521 compartilhados; Jaccard 0,8053, similaridade temporal 0,8442, similaridade total 0,6799}
+    \includegraphics[width=\linewidth]{figures/wr_matrices/support2_smoke/reversal_matrix_real_to_real_n32.png}
+    \subcaption{$\mathbf{R}(n_t{\leq}32)$, \RealToReal}
   \end{minipage}
-  \sourcebelow{relatório publicado do cenário SUPPORT2 000008 do \CoInfoSim}
-\end{figure}
 
-\begin{figure}[H]
-  \ContinuedFloat
-  \centering
-  \caption[]{Matrizes progressivas de $\Nstar$ no maior prefixo do cenário SUPPORT2 000008, Random Forest, $n=512$ (continuação)}
+  \vspace{4mm}
   \begin{minipage}[t]{0.48\linewidth}
     \centering
-    \includegraphics[width=\linewidth]{figures/nstar_matrices/support2_random_forest/graph_structural_nstar_random_forest_gmm_to_real_prefix512_full_000008.png}
-    \subcaption{\GMMToReal{}: 11.531 cruzamentos definidos, 10.200 compartilhados; Jaccard 0,7681, similaridade temporal 0,8254, similaridade total 0,6340}
+    \includegraphics[width=\linewidth]{figures/wr_matrices/support2_smoke/winner_matrix_single_gaussian_to_real_n32.png}
+    \subcaption{$\mathbf{W}(n{=}32)$, \GaussianToReal}
   \end{minipage}
-  \sourcebelow{relatório publicado do cenário SUPPORT2 000008 do \CoInfoSim}
-  \notailustracao{Os painéis exibem, com escala e ordem idênticas, os melhores subconjuntos de cada cardinalidade; as contagens de células e as estatísticas informadas referem-se à estrutura dirigida completa dos 127 subconjuntos publicada no relatório. A densidade dessa estrutura mostra que a elevada similaridade do Random Forest não resulta de uma matriz com poucos cruzamentos. $\Nstar$ registra o último cruzamento observado no prefixo avaliado e não implica reprodução de toda a trajetória das curvas.}
+  \hfill
+  \begin{minipage}[t]{0.48\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/wr_matrices/support2_smoke/reversal_matrix_single_gaussian_to_real_n32.png}
+    \subcaption{$\mathbf{R}(n_t{\leq}32)$, \GaussianToReal}
+  \end{minipage}
+  \sourcebelow{recomputado diretamente dos resultados persistidos da execução \textit{smoke} do cenário SUPPORT2 (\texttt{scenario\_run\_id=0}), usando as funções vigentes de \texttt{coinfosim.results.structural}; ver Apêndice~B}
+  \notailustracao{Esta execução é de escala \textit{smoke} ($n\leq32$, sete subconjuntos de referência) e serve apenas como exemplo didático de leitura conjunta de $\mathbf{W}$ e $\mathbf{R}$. As matrizes de escala completa ($n\leq512$, 127 subconjuntos) publicadas nas versões anteriores deste relatório não puderam ser regeneradas localmente sob o esquema atual porque os resultados brutos dessa execução não estão persistidos neste repositório (Apêndice~B); os resultados numéricos de escala completa para o Random Forest no SUPPORT2 são reportados como indisponíveis no Capítulo~7.}
 \end{figure}
 \end{landscape}
 
-\section{Complementaridade e hierarquia interpretativa}
+\section{Concordância de existência de inversões}
+\label{sec:ar}
 
-As três métricas respondem a perguntas diferentes:
+Para o braço $g$ e o prefixo $n_t$, o \textbf{suporte de inversões} é o conjunto de pares não ordenados com $\Rmat$ definida:
+\begin{equation}
+  \ReversalSupport_g(n_t)=\{(i,j):i<j,\;R^{(g,f)}_{ij}(n_t)\neq\varnothing\}.
+\end{equation}
+A \ReversalExistenceAgreement{} compara o suporte do braço sintético com o suporte do braço real por concordância de Jaccard:
+\begin{equation}
+  \AR(n_t)=
+  \frac{|\ReversalSupport_{\mathrm{real}}(n_t)\cap\ReversalSupport_g(n_t)|}
+       {|\ReversalSupport_{\mathrm{real}}(n_t)\cup\ReversalSupport_g(n_t)|}.
+  \label{eq:ar}
+\end{equation}
+Convenções: no primeiro prefixo, $\AR$ é indisponível, pois nenhuma inversão pode ainda ter ocorrido; se a união dos suportes for vazia em um prefixo posterior, $\AR=1$, com o status explícito \emph{sem inversões em nenhum braço} --- essa concordância é sobre a \emph{ausência} de inversões, não sobre coincidência de posições; se a união for não vazia e a interseção for vazia, $\AR=0$; caso contrário, aplica-se o Jaccard usual.
+
+\section{Distância e similaridade dos tamanhos amostrais das inversões}
+\label{sec:sr}
+
+Para os pares em que ambos os braços sofreram inversão --- o \textbf{suporte compartilhado} $\SharedReversalSupport(n_t)=\ReversalSupport_{\mathrm{real}}(n_t)\cap\ReversalSupport_g(n_t)$ --- é possível perguntar se as inversões mais recentes ocorreram em tamanhos amostrais semelhantes. A \MeanLogReversalDistance{} é
+\begin{equation}
+  \DR(n_t)=
+  \frac{1}{|\SharedReversalSupport(n_t)|}
+  \sum_{(i,j)\in\SharedReversalSupport(n_t)}
+  \left|
+    \log_2 R^{(g,f)}_{ij}(n_t)-\log_2 R^{(\mathrm{real},f)}_{ij}(n_t)
+  \right|,
+  \label{eq:dr}
+\end{equation}
+medida em níveis da grade de potências de dois. A \ReversalSampleSizeSimilarity{} normaliza essa distância pela amplitude logarítmica do prefixo:
+\begin{equation}
+  \SR(n_t)=
+  \operatorname{clip}_{[0,1]}
+  \left(
+    1-\frac{\DR(n_t)}{\log_2 n_t-\log_2 n_1}
+  \right).
+  \label{eq:sr}
+\end{equation}
+Convenções: no primeiro prefixo, $\SR$ é indisponível; se não há pares no suporte compartilhado, $\SR$ é indisponível --- inclusive quando $\ReversalSupport_{\mathrm{real}}(n_t)=\ReversalSupport_g(n_t)=\varnothing$, caso em que $\AR=1$ mas $\SR$ permanece indisponível, porque não há nenhum tamanho amostral de inversão para comparar; tamanhos amostrais compartilhados idênticos produzem $\SR=1$.
+
+\begin{interpretationbox}
+$\AR$ e $\SR$ respondem perguntas diferentes e nunca são combinados em um produto ou índice único. $\AR$ pergunta se os \emph{mesmos pares} sofrem inversão; $\SR$, condicional a $\AR$ ter identificado pares compartilhados, pergunta se essas inversões ocorrem em \emph{regimes amostrais semelhantes}. Um valor de $\AR=1$ obtido por ausência simultânea de inversões (status \emph{sem inversões em nenhum braço}) não implica nenhuma informação sobre tamanhos amostrais, porque não há inversões cujos tamanhos possam ser comparados.
+\end{interpretationbox}
+
+A Figura~\ref{fig:construcao-ar-sr} esquematiza a construção progressiva de $\AR$ e $\SR$ ao longo de prefixos crescentes da grade amostral.
+
+\begin{figure}[H]
+  \centering
+  \caption{Construção separada de $A_R$ e $S_R$ em prefixos crescentes da grade amostral}
+  \label{fig:construcao-ar-sr}
+  \includegraphics[width=0.86\textwidth]{figures/conceptual/construcao_ar_sr.pdf}
+  \sourcebelow{elaboração própria}
+  \notailustracao{A cada prefixo, a matriz de inversões $\mathbf{R}$ é recomputada para os braços real e sintético; $A_R$ e $S_R$ são calculados separadamente a partir dela e nunca combinados.}
+\end{figure}
+
+\section{Leitura integrada do perfil}
+
+Os quatro indicadores respondem a perguntas diferentes:
 
 \begin{description}
-  \item[Correlação de ranking.] A ordenação global dos subconjuntos é semelhante? A medida tolera pequenas trocas locais e resume toda a lista.
-  \item[\WinnersAgreement.] Quantas decisões par a par são preservadas? A medida é diretamente interpretável como proporção de relações concordantes e pode apoiar comparações de eficiência entre muitas alternativas.
-  \item[\NstarSimilarity.] Os pares que mudam de superioridade e seus últimos regimes de transição são preservados? A medida acrescenta a dimensão amostral e é mais sensível à dinâmica fina das curvas.
+  \item[Correlação de ranking ($\rankrho$).] A ordenação global dos subconjuntos é semelhante? A medida tolera pequenas trocas locais e resume toda a lista.
+  \item[\WinnersAgreement{} ($\AW$).] Quantas relações efetivas de vencedor par a par são preservadas? A medida é diretamente interpretável como proporção de relações concordantes e pode apoiar comparações de eficiência entre muitas alternativas.
+  \item[\ReversalExistenceAgreement{} ($\AR$).] Os mesmos pares sofrem ao menos uma inversão de vencedor? A medida é puramente de existência, indiferente ao tamanho amostral em que a inversão ocorreu.
+  \item[\ReversalSampleSizeSimilarity{} ($\SR$).] Para os pares que invertem em ambos os braços, os regimes amostrais das últimas inversões são semelhantes? A medida é condicional ao suporte compartilhado de inversões.
 \end{description}
 
-Nenhuma métrica é reduzida à identidade da primeira posição. A coincidência do melhor subconjunto pode ser relatada como consequência do ranking, mas um erro mínimo entre alternativas quase empatadas não deve dominar a avaliação. Para planejamento de custos, $\rankrho$ e a \WinnersAgreement{} são particularmente úteis porque revelam a organização global e as relações entre configurações; a \NstarSimilarity{} acrescenta quando essa organização muda à medida que mais rótulos se tornam disponíveis.
+Nenhum indicador é reduzido à identidade da primeira posição, e nenhum indicador subsume os demais. A coincidência do melhor subconjunto pode ser relatada como consequência do ranking, mas um erro mínimo entre alternativas quase empatadas não deve dominar a avaliação. Para planejamento de custos, $\rankrho$ e $\AW$ são particularmente úteis porque revelam a organização global e as relações efetivas entre configurações; $\AR$ e $\SR$ acrescentam quando e onde essa organização muda à medida que mais rótulos se tornam disponíveis --- sem, no entanto, serem combinados entre si.
 
-A preservação é, portanto, um perfil multidimensional. Um braço pode apresentar ranking alto, elevada concordância de vencedores e similaridade de $\Nstar$ moderada; ou pode preservar os últimos cruzamentos mesmo com perdas absolutas elevadas. O relatório mantém as métricas separadas para que essas combinações permaneçam visíveis, em vez de ocultá-las em um índice único.
+A preservação do perfil de cooperação preditiva é, portanto, multidimensional. Um braço pode apresentar ranking alto, elevada \WinnersAgreement{} e $\AR$ moderado; ou pode preservar os pares de inversão sem preservar os tamanhos amostrais em que ocorrem. O relatório mantém os quatro indicadores separados para que essas combinações permaneçam visíveis, em vez de ocultá-las em um índice único.

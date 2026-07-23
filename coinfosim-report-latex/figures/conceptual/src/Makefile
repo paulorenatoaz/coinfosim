@@ -1,7 +1,8 @@
 # Compila os diagramas conceituais (determinístico; requer XeLaTeX + TikZ).
 # Uso: make -C coinfosim-report-latex/figures/conceptual/src
 DIAGRAMAS = pipeline_condicoes cooperacao_canais reticulado_subconjuntos \
-            metricas_tres_paineis nstar_progressivo quadrante_desempenho
+            metricas_tres_paineis construcao_ar_sr quadrante_desempenho \
+            trajetoria_vencedor
 
 all: $(DIAGRAMAS:%=../%.pdf)
 

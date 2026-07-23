@@ -9,12 +9,14 @@ O código-fonte está disponível em:
 \url{https://github.com/paulorenatoaz/coinfosim}
 \end{center}
 
-A auditoria metodológica e a redação dos resultados consideraram o estado do repositório após o commit:
+A auditoria metodológica original e a redação dos resultados herdados (Seção~\ref{sec:resultados-guia}) consideraram o estado do repositório na branch \texttt{feature/support2-random-forest} então vigente. A presente revisão editorial --- que migra a terminologia e a matemática ativa do arcabouço $\NstarHistorical$ retirado para o esquema $\Wmat/\Rmat$ dos perfis de cooperação preditiva --- parte de:
 
 \begin{quote}
-\texttt{ec5b70baf53bbc67714a61bed64c06358111fb90}\\
-\textit{Merge feature/support2-random-forest}
+\texttt{ce1bafd83a34fc3aeef504ab450fa8d75dbcaff3}\\
+\textit{Merge feature/support2-random-forest (main)}
 \end{quote}
+
+na branch \texttt{feature/academic-report-revision}, que já inclui, fundido em \texttt{main}, o refatoramento de código descrito em \texttt{docs/tasks/predictive\_cooperation\_profile\_refactor\_tasks.md}. O commit final desta revisão editorial é registrado no log de revisão \texttt{docs/tasks/academic\_documents\_predictive\_profile\_revision\_log.md}.
 
 A citação do software é fornecida em \texttt{CITATION.cff} e na entrada bibliográfica \texttt{azevedo2026coinfosim} \cite{azevedo2026coinfosim}.
 
@@ -25,10 +27,10 @@ Cada execução de simulação persiste configuração, metadados, estado do acu
 \begin{itemize}
   \item tamanhos amostrais e subconjuntos avaliados;
   \item classificadores e parâmetros resolvidos;
-  \item tabelas de perda média e erro-padrão;
+  \item tabelas de perda média estimada e erro-padrão;
   \item rankings por $n$;
-  \item comparações de \Nstar{};
-  \item métricas estruturais progressivas;
+  \item matriz de vencedores $\Wmat$ e eventos de inversão de vencedor;
+  \item indicadores progressivos de preservação do perfil ($\rankrho$, $\AW$, $\AR$, $\DR$, $\SR$), esquema \texttt{schema\_version=2};
   \item tamanho e origem do conjunto de teste real fixo;
   \item tempo de execução e política de paralelização;
   \item número de replicações e razão de parada para cada $n$.
@@ -44,7 +46,7 @@ Nos cenários completos, a grade utilizada foi
 \]
 amostras por classe. A regra de parada empregou mínimo de 100 replicações, máximo de 2000, lotes de 20 e alvo de meia-largura de intervalo de confiança de 95\% igual a 0,01. A parada ocorre quando a maior meia-largura entre células $(S_I,f)$ atinge a tolerância ou quando o orçamento máximo é consumido.
 
-A padronização utiliza momentos estimados apenas no reservatório de treinamento e $\mathrm{ddof}=0$. O mesmo conjunto de teste real fixo é reutilizado nas três condições experimentais. As amostras são balanceadas por classe e incrementalmente aninhadas dentro de cada replicação.
+A padronização utiliza momentos estimados apenas nos dados reais de treinamento e $\mathrm{ddof}=0$. O mesmo conjunto de teste real fixo é reutilizado nas três condições experimentais. As amostras são balanceadas por classe e incrementalmente aninhadas dentro de cada replicação.
 
 \section{Política de sementes}
 
@@ -54,7 +56,7 @@ Essa política implementa uma comparação pareada. Para estudos de sensibilidad
 
 \section{Calibração do Random Forest}
 
-A calibração é realizada uma única vez com dados do reservatório real de treinamento do SUPPORT2. O artefato versionado é
+A calibração é realizada uma única vez com os dados reais de treinamento do SUPPORT2. O artefato versionado é
 \begin{center}
 \texttt{config/calibration/support2\_random\_forest.json}.
 \end{center}
@@ -94,7 +96,47 @@ O número de processos de trabalho deve ser ajustado à máquina, sem alterar as
 
 \section{Regeneração dos relatórios}
 
-Os relatórios podem ser regenerados a partir dos resultados persistidos sem nova execução Monte Carlo. Essa separação mantém o cálculo científico independente da apresentação. A publicação no GitHub Pages copia os diretórios de relatórios e dados para o ramo de publicação e reconstrói a página inicial que aponta para os cenários disponíveis.
+Os relatórios podem ser regenerados a partir dos resultados persistidos sem nova execução Monte Carlo, por meio de:
+
+\begin{verbatim}
+coinfosim scenario regenerate <slug> --run-id <id> \
+  --output-dir <diretório do registro de execução>
+\end{verbatim}
+
+Essa separação mantém o cálculo científico independente da apresentação. A publicação no GitHub Pages copia os diretórios de relatórios e dados para o ramo de publicação e reconstrói a página inicial que aponta para os cenários disponíveis.
+
+\begin{limitationbox}[Estado do renderizador HTML no commit auditado]
+No commit auditado por esta revisão, o comando acima re-renderiza a HTML a partir do payload de \texttt{report\_data} já persistido, mas o renderizador de cenário (\texttt{src/coinfosim/reports/dataset\_anchored\_scenario.py} e o pacote \texttt{support2\_scenario.py}) ainda emite rótulos do arcabouço retirado (por exemplo, "Progressive N-star similarity") mesmo quando a camada de análise (\texttt{src/coinfosim/results/structural.py}) já implementa corretamente \texttt{effective\_winner\_matrices}, \texttt{winner\_reversal\_events}, \texttt{progressive\_reversal\_matrices} e \texttt{scenario\_structural\_fidelity} no esquema \texttt{schema\_version=2}. Essa inconsistência de código está fora do escopo desta revisão editorial (que não altera \texttt{src/coinfosim}) e é registrada aqui, e em \texttt{docs/tasks/academic\_documents\_predictive\_profile\_revision\_log.md}, como bloqueio identificado, não como algo corrigido nesta sessão.
+\end{limitationbox}
+
+\section{Regeneração direta dos indicadores $\Wmat$/$\Rmat$ a partir de resultados persistidos}
+\label{ap:comando-wr}
+
+Para contornar o bloqueio acima e obter indicadores de preservação genuínos e correntes sem modificar código de produção nem executar Monte Carlo, esta revisão chamou diretamente as funções já aprovadas de \texttt{coinfosim.results.structural} sobre os resultados brutos persistidos da execução \textit{smoke} do SUPPORT2 (Apêndice~A, Seção~\ref{ap:support2-smoke}):
+
+\begin{verbatim}
+.venv/bin/python3 -c "
+from coinfosim.results.persistence import load_simulation_result
+from coinfosim.results.structural import scenario_structural_fidelity
+
+base = 'output/validation/support2-random-forest-smoke/simulations'
+paths = {
+    'real_to_real': f'{base}/000000_support2_real_data_smoke/'
+        'result_data_smoke_000000.json.gz',
+    'single_gaussian_to_real': f'{base}/000001_support2_single_gaussian_to_real_smoke/'
+        'result_data_smoke_000001.json.gz',
+    'gmm_to_real': f'{base}/000002_support2_gmm_to_real_smoke/'
+        'result_data_smoke_000002.json.gz',
+}
+results = {arm: load_simulation_result(p) for arm, p in paths.items()}
+labels = {'real_to_real': 'Real -> Real',
+          'single_gaussian_to_real': 'Single Gaussian -> Real',
+          'gmm_to_real': 'GMM -> Real'}
+fidelity = scenario_structural_fidelity(results, 'real_to_real', labels)
+"
+\end{verbatim}
+
+O mesmo padrão, combinado com \texttt{coinfosim.reports.structural\_visualization.\allowbreak winner\_matrix\_figure} e \texttt{reversal\_matrix\_figure}, produziu as figuras em \texttt{figures/wr\_matrices/support2\_smoke/} usadas nos Capítulos~6 e~7. Este comando é reprodutível por qualquer pessoa com acesso ao repositório e ao diretório \texttt{output/validation/support2-random-forest-smoke/} (rastreado fora do controle de versão, mas presente no ambiente auditado); ele não requer, nem executa, nenhuma nova simulação.
 
 \section{Compilação deste relatório}
 
@@ -105,6 +147,10 @@ latexmk -xelatex main.tex
 \end{verbatim}
 
 O preâmbulo segue o manual acadêmico da UFRJ para página A4, margens, espaçamento, paginação e estrutura, com elementos tipográficos inspirados no template da Sociedade Brasileira de Computação. O PDF final deve ser renderizado e inspecionado visualmente após qualquer alteração de figuras, tabelas ou metadados.
+
+\begin{limitationbox}[Compilação não validada nesta sessão]
+O ambiente desta revisão editorial não possui os binários \texttt{xelatex} nem \texttt{biber} instalados (apenas \texttt{pdflatex}/\texttt{bibtex}, incompatíveis com \texttt{fontspec} e \texttt{biblatex} usados neste documento), e a instalação de pacotes estava fora do escopo autorizado. Todas as edições desta revisão foram feitas diretamente nas fontes \LaTeX{}, mas \textbf{não puderam ser compiladas nem inspecionadas visualmente nesta sessão}. A compilação e a auditoria visual descritas no plano editorial ficam pendentes de um ambiente com o TeXLive completo (\texttt{texlive-xetex} e \texttt{biber}).
+\end{limitationbox}
 
 \section{Checklist mínimo de replicação}
 
