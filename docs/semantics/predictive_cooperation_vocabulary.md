@@ -12,6 +12,7 @@ ontology (OWL 2) and provenance (PROV-O) phases build on.
 - Namespace: `https://paulorenatoaz.github.io/coinfosim/ns#`
 - Full deprecated-to-canonical mapping and schema history: [`docs/migration-predictive-profile-schema.md`](../migration-predictive-profile-schema.md)
 - Vocabulary version: `1.0.0`
+- **Formal ontology**: [`ontology/coinfosim.owl.ttl`](../../ontology/coinfosim.owl.ttl) is the formal OWL 2 ontology (imports PROV-O). This JSON vocabulary remains the terminology ledger and the canonical *source* for labels and definitions: the ontology's `rdfs:label`/`rdfs:comment` for every concept that exists in both is copied verbatim from this file, never paraphrased (checked by `tests/test_ontology.py`). The ontology additionally declares PROV-O specialization classes (dataset/simulation/report provenance types) that have no corresponding entry here, since they are provenance roles rather than scientific vocabulary terms.
 
 ## How to use it
 

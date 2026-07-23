@@ -109,6 +109,38 @@ def test_publish_pages_never_pushes_without_explicit_flag(isolated_repo, output_
     assert result.pushed is False
 
 
+def test_publish_pages_copies_ontology_and_links_it_from_index(
+    isolated_repo, output_dir_with_one_report, monkeypatch
+):
+    ontology_source = REPO_ROOT / "ontology" / "coinfosim.owl.ttl"
+    ontology_target = isolated_repo / "ontology" / "coinfosim.owl.ttl"
+    ontology_target.parent.mkdir(parents=True)
+    shutil.copy2(ontology_source, ontology_target)
+    _run(["git", "add", "-A"], cwd=isolated_repo)
+    _run(["git", "commit", "-q", "-m", "add ontology"], cwd=isolated_repo)
+
+    monkeypatch.chdir(isolated_repo)
+    publish_pages(output_dir_with_one_report, branch="gh-pages", init_branch_if_missing=True)
+
+    ontology_show = subprocess.run(
+        ["git", "show", "gh-pages:ontology/coinfosim.owl.ttl"],
+        cwd=str(isolated_repo),
+        capture_output=True,
+        text=True,
+    )
+    assert ontology_show.returncode == 0
+    assert "owl:Ontology" in ontology_show.stdout
+
+    index_show = subprocess.run(
+        ["git", "show", "gh-pages:index.html"],
+        cwd=str(isolated_repo),
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    assert "ontology/coinfosim.owl.ttl" in index_show.stdout
+
+
 def test_publish_pages_generates_manifest_and_index_in_branch(isolated_repo, output_dir_with_one_report, monkeypatch):
     monkeypatch.chdir(isolated_repo)
     publish_pages(output_dir_with_one_report, branch="gh-pages", init_branch_if_missing=True)
