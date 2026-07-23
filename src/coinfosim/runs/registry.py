@@ -78,6 +78,10 @@ class ScenarioRunRecord:
     artifacts: Dict[str, Any] = field(default_factory=dict)
     report_data: Dict[str, Any] = field(default_factory=dict)
     error: Optional[str] = None
+    semantic_schema_version: Optional[str] = None
+    semantic_manifest_path: Optional[str] = None
+    provenance_path: Optional[str] = None
+    scientific_object_type: Optional[str] = None
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
@@ -112,6 +116,10 @@ class SimulationRunRecord:
     summary_data: Dict[str, Any] = field(default_factory=dict)
     artifacts: Dict[str, Any] = field(default_factory=dict)
     error: Optional[str] = None
+    semantic_schema_version: Optional[str] = None
+    semantic_manifest_path: Optional[str] = None
+    provenance_path: Optional[str] = None
+    scientific_object_type: Optional[str] = None
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)

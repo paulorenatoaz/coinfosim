@@ -202,7 +202,7 @@ def _structural_fidelity_section(
     n_max = sample_sizes[-1]
     ranking = structural["ranking_fidelity_series"]
     agreements = structural["winner_agreement_series"]
-    reversals = structural["reversal_fidelity_series"]
+    reversals = structural["reversal_agreement_series"]
     summaries = [
         row for row in structural["final_summary"] if row["arm"] != reference_arm
     ]
@@ -218,10 +218,10 @@ def _structural_fidelity_section(
             html.escape(str(row["winner_status"])),
             _fmt_num(row["reversal_existence_agreement"], ".4f"),
             _fmt_num(row["reversal_sample_size_similarity"], ".4f"),
-            str(row["n_reference_reversal_pairs"]),
-            str(row["n_arm_reversal_pairs"]),
-            str(row["n_shared_reversal_pairs"]),
-            str(row["n_union_reversal_pairs"]),
+            str(row["reference_reversal_pair_count"]),
+            str(row["arm_reversal_pair_count"]),
+            str(row["shared_reversal_pair_count"]),
+            str(row["union_reversal_pair_count"]),
             _fmt_num(row["mean_log2_reversal_distance"], ".4f"),
             html.escape(str(row["reversal_status"])),
         ]
