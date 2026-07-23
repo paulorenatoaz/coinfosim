@@ -287,7 +287,7 @@ def test_scenario_report_data_is_exact_and_json_safe(equivalent_results):
     structural = sequential_science["structural_fidelity"]
     assert structural["ranking_fidelity_series"]
     assert structural["winner_agreement_series"]
-    assert structural["nstar_similarity_series"]
+    assert structural["reversal_fidelity_series"]
     assert structural["reference_display_subsets_by_classifier"]
     encoded = json.dumps(sequential_science, allow_nan=False, sort_keys=True)
     assert encoded == json.dumps(process_science, allow_nan=False, sort_keys=True)

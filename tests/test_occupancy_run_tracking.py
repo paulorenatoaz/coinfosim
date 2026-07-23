@@ -170,7 +170,7 @@ def test_simulation_json_has_report_ready_data(tmp_path):
     assert sim_json["result_data"]["summary_table"]
     assert sim_json["result_data"]["best_subset_rankings"]
     assert sim_json["result_data"]["threshold_comparisons"]
-    assert sim_json["result_data"]["structural_dynamics"]["schema_version"] == 1
+    assert sim_json["result_data"]["structural_dynamics"]["schema_version"] == 2
     # Pointer to full persisted result payload.
     assert sim_json["artifacts"]["result_data"].endswith(".json.gz")
 
