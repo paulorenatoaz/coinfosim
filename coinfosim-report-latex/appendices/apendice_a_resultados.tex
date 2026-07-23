@@ -1,7 +1,7 @@
 \chapter{MAPA DOS RESULTADOS SUPLEMENTARES}
 \label{ap:resultados}
 
-Os relatórios HTML publicados contêm os rankings completos, curvas de perda, matrizes de vencedores e, nas versões anteriores à presente revisão, matrizes progressivas de $\NstarHistorical$, parâmetros dos geradores e metadados de execução. Este apêndice registra os artefatos utilizados na auditoria do relatório, incluindo a ressalva de disponibilidade descrita na Seção~\ref{sec:resultados-guia} e detalhada no Apêndice~B. A página inicial da publicação é:
+Os relatórios HTML publicados contêm os rankings completos, curvas de perda, matrizes de vencedores $\Wmat$ e de inversões $\Rmat$, os quatro indicadores de preservação e metadados de execução, sob o esquema $\Wmat/\Rmat$ vigente (Capítulo~6). Este apêndice registra os artefatos utilizados na auditoria do relatório, incluindo a resolução da limitação de disponibilidade de dados descrita na Seção~\ref{sec:resultados-guia} e detalhada no Apêndice~B. A página inicial da publicação é:
 
 \begin{center}
 \url{https://paulorenatoaz.github.io/coinfosim/}
@@ -53,23 +53,34 @@ O cenário 000005 é a entrada principal e referencia:
   \item GMM $\rightarrow$ Real, simulação 000017: \url{https://paulorenatoaz.github.io/coinfosim/reports/simulations/000017_air_quality_gmm_to_real_full/air_quality_gmm_to_real_monte_carlo_report_full_000017.html}.
 \end{itemize}
 
-Os valores de $\rankrho$ e $\AW$ do PDF foram extraídos das tabelas de subconjuntos mais bem classificados e de preservação do perfil publicadas nesses relatórios, além das visualizações bidimensionais de dados reais, Gaussiana única e GMM. Esses valores são reportados no Capítulo~7 como \textit{herdados}, nos termos da Seção~\ref{sec:resultados-guia}.
+Os valores de $\rankrho$, $\AW$, $\AR$, $\DR$ e $\SR$ do PDF foram computados diretamente pelo código atual a partir dos resultados brutos por replicação regenerados deste cenário, e conferidos contra o payload \texttt{predictive\_cooperation\_profile} embutido no \texttt{scenario.json} republicado, além das visualizações bidimensionais de dados reais, Gaussiana única e GMM. Esses valores são reportados no Capítulo~7 (Tabela~\ref{tab:air-final}), nos termos da Seção~\ref{sec:resultados-guia}.
 
 \section{Relatórios detalhados de SUPPORT2}
 
-O cenário 000007 contém SVM linear, regressão logística e Gaussian Naive Bayes. O cenário 000008 contém o experimento adicional de Random Forest e referencia:
+O cenário 000007 contém SVM linear, regressão logística e Gaussian Naive Bayes; o cenário 000008 contém o experimento adicional de Random Forest. Ambos referenciam:
 
 \begin{itemize}
   \item relatório do dataset: \url{https://paulorenatoaz.github.io/coinfosim/reports/scenarios/000008_support2_baseline_full/support2_dataset_report_full_000008.html};
-  \item Real $\rightarrow$ Real, simulação 000024: \url{https://paulorenatoaz.github.io/coinfosim/reports/simulations/000024_support2_real_data_full/support2_real_data_monte_carlo_report_full_000024.html};
-  \item Gaussiana única $\rightarrow$ Real, simulação 000025: \url{https://paulorenatoaz.github.io/coinfosim/reports/simulations/000025_support2_single_gaussian_to_real_full/support2_single_gaussian_to_real_monte_carlo_report_full_000025.html};
-  \item GMM $\rightarrow$ Real, simulação 000026: \url{https://paulorenatoaz.github.io/coinfosim/reports/simulations/000026_support2_gmm_to_real_full/support2_gmm_to_real_monte_carlo_report_full_000026.html}.
+  \item cenário 000007 --- Real $\rightarrow$ Real, simulação 000021: \url{https://paulorenatoaz.github.io/coinfosim/reports/simulations/000021_support2_real_data_full/support2_real_data_monte_carlo_report_full_000021.html};
+  \item cenário 000007 --- Gaussiana única $\rightarrow$ Real, simulação 000022: \url{https://paulorenatoaz.github.io/coinfosim/reports/simulations/000022_support2_single_gaussian_to_real_full/support2_single_gaussian_to_real_monte_carlo_report_full_000022.html};
+  \item cenário 000007 --- GMM $\rightarrow$ Real, simulação 000023: \url{https://paulorenatoaz.github.io/coinfosim/reports/simulations/000023_support2_gmm_to_real_full/support2_gmm_to_real_monte_carlo_report_full_000023.html};
+  \item cenário 000008 --- Real $\rightarrow$ Real, simulação 000024: \url{https://paulorenatoaz.github.io/coinfosim/reports/simulations/000024_support2_real_data_full/support2_real_data_monte_carlo_report_full_000024.html};
+  \item cenário 000008 --- Gaussiana única $\rightarrow$ Real, simulação 000025: \url{https://paulorenatoaz.github.io/coinfosim/reports/simulations/000025_support2_single_gaussian_to_real_full/support2_single_gaussian_to_real_monte_carlo_report_full_000025.html};
+  \item cenário 000008 --- GMM $\rightarrow$ Real, simulação 000026: \url{https://paulorenatoaz.github.io/coinfosim/reports/simulations/000026_support2_gmm_to_real_full/support2_gmm_to_real_monte_carlo_report_full_000026.html}.
 \end{itemize}
+
+Os valores de $\rankrho$, $\AW$, $\AR$, $\DR$ e $\SR$ da Tabela~\ref{tab:support2-original} e da Seção~\ref{sec:support2-rf} foram computados diretamente pelo código atual: para o cenário 000007, a partir do payload \texttt{predictive\_\allowbreak cooperation\_\allowbreak profile} embutido no \texttt{scenario.json} republicado; para o cenário 000008, cujo \texttt{structural\_\allowbreak snapshot\_\allowbreak policy} é \texttt{regenerate\_\allowbreak from\_\allowbreak result\_\allowbreak data}, a partir dos resultados brutos por replicação das simulações 000024--000026 acima, usando
+
+\begin{center}
+\small\texttt{coinfosim.results.predictive\_profile.\allowbreak scenario\_predictive\_profile\_agreement}
+\end{center}
+
+\noindent diretamente (mesma função que o relatório HTML usa para renderizar o cenário sob demanda).
 
 \section{Execução \textit{smoke} do SUPPORT2 (dados brutos localmente persistidos)}
 \label{ap:support2-smoke}
 
-Diferentemente dos quatro cenários da Seção~\ref{ap:resultados-cenarios}, a execução \textit{smoke} do SUPPORT2 usada nas Seções~\ref{sec:reversal-matrix} e~\ref{sec:support2-rf} tem seus resultados brutos por replicação persistidos neste repositório, em:
+Assim como os quatro cenários de escala completa da Seção~\ref{ap:resultados-cenarios}, a execução \textit{smoke} do SUPPORT2 usada nas Seções~\ref{sec:reversal-matrix} e~\ref{sec:support2-rf} tem seus resultados brutos por replicação persistidos no ambiente auditado (fora do controle de versão, como todo o diretório \texttt{output/}, Apêndice~B). Por ser a execução mais compacta, seu caminho é listado individualmente nesta seção como referência mínima de reprodução; os caminhos dos quatro cenários de escala completa estão listados nas seções acima, sob \texttt{output/reports/simulations/}:
 
 \begin{center}
 \texttt{output/validation/support2-random-forest-smoke/}
@@ -90,6 +101,6 @@ Os valores de $\rankrho$, $\AW$, $\AR$, $\DR$ e $\SR$ das Tabelas~\ref{tab:suppo
 
 \section{Política de uso do material suplementar}
 
-Os relatórios online listados na Seção~\ref{ap:resultados-cenarios} são a fonte exaustiva dos resultados herdados. O PDF não reproduz todas as matrizes e curvas porque isso prejudicaria a leitura e duplicaria centenas de visualizações. A rastreabilidade é preservada por meio dos IDs imutáveis de cenário e simulação, nomes de arquivos, parâmetros registrados e resultados JSON persistidos, quando disponíveis localmente (Seção~\ref{ap:support2-smoke}).
+Os relatórios online listados na Seção~\ref{ap:resultados-cenarios} são a fonte exaustiva dos resultados desta revisão, incluindo as matrizes $\Wmat$/$\Rmat$ completas de cada cenário. O PDF não reproduz todas as matrizes e curvas porque isso prejudicaria a leitura e duplicaria centenas de visualizações; ele apresenta uma seleção orientada pelas hipóteses científicas, com os quatro indicadores tabulados por completo. A rastreabilidade é preservada por meio dos IDs imutáveis de cenário e simulação, nomes de arquivos, parâmetros registrados e resultados JSON persistidos no ambiente auditado (Seção~\ref{ap:support2-smoke}).
 
-Os gráficos vetoriais reconstruídos a partir de tabelas finais publicadas anteriormente (identificados individualmente em \texttt{figures/FIGURE\_SOURCES.md} e nas fontes de cada figura no corpo do texto) foram incorporados sem recortes que alterassem eixos, ordem dos subconjuntos, escala ou legenda. As matrizes $\Wmat$/$\Rmat$ e os gráficos de métricas do SUPPORT2 \textit{smoke} apresentados nesta revisão, em contraste, foram gerados nesta sessão editorial diretamente pelas funções vigentes de \texttt{coinfosim.reports.structural\_visualization} sobre os dados brutos da Seção~\ref{ap:support2-smoke}, e não reconstroem nenhuma tabela publicada anteriormente.
+Os gráficos vetoriais de $\rankrho$/$\AW$ reconstruídos a partir de tabelas finais publicadas anteriormente para Occupancy e Air Quality (identificados individualmente em \texttt{figures/FIGURE\_SOURCES.md} e nas fontes de cada figura no corpo do texto) foram incorporados sem recortes que alterassem eixos, ordem dos subconjuntos, escala ou legenda; os valores de $\rankrho$/$\AW$ que ilustram foram confirmados computacionalmente nesta revisão a partir dos resultados brutos regenerados, dentro da precisão de transcrição das versões anteriores (Seção~\ref{sec:resultados-guia}). As matrizes $\Wmat$/$\Rmat$ e os gráficos de métricas do SUPPORT2 \textit{smoke} apresentados nesta revisão, em contraste, foram gerados diretamente pelas funções vigentes de \texttt{coinfosim.reports.predictive\_profile\_visualization} sobre os dados brutos da Seção~\ref{ap:support2-smoke}. Os valores de $\AR$, $\DR$ e $\SR$ apresentados em todas as tabelas do Capítulo~7, para os quatro cenários de escala completa e para o exemplo \textit{smoke}, foram computados diretamente pelo código atual sobre resultados brutos por replicação, sem reconstrução a partir de nenhuma tabela ou figura publicada anteriormente --- esses três indicadores não existiam sob o esquema anterior de $\NstarHistorical$.

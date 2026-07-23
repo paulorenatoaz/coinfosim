@@ -382,22 +382,22 @@
       \toprule
       Treinamento $\rightarrow$ teste & $\rankrho$ & \AW{} & $\AR$ & $\SR$ \\
       \midrule
-      Gaussiana única $\rightarrow$ Real & \textbf{0,9528} & \textbf{0,9204} & --- & --- \\
-      GMM $\rightarrow$ Real             & 0,8774 & 0,8624 & --- & --- \\
+      Gaussiana única $\rightarrow$ Real & \textbf{0,9528} & \textbf{0,9204} & \textbf{0,7706} & 0,7185 \\
+      GMM $\rightarrow$ Real             & 0,8774 & 0,8624 & 0,7407 & \textbf{0,7552} \\
       \bottomrule
     \end{tabular}
   \par}
 
   \vspace{0.08cm}
-  \takeaway{A distribuição que parece mais realista não é necessariamente aquela cujo treinamento melhor reproduz o perfil de cooperação preditiva.}
-  \sourcecite{painéis geométricos sem classificador. Candanedo e Feldheim (2016); cenário full 000002; $\rankrho$/\AW{} herdados do relatório anterior; $\AR$/$\SR$ indisponíveis nesta revisão (dados brutos não regenerados).}
+  \takeaway{Aparência mais realista não garante melhor preservação do perfil; o vencedor muda a cada um dos quatro indicadores.}
+  \sourcecite{Candanedo e Feldheim (2016); cenário full 000002; indicadores recalculados pelo código atual.}
 
   \speakernotes
-    {No Occupancy, a projeção real de temperatura e umidade apresenta trajetórias estreitas, concentrações e formas pouco elípticas. A Gaussiana única regulariza fortemente essa geometria; o GMM recupera melhor a multimodalidade visível. Mas o resultado de preservação do SVM linear não segue automaticamente essa aparência. Em $n=512$, classificadores treinados com amostras produzidas por uma Gaussiana única alcançaram correlação de ranking 0,9528 e Winner Agreement 0,9204, acima de 0,8774 e 0,8624 obtidos por classificadores treinados com amostras produzidas por um GMM. Esses dois valores são herdados do relatório publicado anteriormente; $A_R$ e $S_R$ não puderam ser recalculados nesta revisão porque os dados brutos dessa execução não estão persistidos localmente, por isso aparecem como travessão na tabela. Semelhança geométrica e preservação da ordenação global já são, de todo modo, critérios distintos.}
+    {No Occupancy, a projeção real de temperatura e umidade apresenta trajetórias estreitas, concentrações e formas pouco elípticas. A Gaussiana única regulariza fortemente essa geometria; o GMM recupera melhor a multimodalidade visível. Mas o resultado de preservação do SVM linear não segue automaticamente essa aparência. Em $n=512$, classificadores treinados com amostras produzidas por uma Gaussiana única alcançaram correlação de ranking 0,9528, Winner Agreement 0,9204 e concordância de existência de inversões 0,7706, acima dos 0,8774, 0,8624 e 0,7407 obtidos com amostras do GMM. Mas a similaridade do regime amostral das inversões inverte essa ordem: 0,7185 na Gaussiana única contra 0,7552 no GMM. Nenhum dos dois braços vence nos quatro indicadores ao mesmo tempo. Semelhança geométrica e preservação da ordenação global já são, de todo modo, critérios distintos.}
     {O segundo caso mostra o extremo positivo: uma organização global praticamente reproduzida ao longo de toda a grade.}
-    {Aparência geométrica mais fiel não garante maior preservação do perfil.}
+    {Aparência geométrica mais fiel não garante maior preservação do perfil, e nem todo indicador aponta na mesma direção.}
     {1 minuto e 40 segundos.}
-    {Não preencher $A_R$/$S_R$ com valores antigos de $N^\star$; são indisponíveis, não zero. Não dizer que a Gaussiana ``preserva'' o perfil: a comparação é entre perfis obtidos após o treinamento.}
+    {Não simplificar dizendo que a Gaussiana única "venceu": ela perde em $\SR$. Não dizer que a Gaussiana ``preserva'' o perfil: a comparação é entre perfis obtidos após o treinamento.}
 \end{frame}
 
 % Slide 10 --------------------------------------------------------------------
@@ -412,8 +412,8 @@
     \toprule
     Treinamento $\rightarrow$ teste & $\rankrho$ & \AW{} & $\AR$ & $\SR$ \\
     \midrule
-    Gaussiana única $\rightarrow$ Real & \textbf{1,0000} & \textbf{1,0000} & --- & --- \\
-    GMM $\rightarrow$ Real             & 0,9996 & 0,9978 & --- & --- \\
+    Gaussiana única $\rightarrow$ Real & \textbf{1,0000} & \textbf{1,0000} & 0,7816 & 0,9689 \\
+    GMM $\rightarrow$ Real             & 0,9996 & 0,9978 & \textbf{0,8836} & \textbf{0,9760} \\
     \bottomrule
   \end{tabular}\par
 
@@ -421,19 +421,19 @@
   \begin{tikzpicture}
     \node[rounded corners=3pt,draw=CoInfoGray!60,fill=CoInfoMist,
       font=\fontsize{7.8}{9.2}\selectfont,text=CoInfoInk,inner sep=4pt,align=center,text width=9.6cm]
-      {$A_R$ e $S_R$ exigiriam dados brutos do cenário full-scale 000006, não persistidos localmente --- por isso aparecem como travessão, nunca como zero.};
+      {Único caso do estudo com os quatro indicadores elevados simultaneamente nos dois braços sintéticos.};
   \end{tikzpicture}
 
   \vspace{0.06cm}
-  \takeaway{Ordenação e vencedores quase integralmente preservados; existência e regime amostral das inversões não puderam ser recalculados nesta revisão.}
-  \sourcecite{Air Quality: De Vito et al. (2008); cenário full 000005; $\rankrho$/\AW{} herdados; $\AR$/$\SR$ indisponíveis nesta revisão.}
+  \takeaway{Ordenação, vencedores, existência e regime amostral das inversões preservados quase integralmente nos dois braços sintéticos --- o caso mais forte do estudo.}
+  \sourcecite{Air Quality: De Vito et al. (2008); cenário full 000005; $\rankrho$/\AW{}/$\AR$/$\SR$ recalculados diretamente pelo código atual sobre dados brutos regenerados.}
 
   \speakernotes
-    {Aqui, os dois braços sintéticos treinados com Gaussian Naive Bayes reproduzem quase integralmente a ordenação global e as relações efetivas de vencedor da referência real: correlação de ranking e Winner Agreement muito próximas de 1 no braço da Gaussiana única e no braço do GMM. Esses valores são herdados do relatório publicado anteriormente para o cenário 000005. O que esta revisão não pôde fazer é recalcular a concordância de existência de inversões e a similaridade dos tamanhos amostrais: os dados brutos por réplica dessa execução não estão persistidos neste repositório, então preferimos mostrar um travessão explícito a inventar um número ou reaproveitar o antigo valor de similaridade de $N^\star$, que media outra coisa. A leitura honesta é que, para ranking e vencedores, este é o caso mais forte de preservação do estudo; para existência e regime amostral das inversões, não temos evidência numérica corrente neste dataset.}
+    {Aqui, os dois braços sintéticos treinados com Gaussian Naive Bayes reproduzem quase integralmente os quatro indicadores do perfil de cooperação preditiva: correlação de ranking e Winner Agreement muito próximas de 1, e concordância de existência de inversões e similaridade de regime amostral acima de 0,78 e 0,96, respectivamente, tanto no braço da Gaussiana única quanto no braço do GMM. Este é o único caso do estudo em que os quatro indicadores concordam em apontar preservação forte ao mesmo tempo, nos dois braços sintéticos.}
     {O terceiro caso separa outra dupla de conceitos: qualidade preditiva absoluta e preservação do perfil.}
-    {Ranking e vencedores quase perfeitos; existência e regime amostral das inversões ficam indisponíveis nesta revisão.}
+    {O único caso do estudo com os quatro indicadores elevados ao mesmo tempo, nos dois geradores.}
     {1 minuto e 40 segundos.}
-    {Não reaproveitar o antigo valor de similaridade de $N^\star$ como se fosse $A_R$ ou $S_R$; são objetos matemáticos diferentes.}
+    {Não generalizar este resultado para outros classificadores do Air Quality: o SVM linear do mesmo dataset tem $\AR$ tão baixo quanto 0,26.}
 \end{frame}
 
 % Slide 11 --------------------------------------------------------------------
@@ -461,16 +461,16 @@
       \end{tabular}\par
       \vspace{0.05cm}
       {\raggedright\fontsize{7.1}{8.5}\selectfont\color{CoInfoGray}
-        Indicadores recalculados diretamente pelo código atual; escala reduzida, não comparável a $n=512$.\par}
+        Escala reduzida, não comparável a $n=512$; em $n=512$ (full): $\AR{=}0{,}51/0{,}43$, $\SR{=}0{,}82/0{,}81$ (Gaussiana/GMM) --- mesmo padrão.\par}
     \end{column}
   \end{columns}
 
   \vspace{0.03cm}
   \takeaway{Perda absoluta e preservação do perfil respondem a perguntas diferentes; e $A_R$ pode discordar de $S_R$ mesmo para o mesmo par de braços.}
-  \sourcecite{SUPPORT: The SUPPORT Principal Investigators (1995); Knaus et al. (1995); perda de cenário full 000008; $A_R$/$S_R$/$\rankrho$/\AW{} recalculados da execução smoke local.}
+  \sourcecite{SUPPORT: The SUPPORT Principal Investigators (1995); Knaus et al. (1995); cenário full 000008 e execução smoke; indicadores recalculados pelo código atual.}
 
   \speakernotes
-    {No SUPPORT2, o Random Forest teve perda mínima próxima de 0,455 nos três braços do cenário full. O classificador que sempre escolhe a classe majoritária erra 0,4687; portanto, a melhoria absoluta é pequena e o desempenho preditivo é fraco. Para ilustrar os quatro indicadores com números correntes, uso uma execução em escala reduzida, com grade até $n=32$, cujos dados brutos estão persistidos neste repositório. Nela, o Random Forest preservou razoavelmente ranking e vencedores efetivos, mas teve concordância de existência de inversões relativamente baixa, ao redor de 0,47--0,48: os braços sintéticos e o real frequentemente não trocam de vencedor no mesmo par. Por outro lado, para os pares que efetivamente invertem nos dois braços, a similaridade dos tamanhos amostrais é alta, acima de 0,87: quando a inversão é compartilhada, ela tende a ocorrer em regimes amostrais semelhantes. Esse contraste---existência baixa, regime amostral alto---é exatamente o tipo de padrão que um produto entre as métricas esconderia.}
+    {No SUPPORT2, o Random Forest teve perda mínima próxima de 0,455 nos três braços do cenário full. O classificador que sempre escolhe a classe majoritária erra 0,4687; portanto, a melhoria absoluta é pequena e o desempenho preditivo é fraco. Em $n=512$, o mesmo cenário full mostra $\AR$ entre 0,43 e 0,51 e $\SR$ entre 0,81 e 0,82. Para ilustrar esse mesmo padrão com uma grade menor e mais fácil de acompanhar par a par, uso também uma execução em escala reduzida, com grade até $n=32$. Nela, o Random Forest preservou razoavelmente ranking e vencedores efetivos, mas teve concordância de existência de inversões relativamente baixa, ao redor de 0,47--0,48: os braços sintéticos e o real frequentemente não trocam de vencedor no mesmo par. Por outro lado, para os pares que efetivamente invertem nos dois braços, a similaridade dos tamanhos amostrais é alta, acima de 0,87: quando a inversão é compartilhada, ela tende a ocorrer em regimes amostrais semelhantes. Esse mesmo contraste---existência baixa, regime amostral alto---aparece em escala completa e em escala reduzida, e é exatamente o tipo de padrão que um produto entre as métricas esconderia.}
     {Os três estudos de caso permitem uma síntese cuidadosa sobre o que foi e o que não foi demonstrado.}
     {Qualidade preditiva absoluta e preservação do perfil não são equivalentes; $A_R$ e $S_R$ podem até apontar em direções opostas.}
     {1 minuto e 40 segundos.}
@@ -519,13 +519,13 @@
 
   \vspace{0.02cm}
   {\centering\fontsize{6.8}{8.0}\selectfont\color{CoInfoGray}
-    Extrapolação, custos e $A_R$/$S_R$ de escala completa permanecem pendentes de validação futura.\par}
-  \sourcecite{síntese do relatório final; cenários full 000002/000005/000007/000008 e execução smoke do SUPPORT2.}
+    Extrapolação e custos permanecem pendentes; $A_R$/$S_R$ de escala completa já foram recalculados nesta revisão.\par}
+  \sourcecite{síntese do relatório final; cenários full 000002/000005/000007/000008 e smoke do SUPPORT2.}
 
   \speakernotes
-    {A conclusão tem três partes. Primeiro, a preservação do perfil é multidimensional: correlação de ranking, Winner Agreement, concordância de existência de inversões e similaridade dos tamanhos amostrais não devem ser fundidas em uma única afirmação, nem em um único número. Segundo, semelhança geométrica, desempenho preditivo absoluto e preservação do perfil de cooperação preditiva são propriedades diferentes. Terceiro, nenhum gerador foi universalmente superior nos cenários avaliados: a preservação do perfil depende da interação entre dataset, classificador, modelo gerador e tamanho amostral. Se o treinamento com amostras de um modelo ajustado aos dados reais reproduzir o perfil de referência dentro do intervalo observado, esse gerador poderá ser investigado como instrumento para simular regimes amostrais maiores e subsidiar futuras decisões sobre canais. Essa é uma possibilidade de pesquisa, não uma validação já concluída: a grade termina no maior $n$ avaliado em cada dataset, não medimos custos, não demonstramos extrapolação confiável, e a concordância de existência e de regime amostral das inversões em escala completa permanece pendente de regeneração dos dados brutos para Occupancy, Air Quality e SUPPORT2.}
+    {A conclusão tem três partes. Primeiro, a preservação do perfil é multidimensional: correlação de ranking, Winner Agreement, concordância de existência de inversões e similaridade dos tamanhos amostrais não devem ser fundidas em uma única afirmação, nem em um único número. Segundo, semelhança geométrica, desempenho preditivo absoluto e preservação do perfil de cooperação preditiva são propriedades diferentes. Terceiro, nenhum gerador foi universalmente superior nos cenários avaliados: a preservação do perfil depende da interação entre dataset, classificador, modelo gerador e tamanho amostral. Se o treinamento com amostras de um modelo ajustado aos dados reais reproduzir o perfil de referência dentro do intervalo observado, esse gerador poderá ser investigado como instrumento para simular regimes amostrais maiores e subsidiar futuras decisões sobre canais. Essa é uma possibilidade de pesquisa, não uma validação já concluída: a grade termina no maior $n$ avaliado em cada dataset, não medimos custos e não demonstramos extrapolação confiável. A concordância de existência e de regime amostral das inversões em escala completa, que uma revisão anterior havia deixado pendente de regeneração dos dados brutos, foi recalculada nesta revisão para Occupancy, Air Quality e SUPPORT2, e confirma o mesmo tipo de dissociação entre indicadores já ilustrado no exemplo do SUPPORT2.}
     {Encerrar retomando a tese inicial e, se houver perguntas, usar os slides de apoio para fórmulas, configurações e resultados adicionais.}
     {Em alguns cenários, o perfil obtido após o treinamento com amostras sintéticas reproduz o perfil de referência; isso não prova ganho de acurácia, economia ou extrapolação.}
     {1 minuto e 20 segundos. Duração principal acumulada: 18 minutos e 15 segundos.}
-    {Evitar qualquer promessa operacional: custo e extrapolação são hipóteses para validação futura; não afirmar que $A_R$/$S_R$ de escala completa foram demonstrados para os três datasets.}
+    {Evitar qualquer promessa operacional: custo e extrapolação são hipóteses para validação futura; não confundir "recalculado para os três datasets" com "demonstra economia ou extrapolação".}
 \end{frame}
