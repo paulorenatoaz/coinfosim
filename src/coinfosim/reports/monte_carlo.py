@@ -24,7 +24,7 @@ from coinfosim.reports.html_tabs import (
 )
 from coinfosim.reports.structural_visualization import (
     figure_to_data_uri,
-    progressive_nstar_matrix_figure,
+    reversal_matrix_figure,
     winner_matrix_figure,
 )
 from coinfosim.reports.report_tables import (
@@ -39,9 +39,9 @@ from coinfosim.results.analysis import (
 )
 from coinfosim.results.summary import summary_dataframe
 from coinfosim.results.structural import (
-    progressive_directed_nstar,
+    effective_winner_matrices,
+    progressive_reversal_matrices,
     select_display_subsets_by_cardinality,
-    winner_matrix,
 )
 from coinfosim.simulation.monte_carlo import SimulationResult
 
@@ -678,6 +678,10 @@ _STRUCTURED_CSS = """
   /* Yellow reference highlight for the full-subset row / baseline. */
   tr.ref-row td { background: #fff2b8; font-weight: 600; }
   .ref-note { color: #8a6d00; font-size: .85rem; }
+
+  .wr-pair { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center;
+             align-items: flex-start; }
+  .wr-pair .figure { margin: .5rem; }
 """
 
 _DATASET_PROVENANCE_DEFAULT = """
@@ -958,264 +962,80 @@ def _ranking_by_sample_size_panel(result: SimulationResult, classifier: str) -> 
     return _tab_group(f"rank-n-{classifier}", tabs, str(max(result.sample_sizes)))
 
 
-def _ranked_subsets_by_k(
-    selection_result: SimulationResult,
-    classifier: str,
-    n: int,
-) -> Dict[int, List[Subset]]:
-    ranked: Dict[int, List[Subset]] = {}
-    for subset in selection_result.subsets:
-        ranked.setdefault(len(subset), []).append(tuple(subset))
-    for k, subsets in ranked.items():
-        subsets.sort(
-            key=lambda s: (
-                selection_result.accumulator.mean_loss(n, s, classifier),
-                selection_result.accumulator.standard_error(n, s, classifier),
-                s,
-            )
-        )
-    return ranked
-
-
-def _nstar_competitors(
-    selection_result: SimulationResult,
-    classifier: str,
-    reference_k: int,
-) -> Tuple[Subset, List[Tuple[str, Subset]]]:
-    n = max(selection_result.sample_sizes)
-    ranked = _ranked_subsets_by_k(selection_result, classifier, n)
-    reference = ranked[reference_k][0]
-    competitors: List[Tuple[str, Subset]] = []
-    max_k = max(ranked)
-    for k in range(1, max_k + 1):
-        if k == reference_k:
-            if len(ranked[k]) > 1:
-                competitors.append((f"2-Best-{k}-ChSub", ranked[k][1]))
-        else:
-            competitors.append((f"Best-{k}-ChSub", ranked[k][0]))
-    return reference, competitors
-
-
-def _last_competitor_crossing(
-    result: SimulationResult,
-    classifier: str,
-    reference: Subset,
-    competitor: Subset,
-) -> Tuple[Optional[int], Optional[float]]:
-    sizes = sorted(int(n) for n in result.sample_sizes)
-    deltas = [
-        float(
-            result.accumulator.mean_loss(n, reference, classifier)
-            - result.accumulator.mean_loss(n, competitor, classifier)
-        )
-        for n in sizes
-    ]
-    crossings: List[Tuple[int, float]] = []
-    if deltas[0] > 0:
-        crossings.append((sizes[0], float(sizes[0])))
-    for i in range(1, len(sizes)):
-        prev_delta = deltas[i - 1]
-        curr_delta = deltas[i]
-        if curr_delta > 0 and prev_delta <= 0:
-            crossings.append((
-                sizes[i],
-                _linear_zero_crossing(sizes[i - 1], prev_delta, sizes[i], curr_delta),
-            ))
-    if not crossings:
-        return None, None
-    return crossings[-1]
-
-
-def _linear_zero_crossing(
-    n_before: int,
-    delta_before: float,
-    n_after: int,
-    delta_after: float,
-) -> float:
-    denom = delta_after - delta_before
-    if abs(denom) < 1e-15:
-        return float(n_after)
-    return float(n_before + ((0.0 - delta_before) / denom) * (n_after - n_before))
-
-
-def _nstar_graph_image(
-    result: SimulationResult,
-    classifier: str,
-    reference: Subset,
-    competitors: Sequence[Tuple[str, Subset]],
-) -> str:
-    sizes = result.sample_sizes
-    fig, ax = plt.subplots(figsize=(8, 5))
-    ref_means = [result.accumulator.mean_loss(n, reference, classifier) for n in sizes]
-    ax.plot(
-        sizes, ref_means, marker="o", linewidth=4.0, color="#e6b800",
-        label=f"Reference: {_compact_sub(reference)}", zorder=4,
-    )
-    cmap = plt.get_cmap("tab10")
-    for idx, (role, subset) in enumerate(competitors):
-        means = [result.accumulator.mean_loss(n, subset, classifier) for n in sizes]
-        ax.plot(
-            sizes, means, marker="o", linewidth=1.4, alpha=0.88,
-            color=cmap(idx % cmap.N), label=f"{role}: {_compact_sub(subset)}",
-        )
-        _, interp = _last_competitor_crossing(result, classifier, reference, subset)
-        if interp is not None:
-            ax.axvline(interp, color=cmap(idx % cmap.N), linestyle="--", alpha=0.45)
-    ax.set_xscale("log", base=2)
-    ax.set_xlabel("n_per_class")
-    ax.set_ylabel("Empirical test loss")
-    ax.set_title(f"N-star diagnostics — {classifier_label(classifier)}")
-    ax.grid(True, which="both", alpha=0.3)
-    ax.legend(title="Curve", fontsize=7)
-    return _fig_to_base64(fig)
-
-
-def _nstar_panel(
-    result: SimulationResult,
-    selection_result: SimulationResult,
-    classifier: str,
-    reference_k: int,
-) -> str:
-    reference, competitors = _nstar_competitors(selection_result, classifier, reference_k)
-    rows = ""
-    n_max = max(result.sample_sizes)
-    ref_final = result.accumulator.mean_loss(n_max, reference, classifier)
-    for role, subset in competitors:
-        grid, interp = _last_competitor_crossing(result, classifier, reference, subset)
-        comp_final = result.accumulator.mean_loss(n_max, subset, classifier)
-        winner = "VS" if comp_final < ref_final else "Reference"
-        rows += (
-            f"<tr><td>{html.escape(role)}: {_compact_sub(subset)}</td>"
-            f"<td>{grid if grid is not None else '&mdash;'}</td>"
-            f"<td>{interp:.2f}</td>" if interp is not None else
-            f"<tr><td>{html.escape(role)}: {_compact_sub(subset)}</td>"
-            f"<td>&mdash;</td><td>&mdash;</td>"
-        )
-        rows += f"<td>{winner}</td></tr>"
-    table = (
-        "<table class='data'><thead><tr><th>VS</th><th>N*</th>"
-        "<th>Interpolated N*</th><th>Winner</th></tr></thead>"
-        f"<tbody>{rows}</tbody></table>"
-    )
-    graph = (
-        "<div class='figure'><img src='"
-        + _nstar_graph_image(result, classifier, reference, competitors)
-        + f"' alt='N-star graph {html.escape(classifier_label(classifier))} best {reference_k}'/></div>"
-    )
-    return (
-        f"<p><strong>Reference subset:</strong> Best {reference_k}-channel "
-        f"reference selected on Real → Real at <code>n_per_class = "
-        f"{max(selection_result.sample_sizes)}</code>: "
-        f"<span class='ref-note'>{_compact_sub(reference)}</span>.</p>"
-        + table
-        + graph
-    )
-
-
-def _nstar_diagnostics_panel(
-    result: SimulationResult,
-    selection_result: SimulationResult,
-    classifier: str,
-) -> str:
-    max_k = max(len(s) for s in selection_result.subsets)
-    tabs = [
-        (
-            f"k{k}",
-            f"Best {k}-channel reference",
-            _nstar_panel(result, selection_result, classifier, k),
-        )
-        for k in range(1, max_k + 1)
-    ]
-    return _tab_group(f"nstar-ref-{classifier}", tabs, "k1")
-
-
 def _structural_dynamics_panel(
     result: SimulationResult,
     classifier: str,
 ) -> str:
-    """Render one classifier's arm-local structural matrix selectors."""
+    """Render one classifier's arm-local paired winner/reversal (W/R) panel."""
 
     display_subsets = select_display_subsets_by_cardinality(
         result, [classifier]
     )[classifier]
     labels = [_compact_sub(subset) for subset in display_subsets]
-    winner_tabs = []
-    for n in result.sample_sizes:
-        matrix = winner_matrix(result, classifier, n, display_subsets)
-        figure = winner_matrix_figure(
-            matrix,
-            labels,
-            f"{classifier_label(classifier)} — arm-local winner matrix — N={n}",
+    sample_sizes = list(result.sample_sizes)
+
+    winner_matrices = {
+        int(item["n_per_class"]): item["matrix"]
+        for item in effective_winner_matrices(result, classifier, display_subsets)
+    }
+    reversal_matrices = {
+        int(item["n_prefix"]): item["matrix"]
+        for item in progressive_reversal_matrices(
+            result, classifier, display_subsets
         )
-        uri = figure_to_data_uri(figure)
-        winner_tabs.append(
+    }
+
+    n_tabs = []
+    for n in sample_sizes:
+        winner_uri = figure_to_data_uri(
+            winner_matrix_figure(
+                winner_matrices[n],
+                labels,
+                f"{classifier_label(classifier)} — arm-local Winner matrix — N={n}",
+            )
+        )
+        reversal_uri = figure_to_data_uri(
+            reversal_matrix_figure(
+                reversal_matrices[n],
+                labels,
+                f"{classifier_label(classifier)} — arm-local Reversal matrix "
+                f"— N={n}",
+            )
+        )
+        note = (
+            "<p class='ref-note'>N is the first evaluated sample size, so no "
+            "reversal can yet exist: the Reversal matrix is empty.</p>"
+            if n == sample_sizes[0]
+            else ""
+        )
+        n_tabs.append(
             (
                 str(n),
                 f"N = {n}",
-                f"<div class='figure'><img src='{uri}' "
-                f"alt='winner matrix {html.escape(classifier_label(classifier))} N={n}'/></div>",
+                "<div class='wr-pair'>"
+                f"<div class='figure'><img src='{winner_uri}' "
+                f"alt='winner matrix {html.escape(classifier_label(classifier))} "
+                f"N={n}'/></div>"
+                f"<div class='figure'><img src='{reversal_uri}' "
+                f"alt='reversal matrix {html.escape(classifier_label(classifier))} "
+                f"N={n}'/></div>"
+                "</div>" + note,
             )
         )
 
-    progressive_tabs = []
-    for item in progressive_directed_nstar(result, classifier, display_subsets):
-        n_prefix = int(item["n_prefix"])
-        figure = progressive_nstar_matrix_figure(
-            item["matrix"],
-            labels,
-            f"{classifier_label(classifier)} — arm-local progressive N-star "
-            f"— prefix N={n_prefix}",
-        )
-        uri = figure_to_data_uri(figure)
-        progressive_tabs.append(
-            (
-                str(n_prefix),
-                f"Prefix N = {n_prefix}",
-                f"<div class='figure'><img src='{uri}' "
-                f"alt='progressive N-star matrix "
-                f"{html.escape(classifier_label(classifier))} prefix N={n_prefix}'/></div>",
-            )
-        )
-
-    structures = [
-        (
-            "winner",
-            "Winner matrix",
-            _tab_group(
-                f"structural-{classifier}-winner-n",
-                winner_tabs,
-                str(result.sample_sizes[0]),
-            ),
-        )
-    ]
-    if progressive_tabs:
-        structures.append(
-            (
-                "nstar",
-                "Progressive N-star matrix",
-                _tab_group(
-                    f"structural-{classifier}-nstar-prefix",
-                    progressive_tabs,
-                    str(result.sample_sizes[1]),
-                ),
-            )
-        )
-    else:
-        structures.append(
-            (
-                "nstar",
-                "Progressive N-star matrix",
-                "<p>Progressive N-star matrices require at least two sample "
-                "sizes.</p>",
-            )
-        )
     selection = ", ".join(labels)
     return (
         "<p class='ref-note'><strong>Arm-local display selection at Nmax:</strong> "
         f"{html.escape(selection)}. Numerical structures use all subsets.</p>"
-        + _tab_group(
-            f"structural-{classifier}-structure", structures, "winner"
-        )
+        "<p>The Winner matrix <code>W</code> shows who currently wins each "
+        "unordered subset pair; the Reversal matrix <code>R</code> shows when "
+        "that pair last changed winner through the selected prefix. An exact "
+        "tie after a pair's first strict winner carries the previous winner "
+        "forward in <code>W</code> rather than resetting it to unresolved. An "
+        "<code>R</code> cell exists only for a pair with at least one valid "
+        "winner reversal: a defined effective winner at both the previous and "
+        "the current sample size that differs between the two.</p>"
+        + _tab_group(f"structural-{classifier}-n", n_tabs, str(sample_sizes[0]))
     )
 
 
@@ -1242,7 +1062,7 @@ def generate_structured_monte_carlo_report(
     nstar_selection_result: Optional[SimulationResult] = None,
     export_csvs: bool = True,
 ) -> Path:
-    """Generate a structured, navigable 17-section Monte Carlo HTML report.
+    """Generate a structured, navigable 16-section Monte Carlo HTML report.
 
     Used for the standard dataset-anchored arms (Real → Real, Single Gaussian
     → Real, GMM → Real). The report uses a single sticky
@@ -1332,20 +1152,12 @@ def generate_structured_monte_carlo_report(
     ]
     finalrank_html = _tab_group("finalrank", finalrank_tabs, default_clf)
 
-    # --- Section 13: arm-local structural dynamics ------------------------ #
+    # --- Section 13: arm-local pairwise winner and reversal dynamics ------ #
     structural_tabs = [
         (c, classifier_label(c), _structural_dynamics_panel(result, c))
         for c in present
     ]
     structural_html = _tab_group("structural", structural_tabs, default_clf)
-
-    # --- Section 14: N-star, tabs by classifier --------------------------- #
-    selection_result = nstar_selection_result or result
-    nstar_tabs = [
-        (c, classifier_label(c), _nstar_diagnostics_panel(result, selection_result, c))
-        for c in present
-    ]
-    nstar_html = _tab_group("nstar", nstar_tabs, default_clf)
 
     csv_links = _csv_links_html(output_dir, arm_id) if export_csvs else ""
     full_table_details = _full_table_details(result, ch, arm_id)
@@ -1452,27 +1264,19 @@ rankings for all evaluated <code>n_per_class</code> values are available through
 the selector. The full-channel reference row is highlighted.</p>
 {finalrank_html}
 
-<h2>13. Structural dynamics</h2>
-<p>This arm-local view shows directed winner matrices over sample size and
-progressive directed N-star matrices from the second evaluated prefix onward.
-One best subset per cardinality is selected using this arm at the largest N and
-frozen across all displayed panels. This display reduction does not change the
+<h2>13. Pairwise winner and reversal dynamics</h2>
+<p>This arm-local view shows the effective winner matrix <code>W</code> and the
+progressive reversal matrix <code>R</code> together over sample size. One best
+subset per cardinality is selected using this arm at the largest N and frozen
+across all displayed panels. This display reduction does not change the
 all-subset structural data persisted for the run.</p>
 {structural_html}
 
-<h2>14. N-star diagnostics</h2>
-<p>For comparability, reference and competitor subsets are selected using the
-Real → Real arm at the largest evaluated <code>n_per_class</code>; the table and
-graph then show this report arm's own empirical test-loss curves. Select a
-classifier and reference-cardinality panel below. Dashed vertical markers show
-detected crossings when available.</p>
-{nstar_html}
+{_section(14, "Robustness notes", robustness_html)}
 
-{_section(15, "Robustness notes", robustness_html)}
+{_section(15, "Validity and limitations for this arm", validity_html)}
 
-{_section(16, "Validity and limitations for this arm", validity_html)}
-
-<h2>17. Technical appendix / exported tables</h2>
+<h2>16. Technical appendix / exported tables</h2>
 {full_table_details}
 <p>Clean technical tables are also exported as CSV next to this report:</p>
 {csv_links}

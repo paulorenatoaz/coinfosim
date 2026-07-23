@@ -105,7 +105,8 @@ def _assert_common(text, arm):
     assert "same fixed real SUPPORT2 test set" in text
     assert "127 subsets" in text
     assert "Winner matrix" in text
-    assert "Progressive N-star matrix" in text
+    assert "Reversal matrix" in text
+    assert "Progressive N-star matrix" not in text
     for channel in SUPPORT2_CHANNELS:
         assert channel in text
     assert "Linear SVM" in text

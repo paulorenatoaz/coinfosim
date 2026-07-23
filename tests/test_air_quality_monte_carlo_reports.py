@@ -107,10 +107,11 @@ def _assert_shared_air_quality_content(text: str, arm_label: str):
     assert "10. Loss curves" in text
     assert "Nested cardinality" in text
     assert "12. Subset ranking by sample size" in text
-    assert "13. Structural dynamics" in text
+    assert "13. Pairwise winner and reversal dynamics" in text
     assert "Winner matrix" in text
-    assert "Progressive N-star matrix" in text
-    assert "14. N-star diagnostics" in text
+    assert "Reversal matrix" in text
+    assert "N-star diagnostics" not in text
+    assert "Progressive N-star matrix" not in text
     assert "9. Monte Carlo precision diagnostics" in text
     assert "Full-5 reference" in text
     assert "occupancy" not in lowered
