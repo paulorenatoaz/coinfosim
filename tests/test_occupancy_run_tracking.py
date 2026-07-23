@@ -368,9 +368,12 @@ def test_visualization_panels_written_and_registered(tmp_path):
     assert "graph_best_comparison_sgr" in graphs
     assert "graph_best_comparison_gmm" in graphs
     assert any(k.startswith("graph_topranked_") and k.endswith("_gmm") for k in graphs)
-    assert any(k.startswith("graph_nstar_") and k.endswith("_gmm") for k in graphs)
+    assert any(
+        k.startswith("graph_structural_reversal_") and "gmm_to_real" in k
+        for k in graphs
+    )
     assert any(k.startswith("graph_topranked_") for k in graphs)
-    assert any(k.startswith("graph_nstar_") for k in graphs)
+    assert any(k.startswith("graph_structural_reversal_") for k in graphs)
     assert "graph_images" in scenario_json["artifacts"]
     for fname in graphs.values():
         assert (scenario_dir / fname).exists(), fname
