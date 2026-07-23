@@ -143,13 +143,28 @@ def discover_json(data_root: Path) -> list[Path]:
     return files
 
 
-def sync_reports(output_dir: Path, site_dir: Path) -> None:
-    """Copy ``output_dir/reports`` and ``output_dir/data`` into the worktree."""
+def sync_reports(output_dir: Path, site_dir: Path, *, mirror: bool = False) -> None:
+    """Copy ``output_dir/reports`` and ``output_dir/data`` into the worktree.
+
+    By default this merges into any existing ``reports/``/``data/`` content
+    already in ``site_dir`` (safe for publishing a partial local output
+    without deleting other previously published scenarios). Pass
+    ``mirror=True`` to first remove the existing ``reports/``/``data/``
+    trees so the published site exactly matches local output -- use this
+    only when the local output directory is known to be complete (e.g.
+    after regenerating every scenario), since anything published previously
+    but absent locally will be removed.
+    """
 
     reports_source = output_dir / "reports"
     data_source = output_dir / "data"
     reports_target = site_dir / "reports"
     data_target = site_dir / "data"
+    if mirror:
+        if reports_target.exists():
+            shutil.rmtree(reports_target)
+        if data_target.exists():
+            shutil.rmtree(data_target)
     reports_target.mkdir(parents=True, exist_ok=True)
     data_target.mkdir(parents=True, exist_ok=True)
     if reports_source.is_dir():

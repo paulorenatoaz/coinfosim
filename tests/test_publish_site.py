@@ -153,6 +153,34 @@ def test_sync_reports_tolerates_missing_output_dir(tmp_path):
     assert site_dir.exists()
 
 
+def test_sync_reports_default_merges_and_keeps_orphaned_files(tmp_path):
+    output_dir = tmp_path / "output"
+    (output_dir / "reports").mkdir(parents=True)
+    (output_dir / "reports" / "new.html").write_text("<html>new</html>")
+
+    site_dir = tmp_path / "site"
+    (site_dir / "reports").mkdir(parents=True)
+    (site_dir / "reports" / "orphan.html").write_text("<html>orphan</html>")
+
+    sync_reports(output_dir, site_dir)
+    assert (site_dir / "reports" / "new.html").exists()
+    assert (site_dir / "reports" / "orphan.html").exists()
+
+
+def test_sync_reports_mirror_removes_orphaned_files_not_in_output_dir(tmp_path):
+    output_dir = tmp_path / "output"
+    (output_dir / "reports").mkdir(parents=True)
+    (output_dir / "reports" / "new.html").write_text("<html>new</html>")
+
+    site_dir = tmp_path / "site"
+    (site_dir / "reports").mkdir(parents=True)
+    (site_dir / "reports" / "orphan.html").write_text("<html>orphan</html>")
+
+    sync_reports(output_dir, site_dir, mirror=True)
+    assert (site_dir / "reports" / "new.html").exists()
+    assert not (site_dir / "reports" / "orphan.html").exists()
+
+
 def test_write_index_contains_seven_required_sections(tmp_path):
     path = write_index(
         tmp_path,
