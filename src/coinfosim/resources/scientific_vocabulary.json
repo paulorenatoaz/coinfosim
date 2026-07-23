@@ -1,0 +1,331 @@
+{
+  "vocabulary_version": "1.0.0",
+  "namespace": "https://paulorenatoaz.github.io/coinfosim/ns#",
+  "preferred_language": "en",
+  "concepts": {
+    "PredictiveCooperation": {
+      "id": "coinfosim:PredictiveCooperation",
+      "labels": {
+        "en": "predictive cooperation",
+        "pt": "cooperação preditiva"
+      },
+      "definitions": {
+        "en": "Umbrella phenomenon describing how the composition of an information-channel subset affects predictive performance.",
+        "pt": "Fenômeno guarda-chuva que descreve como a composição de um subconjunto de canais de informação afeta o desempenho preditivo."
+      },
+      "symbol": null,
+      "broader_concept": null,
+      "canonical_python_key": null,
+      "deprecated_aliases": [
+        "cooperative advantage",
+        "cooperation structure"
+      ]
+    },
+    "PredictiveComplementarity": {
+      "id": "coinfosim:PredictiveComplementarity",
+      "labels": {
+        "en": "predictive complementarity",
+        "pt": "complementaridade preditiva"
+      },
+      "definitions": {
+        "en": "A form of predictive cooperation in which distinct channel contributions jointly improve predictive performance beyond any one channel alone.",
+        "pt": "Forma de cooperação preditiva em que contribuições distintas de canais melhoram conjuntamente o desempenho preditivo além do que qualquer canal isolado alcança."
+      },
+      "symbol": null,
+      "broader_concept": "coinfosim:PredictiveCooperation",
+      "canonical_python_key": null,
+      "deprecated_aliases": []
+    },
+    "PredictiveRedundancy": {
+      "id": "coinfosim:PredictiveRedundancy",
+      "labels": {
+        "en": "predictive redundancy",
+        "pt": "redundância preditiva"
+      },
+      "definitions": {
+        "en": "A form of predictive cooperation in which combining channels adds little or no predictive gain over the best individual channel.",
+        "pt": "Forma de cooperação preditiva em que a combinação de canais agrega pouco ou nenhum ganho preditivo em relação ao melhor canal individual."
+      },
+      "symbol": null,
+      "broader_concept": "coinfosim:PredictiveCooperation",
+      "canonical_python_key": null,
+      "deprecated_aliases": []
+    },
+    "PredictiveCooperationProfile": {
+      "id": "coinfosim:PredictiveCooperationProfile",
+      "labels": {
+        "en": "predictive cooperation profile",
+        "pt": "perfil de cooperação preditiva"
+      },
+      "definitions": {
+        "en": "The computed quantitative artifact tracking the evolution of relative subset predictive performance over sample size for a fixed dataset, classifier, and training condition.",
+        "pt": "Artefato quantitativo computado que acompanha a evolução do desempenho preditivo relativo entre subconjuntos ao longo do tamanho amostral, para um dataset, classificador e condição de treinamento fixos."
+      },
+      "symbol": null,
+      "broader_concept": "coinfosim:PredictiveCooperation",
+      "canonical_python_key": "predictive_cooperation_profile",
+      "deprecated_aliases": [
+        "structural_fidelity",
+        "structural fidelity"
+      ]
+    },
+    "PredictiveCooperationPattern": {
+      "id": "coinfosim:PredictiveCooperationPattern",
+      "labels": {
+        "en": "predictive cooperation pattern",
+        "pt": "padrão de cooperação preditiva"
+      },
+      "definitions": {
+        "en": "An interpreted regularity identified from one or more predictive cooperation profiles. A profile is a computed artifact; a pattern is an interpretation and is never implied merely by the presence of a profile.",
+        "pt": "Regularidade interpretada, identificada a partir de um ou mais perfis de cooperação preditiva. Um perfil é um artefato computado; um padrão é uma interpretação e nunca é implícito apenas pela presença de um perfil."
+      },
+      "symbol": null,
+      "broader_concept": "coinfosim:PredictiveCooperationProfile",
+      "canonical_python_key": null,
+      "deprecated_aliases": []
+    },
+    "Attribute": {
+      "id": "coinfosim:Attribute",
+      "labels": {
+        "en": "attribute",
+        "pt": "atributo"
+      },
+      "definitions": {
+        "en": "The formal model-input variable consumed directly by a classifier. Not automatically identical to an information channel.",
+        "pt": "Variável formal de entrada de modelo consumida diretamente por um classificador. Não é automaticamente idêntica a um canal de informação."
+      },
+      "symbol": null,
+      "broader_concept": null,
+      "canonical_python_key": "attribute",
+      "deprecated_aliases": []
+    },
+    "InformationChannel": {
+      "id": "coinfosim:InformationChannel",
+      "labels": {
+        "en": "information channel",
+        "pt": "canal de informação"
+      },
+      "definitions": {
+        "en": "The conceptual or operational interpretation of an attribute or an explicitly defined attribute group. Not automatically identical to an attribute.",
+        "pt": "Interpretação conceitual ou operacional de um atributo ou de um grupo de atributos explicitamente definido. Não é automaticamente idêntico a um atributo."
+      },
+      "symbol": null,
+      "broader_concept": null,
+      "canonical_python_key": "information_channel",
+      "deprecated_aliases": [
+        "sensor"
+      ]
+    },
+    "EstimatedMeanTestLoss": {
+      "id": "coinfosim:EstimatedMeanTestLoss",
+      "labels": {
+        "en": "estimated mean test loss",
+        "pt": "perda média estimada no conjunto de teste"
+      },
+      "definitions": {
+        "en": "The Monte Carlo estimate of expected 0-1 test loss used as the base comparison quantity between subsets, classifiers, and training conditions.",
+        "pt": "Estimativa de Monte Carlo da perda esperada 0-1 no conjunto de teste, usada como grandeza-base de comparação entre subconjuntos, classificadores e condições de treinamento."
+      },
+      "symbol": "L̂",
+      "broader_concept": null,
+      "canonical_python_key": "estimated_mean_test_loss",
+      "deprecated_aliases": [
+        "mean_loss",
+        "empirical_test_loss"
+      ]
+    },
+    "PairwiseWinnerRelation": {
+      "id": "coinfosim:PairwiseWinnerRelation",
+      "labels": {
+        "en": "pairwise winner relation",
+        "pt": "relação de vencedor par a par"
+      },
+      "definitions": {
+        "en": "The effective winner state between two subsets at a given sample size: which subset has lower estimated mean test loss, propagated across exact ties per the tie-propagation rule.",
+        "pt": "Estado efetivo de vencedor entre dois subconjuntos em um dado tamanho amostral: qual subconjunto possui menor perda média estimada de teste, propagado através de empates exatos conforme a regra de propagação de empate."
+      },
+      "symbol": "W_{ij}(n_k)",
+      "broader_concept": null,
+      "canonical_python_key": "pairwise_winner_relation",
+      "deprecated_aliases": []
+    },
+    "WinnerMatrix": {
+      "id": "coinfosim:WinnerMatrix",
+      "labels": {
+        "en": "winner matrix",
+        "pt": "matriz de vencedores"
+      },
+      "definitions": {
+        "en": "The antisymmetric display matrix W(n) of effective pairwise winner relations across all subset pairs at sample size n.",
+        "pt": "Matriz antissimétrica de exibição W(n) das relações efetivas de vencedor par a par entre todos os pares de subconjuntos no tamanho amostral n."
+      },
+      "symbol": "\\mathbf{W}(n)",
+      "broader_concept": "coinfosim:PairwiseWinnerRelation",
+      "canonical_python_key": "winner_matrix",
+      "deprecated_aliases": []
+    },
+    "WinnerReversal": {
+      "id": "coinfosim:WinnerReversal",
+      "labels": {
+        "en": "winner reversal",
+        "pt": "inversão de vencedor"
+      },
+      "definitions": {
+        "en": "A valid change of the effective pairwise winner relation from one defined winner to the other. Not defined by geometric interpolation of continuous loss curves, and never triggered by the first strict winner after unresolved initial ties.",
+        "pt": "Mudança válida da relação efetiva de vencedor par a par de um vencedor definido para o outro. Não é definida por interpolação geométrica de curvas contínuas de perda, e nunca é disparada pelo primeiro vencedor estrito após empates iniciais não resolvidos."
+      },
+      "symbol": null,
+      "broader_concept": "coinfosim:PairwiseWinnerRelation",
+      "canonical_python_key": "winner_reversal",
+      "deprecated_aliases": [
+        "directed_crossing",
+        "last_crossing",
+        "crossing point"
+      ]
+    },
+    "ReversalMatrix": {
+      "id": "coinfosim:ReversalMatrix",
+      "labels": {
+        "en": "reversal matrix",
+        "pt": "matriz de inversões"
+      },
+      "definitions": {
+        "en": "The triangular matrix R(n_t) storing, for each unordered subset pair with at least one valid winner reversal in the evaluated prefix, the latest observed reversal sample size. Upper triangle only; the current winner is recovered from the winner matrix, not stored redundantly.",
+        "pt": "Matriz triangular R(n_t) que armazena, para cada par não ordenado de subconjuntos com pelo menos uma inversão de vencedor válida no prefixo avaliado, o último tamanho amostral de inversão observado. Somente triângulo superior; o vencedor atual é recuperado da matriz de vencedores, sem armazenamento redundante."
+      },
+      "symbol": "\\mathbf{R}(n_t)",
+      "broader_concept": "coinfosim:WinnerReversal",
+      "canonical_python_key": "reversal_matrix",
+      "deprecated_aliases": [
+        "progressive_directed_nstar",
+        "N-star matrix",
+        "crossing matrix"
+      ]
+    },
+    "RankingFidelity": {
+      "id": "coinfosim:RankingFidelity",
+      "labels": {
+        "en": "ranking fidelity",
+        "pt": "fidelidade de ranking"
+      },
+      "definitions": {
+        "en": "Spearman rank-correlation agreement between the complete subset rankings of an arm and a reference arm at a fixed sample size.",
+        "pt": "Concordância de correlação de posto de Spearman entre os rankings completos de subconjuntos de um braço e de um braço de referência, em um tamanho amostral fixo."
+      },
+      "symbol": "\\rho_{rank}",
+      "broader_concept": null,
+      "canonical_python_key": "ranking_fidelity_series",
+      "deprecated_aliases": []
+    },
+    "WinnerAgreement": {
+      "id": "coinfosim:WinnerAgreement",
+      "labels": {
+        "en": "Winner Agreement",
+        "pt": "concordância de vencedores"
+      },
+      "definitions": {
+        "en": "The fraction of unordered subset pairs, among those with a defined effective winner in both an arm and a reference arm, for which the effective winner agrees.",
+        "pt": "Fração de pares não ordenados de subconjuntos, dentre aqueles com vencedor efetivo definido tanto no braço quanto no braço de referência, para os quais o vencedor efetivo coincide."
+      },
+      "symbol": null,
+      "broader_concept": "coinfosim:PairwiseWinnerRelation",
+      "canonical_python_key": "winner_agreement_series",
+      "deprecated_aliases": []
+    },
+    "ReversalExistenceAgreement": {
+      "id": "coinfosim:ReversalExistenceAgreement",
+      "labels": {
+        "en": "reversal existence agreement",
+        "pt": "concordância de existência de inversões"
+      },
+      "definitions": {
+        "en": "The Jaccard agreement, over unordered subset pairs, between the support set of pairs for which the reversal matrix is defined in an arm versus a reference arm.",
+        "pt": "Concordância de Jaccard, sobre pares não ordenados de subconjuntos, entre o conjunto de suporte de pares para os quais a matriz de inversões está definida em um braço e em um braço de referência."
+      },
+      "symbol": "A_R(n_t)",
+      "broader_concept": "coinfosim:ReversalMatrix",
+      "canonical_python_key": "reversal_existence_agreement",
+      "deprecated_aliases": [
+        "crossing_jaccard"
+      ]
+    },
+    "MeanLog2ReversalDistance": {
+      "id": "coinfosim:MeanLog2ReversalDistance",
+      "labels": {
+        "en": "mean log2 reversal distance",
+        "pt": "distância média das inversões em escala log2"
+      },
+      "definitions": {
+        "en": "The unnormalized mean absolute difference, on the log2(n) scale, between the latest observed reversal sample sizes of shared reversal pairs in an arm versus a reference arm.",
+        "pt": "Diferença absoluta média não normalizada, na escala log2(n), entre os últimos tamanhos amostrais de inversão observados para pares de inversão compartilhados em um braço e em um braço de referência."
+      },
+      "symbol": "D_R(n_t)",
+      "broader_concept": "coinfosim:ReversalMatrix",
+      "canonical_python_key": "mean_log2_reversal_distance",
+      "deprecated_aliases": []
+    },
+    "ReversalSampleSizeSimilarity": {
+      "id": "coinfosim:ReversalSampleSizeSimilarity",
+      "labels": {
+        "en": "reversal sample-size similarity",
+        "pt": "similaridade dos tamanhos amostrais das inversões"
+      },
+      "definitions": {
+        "en": "The normalized agreement, in [0, 1], between the latest observed reversal sample sizes of shared reversal pairs only, derived from the mean log2 reversal distance normalized by the evaluated prefix's log2 span.",
+        "pt": "Concordância normalizada, em [0, 1], entre os últimos tamanhos amostrais de inversão observados apenas para pares de inversão compartilhados, derivada da distância média das inversões em escala log2 normalizada pelo intervalo log2 do prefixo avaliado."
+      },
+      "symbol": "S_R(n_t)",
+      "broader_concept": "coinfosim:ReversalMatrix",
+      "canonical_python_key": "reversal_sample_size_similarity",
+      "deprecated_aliases": [
+        "timing_similarity"
+      ]
+    },
+    "PairwiseProfileDynamics": {
+      "id": "coinfosim:PairwiseProfileDynamics",
+      "labels": {
+        "en": "pairwise profile dynamics",
+        "pt": "dinâmica de perfil par a par"
+      },
+      "definitions": {
+        "en": "The per-simulation persisted container of effective winner relations by sample size, winner reversal events, and reversal matrices by prefix, for every classifier.",
+        "pt": "Contêiner persistido por simulação das relações efetivas de vencedor por tamanho amostral, dos eventos de inversão de vencedor e das matrizes de inversão por prefixo, para cada classificador."
+      },
+      "symbol": null,
+      "broader_concept": "coinfosim:PredictiveCooperationProfile",
+      "canonical_python_key": "pairwise_profile_dynamics",
+      "deprecated_aliases": [
+        "structural_dynamics"
+      ]
+    },
+    "ReversalAgreementSeries": {
+      "id": "coinfosim:ReversalAgreementSeries",
+      "labels": {
+        "en": "reversal agreement series",
+        "pt": "série de concordância de inversões"
+      },
+      "definitions": {
+        "en": "The per (classifier, arm, sample-size prefix) series of reversal existence agreement, mean log2 reversal distance, and reversal sample-size similarity, reported as separate fields and never combined into a composite product.",
+        "pt": "Série por (classificador, braço, prefixo de tamanho amostral) de concordância de existência de inversões, distância média das inversões em escala log2 e similaridade dos tamanhos amostrais das inversões, reportadas como campos separados e nunca combinadas em um produto composto."
+      },
+      "symbol": null,
+      "broader_concept": "coinfosim:ReversalMatrix",
+      "canonical_python_key": "reversal_agreement_series",
+      "deprecated_aliases": [
+        "nstar_similarity"
+      ]
+    }
+  },
+  "deprecated_terms": {
+    "cooperative_threshold": {
+      "historical_role": "First-threshold sample size (N*) at which one subset's estimated mean test loss first became and remained the lower of a pair; a scalar cooperative-advantage summary.",
+      "replaced_by": null,
+      "note": "Retired without a single-scalar successor. The winner-reversal framework (coinfosim:PairwiseWinnerRelation, coinfosim:WinnerReversal, coinfosim:ReversalMatrix) replaces the underlying question with an explicit trajectory rather than a first-threshold scalar; old N* values must not be reinterpreted as any new metric."
+    },
+    "nstar_similarity_composite": {
+      "historical_role": "Multiplicative/composite product of reversal existence agreement and a timing-similarity term.",
+      "replaced_by": null,
+      "note": "The composite cannot be decomposed into coinfosim:ReversalExistenceAgreement and coinfosim:ReversalSampleSizeSimilarity after the fact. New output never emits a composite/product metric; the two indicators are always reported separately."
+    }
+  }
+}

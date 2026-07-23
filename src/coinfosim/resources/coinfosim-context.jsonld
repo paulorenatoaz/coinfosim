@@ -1,0 +1,63 @@
+{
+  "@context": {
+    "coinfosim": "https://paulorenatoaz.github.io/coinfosim/ns#",
+    "prov": "http://www.w3.org/ns/prov#",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+
+    "predictive_cooperation_profile": {
+      "@id": "coinfosim:PredictiveCooperationProfile",
+      "@type": "@id"
+    },
+    "pairwise_profile_dynamics": {
+      "@id": "coinfosim:PairwiseProfileDynamics",
+      "@type": "@id"
+    },
+    "attribute": "coinfosim:Attribute",
+    "information_channel": "coinfosim:InformationChannel",
+    "estimated_mean_test_loss": {
+      "@id": "coinfosim:EstimatedMeanTestLoss",
+      "@type": "xsd:double"
+    },
+    "pairwise_winner_relation": "coinfosim:PairwiseWinnerRelation",
+    "winner_matrix": "coinfosim:WinnerMatrix",
+    "winner_reversal": "coinfosim:WinnerReversal",
+    "reversal_matrix": "coinfosim:ReversalMatrix",
+    "ranking_fidelity_series": "coinfosim:RankingFidelity",
+    "winner_agreement_series": "coinfosim:WinnerAgreement",
+    "reversal_agreement_series": "coinfosim:ReversalAgreementSeries",
+    "reversal_existence_agreement": {
+      "@id": "coinfosim:ReversalExistenceAgreement",
+      "@type": "xsd:double"
+    },
+    "mean_log2_reversal_distance": {
+      "@id": "coinfosim:MeanLog2ReversalDistance",
+      "@type": "xsd:double"
+    },
+    "reversal_sample_size_similarity": {
+      "@id": "coinfosim:ReversalSampleSizeSimilarity",
+      "@type": "xsd:double"
+    },
+
+    "schema_version": "coinfosim:schemaVersion",
+    "semantic_vocabulary_version": "coinfosim:semanticVocabularyVersion",
+    "semantic_type": {
+      "@id": "coinfosim:semanticType",
+      "@type": "@id"
+    },
+    "final_summary": "coinfosim:finalSummary",
+    "reference_display_subsets_by_classifier": "coinfosim:referenceDisplaySubsetsByClassifier",
+    "subset_catalog": "coinfosim:subsetCatalog",
+    "sample_sizes": "coinfosim:sampleSizes",
+    "classifiers": "coinfosim:classifiers",
+    "effective_winner_relations_by_n": "coinfosim:effectiveWinnerRelationsByN",
+    "winner_reversal_events": "coinfosim:winnerReversalEvents",
+    "reversal_matrices_by_prefix": "coinfosim:reversalMatricesByPrefix",
+
+    "wasDerivedFrom": "prov:wasDerivedFrom",
+    "wasGeneratedBy": "prov:wasGeneratedBy",
+    "used": "prov:used",
+    "wasAssociatedWith": "prov:wasAssociatedWith"
+  }
+}
