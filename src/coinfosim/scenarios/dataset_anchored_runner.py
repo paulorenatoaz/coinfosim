@@ -19,8 +19,12 @@ from coinfosim.classifiers.registry import (
     resolve_classifier_names,
 )
 from coinfosim.provenance import (
+    ArtifactEvidence,
+    SimulationArmEvidence,
     build_provenance_graph,
     build_semantic_manifest,
+    collect_runtime_provenance_evidence,
+    emit_scenario_semantic_and_provenance_artifacts,
     sha256_of_file,
     to_repo_relative,
     write_provenance_graph,
@@ -832,6 +836,80 @@ def run_dataset_anchored_scenario(
             report_data["visualization"] = visualization
         if graphs:
             report_data["graphs"] = graphs
+
+        repo_root = Path.cwd()
+        code_commit_sha = _current_code_commit_sha()
+        simulation_arm_evidence = [
+            SimulationArmEvidence(
+                arm_id=arm,
+                simulation_run_id=completed.simulation_run_id,
+                result_data=ArtifactEvidence(
+                    path=to_repo_relative(paths_by_arm[arm], repo_root),
+                    sha256=sha256_of_file(paths_by_arm[arm]),
+                    role=f"result-data:{arm}",
+                ),
+            )
+            for arm, completed in completed_by_arm.items()
+        ]
+        report_artifact_evidence = [
+            ArtifactEvidence(
+                path=to_repo_relative(report_path, repo_root),
+                sha256=sha256_of_file(report_path),
+                role=role,
+            )
+            for role, report_path in (
+                ("dataset-report", dataset_report),
+                ("real-arm-report", real_report),
+                ("single-gaussian-arm-report", gaussian_report),
+                ("gmm-arm-report", gmm_report),
+                ("scenario-report", scenario_report),
+            )
+        ]
+        rf_calibration_evidence = None
+        if rf_configuration:
+            calibration = rf_configuration.get("calibration", {})
+            calibration_path = calibration.get("artifact_path")
+            calibration_sha256 = calibration.get("artifact_sha256")
+            if calibration_path and calibration_sha256:
+                rf_calibration_evidence = ArtifactEvidence(
+                    path=str(calibration_path),
+                    sha256=str(calibration_sha256),
+                    role="random-forest-calibration",
+                )
+        provenance_evidence = collect_runtime_provenance_evidence(
+            scenario_run_id=scenario_run_id,
+            scenario_slug=spec.scenario_slug,
+            dataset_metadata=context.get("dataset", {}),
+            target_metadata=context.get("target", {}),
+            split_metadata=context.get("split", {}),
+            preprocessing_metadata=context.get("preprocessing", {}),
+            experiment_configuration=config_payload,
+            classifier_configuration={
+                "names": list(classifier_plan.names),
+                **dict(classifier_plan.provenance),
+            },
+            simulation_arms=simulation_arm_evidence,
+            report_artifacts=report_artifact_evidence,
+            gaussian_generator_metadata=dict(gaussian_anchored.ridge_by_class),
+            gmm_generator_metadata=gmm_anchored.model_selection,
+            random_forest_calibration=rf_calibration_evidence,
+            code_commit_sha=code_commit_sha,
+        )
+        provenance_artifacts = emit_scenario_semantic_and_provenance_artifacts(
+            provenance_evidence,
+            scenario_dir=scenario_dir,
+            repo_root=repo_root,
+        )
+        artifacts["semantic_manifest"] = provenance_artifacts.semantic_manifest
+        artifacts["provenance"] = provenance_artifacts.provjson
+        artifacts["provenance_artifacts"] = {
+            "provjson": provenance_artifacts.provjson,
+            "provn": provenance_artifacts.provn,
+            "ttl": provenance_artifacts.ttl,
+            **({"png": provenance_artifacts.png} if provenance_artifacts.png else {}),
+            **({"pdf": provenance_artifacts.pdf} if provenance_artifacts.pdf else {}),
+        }
+
         completed_scenario = scenario_registry.complete_run(
             scenario_run_id,
             runtime_seconds=runtime,

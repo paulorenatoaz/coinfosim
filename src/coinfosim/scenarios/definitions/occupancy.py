@@ -50,6 +50,21 @@ def _gmm_report(result, channel_names, output_dir, **kwargs):
     )
 
 
+def _preprocessing_metadata(data) -> Dict[str, Any]:
+    return {
+        "method": "zscore",
+        "fit_scope": "training_reservoir_only",
+        "ddof": 0,
+        "channel_order": list(data.channel_names),
+        "means": {
+            name: float(value) for name, value in data.standardization.means.items()
+        },
+        "standard_deviations": {
+            name: float(value) for name, value in data.standardization.stds.items()
+        },
+    }
+
+
 def _report_context(data) -> Dict[str, Dict[str, Any]]:
     return {
         "dataset": {
@@ -63,6 +78,7 @@ def _report_context(data) -> Dict[str, Dict[str, Any]]:
             "training_files": ["datatraining.txt"],
             "test_files": ["datatest.txt", "datatest2.txt"],
         },
+        "preprocessing": _preprocessing_metadata(data),
     }
 
 

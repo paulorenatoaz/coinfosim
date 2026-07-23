@@ -17,6 +17,7 @@ from coinfosim.provenance.evidence import (
     ProvenanceEvidence,
     SimulationArmEvidence,
     collect_execution_environment,
+    collect_runtime_provenance_evidence,
 )
 from coinfosim.provenance.export import (
     ProvenanceArtifactSet,
@@ -30,6 +31,10 @@ from coinfosim.provenance.semantic_manifest import (
     to_repo_relative,
     write_semantic_manifest,
 )
+from coinfosim.provenance.service import (
+    ScenarioProvenanceArtifacts,
+    emit_scenario_semantic_and_provenance_artifacts,
+)
 
 __all__ = [
     # Canonical PROV model and export (current)
@@ -38,9 +43,12 @@ __all__ = [
     "ProvenanceEvidence",
     "SimulationArmEvidence",
     "collect_execution_environment",
+    "collect_runtime_provenance_evidence",
     "build_scenario_prov_document",
     "ProvenanceArtifactSet",
     "export_provenance_artifacts",
+    "ScenarioProvenanceArtifacts",
+    "emit_scenario_semantic_and_provenance_artifacts",
     # Semantic manifest
     "build_semantic_manifest",
     "sha256_of_file",
