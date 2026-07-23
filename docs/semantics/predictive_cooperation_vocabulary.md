@@ -10,6 +10,7 @@ ontology (OWL 2) and provenance (PROV-O) phases build on.
 - JSON-LD context: [`src/coinfosim/resources/coinfosim-context.jsonld`](../../src/coinfosim/resources/coinfosim-context.jsonld)
 - Loader: [`src/coinfosim/semantics/vocabulary.py`](../../src/coinfosim/semantics/vocabulary.py)
 - Namespace: `https://paulorenatoaz.github.io/coinfosim/ns#`
+- Full deprecated-to-canonical mapping and schema history: [`docs/migration-predictive-profile-schema.md`](../migration-predictive-profile-schema.md)
 - Vocabulary version: `1.0.0`
 
 ## How to use it
