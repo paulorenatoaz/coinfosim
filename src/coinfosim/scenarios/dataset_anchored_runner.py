@@ -19,12 +19,13 @@ from coinfosim.classifiers.registry import (
     resolve_classifier_names,
 )
 from coinfosim.provenance import (
-    build_provenance_graph,
-    build_semantic_manifest,
+    ArtifactEvidence,
+    SimulationArmEvidence,
+    collect_persisted_provenance_evidence,
+    collect_runtime_provenance_evidence,
+    emit_scenario_semantic_and_provenance_artifacts,
     sha256_of_file,
     to_repo_relative,
-    write_provenance_graph,
-    write_semantic_manifest,
 )
 from coinfosim.reports.scenario_visualization import (
     build_balanced_sample,
@@ -832,6 +833,80 @@ def run_dataset_anchored_scenario(
             report_data["visualization"] = visualization
         if graphs:
             report_data["graphs"] = graphs
+
+        repo_root = Path.cwd()
+        code_commit_sha = _current_code_commit_sha()
+        simulation_arm_evidence = [
+            SimulationArmEvidence(
+                arm_id=arm,
+                simulation_run_id=completed.simulation_run_id,
+                result_data=ArtifactEvidence(
+                    path=to_repo_relative(paths_by_arm[arm], repo_root),
+                    sha256=sha256_of_file(paths_by_arm[arm]),
+                    role=f"result-data:{arm}",
+                ),
+            )
+            for arm, completed in completed_by_arm.items()
+        ]
+        report_artifact_evidence = [
+            ArtifactEvidence(
+                path=to_repo_relative(report_path, repo_root),
+                sha256=sha256_of_file(report_path),
+                role=role,
+            )
+            for role, report_path in (
+                ("dataset-report", dataset_report),
+                ("real-arm-report", real_report),
+                ("single-gaussian-arm-report", gaussian_report),
+                ("gmm-arm-report", gmm_report),
+                ("scenario-report", scenario_report),
+            )
+        ]
+        rf_calibration_evidence = None
+        if rf_configuration:
+            calibration = rf_configuration.get("calibration", {})
+            calibration_path = calibration.get("artifact_path")
+            calibration_sha256 = calibration.get("artifact_sha256")
+            if calibration_path and calibration_sha256:
+                rf_calibration_evidence = ArtifactEvidence(
+                    path=str(calibration_path),
+                    sha256=str(calibration_sha256),
+                    role="random-forest-calibration",
+                )
+        provenance_evidence = collect_runtime_provenance_evidence(
+            scenario_run_id=scenario_run_id,
+            scenario_slug=spec.scenario_slug,
+            dataset_metadata=context.get("dataset", {}),
+            target_metadata=context.get("target", {}),
+            split_metadata=context.get("split", {}),
+            preprocessing_metadata=context.get("preprocessing", {}),
+            experiment_configuration=config_payload,
+            classifier_configuration={
+                "names": list(classifier_plan.names),
+                **dict(classifier_plan.provenance),
+            },
+            simulation_arms=simulation_arm_evidence,
+            report_artifacts=report_artifact_evidence,
+            gaussian_generator_metadata=dict(gaussian_anchored.ridge_by_class),
+            gmm_generator_metadata=gmm_anchored.model_selection,
+            random_forest_calibration=rf_calibration_evidence,
+            code_commit_sha=code_commit_sha,
+        )
+        provenance_artifacts = emit_scenario_semantic_and_provenance_artifacts(
+            provenance_evidence,
+            scenario_dir=scenario_dir,
+            repo_root=repo_root,
+        )
+        artifacts["semantic_manifest"] = provenance_artifacts.semantic_manifest
+        artifacts["provenance"] = provenance_artifacts.provjson
+        artifacts["provenance_artifacts"] = {
+            "provjson": provenance_artifacts.provjson,
+            "provn": provenance_artifacts.provn,
+            "ttl": provenance_artifacts.ttl,
+            **({"png": provenance_artifacts.png} if provenance_artifacts.png else {}),
+            **({"pdf": provenance_artifacts.pdf} if provenance_artifacts.pdf else {}),
+        }
+
         completed_scenario = scenario_registry.complete_run(
             scenario_run_id,
             runtime_seconds=runtime,
@@ -843,6 +918,11 @@ def run_dataset_anchored_scenario(
             simulation_refs=simulation_refs,
             artifacts=artifacts,
             report_data=report_data,
+            semantic_schema_version=vocabulary_version(),
+            semantic_manifest_path=provenance_artifacts.semantic_manifest,
+            provenance_path=provenance_artifacts.provjson,
+            provenance_artifacts=artifacts["provenance_artifacts"],
+            scientific_object_type=canonical_key_to_id("predictive_cooperation_profile"),
         )
         _write_json(scenario_run.scenario_json_path, completed_scenario.to_dict())
         outputs = {
@@ -1042,61 +1122,100 @@ def regenerate_dataset_anchored_scenario(
     repo_root = Path.cwd()
     code_commit_sha = _current_code_commit_sha()
     recovered_source_commit_sha = _default_recovered_source_commit_sha()
-    source_result_data = [
-        {
-            "path": to_repo_relative(ref["result_data_path"], repo_root),
-            "sha256": sha256_of_file(ref["result_data_path"]),
-        }
-        for ref, _result in simulation_updates
+
+    arm_ids = (REAL_ARM_ID, GAUSSIAN_ARM_ID, GMM_ARM_ID)
+    simulation_arm_evidence = [
+        SimulationArmEvidence(
+            arm_id=arm_id,
+            simulation_run_id=int(ref["simulation_run_id"]),
+            result_data=ArtifactEvidence(
+                path=to_repo_relative(ref["result_data_path"], repo_root),
+                sha256=sha256_of_file(ref["result_data_path"]),
+                role=f"result-data:{arm_id}",
+            ),
+        )
+        for arm_id, (ref, _result) in zip(arm_ids, simulation_updates)
     ]
-    report_artifact_sha256 = sha256_of_file(scenario_report)
-    report_artifact_relpath = to_repo_relative(scenario_report, repo_root)
-    semantic_manifest = build_semantic_manifest(
+    report_artifact_evidence = []
+    for role, candidate_path in (
+        ("dataset-report", dataset_report),
+        ("real-arm-report", real_report),
+        ("single-gaussian-arm-report", gaussian_report),
+        ("gmm-arm-report", gmm_report),
+        ("scenario-report", scenario_report),
+    ):
+        if candidate_path and Path(candidate_path).exists():
+            report_artifact_evidence.append(
+                ArtifactEvidence(
+                    path=to_repo_relative(candidate_path, repo_root),
+                    sha256=sha256_of_file(candidate_path),
+                    role=role,
+                )
+            )
+
+    rf_configuration = record.config.get("classifier_configurations", {}).get(
+        "random_forest", {}
+    )
+    rf_calibration_evidence = None
+    if rf_configuration:
+        calibration = rf_configuration.get("calibration", {})
+        calibration_path = calibration.get("artifact_path")
+        calibration_sha256 = calibration.get("artifact_sha256")
+        if calibration_path and calibration_sha256:
+            rf_calibration_evidence = ArtifactEvidence(
+                path=str(calibration_path),
+                sha256=str(calibration_sha256),
+                role="random-forest-calibration",
+            )
+
+    provenance_evidence = collect_persisted_provenance_evidence(
         scenario_run_id=scenario_run_id,
         scenario_slug=record.scenario_slug,
-        dataset_id=spec.dataset_name,
-        classifier_ids=list(real_result.classifier_names),
-        training_condition_ids=[REAL_ARM_ID, GAUSSIAN_ARM_ID, GMM_ARM_ID],
-        sample_sizes=list(real_result.sample_sizes),
-        source_simulation_run_ids=[
-            int(ref["simulation_run_id"]) for ref, _result in simulation_updates
-        ],
-        source_result_data=source_result_data,
+        dataset_metadata=old_report_data.get("dataset") or {},
+        target_metadata=old_report_data.get("target") or {},
+        split_metadata=old_report_data.get("split") or {},
+        preprocessing_metadata=old_report_data.get("preprocessing") or {},
+        experiment_configuration={"sample_sizes": list(real_result.sample_sizes)},
+        classifier_configuration={"names": list(real_result.classifier_names)},
+        simulation_arms=simulation_arm_evidence,
+        report_artifacts=report_artifact_evidence,
+        gaussian_generator_metadata=gaussian_result.metadata.get(
+            "gaussian_ridge_by_class"
+        ),
+        gmm_generator_metadata=(
+            gmm_result.metadata.get("gmm_model_selection") or old_gmm_selection
+        ),
+        random_forest_calibration=rf_calibration_evidence,
         code_commit_sha=code_commit_sha,
-        recovered_source_commit_sha=recovered_source_commit_sha,
-        report_artifact_hashes={report_artifact_relpath: report_artifact_sha256},
+        recovery_source_commit=recovered_source_commit_sha,
     )
-    semantic_manifest_path = scenario_dir / "semantic_manifest.json"
-    write_semantic_manifest(semantic_manifest_path, semantic_manifest)
-
-    provenance_graph = build_provenance_graph(
-        scenario_run_id=scenario_run_id,
-        source_result_data=source_result_data,
-        source_simulation_run_ids=[
-            int(ref["simulation_run_id"]) for ref, _result in simulation_updates
-        ],
-        code_commit_sha=code_commit_sha,
-        report_artifact_path=report_artifact_relpath,
-        report_artifact_sha256=report_artifact_sha256,
-        recovered_source_commit_sha=recovered_source_commit_sha,
+    provenance_artifacts = emit_scenario_semantic_and_provenance_artifacts(
+        provenance_evidence,
+        scenario_dir=scenario_dir,
+        repo_root=repo_root,
     )
-    provenance_path = scenario_dir / "provenance.jsonld"
-    write_provenance_graph(provenance_path, provenance_graph)
 
-    semantic_manifest_relpath = to_repo_relative(semantic_manifest_path, repo_root)
-    provenance_relpath = to_repo_relative(provenance_path, repo_root)
-    prepared_report_data["semantic_manifest_path"] = semantic_manifest_relpath
-    prepared_report_data["provenance_path"] = provenance_relpath
-    artifacts["semantic_manifest"] = semantic_manifest_relpath
-    artifacts["provenance"] = provenance_relpath
+    prepared_report_data["semantic_manifest_path"] = provenance_artifacts.semantic_manifest
+    prepared_report_data["provenance_path"] = provenance_artifacts.provjson
+    artifacts["semantic_manifest"] = provenance_artifacts.semantic_manifest
+    artifacts["provenance"] = provenance_artifacts.provjson
+    provenance_artifact_map = {
+        "provjson": provenance_artifacts.provjson,
+        "provn": provenance_artifacts.provn,
+        "ttl": provenance_artifacts.ttl,
+        **({"png": provenance_artifacts.png} if provenance_artifacts.png else {}),
+        **({"pdf": provenance_artifacts.pdf} if provenance_artifacts.pdf else {}),
+    }
+    artifacts["provenance_artifacts"] = provenance_artifact_map
 
     updated_scenario = scenario_registry.update_run(
         scenario_run_id,
         artifacts=artifacts,
         report_data=prepared_report_data,
         semantic_schema_version=vocabulary_version(),
-        semantic_manifest_path=semantic_manifest_relpath,
-        provenance_path=provenance_relpath,
+        semantic_manifest_path=provenance_artifacts.semantic_manifest,
+        provenance_path=provenance_artifacts.provjson,
+        provenance_artifacts=provenance_artifact_map,
         scientific_object_type=canonical_key_to_id("predictive_cooperation_profile"),
     )
     _write_json(record.scenario_json_path, updated_scenario.to_dict())
@@ -1108,8 +1227,8 @@ def regenerate_dataset_anchored_scenario(
         "gmm_to_real_report": str(gmm_report),
         "scenario_json": str(record.scenario_json_path),
         "simulation_jsons": simulation_jsons,
-        "semantic_manifest": str(semantic_manifest_path),
-        "provenance": str(provenance_path),
+        "semantic_manifest": provenance_artifacts.semantic_manifest,
+        "provenance": provenance_artifacts.provjson,
     }
 
 

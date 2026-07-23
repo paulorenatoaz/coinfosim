@@ -52,7 +52,7 @@ output/reports/scenarios/<scenario-run-id>_<scenario-slug>_<mode>/
 output/reports/simulations/<simulation-run-id>_<simulation-slug>_<mode>/
 ```
 
-The scenario directory contains the dataset report, the consolidated scenario report, `scenario.json`, and (unless `--no-visualizations`) projection images and analytical graphs. Each of the three simulation directories contains its arm's Monte Carlo report, a compressed result payload, a summary, and `simulation.json`. Re-running a scenario never overwrites a previous run — every run gets a new, monotonically increasing ID.
+The scenario directory contains the dataset report, the consolidated scenario report, `scenario.json`, (unless `--no-visualizations`) projection images and analytical graphs, and the scenario's provenance artifacts: `semantic_manifest.json`, `provenance.provjson`, `provenance.provn`, `provenance.ttl`, and (when Graphviz is available) `provenance.png`/`provenance.pdf` — see [Report regeneration](#report-regeneration) below. Each of the three simulation directories contains its arm's Monte Carlo report, a compressed result payload, a summary, and `simulation.json`. Re-running a scenario never overwrites a previous run — every run gets a new, monotonically increasing ID.
 
 Inspect run registries directly:
 
@@ -126,7 +126,7 @@ Regenerate the full report hierarchy for a completed scenario run from its persi
 coinfosim scenario regenerate air-quality --run-id 6 --output-dir output/reports
 ```
 
-Regeneration also (re)writes two machine-readable, provenance-ready artifacts next to the scenario report: `semantic_manifest.json` (vocabulary version, canonical metric IDs, dataset/classifier/training-condition identifiers, and source `result_data` hashes) and `provenance.jsonld` (a PROV-O-compatible graph linking the regenerated report back to its exact source result-data hashes and the commits that produced them). See [`docs/semantics/predictive_cooperation_vocabulary.md`](docs/semantics/predictive_cooperation_vocabulary.md) and [`docs/semantics/provenance_mapping.md`](docs/semantics/provenance_mapping.md).
+Both normal scenario execution and regeneration (re)write `semantic_manifest.json` and the canonical W3C PROV provenance artifacts next to the scenario report: `provenance.provjson` (PROV-JSON), `provenance.provn` (PROV-N), and `provenance.ttl` (PROV-O/Turtle) are always written; `provenance.png`/`provenance.pdf` are additionally rendered when the Graphviz `dot` executable is available. All of these are derived from one canonical `prov.model.ProvDocument` per scenario run — dataset preparation, generator fitting, the three simulation runs (all sharing the same fixed real test set), predictive-cooperation-profile computation, and report generation are `prov:Activity` nodes; datasets, results, and the report are `prov:Entity` nodes; CoInfoSim is the sole `prov:SoftwareAgent`. The legacy `provenance.jsonld` format is no longer produced by new runs but remains a publisher fallback for older, already-published scenario runs. See [`docs/semantics/predictive_cooperation_vocabulary.md`](docs/semantics/predictive_cooperation_vocabulary.md) and [`docs/semantics/provenance_mapping.md`](docs/semantics/provenance_mapping.md).
 
 ## Development installation
 

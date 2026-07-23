@@ -73,6 +73,74 @@ def test_discover_scenarios_links_semantic_manifest_and_provenance_when_present(
     )
 
 
+def test_discover_scenarios_prefers_registry_provenance_artifacts_map(tmp_path):
+    run_dir = tmp_path / "scenarios" / "000003_occupancy_baseline_smoke"
+    run_dir.mkdir(parents=True)
+    (run_dir / "scenario_report.html").write_text("<html></html>")
+    (run_dir / "semantic_manifest.json").write_text("{}")
+    for name in ("provenance.provjson", "provenance.provn", "provenance.ttl"):
+        (run_dir / name).write_text("x")
+    registry = {
+        "runs": [
+            {
+                "status": "completed",
+                "scenario_slug": "occupancy_baseline",
+                "scenario_name": "Occupancy Detection Baseline",
+                "mode": "smoke",
+                "question": "does predictive cooperation help?",
+                "run_dir": str(run_dir),
+                "artifacts": {"scenario_report": str(run_dir / "scenario_report.html")},
+                "provenance_path": str(run_dir / "provenance.provjson"),
+                "provenance_artifacts": {
+                    "provjson": str(run_dir / "provenance.provjson"),
+                    "provn": str(run_dir / "provenance.provn"),
+                    "ttl": str(run_dir / "provenance.ttl"),
+                },
+            }
+        ]
+    }
+    (tmp_path / "scenario_runs.json").write_text(json.dumps(registry), encoding="utf-8")
+
+    items = discover_scenarios(tmp_path)
+    assert items[0]["provenance_artifacts"] == {
+        "provjson": Path("scenarios/000003_occupancy_baseline_smoke/provenance.provjson"),
+        "provn": Path("scenarios/000003_occupancy_baseline_smoke/provenance.provn"),
+        "ttl": Path("scenarios/000003_occupancy_baseline_smoke/provenance.ttl"),
+    }
+
+
+def test_discover_scenarios_falls_back_to_sibling_canonical_files_by_filename(tmp_path):
+    run_dir = tmp_path / "scenarios" / "000004_occupancy_baseline_smoke"
+    run_dir.mkdir(parents=True)
+    (run_dir / "scenario_report.html").write_text("<html></html>")
+    for name in ("provenance.provjson", "provenance.provn", "provenance.ttl", "provenance.png"):
+        (run_dir / name).write_text("x")
+    registry = {
+        "runs": [
+            {
+                "status": "completed",
+                "scenario_slug": "occupancy_baseline",
+                "scenario_name": "Occupancy Detection Baseline",
+                "mode": "smoke",
+                "question": "",
+                "run_dir": str(run_dir),
+                "artifacts": {"scenario_report": str(run_dir / "scenario_report.html")},
+                # No provenance_artifacts map on this (older) record -- discovered
+                # via sibling filenames next to run_dir instead.
+            }
+        ]
+    }
+    (tmp_path / "scenario_runs.json").write_text(json.dumps(registry), encoding="utf-8")
+
+    items = discover_scenarios(tmp_path)
+    found = items[0]["provenance_artifacts"]
+    assert found["provjson"] == Path(
+        "scenarios/000004_occupancy_baseline_smoke/provenance.provjson"
+    )
+    assert found["png"] == Path("scenarios/000004_occupancy_baseline_smoke/provenance.png")
+    assert "pdf" not in found
+
+
 def test_discover_scenarios_omits_semantic_links_when_absent(tmp_path):
     registry = {
         "runs": [
@@ -125,6 +193,67 @@ def test_scenario_card_omits_semantic_block_when_absent():
     card = _scenario_card_html(item, Path("reports"))
     assert "semantic manifest" not in card
     assert "provenance (JSON-LD)" not in card
+
+
+def test_scenario_card_renders_canonical_provenance_links_in_required_order():
+    from coinfosim.publish.site import _scenario_card_html
+
+    item = {
+        "path": Path("scenarios/000002/scenario_report.html"),
+        "title": "Occupancy Detection Baseline (full)",
+        "dataset": "Occupancy Detection",
+        "question": "",
+        "semantic_manifest_path": Path("scenarios/000002/semantic_manifest.json"),
+        "provenance_path": Path("scenarios/000002/provenance.provjson"),
+        "provenance_artifacts": {
+            "provjson": Path("scenarios/000002/provenance.provjson"),
+            "provn": Path("scenarios/000002/provenance.provn"),
+            "ttl": Path("scenarios/000002/provenance.ttl"),
+            "png": Path("scenarios/000002/provenance.png"),
+            "pdf": Path("scenarios/000002/provenance.pdf"),
+        },
+    }
+    card = _scenario_card_html(item, Path("reports"))
+    for label in (
+        "semantic manifest",
+        "PROV-JSON",
+        "PROV-N",
+        "PROV-O/Turtle",
+        "provenance graph (PNG)",
+        "provenance graph (PDF)",
+    ):
+        assert label in card
+    # Discovery/rendering order per Section 13.
+    positions = [
+        card.index(label)
+        for label in (
+            "semantic manifest",
+            "PROV-JSON",
+            "PROV-N",
+            "PROV-O/Turtle",
+            "provenance graph (PNG)",
+            "provenance graph (PDF)",
+        )
+    ]
+    assert positions == sorted(positions)
+    # No duplicate legacy JSON-LD link when canonical formats are present.
+    assert "provenance (JSON-LD)" not in card
+
+
+def test_scenario_card_falls_back_to_legacy_jsonld_when_no_canonical_artifacts():
+    from coinfosim.publish.site import _scenario_card_html
+
+    item = {
+        "path": Path("scenarios/000001/scenario_report.html"),
+        "title": "Occupancy Detection Baseline (full)",
+        "dataset": "Occupancy Detection",
+        "question": "",
+        "provenance_path": Path("scenarios/000001/provenance.jsonld"),
+        "provenance_artifacts": {},
+    }
+    card = _scenario_card_html(item, Path("reports"))
+    assert "provenance (JSON-LD)" in card
+    assert "reports/scenarios/000001/provenance.jsonld" in card
 
 
 def test_discover_json_lists_and_sorts_by_name(tmp_path):

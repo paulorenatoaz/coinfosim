@@ -49,6 +49,9 @@ def discover_scenarios(reports_root: Path) -> list[dict[str, Any]]:
                     "provenance_path": _discover_semantic_artifact(
                         reports_root, run, "provenance_path", "provenance.jsonld"
                     ),
+                    "provenance_artifacts": _discover_provenance_artifacts(
+                        reports_root, run
+                    ),
                 }
             )
         items.sort(key=lambda item: (item["dataset"], item["title"], item["path"].as_posix()))
@@ -99,6 +102,55 @@ def _discover_semantic_artifact(
         if rel_run_dir is not None and (reports_root / rel_run_dir / filename).exists():
             return rel_run_dir / filename
     return None
+
+
+_CANONICAL_PROVENANCE_FILENAMES = {
+    "provjson": "provenance.provjson",
+    "provn": "provenance.provn",
+    "ttl": "provenance.ttl",
+    "png": "provenance.png",
+    "pdf": "provenance.pdf",
+}
+
+
+def _discover_provenance_artifacts(reports_root: Path, run: dict) -> dict[str, Path]:
+    """Locate the canonical PROV artifacts for one scenario run.
+
+    Discovery order (Section 13): the registry's own ``provenance_artifacts``
+    map first, then sibling canonical files located next to
+    ``provenance_path``/the run directory by filename. An empty dict means
+    only the historical ``provenance.jsonld`` sibling fallback is available.
+    """
+
+    found: dict[str, Path] = {}
+
+    registry_map = run.get("provenance_artifacts") or {}
+    for key, value in registry_map.items():
+        if not value:
+            continue
+        rel = _reports_relative_path(reports_root, value)
+        if rel is not None and (reports_root / rel).exists():
+            found[key] = rel
+    if found:
+        return found
+
+    base_dir = None
+    provenance_path = run.get("provenance_path")
+    if provenance_path:
+        rel = _reports_relative_path(reports_root, provenance_path)
+        if rel is not None:
+            base_dir = rel.parent
+    if base_dir is None:
+        run_dir = run.get("run_dir")
+        if run_dir:
+            base_dir = _reports_relative_path(reports_root, run_dir)
+
+    if base_dir is not None:
+        for key, filename in _CANONICAL_PROVENANCE_FILENAMES.items():
+            if (reports_root / base_dir / filename).exists():
+                found[key] = base_dir / filename
+
+    return found
 
 
 def _reports_relative_path(reports_root: Path, path_value):
@@ -216,11 +268,25 @@ def _scenario_card_html(item: dict[str, Any], reports_rel: Path) -> str:
         semantic_links.append(
             f'<a href="{html.escape(str(reports_rel / semantic_manifest_path))}">semantic manifest</a>'
         )
-    provenance_path = item.get("provenance_path")
-    if provenance_path:
-        semantic_links.append(
-            f'<a href="{html.escape(str(reports_rel / provenance_path))}">provenance (JSON-LD)</a>'
-        )
+    provenance_artifacts = item.get("provenance_artifacts") or {}
+    for key, label in (
+        ("provjson", "PROV-JSON"),
+        ("provn", "PROV-N"),
+        ("ttl", "PROV-O/Turtle"),
+        ("png", "provenance graph (PNG)"),
+        ("pdf", "provenance graph (PDF)"),
+    ):
+        rel = provenance_artifacts.get(key)
+        if rel:
+            semantic_links.append(
+                f'<a href="{html.escape(str(reports_rel / rel))}">{label}</a>'
+            )
+    if not provenance_artifacts:
+        provenance_path = item.get("provenance_path")
+        if provenance_path:
+            semantic_links.append(
+                f'<a href="{html.escape(str(reports_rel / provenance_path))}">provenance (JSON-LD)</a>'
+            )
     semantic_html = (
         f"<p class=\"path\">Machine-readable: {' &middot; '.join(semantic_links)}</p>"
         if semantic_links

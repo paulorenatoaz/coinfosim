@@ -1,15 +1,23 @@
-"""PROV-O-compatible provenance JSON-LD export.
+"""LEGACY COMPATIBILITY MODULE -- do not use for new scenario execution.
 
-Builds a minimum provenance-ready graph (not a complete domain ontology, no
-RDF/OWL runtime dependency) covering: recovered result-data entities, the
-predictive cooperation profile entity, the report artifact entity, the
-original-simulation / profile-recomputation / report-regeneration
-activities, and the CoInfoSim software/commit agent(s). See
-``docs/semantics/provenance_mapping.md`` for the role table.
+This module built the pre-canonical, hand-rolled JSON-LD provenance graph.
+It is retained only so that:
 
-Deterministic IDs are derived from scenario/simulation run IDs, artifact
-hashes, and repo-relative paths -- never from absolute or machine-specific
-paths.
+- historical ``provenance.jsonld`` publications remain a valid publisher
+  fallback (see ``src/coinfosim/publish``);
+- the Python API in this module keeps working for any external code that
+  already imports it.
+
+The canonical provenance model for all new/reprocessed scenario runs is the
+single ``prov.model.ProvDocument`` built by
+:func:`coinfosim.provenance.model.build_scenario_prov_document` and exported
+by :func:`coinfosim.provenance.export.export_provenance_artifacts`
+(``provenance.provjson`` / ``.provn`` / ``.ttl`` / ``.png`` / ``.pdf``). See
+``docs/semantics/provenance_mapping.md``.
+
+Note this legacy graph also mis-modeled a simulation run as a
+``prov:Entity``; the canonical model corrects this -- a simulation run is a
+``prov:Activity``.
 """
 
 from __future__ import annotations

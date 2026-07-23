@@ -1,19 +1,34 @@
-"""Tests for the semantic manifest and PROV-O-compatible provenance export."""
+"""Tests for the semantic manifest and canonical W3C PROV provenance export.
+
+``build_provenance_graph``/``write_provenance_graph`` (from
+``coinfosim.provenance.jsonld``) are exercised here only as the legacy
+compatibility path -- see ``tests/test_provenance_model.py`` for the
+canonical ``ProvDocument`` graph semantics, and the
+``export_provenance_artifacts`` section below for canonical serialization.
+"""
 
 from __future__ import annotations
 
 import json
+from unittest.mock import patch
 
 import pytest
+from prov.model import ProvDocument
 
 from coinfosim.provenance import (
+    ArtifactEvidence,
+    ProvenanceEvidence,
+    SimulationArmEvidence,
     build_provenance_graph,
+    build_scenario_prov_document,
     build_semantic_manifest,
+    export_provenance_artifacts,
     sha256_of_file,
     to_repo_relative,
     write_provenance_graph,
     write_semantic_manifest,
 )
+from coinfosim.provenance.evidence import GAUSSIAN_ARM_ID, GMM_ARM_ID, REAL_ARM_ID
 from coinfosim.provenance.jsonld import (
     commit_agent_id,
     profile_entity_id,
@@ -299,3 +314,128 @@ def test_write_provenance_graph_round_trips(tmp_path):
     write_provenance_graph(path, graph)
     reloaded = json.loads(path.read_text(encoding="utf-8"))
     assert reloaded == graph
+
+
+# --------------------------------------------------------------------------- #
+# export.py -- canonical provenance artifact export
+# --------------------------------------------------------------------------- #
+def _sample_document() -> ProvDocument:
+    evidence = ProvenanceEvidence(
+        scenario_run_id=2,
+        scenario_slug="occupancy_baseline",
+        dataset_metadata={"name": "Occupancy Detection"},
+        simulation_arms=[
+            SimulationArmEvidence(
+                REAL_ARM_ID, 6, ArtifactEvidence("r.gz", "a" * 64, "result-data:real_to_real")
+            ),
+            SimulationArmEvidence(
+                GAUSSIAN_ARM_ID,
+                7,
+                ArtifactEvidence("g.gz", "b" * 64, "result-data:single_gaussian_to_real"),
+            ),
+            SimulationArmEvidence(
+                GMM_ARM_ID, 8, ArtifactEvidence("m.gz", "c" * 64, "result-data:gmm_to_real")
+            ),
+        ],
+        gaussian_generator_metadata={"ridge": 0.1},
+        gmm_generator_metadata={"n_components": 2},
+        report_artifacts=[ArtifactEvidence("report.html", "d" * 64, "scenario-report")],
+        current_code_revision="deadbeefcafebabe0000000000000000000000",
+    )
+    return build_scenario_prov_document(evidence)
+
+
+def test_export_provenance_artifacts_always_writes_three_machine_formats(tmp_path):
+    document = _sample_document()
+    artifact_set = export_provenance_artifacts(document, tmp_path)
+
+    assert artifact_set.provjson == tmp_path / "provenance.provjson"
+    assert artifact_set.provn == tmp_path / "provenance.provn"
+    assert artifact_set.ttl == tmp_path / "provenance.ttl"
+    assert artifact_set.provjson.exists()
+    assert artifact_set.provn.exists()
+    assert artifact_set.ttl.exists()
+
+
+def test_export_provenance_artifacts_uses_custom_stem(tmp_path):
+    document = _sample_document()
+    artifact_set = export_provenance_artifacts(document, tmp_path, stem="scenario_000002")
+    assert artifact_set.provjson.name == "scenario_000002.provjson"
+    assert artifact_set.provn.name == "scenario_000002.provn"
+    assert artifact_set.ttl.name == "scenario_000002.ttl"
+
+
+def test_provjson_deserializes_with_prov(tmp_path):
+    document = _sample_document()
+    artifact_set = export_provenance_artifacts(document, tmp_path)
+
+    reloaded = ProvDocument.deserialize(
+        source=str(artifact_set.provjson), format="json"
+    )
+    assert len(list(reloaded.get_records())) == len(list(document.get_records()))
+
+    raw = artifact_set.provjson.read_text(encoding="utf-8")
+    parsed = json.loads(raw)
+    # Deterministic disk formatting.
+    assert json.dumps(parsed, indent=2, sort_keys=True, allow_nan=False) + "\n" == raw
+
+
+def test_turtle_parses_with_rdflib(tmp_path):
+    import rdflib
+
+    document = _sample_document()
+    artifact_set = export_provenance_artifacts(document, tmp_path)
+
+    graph = rdflib.Graph()
+    graph.parse(str(artifact_set.ttl), format="turtle")
+    assert len(graph) > 0
+
+
+def test_provn_contains_expected_scenario_identifiers(tmp_path):
+    document = _sample_document()
+    artifact_set = export_provenance_artifacts(document, tmp_path)
+    text = artifact_set.provn.read_text(encoding="utf-8")
+    assert "scenario:000002:dataset-preparation" in text
+    assert "simulation:000006:real_to_real" in text
+    assert "simulation:000007:single_gaussian_to_real" in text
+    assert "simulation:000008:gmm_to_real" in text
+    assert "coinfosim:RealSimulationRun" in text
+
+
+def test_export_without_graphviz_still_produces_machine_formats(tmp_path):
+    document = _sample_document()
+    with patch("coinfosim.provenance.export.shutil.which", return_value=None):
+        artifact_set = export_provenance_artifacts(document, tmp_path)
+
+    assert artifact_set.graphviz_available is False
+    assert artifact_set.png is None
+    assert artifact_set.pdf is None
+    assert artifact_set.provjson.exists()
+    assert artifact_set.provn.exists()
+    assert artifact_set.ttl.exists()
+
+
+def test_export_with_graphviz_available_renders_png_and_pdf(tmp_path):
+    """Graphviz rendering is monkeypatched: no real ``dot`` subprocess is invoked."""
+
+    document = _sample_document()
+    calls = {}
+
+    def _fake_render(doc, png_path, pdf_path):
+        calls["png_path"] = png_path
+        calls["pdf_path"] = pdf_path
+        png_path.write_bytes(b"fake-png")
+        pdf_path.write_bytes(b"fake-pdf")
+
+    with patch("coinfosim.provenance.export.shutil.which", return_value="/usr/bin/dot"), patch(
+        "coinfosim.provenance.export._render_graphviz", side_effect=_fake_render
+    ):
+        artifact_set = export_provenance_artifacts(document, tmp_path)
+
+    assert artifact_set.graphviz_available is True
+    assert artifact_set.png == tmp_path / "provenance.png"
+    assert artifact_set.pdf == tmp_path / "provenance.pdf"
+    assert artifact_set.png.read_bytes() == b"fake-png"
+    assert artifact_set.pdf.read_bytes() == b"fake-pdf"
+    assert calls["png_path"] == artifact_set.png
+    assert calls["pdf_path"] == artifact_set.pdf
