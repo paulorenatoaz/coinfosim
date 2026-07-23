@@ -111,7 +111,13 @@ def publish_pages(
 
     from coinfosim.datasets.catalog import list_datasets
     from coinfosim.publish.datasets import sync_dataset_files, write_dataset_manifest
-    from coinfosim.publish.site import discover_json, discover_scenarios, sync_reports, write_index
+    from coinfosim.publish.site import (
+        discover_json,
+        discover_scenarios,
+        sync_ontology,
+        sync_reports,
+        write_index,
+    )
 
     repo_root = _git_repo_root()
     output_dir = Path(output_dir)
@@ -140,6 +146,7 @@ def publish_pages(
             copied_files = sync_dataset_files(repo_root, site_dir)
             manifest_path = site_dir / "datasets" / "manifest.json"
             write_dataset_manifest(manifest_path, source_commit=_current_commit(repo_root))
+            ontology_path = sync_ontology(repo_root, site_dir)
 
             scenarios = discover_scenarios(site_dir / "reports")
             json_files = discover_json(site_dir / "data")
@@ -151,6 +158,7 @@ def publish_pages(
                 json_files=json_files,
                 datasets=list_datasets(),
                 manifest_rel="datasets/manifest.json",
+                ontology_rel="ontology/coinfosim.owl.ttl" if ontology_path else None,
                 title="CoInfoSim - Published Research Reports and Datasets",
             )
             (site_dir / ".nojekyll").touch()

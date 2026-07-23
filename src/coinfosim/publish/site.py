@@ -195,6 +195,22 @@ def discover_json(data_root: Path) -> list[Path]:
     return files
 
 
+def sync_ontology(repo_root: Path, site_dir: Path) -> Path | None:
+    """Copy only ``ontology/coinfosim.owl.ttl`` into the Pages worktree, if present.
+
+    Never copies arbitrary repository files -- this single, fixed path is the
+    only thing published from the ontology.
+    """
+
+    source = repo_root / "ontology" / "coinfosim.owl.ttl"
+    if not source.exists():
+        return None
+    target = site_dir / "ontology" / "coinfosim.owl.ttl"
+    target.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(source, target)
+    return target
+
+
 def sync_reports(output_dir: Path, site_dir: Path, *, mirror: bool = False) -> None:
     """Copy ``output_dir/reports`` and ``output_dir/data`` into the worktree.
 
@@ -313,6 +329,7 @@ def write_index(
     json_files: list[Path],
     datasets,
     manifest_rel: str = "datasets/manifest.json",
+    ontology_rel: str | None = None,
     title: str = "CoInfoSim",
 ) -> Path:
     """Write the seven-section CoInfoSim Pages home page."""
@@ -325,6 +342,12 @@ def write_index(
     json_list = "\n".join(
         f'<li><a href="{html.escape(str(data_rel / p))}">{html.escape(p.name)}</a></li>'
         for p in json_files
+    )
+    ontology_li = (
+        f'<li><a href="{html.escape(ontology_rel)}">ontology/coinfosim.owl.ttl</a> '
+        "&mdash; CoInfoSim OWL 2 ontology (specializes PROV-O)</li>"
+        if ontology_rel
+        else ""
     )
 
     index_html = f"""<!doctype html>
@@ -371,6 +394,7 @@ coinfosim scenario run occupancy --mode smoke</pre>
 <h2>Machine-readable artifacts</h2>
 <ul>
 <li><a href="{html.escape(manifest_rel)}">datasets/manifest.json</a> &mdash; dataset provenance, hashes, and URLs</li>
+{ontology_li}
 {json_list}
 </ul>
 

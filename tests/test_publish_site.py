@@ -9,6 +9,7 @@ from coinfosim.datasets.catalog import list_datasets
 from coinfosim.publish.site import (
     discover_json,
     discover_scenarios,
+    sync_ontology,
     sync_reports,
     write_index,
 )
@@ -308,6 +309,56 @@ def test_sync_reports_mirror_removes_orphaned_files_not_in_output_dir(tmp_path):
     sync_reports(output_dir, site_dir, mirror=True)
     assert (site_dir / "reports" / "new.html").exists()
     assert not (site_dir / "reports" / "orphan.html").exists()
+
+
+def test_sync_ontology_copies_the_single_fixed_file_when_present(tmp_path):
+    repo_root = tmp_path / "repo"
+    (repo_root / "ontology").mkdir(parents=True)
+    (repo_root / "ontology" / "coinfosim.owl.ttl").write_text("@prefix owl: <x> .")
+    (repo_root / "ontology" / "notes.txt").write_text("should never be copied")
+
+    site_dir = tmp_path / "site"
+    result = sync_ontology(repo_root, site_dir)
+
+    assert result == site_dir / "ontology" / "coinfosim.owl.ttl"
+    assert result.read_text() == "@prefix owl: <x> ."
+    assert not (site_dir / "ontology" / "notes.txt").exists()
+
+
+def test_sync_ontology_returns_none_when_ontology_file_absent(tmp_path):
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    site_dir = tmp_path / "site"
+    assert sync_ontology(repo_root, site_dir) is None
+    assert not (site_dir / "ontology").exists()
+
+
+def test_write_index_includes_ontology_link_when_provided(tmp_path):
+    path = write_index(
+        tmp_path,
+        reports_rel=Path("reports"),
+        data_rel=Path("data"),
+        scenarios=[],
+        json_files=[],
+        datasets=list_datasets(),
+        ontology_rel="ontology/coinfosim.owl.ttl",
+    )
+    html_text = path.read_text(encoding="utf-8")
+    assert "ontology/coinfosim.owl.ttl" in html_text
+    assert "CoInfoSim OWL 2 ontology" in html_text
+
+
+def test_write_index_omits_ontology_link_when_absent(tmp_path):
+    path = write_index(
+        tmp_path,
+        reports_rel=Path("reports"),
+        data_rel=Path("data"),
+        scenarios=[],
+        json_files=[],
+        datasets=list_datasets(),
+    )
+    html_text = path.read_text(encoding="utf-8")
+    assert "CoInfoSim OWL 2 ontology" not in html_text
 
 
 def test_write_index_contains_seven_required_sections(tmp_path):
