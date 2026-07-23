@@ -59,3 +59,10 @@ sem resultados associados.
 | Apresentação, apoio 6 e conclusão | Remoção da tabela SUPPORT2 *smoke* e de todas as citações de resultados em escala reduzida | Manter somente evidência completa em todo o deck | Não | Tabela de apoio simplificada |
 | Proveniência de figuras | Atualização de `FIGURE_SOURCES.md`, criação de gerador reprodutível para o deck e exclusão dos oito PNGs *smoke* sem uso | Tornar explícita a origem de cada figura e impedir reutilização acidental de evidência reduzida | Não | Sim |
 | Compilação e QA | `latexmk -xelatex` no relatório e `make presentation` no deck; inspeção visual das matrizes full, das quatro páginas de métricas do Capítulo 7, dos slides 9--12 e do apoio 6 | Validar referências, margens, legibilidade e ausência de colisões | Não | PDFs finais com 124 e 30 páginas, respectivamente |
+
+### Ajuste visual subsequente dos slides de resultados
+
+| Seção | Tipo de alteração | Razão | Significado científico alterado? | Figura ou tabela nova? |
+|---|---|---|---|---|
+| Apresentação, slides 9--11 | Reintegração das projeções bidimensionais dos treinamentos real, Gaussiana única e GMM; reorganização dos quatro indicadores em dois painéis por braço sintético | Permitir a comparação simultânea entre geometria das amostras de treinamento e preservação do perfil ao longo de \(n\) | Não; os mesmos resultados `full` foram recompostos | Não |
+| Apresentação, slide 11 | Marcação explícita, por \(\times\) colorido, dos prefixos em que uma métrica do SUPPORT2 é matematicamente indefinida | Evitar que o início posterior de uma curva seja interpretado como dado ausente ou deslocamento da série | Não; nenhum valor foi imputado nem convertido em zero | Não |

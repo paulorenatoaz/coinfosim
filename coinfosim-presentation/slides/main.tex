@@ -355,14 +355,33 @@
 \end{frame}
 
 % Slide 9 ---------------------------------------------------------------------
-\begin{frame}{Occupancy — nenhum gerador vence em todas as métricas}
+\begin{frame}{Occupancy + SVM linear — nenhum gerador vence em todas as métricas}
   \slidetime{1:40}
-  \centering
-  \vspace{-0.12cm}
-  \includegraphics[width=0.96\linewidth,height=4.05cm,keepaspectratio]{figures/occupancy_svm_metricas_vs_n_full.pdf}
+  \vspace{-0.04cm}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.322\textwidth}
+      \centering\eyebrow{Dados reais}\par\vspace{0.01cm}
+      \includegraphics[width=\linewidth,height=1.25cm,keepaspectratio,trim=13 857 749 29,clip]{\figroot/geometry/occupancy/viz_2d_real_full_000002.png}
+    \end{column}
+    \begin{column}{0.322\textwidth}
+      \centering\eyebrow{Gaussiana única}\par\vspace{0.01cm}
+      \includegraphics[width=\linewidth,height=1.25cm,keepaspectratio,trim=13 857 749 29,clip]{\figroot/geometry/occupancy/viz_2d_gaussian_full_000002.png}
+    \end{column}
+    \begin{column}{0.322\textwidth}
+      \centering\eyebrow{GMM}\par\vspace{0.01cm}
+      \includegraphics[width=\linewidth,height=1.25cm,keepaspectratio,trim=13 857 749 29,clip]{\figroot/geometry/occupancy/viz_2d_gmm_full_000002.png}
+    \end{column}
+  \end{columns}
 
-  \vspace{-0.03cm}
-  \takeaway{A Gaussiana única termina à frente em $\rankrho$, $\AW$ e $\AR$; o GMM termina à frente em $\SR$. A conclusão depende da dimensão do perfil e de $n$.}
+  \vspace{-0.08cm}
+  {\centering
+  \includegraphics[width=0.97\linewidth,height=2.54cm,keepaspectratio]{figures/occupancy_svm_metricas_vs_n_full.pdf}\par}
+
+  \vspace{-0.12cm}
+  \begin{beamercolorbox}[wd=\linewidth,sep=0.08cm,rounded=true]{takeaway}
+    \centering\bfseries\fontsize{9.0}{10.6}\selectfont
+    A Gaussiana única termina à frente em $\rankrho$, $\AW$ e $\AR$; o GMM termina à frente em $\SR$. A conclusão depende da dimensão do perfil e de $n$.
+  \end{beamercolorbox}
   \sourcecite{Candanedo e Feldheim (2016); cenário full 000002; séries recalculadas diretamente pelo código atual.}
 
   \speakernotes
@@ -376,12 +395,31 @@
 % Slide 10 --------------------------------------------------------------------
 \begin{frame}{Air Quality + Gaussian NB: ordenação e vencedores quase perfeitos}
   \slidetime{1:40}
-  \centering
-  \vspace{-0.12cm}
-  \includegraphics[width=0.96\linewidth,height=4.05cm,keepaspectratio]{figures/air_quality_gnb_metricas_vs_n_full.pdf}
+  \vspace{-0.04cm}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.322\textwidth}
+      \centering\eyebrow{Dados reais}\par\vspace{0.01cm}
+      \includegraphics[width=\linewidth,height=1.25cm,keepaspectratio,trim=13 857 749 29,clip]{\figroot/geometry/air_quality/viz_2d_real_full_000005.png}
+    \end{column}
+    \begin{column}{0.322\textwidth}
+      \centering\eyebrow{Gaussiana única}\par\vspace{0.01cm}
+      \includegraphics[width=\linewidth,height=1.25cm,keepaspectratio,trim=13 857 749 29,clip]{\figroot/geometry/air_quality/viz_2d_gaussian_full_000005.png}
+    \end{column}
+    \begin{column}{0.322\textwidth}
+      \centering\eyebrow{GMM}\par\vspace{0.01cm}
+      \includegraphics[width=\linewidth,height=1.25cm,keepaspectratio,trim=13 857 749 29,clip]{\figroot/geometry/air_quality/viz_2d_gmm_full_000005.png}
+    \end{column}
+  \end{columns}
 
-  \vspace{-0.03cm}
-  \takeaway{Ordenação, vencedores, existência e regime amostral das inversões preservados quase integralmente nos dois braços sintéticos --- o caso mais forte do estudo.}
+  \vspace{-0.08cm}
+  {\centering
+  \includegraphics[width=0.97\linewidth,height=2.54cm,keepaspectratio]{figures/air_quality_gnb_metricas_vs_n_full.pdf}\par}
+
+  \vspace{-0.12cm}
+  \begin{beamercolorbox}[wd=\linewidth,sep=0.08cm,rounded=true]{takeaway}
+    \centering\bfseries\fontsize{9.0}{10.6}\selectfont
+    Ordenação, vencedores, existência e regime amostral das inversões preservados quase integralmente nos dois braços sintéticos --- o caso mais forte do estudo.
+  \end{beamercolorbox}
   \sourcecite{De Vito et al. (2008); cenário full 000005; séries recalculadas diretamente pelo código atual sobre dados brutos regenerados.}
 
   \speakernotes
@@ -395,19 +433,38 @@
 % Slide 11 --------------------------------------------------------------------
 \begin{frame}{SUPPORT2 — desempenho absoluto e perfil são dimensões distintas}
   \slidetime{1:40}
-  \centering
-  \vspace{-0.12cm}
-  \includegraphics[width=0.96\linewidth,height=3.70cm,keepaspectratio]{figures/support2_rf_metricas_vs_n_full.pdf}
-
   \vspace{-0.04cm}
-  {\fontsize{7.4}{8.8}\selectfont\color{CoInfoGray}
-    Menor perda em $n=512$: Real 0,4555; Gaussiana única 0,4554; GMM 0,4547; referencial majoritário 0,4687.\par}
-  \vspace{0.04cm}
-  \takeaway{Perda absoluta e preservação do perfil respondem a perguntas diferentes; e $A_R$ pode discordar de $S_R$ mesmo para o mesmo par de braços.}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.322\textwidth}
+      \centering\eyebrow{Dados reais}\par\vspace{0.01cm}
+      \includegraphics[width=\linewidth,height=1.16cm,keepaspectratio,trim=13 1746 749 29,clip]{\figroot/geometry/support2/viz_2d_real_full_000008.png}
+    \end{column}
+    \begin{column}{0.322\textwidth}
+      \centering\eyebrow{Gaussiana única}\par\vspace{0.01cm}
+      \includegraphics[width=\linewidth,height=1.16cm,keepaspectratio,trim=13 1746 749 29,clip]{\figroot/geometry/support2/viz_2d_gaussian_full_000008.png}
+    \end{column}
+    \begin{column}{0.322\textwidth}
+      \centering\eyebrow{GMM}\par\vspace{0.01cm}
+      \includegraphics[width=\linewidth,height=1.16cm,keepaspectratio,trim=13 1746 749 29,clip]{\figroot/geometry/support2/viz_2d_gmm_full_000008.png}
+    \end{column}
+  \end{columns}
+
+  \vspace{-0.10cm}
+  {\centering
+  \includegraphics[width=0.97\linewidth,height=2.32cm,keepaspectratio]{figures/support2_rf_metricas_vs_n_full.pdf}\par}
+
+  \vspace{-0.13cm}
+  {\fontsize{6.8}{8.0}\selectfont\color{CoInfoGray}
+    $\times$ indica métrica indisponível no prefixo, não valor zero. Menor perda em $n=512$: Real 0,4555; Gaussiana 0,4554; GMM 0,4547.\par}
+  \vspace{0.01cm}
+  \begin{beamercolorbox}[wd=\linewidth,sep=0.08cm,rounded=true]{takeaway}
+    \centering\bfseries\fontsize{9.0}{10.6}\selectfont
+    Perda absoluta e preservação do perfil respondem a perguntas diferentes; e $A_R$ pode discordar de $S_R$ mesmo para o mesmo par de braços.
+  \end{beamercolorbox}
   \sourcecite{SUPPORT Principal Investigators (1995); Knaus et al. (1995); cenário full 000008; séries recalculadas diretamente pelo código atual.}
 
   \speakernotes
-    {No SUPPORT2, o Random Forest teve perda mínima próxima de 0,455 nos três braços do cenário full. O classificador que sempre escolhe a classe majoritária erra 0,4687; portanto, a melhoria absoluta é pequena e o desempenho preditivo é fraco. As trajetórias de escala completa mostram, ao mesmo tempo, correlação de ranking e Winner Agreement relativamente altas nos dois braços sintéticos. A concordância de existência de inversões cai bruscamente quando as primeiras inversões aparecem e termina entre 0,43 e 0,51. A similaridade dos tamanhos amostrais, condicionada aos pares compartilhados, permanece muito mais alta e termina entre 0,81 e 0,82. Portanto, o mesmo cenário separa desempenho absoluto de preservação do perfil e também separa existência de inversões de regime amostral.}
+    {No SUPPORT2, o Random Forest teve perda mínima próxima de 0,455 nos três braços do cenário full. O classificador que sempre escolhe a classe majoritária erra 0,4687; portanto, a melhoria absoluta é pequena e o desempenho preditivo é fraco. Os símbolos de multiplicação nos primeiros tamanhos não são zeros nem dados ausentes do relatório: $\rankrho$ e $\AW$ ficam indefinidos em $n=2$ e $n=4$ porque os rankings são constantes e não há pares válidos; $\AR$ não existe no primeiro prefixo; e $\SR$ só passa a existir em $n=16$, quando aparecem inversões compartilhadas. Depois disso, as trajetórias mostram correlação de ranking e Winner Agreement relativamente altas, $\AR$ final entre 0,43 e 0,51 e $\SR$ final entre 0,81 e 0,82.}
     {Os três estudos de caso permitem uma síntese cuidadosa sobre o que foi e o que não foi demonstrado.}
     {Qualidade preditiva absoluta e preservação do perfil não são equivalentes; $A_R$ e $S_R$ podem até apontar em direções opostas.}
     {1 minuto e 40 segundos.}

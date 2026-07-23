@@ -46,3 +46,5 @@ são regeneradas a partir dos artefatos persistidos:
   payload canônico `predictive_cooperation_profile` ou, no cenário 000008, dos
   resultados brutos persistidos. O script valida os valores finais e usa
   exclusivamente os cenários `full` 000002, 000005 e 000008 (slides 9--11).
+  Valores matematicamente indefinidos nos primeiros prefixos são mantidos
+  como indisponíveis e marcados por \(\times\), sem serem convertidos em zero.

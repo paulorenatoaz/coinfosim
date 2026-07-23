@@ -74,23 +74,41 @@ SPECS = (
 )
 
 ARMS = (
-    ("single_gaussian_to_real", "Gaussiana única → Real", "#B98136", "o"),
-    ("gmm_to_real", "GMM → Real", "#3F68B0", "s"),
+    ("single_gaussian_to_real", "Gaussiana única → Real"),
+    ("gmm_to_real", "GMM → Real"),
 )
 METRICS = (
-    ("rho_rank", r"$\rho_{\mathrm{rank}}$", "ranking_fidelity_series", "n_per_class"),
-    ("winner_agreement", r"$A_W$", "winner_agreement_series", "n_per_class"),
+    (
+        "rho_rank",
+        r"$\rho_{\mathrm{rank}}$",
+        "ranking_fidelity_series",
+        "n_per_class",
+        "#3F68B0",
+        "o",
+    ),
+    (
+        "winner_agreement",
+        r"$A_W$",
+        "winner_agreement_series",
+        "n_per_class",
+        "#B98136",
+        "s",
+    ),
     (
         "reversal_existence_agreement",
         r"$A_R$",
         "reversal_agreement_series",
         "n_prefix",
+        "#4E8B66",
+        "D",
     ),
     (
         "reversal_sample_size_similarity",
         r"$S_R$",
         "reversal_agreement_series",
         "n_prefix",
+        "#8B5A88",
+        "^",
     ),
 )
 
@@ -105,7 +123,10 @@ def repository_root() -> Path:
 
 def load_metric_series(
     path: Path, classifier: str
-) -> tuple[list[int], dict[str, dict[str, list[tuple[int, float]]]]]:
+) -> tuple[
+    list[int],
+    dict[str, dict[str, list[tuple[int, float | None]]]],
+]:
     payload = json.loads(path.read_text(encoding="utf-8"))
     profile = payload["report_data"].get("predictive_cooperation_profile")
     if profile is None:
@@ -142,11 +163,11 @@ def load_metric_series(
             },
         )
     sample_sizes = [int(value) for value in profile["sample_sizes"]]
-    data: dict[str, dict[str, list[tuple[int, float]]]] = {}
+    data: dict[str, dict[str, list[tuple[int, float | None]]]] = {}
 
-    for arm, _, _, _ in ARMS:
-        arm_data: dict[str, list[tuple[int, float]]] = {}
-        for metric, _, series_name, n_field in METRICS:
+    for arm, _ in ARMS:
+        arm_data: dict[str, list[tuple[int, float | None]]] = {}
+        for metric, _, series_name, n_field, _, _ in METRICS:
             rows = [
                 row
                 for row in profile[series_name]
@@ -154,17 +175,33 @@ def load_metric_series(
             ]
             points = sorted(
                 (
-                    (int(row[n_field]), float(row[metric]))
+                    (
+                        int(row[n_field]),
+                        (
+                            float(row[metric])
+                            if row.get(metric) is not None
+                            else None
+                        ),
+                    )
                     for row in rows
-                    if row.get(metric) is not None
                 ),
                 key=lambda item: item[0],
             )
-            if not points:
+            if not points or not any(value is not None for _, value in points):
                 raise ValueError(
                     f"No {metric} values for {classifier}/{arm} in {path}"
                 )
-            if any(not math.isfinite(value) for _, value in points):
+            observed_n = [n for n, _ in points]
+            if observed_n != sample_sizes:
+                raise ValueError(
+                    f"Incomplete n grid for {metric}/{classifier}/{arm} in "
+                    f"{path}: {observed_n} != {sample_sizes}"
+                )
+            if any(
+                not math.isfinite(value)
+                for _, value in points
+                if value is not None
+            ):
                 raise ValueError(
                     f"Non-finite {metric} value for {classifier}/{arm} in {path}"
                 )
@@ -174,11 +211,16 @@ def load_metric_series(
 
 
 def validate_final_values(
-    spec: FigureSpec, data: dict[str, dict[str, list[tuple[int, float]]]]
+    spec: FigureSpec,
+    data: dict[str, dict[str, list[tuple[int, float | None]]]],
 ) -> None:
-    metric_names = tuple(metric for metric, _, _, _ in METRICS)
+    metric_names = tuple(metric for metric, _, _, _, _, _ in METRICS)
     for arm, expected in spec.expected_final.items():
         observed = tuple(data[arm][metric][-1][1] for metric in metric_names)
+        if any(value is None for value in observed):
+            raise RuntimeError(
+                f"Missing final value for {spec.output_name}/{arm}: {observed}"
+            )
         if any(abs(actual - target) > 5e-4 for actual, target in zip(observed, expected)):
             raise RuntimeError(
                 f"Final values differ for {spec.output_name}/{arm}: "
@@ -189,7 +231,7 @@ def validate_final_values(
 def make_figure(
     spec: FigureSpec,
     sample_sizes: list[int],
-    data: dict[str, dict[str, list[tuple[int, float]]]],
+    data: dict[str, dict[str, list[tuple[int, float | None]]]],
     output: Path,
 ) -> None:
     plt.rcParams.update(
@@ -210,9 +252,29 @@ def make_figure(
         }
     )
 
-    fig, axes = plt.subplots(2, 2, figsize=(8.0, 3.85), sharex=True)
-    for ax, (metric, title, _, _) in zip(axes.flat, METRICS, strict=True):
-        for arm, _, color, marker in ARMS:
+    finite_values = [
+        value
+        for arm, _ in ARMS
+        for metric, _, _, _, _, _ in METRICS
+        for _, value in data[arm][metric]
+        if value is not None
+    ]
+    y_min = -1.02 if min(finite_values) < -0.02 else 0.0
+    missing_baselines = [
+        y_min + 0.055 + index * 0.045 for index in range(len(METRICS))
+    ]
+
+    fig, axes = plt.subplots(1, 2, figsize=(10.0, 2.1), sharex=True, sharey=True)
+    has_missing = False
+    for ax, (arm, arm_title) in zip(axes, ARMS, strict=True):
+        for metric_index, (
+            metric,
+            metric_label,
+            _,
+            _,
+            color,
+            marker,
+        ) in enumerate(METRICS):
             points = data[arm][metric]
             ax.plot(
                 [n for n, _ in points],
@@ -224,22 +286,31 @@ def make_figure(
                 markeredgewidth=0.5,
                 linewidth=1.6,
             )
+            missing_n = [n for n, value in points if value is None]
+            if missing_n:
+                has_missing = True
+                ax.scatter(
+                    missing_n,
+                    [missing_baselines[metric_index]] * len(missing_n),
+                    color=color,
+                    marker="x",
+                    s=20,
+                    linewidths=1.25,
+                    zorder=4,
+                )
         ax.set_xscale("log", base=2)
         ax.set_xticks(sample_sizes, [str(value) for value in sample_sizes])
-        ax.set_ylim((-1.0, 1.02) if metric == "rho_rank" else (0.0, 1.02))
-        if metric == "rho_rank":
+        ax.set_ylim(y_min, 1.02)
+        if y_min < 0:
             ax.set_yticks([-1.0, -0.5, 0.0, 0.5, 1.0])
         else:
             ax.set_yticks([0.0, 0.25, 0.5, 0.75, 1.0])
         ax.grid(True, which="major", color=GRID, linewidth=0.65)
         ax.set_axisbelow(True)
-        ax.set_title(title, fontweight="bold", pad=2)
+        ax.set_title(arm_title, fontweight="bold", pad=2)
+        ax.set_xlabel("$n$ por classe")
         for side in ("top", "right"):
             ax.spines[side].set_visible(False)
-
-    axes[1, 0].set_xlabel("$n$ por classe")
-    axes[1, 1].set_xlabel("$n$ por classe")
-    fig.suptitle(spec.title, fontsize=10.5, fontweight="bold", y=0.985)
 
     handles = [
         Line2D(
@@ -249,27 +320,38 @@ def make_figure(
             marker=marker,
             markersize=4.2,
             linewidth=1.6,
-            label=label,
+            label=metric_label,
         )
-        for _, label, color, marker in ARMS
+        for _, metric_label, _, _, color, marker in METRICS
     ]
+    if has_missing:
+        handles.append(
+            Line2D(
+                [],
+                [],
+                color=GRAY,
+                marker="x",
+                markersize=4.4,
+                linewidth=0,
+                label="indisponível",
+            )
+        )
     fig.legend(
         handles=handles,
         loc="lower center",
-        bbox_to_anchor=(0.5, -0.015),
-        ncol=2,
+        bbox_to_anchor=(0.5, -0.01),
+        ncol=len(handles),
         frameon=False,
-        fontsize=8.0,
-        columnspacing=2.0,
-        handletextpad=0.55,
+        fontsize=7.4,
+        columnspacing=1.25,
+        handletextpad=0.4,
     )
     fig.subplots_adjust(
-        left=0.065,
+        left=0.06,
         right=0.995,
-        top=0.89,
-        bottom=0.19,
-        hspace=0.33,
-        wspace=0.15,
+        top=0.86,
+        bottom=0.26,
+        wspace=0.10,
     )
     output.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(
