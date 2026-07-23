@@ -179,6 +179,8 @@ def dataset_anchored_scenario_report_data(
     scenario_metadata: Mapping[str, Any] | None = None,
     gmm_model_selection: Any = None,
     include_structural_snapshots: bool = True,
+    semantic_manifest_path: str | None = None,
+    provenance_path: str | None = None,
 ) -> Dict[str, Any]:
     """Generic report-ready snapshot for the standard dataset three-arm protocol."""
 
@@ -245,6 +247,10 @@ def dataset_anchored_scenario_report_data(
         payload["exclusions"] = _clean(dict(exclusion_metadata))
     if scenario_metadata is not None:
         payload["scenario"] = _clean(dict(scenario_metadata))
+    if semantic_manifest_path is not None:
+        payload["semantic_manifest_path"] = str(semantic_manifest_path)
+    if provenance_path is not None:
+        payload["provenance_path"] = str(provenance_path)
     return payload
 
 
