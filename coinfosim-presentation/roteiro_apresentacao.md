@@ -10,7 +10,7 @@ Leia isso em voz alta pelo menos duas vezes antes de apresentar — o texto foi 
 
 Boa tarde a todos. O trabalho que vou apresentar chama-se *Preservação do perfil de cooperação preditiva entre atributos*, e a pergunta que ele responde é esta: **o treinamento com amostras sintéticas reproduz a evolução da cooperação observada com amostras reais?**
 
-Uma coisa precisa ficar clara desde o primeiro minuto, porque ela organiza tudo o que vem depois: amostras sintéticas, aqui, **não** são usadas para aumentar a acurácia do classificador. Elas são usadas para investigar se o treinamento sintético reproduz o comportamento cooperativo dos subconjuntos de canais que observamos quando o treinamento é feito com dados reais. Se você guardar só uma frase desta apresentação, guarde essa.
+Uma coisa precisa ficar clara desde o primeiro minuto, porque ela organiza tudo o que vem depois: amostras sintéticas, aqui, **não** são usadas para aumentar a acurácia do classificador. Elas são usadas para investigar se o treinamento sintético reproduz o comportamento cooperativo dos subconjuntos de atributos que observamos quando o treinamento é feito com dados reais. Se você guardar só uma frase desta apresentação, guarde essa.
 
 *(Transição: Para entender por que essa pergunta importa, começo pela decisão operacional que existe antes de qualquer gerador sintético.)*
 
@@ -32,7 +32,7 @@ Este trabalho não resolve a decisão econômica de quais canais vale a pena man
 
 Aqui está o coração conceitual da apresentação, então vou com calma.
 
-A estrutura começa com curvas de perda no mesmo teste real. Para cada tamanho de treinamento por classe — vou chamar esse tamanho de **n** — cada subconjunto de canais origina um classificador próprio, e esse classificador tem uma perda média, estimada por simulação de Monte Carlo.
+A estrutura começa com curvas de perda no mesmo teste real. Para cada tamanho de treinamento por classe — vou chamar esse tamanho de **n** — cada subconjunto de atributos origina um classificador próprio, e esse classificador tem uma perda média, estimada por simulação de Monte Carlo.
 
 Repare no gráfico: com poucas amostras, um canal isolado pode ter a menor perda, porque exige menos estimação — é mais simples de aprender. Mas, à medida que o treinamento cresce, um par de canais, ou um conjunto maior, pode passar a aproveitar informação complementar e ultrapassar o canal isolado. É exatamente isso que as três curvas mostram: uma inversão de posições ao longo de n.
 
