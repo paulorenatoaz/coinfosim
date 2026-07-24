@@ -1,18 +1,11 @@
 \chapter{PERFIL DE COOPERAÇÃO PREDITIVA: OBJETOS FORMAIS E INDICADORES DE PRESERVAÇÃO}
+\label{chap:metricas}
 
 \section{Da perda média estimada ao perfil de cooperação preditiva}
 
-A perda média definida na Equação \eqref{eq:mean-loss} é a matéria-prima do estudo, mas o objeto científico não se reduz ao menor valor absoluto de erro. Para cada braço, classificador e tamanho amostral, as perdas médias estimadas induzem o \PredictiveCooperationProfile{}, organizado em três níveis analíticos de detalhe crescente:
+A perda média definida na Equação \eqref{eq:mean-loss} é a matéria-prima do estudo, mas o objeto científico não se reduz ao menor valor absoluto de erro. Para cada braço, classificador e tamanho amostral, as perdas médias estimadas induzem o \PredictiveCooperationProfile{}, organizado em três níveis analíticos de detalhe crescente: a \textbf{ordenação global} dos subconjuntos em cada $n$ (Seção~\ref{sec:ranking}); a \textbf{relação efetiva de vencedor} par a par, representada pela matriz $\Wmat(n)$, com uma regra explícita de propagação sob empate exato (Seções~\ref{sec:winner-relation}--\ref{sec:winner-agreement}); e a \textbf{dinâmica de inversões}, representada pela matriz triangular $\Rmat(n_t)$, que produz dois indicadores de preservação logicamente distintos --- existência (Seção~\ref{sec:ar}) e regime amostral (Seção~\ref{sec:sr}) --- nunca combinados em um único índice.
 
-\begin{enumerate}
-  \item a \textbf{ordenação global} dos subconjuntos em cada $n$ (Seção~\ref{sec:ranking});
-  \item a \textbf{relação efetiva de vencedor} par a par, representada pela matriz $\Wmat(n)$, com uma regra explícita de propagação sob empate exato (Seções~\ref{sec:winner-relation}--\ref{sec:winner-agreement});
-  \item a \textbf{dinâmica de inversões}, representada pela matriz triangular $\Rmat(n_t)$, que por sua vez produz dois indicadores de preservação logicamente distintos --- existência (Seção~\ref{sec:ar}) e regime amostral (Seção~\ref{sec:sr}) --- nunca combinados em um único índice.
-\end{enumerate}
-
-Os relatórios de simulação disponibilizam todas as curvas, rankings e matrizes. O PDF emprega apenas exemplos selecionados, pois reproduzir cada objeto para 31 ou 127 subconjuntos em todos os braços e classificadores impediria a leitura da argumentação principal.
-
-A Figura~\ref{fig:conceito-metricas} antecipa, em um exemplo esquemático, os três níveis analíticos que este capítulo formaliza.
+Os relatórios de simulação disponibilizam todas as curvas, rankings e matrizes; o PDF emprega apenas exemplos selecionados, pois reproduzir cada objeto para 31 ou 127 subconjuntos em todos os braços e classificadores impediria a leitura da argumentação principal. As definições auxiliares mais extensas --- casos de empate, conjuntos de eventos de inversão e exemplos didáticos completos --- são apresentadas no Apêndice~D. A Figura~\ref{fig:conceito-metricas} antecipa, em um exemplo esquemático, os três níveis analíticos que este capítulo formaliza.
 
 \begin{figure}[H]
   \centering
@@ -43,7 +36,7 @@ A correlação de ranking entre um braço sintético $g$ e o braço real de refe
   \left(\bm r^{(R,f)}(n),\bm r^{(g,f)}(n)\right).
   \label{eq:rank-rho}
 \end{equation}
-Valores próximos de 1 indicam ordenações semelhantes; valores próximos de 0 indicam ausência de associação monotônica; valores negativos representam inversão ampla. Quando um dos rankings é constante, a correlação não é definida. A autocorrelação do braço de referência é fixada em 1.
+Valores próximos de 1 indicam ordenações semelhantes; valores próximos de 0 indicam ausência de associação monotônica; valores negativos representam inversão ampla. Quando um dos rankings é constante, a correlação não é definida; a autocorrelação do braço de referência é fixada em 1.
 
 A medida é global: uma troca entre dois subconjuntos quase empatados pode ter efeito pequeno em $\rankrho$, enquanto muitas trocas reduzem a correlação. Essa propriedade é desejável para planejamento operacional, pois não transforma automaticamente uma diferença mínima no primeiro lugar em falha de preservação total. Por descrever apenas a ordenação, $\rankrho$ não distingue, por si só, \emph{qual} par mudou de vencedor nem \emph{quando} --- essas perguntas são respondidas pelos objetos das seções seguintes.
 
@@ -72,59 +65,18 @@ Um resultado observado isolado, porém, não é uma boa base para comparar braç
   \end{cases}
   \label{eq:winner-relation}
 \end{equation}
-
-A regra tem quatro consequências diretas, usadas em todo o restante deste capítulo:
-
-\begin{itemize}
-  \item empates exatos iniciais permanecem indefinidos ($W=0$);
-  \item o primeiro vencedor estrito inicializa a relação;
-  \item um empate exato posterior \textbf{mantém} o vencedor efetivo anterior;
-  \item um empate nunca cria, apaga ou inverte a relação efetiva de vencedor.
-\end{itemize}
-
-A Figura~\ref{fig:trajetoria-vencedor} ilustra a trajetória de $W_{ij}$ para um par didático ao longo de cinco pontos da grade, incluindo um empate inicial não resolvido, o primeiro vencedor, um empate posterior que mantém esse vencedor, e uma inversão válida --- objeto definido formalmente na Seção~\ref{sec:reversal-matrix}.
+A regra tem quatro consequências diretas, usadas em todo o restante deste capítulo: empates exatos iniciais permanecem indefinidos ($W=0$); o primeiro vencedor estrito inicializa a relação; um empate exato posterior \textbf{mantém} o vencedor efetivo anterior; e um empate nunca cria, apaga ou inverte a relação efetiva de vencedor. A Figura~\ref{fig:trajetoria-vencedor} ilustra a trajetória de $W_{ij}$ para um par didático, incluindo um empate inicial não resolvido, o primeiro vencedor, um empate posterior que mantém esse vencedor, e uma inversão válida --- objeto definido formalmente na Seção~\ref{sec:reversal-matrix}. O Apêndice~D apresenta a enumeração completa dos quatro casos de empate e um exemplo numérico estendido.
 
 \begin{figure}[H]
   \centering
   \caption{Trajetória didática da relação efetiva de vencedor $W_{ij}$ com empate inicial, primeiro vencedor, empate propagado e inversão válida}
   \label{fig:trajetoria-vencedor}
-  \includegraphics[width=0.92\textwidth]{figures/conceptual/trajetoria_vencedor.pdf}
+  \includegraphics[width=0.85\textwidth]{figures/conceptual/trajetoria_vencedor.pdf}
   \sourcebelow{elaboração própria}
-  \notailustracao{Exemplo esquemático; não corresponde a um par específico de nenhum dataset. A Seção~\ref{sec:reversal-matrix} define formalmente quando uma inversão é válida}
+  \notailustracao{Exemplo esquemático; não corresponde a um par específico de nenhum dataset}
 \end{figure}
 
-O objeto formal precisa armazenar somente as $q(q-1)/2$ comparações não ordenadas,
-\begin{equation}
-  \mathcal{P}=\{(i,j):1\leq i<j\leq q\},
-\end{equation}
-porque $W_{ji}=-W_{ij}$ fora dos casos indefinidos. A matriz quadrada mostrada nos relatórios duplica essas relações para facilitar a leitura visual: a diagonal é vazia, um triângulo determina o outro e as cores identificam qual elemento do par possui menor perda. Ela não constitui uma estrutura matemática adicional. A Figura~\ref{fig:winners-evolucao} ilustra, com dados reais do cenário Occupancy Detection, como o resultado par a par observado se reorganiza ao longo da grade amostral; neste exemplo específico não há empates exatos observados, de modo que a relação efetiva $W$ coincide com o resultado observado $U$ em todos os pontos exibidos.
-
-\begin{landscape}
-\begin{figure}[H]
-  \centering
-  \caption{Evolução do resultado par a par observado no cenário Occupancy Full, braço Real para Real, Linear SVM}
-  \label{fig:winners-evolucao}
-  \begin{minipage}[t]{0.31\linewidth}
-    \centering
-    \includegraphics[width=\linewidth]{figures/winners/occupancy/graph_structural_winner_linear_svm_real_to_real_n2_full_000002.png}
-    \subcaption{Início: $n=2$}
-  \end{minipage}
-  \hfill
-  \begin{minipage}[t]{0.31\linewidth}
-    \centering
-    \includegraphics[width=\linewidth]{figures/winners/occupancy/graph_structural_winner_linear_svm_real_to_real_n32_full_000002.png}
-    \subcaption{Prefixo intermediário: $n=32$}
-  \end{minipage}
-  \hfill
-  \begin{minipage}[t]{0.31\linewidth}
-    \centering
-    \includegraphics[width=\linewidth]{figures/winners/occupancy/graph_structural_winner_linear_svm_real_to_real_n512_full_000002.png}
-    \subcaption{Fim: $n=512$}
-  \end{minipage}
-  \sourcebelow{relatório publicado do cenário Occupancy Detection 000002 do \CoInfoSim}
-  \notailustracao{A visualização é quadrada e redundante: a diagonal não se aplica e um triângulo determina o outro fora dos casos indefinidos. Cada célula indica se o subconjunto da linha vence ($+1$), perde ($-1$) ou está indefinido ($0$) contra o subconjunto da coluna. A \WinnersAgreement{} usa apenas uma ocorrência de cada par, correspondente ao triângulo superior. Os painéis exibem os melhores subconjuntos de cada cardinalidade; em $n=2$ o subconjunto singular $\{X_3\}$ vence todas as comparações exibidas, em $n=32$ o par $\{X_1,X_3\}$ já o supera e em $n=512$ as combinações maiores vencem o singular}
-\end{figure}
-\end{landscape}
+O objeto formal precisa armazenar somente as $q(q-1)/2$ comparações não ordenadas, $\mathcal{P}=\{(i,j):1\leq i<j\leq q\}$, porque $W_{ji}=-W_{ij}$ fora dos casos indefinidos (justificativa completa no Apêndice~D). A matriz quadrada mostrada nos relatórios duplica essas relações para facilitar a leitura visual: a diagonal é vazia, um triângulo determina o outro e as cores identificam qual elemento do par possui menor perda. A Figura~\ref{fig:occupancy-winner-matrices} do Capítulo~5 ilustra, com dados reais do cenário Occupancy Detection, como esse resultado par a par se reorganiza entre $n=2$ e $n=512$.
 
 Essa representação contém muito mais informação do que a identidade do primeiro colocado. Se o vencedor absoluto muda por uma diferença residual, a maioria das relações entre alternativas pode continuar preservada. Para decisões de custo, interessa saber se um subconjunto mais barato permanece superior a numerosas alternativas, não apenas se ocupa exatamente a primeira linha do ranking.
 
@@ -161,68 +113,24 @@ A relação efetiva de vencedor $\Wmat$ descreve quem vence em cada $n$, mas nã
   W^{(g,f)}_{ij}(n_k)\neq W^{(g,f)}_{ij}(n_{k-1}).
   \label{eq:valid-reversal}
 \end{equation}
+Não constituem inversão: um empate inicial; empates iniciais repetidos; o aparecimento do primeiro vencedor estrito; um empate posterior, que apenas mantém o vencedor anterior; ou a simples aproximação das curvas sem troca do vencedor efetivo.
 
-Não constituem inversão: um empate inicial; empates iniciais repetidos; o aparecimento do primeiro vencedor estrito (Seção~\ref{sec:winner-relation}); um empate posterior, que apenas mantém o vencedor anterior; ou a simples aproximação das curvas sem troca do vencedor efetivo.
-
-Para o prefixo terminado em $n_t$, o conjunto de tamanhos amostrais em que o par $(i,j)$ sofreu inversão válida é
-\begin{equation}
-  \mathcal{E}^{(g,f)}_{ij}(n_t)=
-  \left\{
-    n_k\leq n_t:
-    W^{(g,f)}_{ij}(n_{k-1})\neq0,\;
-    W^{(g,f)}_{ij}(n_k)\neq0,\;
-    W^{(g,f)}_{ij}(n_k)\neq W^{(g,f)}_{ij}(n_{k-1})
-  \right\},
-\end{equation}
-e a \textbf{matriz de inversões} armazena apenas o mais recente:
+Para o prefixo terminado em $n_t$, a \textbf{matriz de inversões} armazena, para cada par, apenas o tamanho amostral da inversão válida mais recente:
 \begin{equation}
   R^{(g,f)}_{ij}(n_t)=
   \begin{cases}
     \max\mathcal{E}^{(g,f)}_{ij}(n_t), & \mathcal{E}^{(g,f)}_{ij}(n_t)\neq\varnothing,\\
-    \varnothing, & \mathcal{E}^{(g,f)}_{ij}(n_t)=\varnothing.
+    \varnothing, & \mathcal{E}^{(g,f)}_{ij}(n_t)=\varnothing,
   \end{cases}
   \label{eq:reversal-matrix}
 \end{equation}
+em que $\mathcal{E}^{(g,f)}_{ij}(n_t)$ é o conjunto de tamanhos amostrais do prefixo em que o par $(i,j)$ sofreu inversão válida (definição completa no Apêndice~D).
 
 \begin{definitionbox}[Regra de existência de $R_{ij}$]
 A célula $R_{ij}(n_t)$ existe \textbf{se e somente se} o par $(i,j)$ sofreu ao menos uma inversão válida de vencedor no prefixo avaliado. Ela não existe apenas porque um subconjunto vence desde o primeiro ponto da grade, apenas porque o primeiro vencedor aparece depois de empates iniciais, apenas porque as curvas se aproximam, ou apenas porque um subconjunto permanece vencedor durante todo o prefixo.
 \end{definitionbox}
 
-Diferentemente de $\Wmat$, a matriz $\Rmat$ não é antissimétrica: ela armazena um único valor por par não ordenado, no triângulo superior ($i<j$); a diagonal e o triângulo inferior são indisponíveis. $\Rmat$ não guarda separadamente qual subconjunto passou a vencer após a inversão --- essa informação é recuperável diretamente em $\Wmat(n_t)$. A Figura~\ref{fig:wr-matrices-support2} mostra, com dados reais do cenário SUPPORT2 (execução \textit{full}, $n\leq512$, classificador Random Forest, sete subconjuntos de referência selecionados um por cardinalidade), a matriz de vencedores $\Wmat$ e a matriz de inversões $\Rmat$ lado a lado para os braços \RealToReal{} e \GaussianToReal.
-
-\begin{landscape}
-\begin{figure}[H]
-  \centering
-  \caption{Matrizes pareadas $\mathbf{W}$ e $\mathbf{R}$ no maior $n$ avaliado do cenário SUPPORT2 (execução \textit{full}, $n\leq512$, cenário 000008), Random Forest}
-  \label{fig:wr-matrices-support2}
-  \begin{minipage}[t]{0.48\linewidth}
-    \centering
-    \includegraphics[height=5.4cm,keepaspectratio]{figures/wr_matrices/support2_full/winner_matrix_real_to_real_n512.png}
-    \subcaption{$\mathbf{W}(n{=}512)$, \RealToReal}
-  \end{minipage}
-  \hfill
-  \begin{minipage}[t]{0.48\linewidth}
-    \centering
-    \includegraphics[height=5.4cm,keepaspectratio]{figures/wr_matrices/support2_full/reversal_matrix_real_to_real_n512.png}
-    \subcaption{$\mathbf{R}(n_t{\leq}512)$, \RealToReal}
-  \end{minipage}
-
-  \vspace{2mm}
-  \begin{minipage}[t]{0.48\linewidth}
-    \centering
-    \includegraphics[height=5.4cm,keepaspectratio]{figures/wr_matrices/support2_full/winner_matrix_single_gaussian_to_real_n512.png}
-    \subcaption{$\mathbf{W}(n{=}512)$, \GaussianToReal}
-  \end{minipage}
-  \hfill
-  \begin{minipage}[t]{0.48\linewidth}
-    \centering
-    \includegraphics[height=5.4cm,keepaspectratio]{figures/wr_matrices/support2_full/reversal_matrix_single_gaussian_to_real_n512.png}
-    \subcaption{$\mathbf{R}(n_t{\leq}512)$, \GaussianToReal}
-  \end{minipage}
-  \sourcebelow{recomputado diretamente dos resultados brutos por replicação regenerados do cenário SUPPORT2 000008, usando as funções vigentes de \texttt{coinfosim.results.predictive\_profile}; ver Apêndice~B}
-  \notailustracao{Sete subconjuntos de referência (um por cardinalidade, selecionados pela menor perda média em $n=512$) entre os 127 do SUPPORT2, para manter a matriz legível; a leitura completa dos 127 subconjuntos permanece disponível no relatório HTML republicado (Apêndice~A). Os valores numéricos de $\AR$, $\DR$ e $\SR$ deste braço e classificador são reportados no Capítulo~7 (Seção~\ref{sec:support2-rf})}
-\end{figure}
-\end{landscape}
+Diferentemente de $\Wmat$, a matriz $\Rmat$ não é antissimétrica: ela armazena um único valor por par não ordenado, no triângulo superior ($i<j$); a diagonal e o triângulo inferior são indisponíveis, e $\Rmat$ não guarda separadamente qual subconjunto passou a vencer após a inversão --- essa informação é recuperável diretamente em $\Wmat(n_t)$. O Apêndice~D reproduz, para o cenário SUPPORT2 (Random Forest, execução \textit{full}, $n\leq512$), as matrizes $\Wmat$ e $\Rmat$ completas de sete subconjuntos de referência lado a lado para os braços \RealToReal{} e \GaussianToReal.
 
 \section{Concordância de existência de inversões}
 \label{sec:ar}
@@ -281,15 +189,8 @@ A Figura~\ref{fig:construcao-ar-sr} esquematiza a construção progressiva de $\
 
 \section{Leitura integrada do perfil}
 
-Os quatro indicadores respondem a perguntas diferentes:
-
-\begin{description}
-  \item[Correlação de ranking ($\rankrho$).] A ordenação global dos subconjuntos é semelhante? A medida tolera pequenas trocas locais e resume toda a lista.
-  \item[\WinnersAgreement{} ($\AW$).] Quantas relações efetivas de vencedor par a par são preservadas? A medida é diretamente interpretável como proporção de relações concordantes e pode apoiar comparações de eficiência entre muitas alternativas.
-  \item[\ReversalExistenceAgreement{} ($\AR$).] Os mesmos pares sofrem ao menos uma inversão de vencedor? A medida é puramente de existência, indiferente ao tamanho amostral em que a inversão ocorreu.
-  \item[\ReversalSampleSizeSimilarity{} ($\SR$).] Para os pares que invertem em ambos os braços, os regimes amostrais das últimas inversões são semelhantes? A medida é condicional ao suporte compartilhado de inversões.
-\end{description}
+Os quatro indicadores respondem a perguntas diferentes: a \textbf{correlação de ranking} ($\rankrho$) pergunta se a ordenação global dos subconjuntos é semelhante, tolerando pequenas trocas locais; a \textbf{\WinnersAgreement{}} ($\AW$) mede quantas relações efetivas de vencedor par a par são preservadas, e pode apoiar comparações de eficiência entre muitas alternativas; a \textbf{\ReversalExistenceAgreement{}} ($\AR$) pergunta se os mesmos pares sofrem ao menos uma inversão de vencedor, indiferente ao tamanho amostral em que ela ocorreu; e a \textbf{\ReversalSampleSizeSimilarity{}} ($\SR$), condicional ao suporte compartilhado de inversões, pergunta se essas inversões ocorrem em regimes amostrais semelhantes.
 
 Nenhum indicador é reduzido à identidade da primeira posição, e nenhum indicador subsume os demais. A coincidência do melhor subconjunto pode ser relatada como consequência do ranking, mas um erro mínimo entre alternativas quase empatadas não deve dominar a avaliação. Para planejamento de custos, $\rankrho$ e $\AW$ são particularmente úteis porque revelam a organização global e as relações efetivas entre configurações; $\AR$ e $\SR$ acrescentam quando e onde essa organização muda à medida que mais rótulos se tornam disponíveis --- sem, no entanto, serem combinados entre si.
 
-A preservação do perfil de cooperação preditiva é, portanto, multidimensional. Um braço pode apresentar ranking alto, elevada \WinnersAgreement{} e $\AR$ moderado; ou pode preservar os pares de inversão sem preservar os tamanhos amostrais em que ocorrem. O relatório mantém os quatro indicadores separados para que essas combinações permaneçam visíveis, em vez de ocultá-las em um índice único.
+A preservação do perfil de cooperação preditiva é, portanto, multidimensional. Um braço pode apresentar ranking alto, elevada \WinnersAgreement{} e $\AR$ moderado; ou pode preservar os pares de inversão sem preservar os tamanhos amostrais em que ocorrem. O relatório mantém os quatro indicadores separados para que essas combinações permaneçam visíveis, em vez de ocultá-las em um índice único --- como o Capítulo~5 demonstra com dados reais dos quatro cenários de escala completa.

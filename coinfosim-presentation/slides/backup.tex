@@ -430,29 +430,29 @@
 
 % Apoio 5b ---------------------------------------------------------------------
 \begin{frame}{Geometrias reais e sintéticas selecionadas $(X_1,X_2)$}
-  \eyebrow{Removido dos slides 11--13 por legibilidade; versão ampliada aqui}
-  \vspace{0.10cm}
+  \vspace{-0.28cm}
   \centering
   \renewcommand{\arraystretch}{1.0}
+  \setlength{\tabcolsep}{2.5pt}
   \begin{tabular}{cccc}
-    & Dados reais & Gaussiana única & GMM \\
-    \rotatebox{90}{\footnotesize\;\;Occupancy} &
-    \includegraphics[width=0.245\linewidth,trim=6.5 835 737 39,clip]{\figroot/geometry/occupancy/viz_2d_real_full_000002.png} &
-    \includegraphics[width=0.245\linewidth,trim=6.5 835 737 39,clip]{\figroot/geometry/occupancy/viz_2d_gaussian_full_000002.png} &
-    \includegraphics[width=0.245\linewidth,trim=6.5 835 737 39,clip]{\figroot/geometry/occupancy/viz_2d_gmm_full_000002.png} \\
-    \rotatebox{90}{\footnotesize\;\;Air Quality} &
-    \includegraphics[width=0.245\linewidth,trim=6.5 835 737 39,clip]{\figroot/geometry/air_quality/viz_2d_real_full_000005.png} &
-    \includegraphics[width=0.245\linewidth,trim=6.5 835 737 39,clip]{\figroot/geometry/air_quality/viz_2d_gaussian_full_000005.png} &
-    \includegraphics[width=0.245\linewidth,trim=6.5 835 737 39,clip]{\figroot/geometry/air_quality/viz_2d_gmm_full_000005.png} \\
-    \rotatebox{90}{\footnotesize\;\;SUPPORT2} &
-    \includegraphics[width=0.245\linewidth,trim=6.5 1717 737 39,clip]{\figroot/geometry/support2/viz_2d_real_full_000008.png} &
-    \includegraphics[width=0.245\linewidth,trim=6.5 1717 737 39,clip]{\figroot/geometry/support2/viz_2d_gaussian_full_000008.png} &
-    \includegraphics[width=0.245\linewidth,trim=6.5 1717 737 39,clip]{\figroot/geometry/support2/viz_2d_gmm_full_000008.png} \\
+    & \footnotesize Dados reais & \footnotesize Gaussiana única & \footnotesize GMM \\
+    \rotatebox{90}{\tiny\;\;Occupancy} &
+    \includegraphics[height=1.55cm,keepaspectratio,trim=6.5 835 737 39,clip]{\figroot/geometry/occupancy/viz_2d_real_full_000002.png} &
+    \includegraphics[height=1.55cm,keepaspectratio,trim=6.5 835 737 39,clip]{\figroot/geometry/occupancy/viz_2d_gaussian_full_000002.png} &
+    \includegraphics[height=1.55cm,keepaspectratio,trim=6.5 835 737 39,clip]{\figroot/geometry/occupancy/viz_2d_gmm_full_000002.png} \\
+    \rotatebox{90}{\tiny\;\;Air Quality} &
+    \includegraphics[height=1.55cm,keepaspectratio,trim=6.5 835 737 39,clip]{\figroot/geometry/air_quality/viz_2d_real_full_000005.png} &
+    \includegraphics[height=1.55cm,keepaspectratio,trim=6.5 835 737 39,clip]{\figroot/geometry/air_quality/viz_2d_gaussian_full_000005.png} &
+    \includegraphics[height=1.55cm,keepaspectratio,trim=6.5 835 737 39,clip]{\figroot/geometry/air_quality/viz_2d_gmm_full_000005.png} \\
+    \rotatebox{90}{\tiny\;\;SUPPORT2} &
+    \includegraphics[height=1.55cm,keepaspectratio,trim=6.5 1717 737 39,clip]{\figroot/geometry/support2/viz_2d_real_full_000008.png} &
+    \includegraphics[height=1.55cm,keepaspectratio,trim=6.5 1717 737 39,clip]{\figroot/geometry/support2/viz_2d_gaussian_full_000008.png} &
+    \includegraphics[height=1.55cm,keepaspectratio,trim=6.5 1717 737 39,clip]{\figroot/geometry/support2/viz_2d_gmm_full_000008.png} \\
   \end{tabular}
 
-  \vspace{0.10cm}
-  {\fontsize{8.0}{9.6}\selectfont\color{CoInfoGray}
-    Comparação descritiva, restrita ao par de canais $(X_1,X_2)$; não é um teste formal de aderência nem prova de preservação do perfil. Matrizes completas com todos os pares de canais: relatório final, Apêndice~A.}
+  \vspace{0.05cm}
+  {\fontsize{7.0}{8.4}\selectfont\color{CoInfoGray}
+    Removido dos slides 11--13 por legibilidade; comparação descritiva, restrita ao par de canais $(X_1,X_2)$; não é um teste formal de aderência nem prova de preservação do perfil. Matrizes completas com todos os pares de canais: relatório final, Apêndice~A.}
   \sourcecite{relatórios publicados dos cenários Occupancy 000002, Air Quality 000005 e SUPPORT2 000008 do \CoInfoSim.}
 \end{frame}
 
@@ -538,10 +538,10 @@
         \CoInfoSim{} 0.2.2\par\vspace{.10cm}
         {\bfseries\color{CoInfoBlue}Distribuição}\par
         PyPI + GitHub\par
-        \href{https://github.com/paulorenatoaz/coinfosim}{\texttt{github.com/paulorenatoaz/coinfosim}}\par\vspace{.10cm}
+        {\fontsize{7.4}{8.8}\selectfont\href{https://github.com/paulorenatoaz/coinfosim}{\texttt{github.com/\allowbreak paulorenatoaz/\allowbreak coinfosim}}}\par\vspace{.10cm}
         {\bfseries\color{CoInfoBlue}Relatórios públicos}\par
         GitHub Pages\par
-        \href{https://paulorenatoaz.github.io/coinfosim/}{\texttt{paulorenatoaz.github.io/coinfosim/}}
+        {\fontsize{7.4}{8.8}\selectfont\href{https://paulorenatoaz.github.io/coinfosim/}{\texttt{paulorenatoaz.github.io/\allowbreak coinfosim/}}}
       \end{beamercolorbox}
     \end{column}
     \begin{column}{0.54\textwidth}

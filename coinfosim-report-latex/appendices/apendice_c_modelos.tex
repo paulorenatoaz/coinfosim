@@ -1,0 +1,56 @@
+\chapter{CLASSIFICADORES E MODELOS GERADORES}
+\label{ap:modelos}
+
+Este apêndice detalha a especificação técnica dos classificadores e dos modelos geradores introduzidos conceitualmente no Capítulo~2. O corpo do relatório justifica \emph{por que} esses modelos foram escolhidos; aqui são registrados os parâmetros, critérios de seleção e escolhas de regularização efetivamente usados, necessários para reproduzir o experimento e para auditar a calibração do Random Forest.
+
+\section{Classificadores}
+
+\subsection{Linear SVM}
+
+O Support Vector Machine linear procura um hiperplano de separação associado a uma margem entre as classes \cite{cortes1995}. A implementação utilizada é \texttt{sklearn.svm.\allowbreak SVC(kernel="linear")}, com os demais hiperparâmetros nos valores padrão da versão do scikit-learn empregada. A versão linear preserva continuidade com o simulador \SLACGS{} anterior e oferece um modelo sensível à geometria global do espaço padronizado; sua simplicidade favorece a execução repetida em todos os subconjuntos e tamanhos amostrais.
+
+\subsection{Regressão logística}
+
+A regressão logística modela a probabilidade condicional da classe por uma função logística de uma combinação linear dos canais, com \texttt{max\_iter=1000} para garantir convergência nos subconjuntos de maior cardinalidade. Trata-se de um baseline probabilístico amplamente utilizado, cuja interpretação e estimação são bem estabelecidas \cite{hosmer2013}. Embora compartilhe uma fronteira linear com o Linear SVM, o critério de ajuste é diferente, permitindo verificar se a preservação estrutural depende do mecanismo de aprendizagem.
+
+\subsection{Gaussian Naive Bayes}
+
+O Gaussian Naive Bayes supõe independência condicional entre canais dada a classe e modela distribuições marginais gaussianas, nos parâmetros padrão da implementação utilizada. Apesar da hipótese forte, classificadores Naive Bayes podem apresentar bom desempenho mesmo quando a independência não é estritamente satisfeita \cite{handyu2001}. No contexto do \CoInfoSim{}, o modelo é particularmente informativo porque permite contrastar ganhos associados à acumulação de evidências marginais com ganhos que dependem de relações multivariadas.
+
+\subsection{Random Forest}
+
+Random Forest combina múltiplas árvores construídas sob aleatoriedade de amostras e de variáveis, agregando suas previsões \cite{breiman2001}. O classificador introduz não linearidade e interações que não estão disponíveis aos modelos lineares; em contrapartida, seu custo computacional é substancialmente maior em um protocolo que exige centenas de ajustes para cada subconjunto, tamanho amostral e replicação, razão pela qual não integra uma comparação simétrica entre todos os datasets nesta versão do trabalho.
+
+O Random Forest do SUPPORT2 foi calibrado uma única vez usando exclusivamente os dados reais de treinamento: 100 árvores, profundidade máxima 12, tamanho mínimo de folha 5 e \texttt{max\_features="sqrt"}. A configuração aprovada é armazenada no artefato versionado \texttt{config/calibration/support2\_random\_forest.json}, validado por hash do arquivo bruto, impressão digital da partição, definição do alvo, ordem dos canais, semente do particionamento e versão do scikit-learn (Apêndice~B). Depois de congelada, a mesma configuração é reutilizada sem alteração nos três braços, em todos os subconjuntos, tamanhos amostrais e replicações, o que impede que o teste real ou qualquer braço sintético conduza a uma configuração diferente. O estimador usa \texttt{n\_jobs=1} para evitar paralelismo aninhado durante a execução paralela por processos (Apêndice~B). O resultado deve ser interpretado como evidência específica da interação entre esse classificador, o SUPPORT2 e os geradores avaliados, não como demonstração de superioridade geral.
+
+As implementações utilizadas pertencem ao ecossistema scikit-learn, cuja arquitetura e conjunto de algoritmos são descritos por \textcite{pedregosa2011}.
+
+\section{Modelos geradores}
+
+\subsection{Gaussiana única por classe}
+
+O modelo sintético mais simples considera uma distribuição normal multivariada para cada classe:
+\begin{equation}
+  X\mid Y=c \sim \mathcal{N}(\mu_c,\Sigma_c),
+  \qquad c=1,\ldots,K.
+  \label{eq:class-gaussian}
+\end{equation}
+Nos cenários ancorados, a Gaussiana de cada classe é ajustada no espaço padronizado a partir dos dados reais de treinamento: $\widehat{\mu}_c$ e $\widehat{\Sigma}_c$ correspondem, respectivamente, à média e à covariância amostrais (\texttt{ddof=1}) calculadas nesses dados. As matrizes de covariância podem diferir entre classes; quando necessário para garantir definição positiva, uma pequena regularização diagonal (\emph{ridge}, entre $10^{-10}$ e $10^{-3}$) é adicionada e registrada nos metadados da execução.
+
+A Gaussiana única resume cada classe por um centro e uma estrutura global de dispersão e correlação. Sua capacidade de representar assimetrias, caudas, multimodalidade e regiões desconectadas é limitada, mas essa limitação não a torna cientificamente desinteressante: o modelo é leve, interpretável e permite perguntar quanto da estrutura cooperativa depende apenas de momentos de primeira e segunda ordem. Se os classificadores treinados com suas amostras reproduzirem ranking e relações de vitória quase tão bem quanto aqueles treinados com amostras de um gerador mais flexível, isso constitui um resultado favorável ao modelo simples.
+
+\subsection{Mistura de gaussianas (GMM)}
+
+Uma mistura gaussiana representa a distribuição de cada classe por uma combinação ponderada de componentes:
+\begin{equation}
+  p(x\mid Y=c)
+  =
+  \sum_{k=1}^{K_c}\pi_{ck}
+  \mathcal{N}(x\mid\mu_{ck},\Sigma_{ck}),
+  \label{eq:gmm}
+\end{equation}
+em que $\pi_{ck}\geq 0$, $\sum_k\pi_{ck}=1$ e $K_c$ é o número de componentes da classe $c$. Misturas finitas constituem uma família flexível para representar heterogeneidade e multimodalidade \cite{mclachlan2000}.
+
+No protocolo implementado, um GMM é ajustado separadamente para cada classe no espaço completo dos canais, usando apenas os dados reais de treinamento, com covariância completa, regularização numérica \texttt{reg\_covar=$10^{-6}$}, cinco inicializações (\texttt{n\_init=5}) e semente fixa. São considerados de um a cinco componentes por classe, respeitando o mínimo de 50 observações por componente; o número $K_c$ é escolhido separadamente em cada classe pelo menor BIC \cite{mclachlan2000,schwarz1978}, que combina a log-verossimilhança maximizada com uma penalização pela quantidade de parâmetros, buscando evitar que a flexibilidade cresça sem controle. Nos três cenários de escala completa, o número de componentes selecionado foi 5/5 no Occupancy, 5/4 no Air Quality e 5/5 no SUPPORT2 (classe negativa/positiva).
+
+O GMM pode aproximar formas visuais que uma única elipse gaussiana não representa. Ainda assim, maior fidelidade geométrica não garante maior preservação do perfil de cooperação preditiva: a divisão dos dados em componentes pode melhorar a representação global da densidade sem preservar exatamente as regiões que determinam as fronteiras de um classificador ou as diferenças relativas entre subconjuntos, possibilidade discutida no Occupancy (Capítulo~5). A comparação entre os geradores não é formulada como um campeonato no qual o GMM deveria necessariamente vencer; o ganho do modelo mais flexível só é relevante quando o treinamento com as amostras que ele produz modifica de modo substantivo a preservação do perfil de cooperação preditiva.

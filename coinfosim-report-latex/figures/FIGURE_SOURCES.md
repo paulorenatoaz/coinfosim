@@ -121,6 +121,14 @@ referência real ao longo da grade amostral.
 | `structural_metrics/support2/graph_structural_metric_random_forest_winner_agreement_full_000008.png` | cenário 000008 (gh-pages) | SUPPORT2 | Random Forest | Winners Agreement | copiado |
 | `structural_metrics/support2/graph_structural_metric_random_forest_nstar_similarity_full_000008.png` | cenário 000008 (gh-pages) | SUPPORT2 | Random Forest | similaridade progressiva de N★ | copiado |
 
+## provenance/ — grafo de proveniência formal (Capítulo 3 e Apêndice E)
+
+| Destino | Fonte | Método |
+|---|---|---|
+| `provenance/prov_profile_derivation.pdf` (fonte: `provenance/src/prov_profile_derivation.tex`) | `docs/semantics/provenance_mapping.md` e `output/reports/scenarios/000008_support2_baseline_full/provenance.provn` regenerado (cenário SUPPORT2 000008, commit `aa682fd4`) | diagrama TikZ construído manualmente a partir do grafo PROV-N real; nós, tipos e relações (`used`, `wasGeneratedBy`, `wasDerivedFrom`, `wasAssociatedWith`) correspondem exatamente aos emitidos pelo código para esse cenário, com seleção da cadeia central e omissão apenas de nós redundantes (as três atividades de simulação por braço, colapsadas em um único nó `ResultData`, e os quatro artefatos de relatório, colapsados em `ReportArtifact`) |
+
+Compilação: `xelatex prov_profile_derivation.tex` a partir de `provenance/src/`, reutilizando `figures/conceptual/src/preamble_diagrams.tex`; determinística, sem dependência de Graphviz.
+
 ## Demais arquivos em figures/
 
 Os PDFs/PNGs na raiz de `figures/` (`occupancy_ranking.pdf`,

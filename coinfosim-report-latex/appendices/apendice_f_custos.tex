@@ -1,0 +1,81 @@
+\chapter{EXTENSÃO CUSTO-EFICIÊNCIA E PROJEÇÃO}
+\label{ap:custos}
+
+O Capítulo~6 (Seção "Implicações operacionais e agenda de custos") situa a motivação econômica do \CoInfoSim{} e afirma explicitamente que o presente trabalho não propõe uma função universal de custo, não atribui valores monetários aos canais estudados e não demonstra economia. Este apêndice detalha essa agenda --- taxonomia de custos, exemplos por domínio, uma formulação multiobjetivo e a hipótese, ainda não testada, de projeção para regimes amostrais maiores --- como extensão futura explicitamente delimitada, e não como resultado obtido.
+
+\section{Do perfil de cooperação preditiva à configuração de canais}
+
+Os resultados mostram que a correlação de ranking e a \WinnersAgreement{} são especialmente úteis para decisões operacionais: a primeira descreve a preservação da organização global dos subconjuntos; a segunda informa diretamente se duas configurações mantêm a mesma relação de superioridade. Em conjunto, ambas permitem trabalhar com um grupo de alternativas eficientes, em vez de exigir a coincidência exata do primeiro colocado. Quando vários subconjuntos apresentam perdas próximas, uma decisão operacional pode preferir uma configuração ligeiramente inferior em desempenho, mas substancialmente mais barata, simples, robusta ou disponível.
+
+Essa ideia pode ser formalizada, para cada tamanho amostral $n$, pelo conjunto de alternativas candidatas
+\[
+\mathcal{A}(n)=\left\{S_I:\overline{L}_{S_I,f}(n)\leq
+\overline{L}_{\min,f}(n)+\varepsilon\right\},
+\]
+em que $\varepsilon$ representa uma tolerância definida pelo domínio. O \CoInfoSim{} não determina o valor dessa tolerância, mas fornece os rankings e as comparações par a par necessárias para construir $\mathcal{A}(n)$. Uma análise de custo poderia então selecionar, entre as alternativas estatisticamente aceitáveis, aquela que melhor satisfaz as restrições operacionais.
+
+A matriz de inversões $\Rmat$ e seus dois indicadores derivados, $\AR$ e $\SR$, acrescentam outra dimensão: informam, respectivamente, se o modelo sintético recupera aproximadamente os mesmos pares que trocam de vencedor e se essas trocas ocorrem em regimes amostrais semelhantes dentro da grade observada --- relevante para planejamento de coleta, já que um canal adicional pode não ser vantajoso em $n$ pequeno, mas tornar-se útil quando a operação acumula dados suficientes. O uso operacional de $\Rmat$, contudo, exige cautela: a matriz considera apenas a última inversão observada e não garante que a relação permanecerá inalterada além do maior $n$ avaliado (Capítulo~7).
+
+\section{Custos não se reduzem ao número de canais}
+
+A literatura de classificação sensível a custos distingue custos de erro, custos de teste, custos de aquisição e custos de decisão \cite{turney1995,turney2002}. Para o problema estudado aqui, a quantidade de canais é apenas uma aproximação muito rudimentar. Uma função de custo adequada deve ser definida para o domínio específico. Em termos abstratos, pode-se escrever
+\[
+C_{\mathcal{D}}(S_I,n;\theta_{\mathcal{D}}),
+\]
+em que $\mathcal{D}$ representa o domínio e $\theta_{\mathcal{D}}$ reúne parâmetros técnicos, financeiros e organizacionais. Essa notação não pressupõe uma forma aditiva nem proporcional.
+
+Uma modelagem realista pode incluir: investimento inicial em sensores, equipamentos ou infraestrutura; custo marginal por coleta, paciente, lote, ciclo ou unidade de tempo; calibração, manutenção, energia, transmissão e armazenamento; tempo de processamento e custo computacional; trabalho humano de inspeção, auditoria ou anotação; invasividade, risco, desconforto e indisponibilidade clínica; dependências entre canais produzidos pelo mesmo procedimento; custo do rótulo ou da referência usada para construir $Y$; e custos de erro assimétricos e restrições regulatórias.
+
+A presença de infraestrutura compartilhada impede assumir que o custo de um subconjunto seja a soma dos custos individuais. Um único equipamento pode produzir vários canais; nesse caso, retirar uma variável derivada não elimina o custo do procedimento. Inversamente, dois canais aparentemente semelhantes podem exigir sensores independentes, calibrações distintas e manutenção separada. Também não é correto assumir que o custo de $Y$ seja simplesmente proporcional a $n$: um rótulo pode depender de acompanhamento longitudinal, análise laboratorial em lote, auditoria especializada ou sensor de referência já instalado.
+
+\begin{interpretationbox}[Alcance da análise de custos]
+O presente trabalho não propõe uma função universal de custo nem demonstra que os subconjuntos identificados gerem economia. Sua contribuição é anterior: organizar o perfil de desempenho ao qual uma função de custo específica poderá ser acoplada.
+\end{interpretationbox}
+
+\section{Exemplos operacionais por domínio}
+
+\subsection{Monitoramento ambiental}
+
+No cenário Air Quality, os cinco canais PT08 representam respostas de sensores químicos, enquanto a concentração de benzeno de referência é utilizada para construir o alvo e não como preditor. Uma aplicação operacional pode envolver sensores de baixo custo distribuídos em vários pontos e um analisador certificado usado para calibração ou supervisão \cite{devito2008,UciAirQuality2008}. Nesse contexto, o custo pode depender de quantidade de estações, frequência de calibração, consumo energético, reposição de sensores, conectividade e disponibilidade do equipamento de referência. A alta preservação do ranking e da \WinnersAgreement{} em algumas condições sugere que classificadores treinados com amostras sintéticas produzidas por geradores parametrizados a partir dos dados reais podem ajudar a estudar esse espaço de alternativas sem depender exclusivamente de novas campanhas de coleta; a evidência, porém, não autoriza a retirada imediata de sensores, o que exigiria validação temporal, análise de deriva da distribuição e estimativa financeira local.
+
+\subsection{Ambientes construídos}
+
+No Occupancy, os canais temperatura, umidade, luminosidade, concentração de CO$_2$ e razão de umidade podem estar associados a sistemas de automação predial e controle de HVAC \cite{candanedo2016,Weber2020}. O custo de uma configuração depende tanto dos sensores quanto da infraestrutura já presente no edifício: temperatura e umidade podem ser fornecidas pelo mesmo dispositivo, luminosidade pode já estar disponível em sistemas de iluminação, e CO$_2$ pode exigir calibração específica. A geometria real do Occupancy mostrou-se distante da aproximação por uma única Gaussiana, mas os classificadores treinados com amostras dessa aproximação reproduziram ranking e relações de vencedores de forma competitiva em algumas configurações --- ilustrando que a utilidade de um modelo gerador não precisa ser julgada apenas pela fidelidade visual, e que a escolha entre Gaussiana e GMM deve considerar qual componente da estrutura resultante do treinamento será usado na decisão.
+
+\subsection{Aplicações clínicas}
+
+No SUPPORT2, os canais combinam sinais vitais e exames laboratoriais, com estruturas de custo distintas: pressão arterial, frequência cardíaca, frequência respiratória e temperatura podem ser coletadas repetidamente à beira do leito; leucócitos, creatinina e sódio dependem de coleta, processamento laboratorial e tempo de resposta \cite{support1995,knaus1995}. Além do custo monetário, devem ser considerados invasividade, disponibilidade, urgência e consequência clínica do erro. A elevada \WinnersAgreement{} do Random Forest indica que grande parte das comparações entre subconjuntos foi preservada nas condições sintéticas, mesmo com perdas absolutas altas, o que pode ser útil para estudar relações de eficiência entre combinações de sinais e exames. Contudo, o desempenho preditivo observado é insuficiente para sustentar decisões clínicas: a análise deve ser entendida como estudo metodológico das relações entre canais, não como validação de um sistema de prognóstico para uso assistencial.
+
+\section{Uma formulação futura de decisão custo-eficiência}
+
+Uma extensão natural consiste em combinar perda e custo em um problema multiobjetivo. Para um domínio $\mathcal{D}$, pode-se procurar o conjunto de configurações não dominadas segundo
+\[
+\left(
+  \overline{L}_{S_I,f}(n),
+  C_{\mathcal{D}}(S_I,n;\theta_{\mathcal{D}})
+\right).
+\]
+Um subconjunto é dominado quando existe outro com custo não maior e perda não maior, com melhoria estrita em pelo menos uma dimensão. O resultado seria uma fronteira de Pareto de configurações custo-eficientes, abordagem relacionada à seleção de sensores e à otimização sob orçamento \cite{joshi2009,krause2008}.
+
+As métricas de preservação poderiam então ser usadas como condição de confiança. Antes de otimizar sobre dados sintéticos, seria necessário verificar se a estrutura que emerge do treinamento na condição sintética reproduz suficientemente: a ordenação das alternativas relevantes; as comparações par a par próximas da fronteira eficiente; e a existência e o regime amostral das inversões relevantes para planejar expansão amostral. Diferentes decisões exigiriam diferentes indicadores: para escolher entre várias configurações de custo semelhante, $\rankrho$ e \WinnersAgreement{} seriam prioritários; para planejar quando instalar um canal adicional ou ampliar a coleta, $\AR$ e $\SR$ seriam mais informativos --- sem necessidade de condensar todas essas propriedades em um índice único.
+
+\section{Hipótese de projeção para regimes amostrais maiores}
+
+A possibilidade mais ambiciosa do projeto é usar um gerador sintético validado no intervalo observado para explorar regimes amostrais maiores. O fluxo hipotético seria
+\[
+\begin{aligned}
+\text{dados reais disponíveis}
+&\longrightarrow \text{parametrização do gerador}
+\longrightarrow \text{validação estrutural até }n_{\max}\\
+&\longrightarrow \text{simulação em }n>n_{\max}
+\longrightarrow \text{planejamento operacional}.
+\end{aligned}
+\]
+
+Essa projeção não foi testada neste trabalho. A preservação nos tamanhos amostrais avaliados é condição necessária, mas não suficiente, para confiar em extrapolações: a estrutura pode mudar fora da faixa observada, especialmente quando o classificador entra em outro regime de variância, quando novos cruzamentos surgem ou quando o gerador não representa adequadamente as caudas e regiões de baixa densidade.
+
+Uma validação futura deve ocultar deliberadamente parte da grade: parametrizar o gerador a partir dos dados disponíveis até um valor $n_0$, validar a estrutura resultante nesse intervalo, projetar os resultados para $n>n_0$ e comparar a projeção com simulações ou amostras reais posteriormente reveladas. Somente após esse teste será possível avaliar se a preservação observada pode apoiar planejamento de coleta, dimensionamento de canais ou decisões de investimento.
+
+\section{Síntese da agenda}
+
+O resultado operacional mais importante deste trabalho não é a identificação de um subconjunto universalmente ótimo, mas uma linguagem para analisar sistemas multicanais sob três perspectivas complementares: organização global das alternativas, relações par a par e transições ao longo de $n$. A agenda futura consiste em transformar o \CoInfoSim{} de um simulador de preservação do perfil de cooperação preditiva em uma plataforma de análise custo-eficiência, recebendo custos explícitos, identificando fronteiras não dominadas, quantificando incerteza econômica e testando projeções para regimes maiores. As conclusões atuais permanecem metodológicas: classificadores treinados com amostras sintéticas podem preservar componentes relevantes do perfil de cooperação preditiva, mas nenhuma economia ou decisão operacional específica foi demonstrada.
