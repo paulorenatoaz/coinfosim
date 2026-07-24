@@ -1,0 +1,61 @@
+% Diagrama de proveniência experimental formal (versão larga, para slide 16:9).
+% Mesmos tipos e relações PROV-O do diagrama do relatório (prov_profile_derivation.tex),
+% reorganizados horizontalmente: TrainingReservoir/FixedRealTestSet -> ajuste dos
+% geradores -> três braços de simulação -> ResultData -> ProfileComputation ->
+% PredictiveCooperationProfile. Omite deliberadamente ArtifactRecovery/
+% RecoveredArtifactSet/CodeRevision (metadados de regeneração de relatório, não
+% proveniência científica do experimento). Compilação: xelatex (determinística).
+\documentclass[tikz,border=4pt]{standalone}
+\input{../../conceptual/src/preamble_diagrams}
+
+\definecolor{ProvEntity}{RGB}{250,232,168}
+\definecolor{ProvEntityBorder}{RGB}{176,141,42}
+\definecolor{ProvActivity}{RGB}{188,206,235}
+\definecolor{ProvActivityBorder}{RGB}{47,86,145}
+
+\tikzset{
+  entidade/.style={draw=ProvEntityBorder, fill=ProvEntity, rounded corners=5pt,
+                align=center, font=\footnotesize, inner sep=4pt},
+  atividade/.style={draw=ProvActivityBorder, fill=ProvActivity, rounded corners=1pt,
+                align=center, font=\footnotesize, inner sep=4pt},
+  relacao/.style={-{Stealth[length=1.8mm]}, thick, CoinGray},
+  rlabel/.style={font=\tiny\itshape, text=CoinGray, fill=white, inner sep=0.5pt},
+}
+
+\begin{document}
+\begin{tikzpicture}[node distance=4mm and 4mm]
+
+  \node[entidade,minimum width=2.6cm]  (trainres)  at (0, 2.6) {\textbf{TrainingReservoir}};
+  \node[entidade,minimum width=2.6cm]  (fixedtest) at (0, -2.6) {\textbf{FixedRealTestSet}};
+
+  \node[atividade,minimum width=2.6cm] (fitgauss) at (3.4, 1.5) {\textbf{FitSingleGaussian}};
+  \node[atividade,minimum width=2.6cm] (fitgmm)   at (3.4, -3.7) {\textbf{FitGMM}};
+
+  \node[atividade,minimum width=3.5cm] (realrun)  at (7.6, 3.7)  {\textbf{RealSimulationRun}\\braço Real$\to$Real};
+  \node[atividade,minimum width=3.5cm] (gaussrun) at (7.6, 0)    {\textbf{SingleGaussianSimulationRun}\\braço Gaussiana$\to$Real};
+  \node[atividade,minimum width=3.5cm] (gmmrun)   at (7.6, -3.7) {\textbf{GMMSimulationRun}\\braço GMM$\to$Real};
+
+  \node[entidade,minimum width=2.1cm]  (resultdata) at (12.1, 0) {\textbf{ResultData}\\(3$\times$)};
+  \node[atividade,minimum width=3.5cm] (profcomp)   at (15.9, 0) {\textbf{ProfileComputation}};
+  \node[entidade,minimum width=4.4cm]  (profile)    at (20.5, 0) {\textbf{PredictiveCooperationProfile}\\$\mathbf{W}$, $\mathbf{R}$, $\rho_{\mathrm{rank}}$, $A_W$, $A_R$, $D_R$, $S_R$};
+
+  \draw[relacao] (trainres.east) -- node[rlabel]{used} (fitgauss.west);
+  \draw[relacao] (trainres.south) .. controls +(1.2,-2.0) and +(-2.6,3.0) .. node[rlabel,pos=0.5]{used} (fitgmm.north west);
+  \draw[relacao] (trainres.east) .. controls +(3.0,0.6) and +(-3.0,0.4) .. node[rlabel,pos=0.4]{used} (realrun.west);
+
+  \draw[relacao] (fitgauss.east) -- node[rlabel]{wasGeneratedBy} (gaussrun.west);
+  \draw[relacao] (fitgmm.east)   -- node[rlabel]{wasGeneratedBy} (gmmrun.west);
+
+  \draw[relacao] (fixedtest.north) .. controls +(2.0,2.2) and +(-3.2,-4.0) .. node[rlabel,pos=0.25]{used} (realrun.south west);
+  \draw[relacao] (fixedtest.east)  .. controls +(2.4,1.6) and +(-2.4,-1.6) .. node[rlabel,pos=0.5]{used} (gaussrun.south west);
+  \draw[relacao] (fixedtest.east)  -- node[rlabel]{used} (gmmrun.west);
+
+  \draw[relacao] (realrun.east)  .. controls +(1.4,-0.7) and +(-1.4,1.7) .. node[rlabel,pos=0.6]{wasGeneratedBy} (resultdata.north west);
+  \draw[relacao] (gaussrun.east) -- node[rlabel]{wasGeneratedBy} (resultdata.west);
+  \draw[relacao] (gmmrun.east)   .. controls +(1.4,0.7) and +(-1.4,-1.7) .. node[rlabel,pos=0.6]{wasGeneratedBy} (resultdata.south west);
+
+  \draw[relacao] (resultdata) -- node[rlabel]{used} (profcomp);
+  \draw[relacao] (profcomp)   -- node[rlabel]{wasGeneratedBy} (profile);
+
+\end{tikzpicture}
+\end{document}

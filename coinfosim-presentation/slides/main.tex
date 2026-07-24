@@ -1,5 +1,5 @@
 % -----------------------------------------------------------------------------
-% Narrativa principal: 12 slides, 18 min 15 s.
+% Narrativa principal: 14 slides, 21 min.
 % -----------------------------------------------------------------------------
 
 % Slide 1 ---------------------------------------------------------------------
@@ -218,13 +218,101 @@
 
   \speakernotes
     {O ponto de partida são os dados reais de treinamento. A padronização e o ajuste dos modelos geradores usam somente esses dados. No primeiro braço, Real para Real, cada replicação sorteia amostras reais balanceadas por classe. No segundo, uma Gaussiana única por classe, ajustada a partir dos dados reais de treinamento no espaço completo de canais, produz as amostras sintéticas. No terceiro, um GMM por classe é ajustado a partir dos mesmos dados; o número de componentes é escolhido por BIC. Para cada tamanho da grade, repetimos o treinamento de cada classificador em todos os subconjuntos não vazios: 31 quando há cinco canais e 127 quando há sete. As replicações Monte Carlo estimam a perda média estimada no teste real. A única coisa que muda entre os braços é a origem das amostras de treinamento. O conjunto de teste real é fixo e compartilhado; é ele que permite comparar, em uma base comum, os perfis obtidos após o treinamento. No cenário full-scale do Air Quality, a mesma grade é estendida até 1024 amostras por classe.}
-    {Da perda média estimada desse protocolo derivam os quatro indicadores, começando pela visão mais global.}
+    {Antes de passar aos indicadores, vale mostrar como esse protocolo é registrado de forma auditável: é essa proveniência que garante que os números dos próximos slides podem ser rastreados até o dado bruto que os produziu.}
     {Real, Gaussiana única e GMM mudam a origem do treinamento; o teste real permanece exatamente o mesmo.}
     {2 minutos.}
     {``Gaussiana única \(\rightarrow\) Real'' e ``GMM \(\rightarrow\) Real'' significam treinamento com amostras sintéticas e teste no conjunto real fixo; a estrutura não pertence ao gerador.}
 \end{frame}
 
 % Slide 6 ---------------------------------------------------------------------
+\begin{frame}{Proveniência como controle científico}
+  \slidetime{1:30}
+  \begin{beamercolorbox}[wd=\linewidth,sep=.10cm,rounded=true]{block title}
+    \centering\sffamily\bfseries\fontsize{10.5}{12.6}\selectfont
+    Proveniência = origem + transformação + partição + uso + derivação
+  \end{beamercolorbox}
+
+  \vspace{.12cm}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.19\textwidth}
+      \begin{beamercolorbox}[wd=\linewidth,sep=.11cm,rounded=true]{block body}
+        {\sffamily\bfseries\fontsize{8.8}{10.4}\selectfont\color{CoInfoBlue}Origem}\par\vspace{.04cm}
+        {\fontsize{7.7}{9.2}\selectfont Fonte, DOI e hash SHA-256 de cada arquivo bruto.}
+      \end{beamercolorbox}
+    \end{column}
+    \begin{column}{0.19\textwidth}
+      \begin{beamercolorbox}[wd=\linewidth,sep=.11cm,rounded=true]{block body}
+        {\sffamily\bfseries\fontsize{8.8}{10.4}\selectfont\color{CoInfoBlue}Transformação}\par\vspace{.04cm}
+        {\fontsize{7.7}{9.2}\selectfont Alvo, seleção do conjunto analítico, partição e padronização, todas registradas.}
+      \end{beamercolorbox}
+    \end{column}
+    \begin{column}{0.19\textwidth}
+      \begin{beamercolorbox}[wd=\linewidth,sep=.11cm,rounded=true]{block body}
+        {\sffamily\bfseries\fontsize{8.8}{10.4}\selectfont\color{CoInfoBlue}Partição}\par\vspace{.04cm}
+        {\fontsize{7.7}{9.2}\selectfont Treino e teste real fixo, papéis nunca confundidos.}
+      \end{beamercolorbox}
+    \end{column}
+    \begin{column}{0.19\textwidth}
+      \begin{beamercolorbox}[wd=\linewidth,sep=.11cm,rounded=true]{block body}
+        {\sffamily\bfseries\fontsize{8.8}{10.4}\selectfont\color{CoInfoBlue}Uso}\par\vspace{.04cm}
+        {\fontsize{7.7}{9.2}\selectfont Geradores e classificadores parametrizados só no treino.}
+      \end{beamercolorbox}
+    \end{column}
+    \begin{column}{0.19\textwidth}
+      \begin{beamercolorbox}[wd=\linewidth,sep=.11cm,rounded=true]{block body}
+        {\sffamily\bfseries\fontsize{8.8}{10.4}\selectfont\color{CoInfoBlue}Derivação}\par\vspace{.04cm}
+        {\fontsize{7.7}{9.2}\selectfont Perfil e relatório rastreáveis até o resultado bruto.}
+      \end{beamercolorbox}
+    \end{column}
+  \end{columns}
+
+  \vspace{.11cm}
+  {\centering\sffamily\fontsize{8.6}{10.3}\selectfont\color{CoInfoGray}
+    Cada execução persiste hashes, IDs de cenário/simulação e um manifesto semântico versionado --- não apenas o resultado final, mas de onde ele veio.\par}
+
+  \vspace{.09cm}
+  \begin{beamercolorbox}[wd=\linewidth,sep=.12cm,rounded=true]{takeaway}
+    \centering\sffamily\bfseries\fontsize{10.2}{12.1}\selectfont
+    O resultado só é interpretável porque o caminho dos dados é controlado e auditável, não apenas relatado.
+  \end{beamercolorbox}
+  \sourcecite{relatório final, Capítulo 3 e Apêndice E; \texttt{docs/semantics/provenance\_mapping.md}.}
+
+  \speakernotes
+    {Em Ciência de Dados, proveniência não significa apenas saber de qual site veio um arquivo. Ela descreve toda a trajetória: qual arquivo canônico foi usado e como sua integridade foi verificada por hash; como o alvo foi definido e o conjunto analítico selecionado; como as linhas foram particionadas entre treino e teste real fixo; em que etapa cada transformação --- padronização, ajuste dos geradores --- foi estimada, sempre restrita ao treino; e de qual entidade e atividade cada artefato derivado, como o perfil de cooperação preditiva e o próprio relatório, foi produzido. Isso não é apenas documentação: é um controle científico, porque torna verificável que o teste real nunca participou da parametrização dos geradores ou dos classificadores.}
+    {O próximo slide mostra esse controle como um grafo formal, ligando exatamente os mesmos elementos por relações padronizadas.}
+    {Proveniência é a história completa e verificável do dado dentro do experimento, não apenas sua origem externa.}
+    {1 minuto e 30 segundos.}
+    {Não afirmar ausência absoluta de qualquer risco de vazamento; afirmar os controles concretos implementados e auditáveis.}
+\end{frame}
+
+% Slide 7 ---------------------------------------------------------------------
+\begin{frame}{Grafo formal: da reserva de treino ao perfil de cooperação preditiva}
+  \slidetime{1:15}
+  \vspace{-0.22cm}
+  \centering
+  \includegraphics[width=0.97\linewidth,keepaspectratio]{\figroot/provenance/prov_profile_derivation_wide.pdf}
+
+  \vspace{0.06cm}
+  \metricpill{CoInfoAmber}{Entity}{dado ou artefato (reserva de treino, teste real fixo, resultado, perfil)}
+  \hspace{0.04cm}
+  \metricpill{CoInfoBlue}{Activity}{computação (ajuste dos geradores, simulação, recomputação do perfil)}
+
+  \vspace{0.04cm}
+  \begin{beamercolorbox}[wd=\linewidth,sep=.07cm,rounded=true]{block title}
+    \centering\fontsize{8.0}{9.6}\selectfont
+    O mesmo teste real fixo alimenta os três braços de avaliação; apenas a reserva de treino alimenta o ajuste dos geradores.
+  \end{beamercolorbox}
+  \sourcecite{grafo formal efetivamente emitido pelo CoInfoSim, cadeia central; compatível com W3C PROV-O; relatório final, Apêndice E.}
+
+  \speakernotes
+    {Este é o grafo de proveniência formal efetivamente emitido pelo CoInfoSim, compatível com o vocabulário PROV-O do W3C, simplificado aqui para a cadeia central experimental. A reserva de treino alimenta o ajuste da Gaussiana única e do GMM, e também o braço Real-para-Real diretamente; o teste real fixo, e apenas ele, alimenta os três braços de simulação na etapa de avaliação --- nunca o ajuste dos geradores. Os três resultados brutos alimentam uma única recomputação do perfil de cooperação preditiva. As setas rotuladas são relações padronizadas: usado por e gerado por. Isso não é um diagrama ilustrativo: os tipos e relações correspondem exatamente aos emitidos pelo código atual para cada cenário. Vale uma ressalva de escopo: essa é uma camada de vocabulário semântico e proveniência PROV-O, com uma pequena ontologia OWL 2 de apoio; não há raciocínio automático nem um banco de grafos consultável em produção --- os slides de apoio detalham esse escopo.}
+    {Com o controle experimental estabelecido, retomo o protocolo de três braços e sigo para os indicadores de preservação do perfil.}
+    {O grafo formal torna auditável que o teste real nunca participa do ajuste dos geradores.}
+    {1 minuto e 15 segundos.}
+    {Não chamar esta camada de ontologia OWL completa com raciocínio automático; é vocabulário semântico e proveniência PROV-O, com uma pequena ontologia de apoio. Não mencionar recuperação de artefatos ou commits: este slide mostra proveniência experimental, não bookkeeping de regeneração de relatório.}
+\end{frame}
+
+% Slide 8 ---------------------------------------------------------------------
 \begin{frame}{Métrica 1 — a ordenação global foi preservada?}
   \slidetime{1:20}
   \begin{columns}[T,onlytextwidth]
@@ -255,7 +343,7 @@
     {Correlação alta não implica igualdade das perdas nem identidade do topo; ela mede associação entre postos.}
 \end{frame}
 
-% Slide 7 ---------------------------------------------------------------------
+% Slide 9 ---------------------------------------------------------------------
 \begin{frame}{Métrica 2 — decisões ``A vence B''}
   \slidetime{1:20}
   \begin{columns}[T,onlytextwidth]
@@ -290,7 +378,7 @@
     {Não dizer que empates são simplesmente excluídos: apenas o empate exato inicial fica indefinido; um empate exato posterior mantém o vencedor já estabelecido.}
 \end{frame}
 
-% Slide 8 ---------------------------------------------------------------------
+% Slide 10 ---------------------------------------------------------------------
 \begin{frame}{Métricas 3 e 4 — quais pares invertem e em que regime amostral?}
   \slidetime{1:50}
   \begin{columns}[T,onlytextwidth]
@@ -354,7 +442,7 @@
     {Não anunciar um produto ou índice único combinando $A_R$ e $S_R$; o relatório e esta apresentação os mantêm sempre separados.}
 \end{frame}
 
-% Slide 9 ---------------------------------------------------------------------
+% Slide 11 ---------------------------------------------------------------------
 \begin{frame}{Occupancy + SVM linear — nenhum gerador vence em todas as métricas}
   \slidetime{1:40}
   \vspace{-0.04cm}
@@ -392,7 +480,7 @@
     {Não simplificar dizendo que a Gaussiana única ``venceu'': ela perde em $\SR$. Não reduzir a interpretação aos pontos finais das curvas.}
 \end{frame}
 
-% Slide 10 --------------------------------------------------------------------
+% Slide 12 --------------------------------------------------------------------
 \begin{frame}{Air Quality + Gaussian NB: ordenação e vencedores quase perfeitos}
   \slidetime{1:40}
   \vspace{-0.04cm}
@@ -430,7 +518,7 @@
     {Não generalizar este resultado para outros classificadores do Air Quality: o SVM linear do mesmo dataset tem $\AR$ tão baixo quanto 0,26.}
 \end{frame}
 
-% Slide 11 --------------------------------------------------------------------
+% Slide 13 --------------------------------------------------------------------
 \begin{frame}{SUPPORT2 — desempenho absoluto e perfil são dimensões distintas}
   \slidetime{1:40}
   \vspace{-0.04cm}
@@ -471,7 +559,7 @@
     {Não recomendar Random Forest como melhor classificador; não transformar preservação em evidência de boa predição clínica.}
 \end{frame}
 
-% Slide 12 --------------------------------------------------------------------
+% Slide 14 --------------------------------------------------------------------
 \begin{frame}{Síntese e conclusão}
   \slidetime{1:20}
   \vspace{-0.04cm}
@@ -520,6 +608,6 @@
     {A conclusão tem três partes. Primeiro, a preservação do perfil é multidimensional: correlação de ranking, Winner Agreement, concordância de existência de inversões e similaridade dos tamanhos amostrais não devem ser fundidas em uma única afirmação, nem em um único número. Segundo, semelhança geométrica, desempenho preditivo absoluto e preservação do perfil de cooperação preditiva são propriedades diferentes. Terceiro, nenhum gerador foi universalmente superior nos cenários avaliados: a preservação do perfil depende da interação entre dataset, classificador, modelo gerador e tamanho amostral. Se o treinamento com amostras de um modelo ajustado aos dados reais reproduzir o perfil de referência dentro do intervalo observado, esse gerador poderá ser investigado como instrumento para simular regimes amostrais maiores e subsidiar futuras decisões sobre canais. Essa é uma possibilidade de pesquisa, não uma validação já concluída: a grade termina no maior $n$ avaliado em cada dataset, não medimos custos e não demonstramos extrapolação confiável. A concordância de existência e de regime amostral das inversões foi recalculada nesta revisão para todos os cenários de escala completa de Occupancy, Air Quality e SUPPORT2, confirmando a dissociação entre indicadores mostrada nos três slides de resultados.}
     {Encerrar retomando a tese inicial e, se houver perguntas, usar os slides de apoio para fórmulas, configurações e resultados adicionais.}
     {Em alguns cenários, o perfil obtido após o treinamento com amostras sintéticas reproduz o perfil de referência; isso não prova ganho de acurácia, economia ou extrapolação.}
-    {1 minuto e 20 segundos. Duração principal acumulada: 18 minutos e 15 segundos.}
+    {1 minuto e 20 segundos. Duração principal acumulada: 21 minutos.}
     {Evitar qualquer promessa operacional: custo e extrapolação são hipóteses para validação futura; não confundir "recalculado para os três datasets" com "demonstra economia ou extrapolação".}
 \end{frame}
