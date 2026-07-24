@@ -7,12 +7,12 @@ O Capítulo~3 (Seção~\ref{sec:provenance}) apresenta a proveniência como comp
 
 A proveniência formal do \CoInfoSim{} é compatível com o vocabulário do \emph{W3C PROV Ontology} (PROV-O) \cite{provo2013}: cada objeto do experimento é modelado como \texttt{prov:Entity} (um dado ou artefato), \texttt{prov:Activity} (uma computação) ou \texttt{prov:Agent} --- neste caso, especificamente \texttt{prov:SoftwareAgent}, papel do próprio \CoInfoSim{}. Uma execução de simulação é sempre uma atividade, nunca uma entidade. A granularidade é por cenário e por braço experimental, não por replicação Monte Carlo: não há nó de proveniência por réplica, tamanho amostral, subconjunto de canais, ajuste de classificador, célula de matriz ou estimativa de perda individual.
 
-A exportação é construída, para cada cenário regenerado, a partir de um único modelo canônico da biblioteca Python \texttt{prov} (\texttt{ProvDocument}), montado a partir de evidências normalizadas de proveniência. Desse modelo derivam, deterministicamente, todos os artefatos serializados listados na Tabela~\ref{tab:prov-artifacts}; nenhum deles é produzido de forma independente ou pode divergir dos demais.
+A exportação é construída, para cada cenário, a partir de um único modelo canônico da biblioteca Python \texttt{prov} (\texttt{ProvDocument}), montado a partir de evidências normalizadas de proveniência. Desse modelo derivam, deterministicamente, todos os artefatos serializados listados na Tabela~\ref{tab:prov-artifacts}; nenhum deles é produzido de forma independente ou pode divergir dos demais.
 
 \begin{table}[H]
   \centering
   \small
-  \caption{Artefatos de proveniência emitidos por cenário regenerado}
+  \caption{Artefatos de proveniência emitidos por cenário}
   \label{tab:prov-artifacts}
   \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{4.3cm}>{\raggedright\arraybackslash}p{2.6cm}X}
     \toprule
@@ -55,7 +55,7 @@ A Tabela~\ref{tab:prov-roles} resume o mapeamento entre objetos do \CoInfoSim{} 
     Preparação do dataset & \texttt{prov:Activity} & \texttt{coinfosim:\allowbreak DatasetPreparation} \\
     Ajuste de gerador (Gaussiana única/GMM) & \texttt{prov:Activity} & \texttt{coinfosim:\allowbreak Fit\{SingleGaussian,\allowbreak GMM\}} \\
     Execução de simulação (por braço) & \texttt{prov:Activity} & \texttt{coinfosim:\allowbreak\{Real,\allowbreak SingleGaussian,\allowbreak GMM\}\allowbreak SimulationRun} \\
-    Recomputação do perfil & \texttt{prov:Activity} & \texttt{coinfosim:\allowbreak ProfileComputation} \\
+    Computação do perfil & \texttt{prov:Activity} & \texttt{coinfosim:\allowbreak ProfileComputation} \\
     Geração do relatório & \texttt{prov:Activity} & \texttt{coinfosim:\allowbreak ReportGeneration} \\
     O próprio \CoInfoSim{} & \texttt{prov:\allowbreak SoftwareAgent} & sem subtipo \texttt{coinfosim:}; identificador único \texttt{urn:\allowbreak coinfosim:\allowbreak software:\allowbreak coinfosim} \\
     \bottomrule
@@ -86,7 +86,7 @@ PredictiveCooperationProfile -> ReportGeneration -> ReportArtifact(s)
 
 \section{Semantic manifest e vocabulário}
 
-Ao lado do grafo de proveniência, cada cenário regenerado emite \texttt{semantic\_manifest.json}, que registra a versão do vocabulário semântico utilizado, o tipo semântico do objeto central (\texttt{PredictiveCooperationProfile}), os identificadores canônicos das métricas presentes (por exemplo, \texttt{ReversalExistenceAgreement}), o hash SHA-256 e o caminho relativo de cada resultado bruto de origem, o hash de cada artefato de relatório produzido, e os identificadores de cenário e de simulação envolvidos. Um trecho ilustrativo do manifesto do cenário SUPPORT2 000008 é:
+Ao lado do grafo de proveniência, cada cenário emite \texttt{semantic\_manifest.json}, que registra a versão do vocabulário semântico utilizado, o tipo semântico do objeto central (\texttt{PredictiveCooperationProfile}), os identificadores canônicos das métricas presentes (por exemplo, \texttt{ReversalExistenceAgreement}), o hash SHA-256 e o caminho relativo de cada resultado bruto de origem, o hash de cada artefato de relatório produzido, e os identificadores de cenário e de simulação envolvidos. Um trecho ilustrativo do manifesto do cenário SUPPORT2 000008 é:
 
 \begin{quote}
 \scriptsize
@@ -102,7 +102,7 @@ Ao lado do grafo de proveniência, cada cenário regenerado emite \texttt{semant
 \end{verbatim}
 \end{quote}
 
-Todos os caminhos persistidos são relativos ao repositório; nenhum caminho absoluto de máquina, usuário ou diretório temporário é gravado. Todos os hashes usam SHA-256. O grafo regenerado para cada cenário de escala completa contém uma preparação de dataset, até dois ajustes de gerador, três execuções de simulação, uma recomputação de perfil e uma geração de relatório, mais as entidades correspondentes de dados e artefatos de relatório --- números compatíveis com a granularidade descrita. Os manifestos e grafos persistidos registram também metadados internos de engenharia (revisão de código, ambiente de execução e, quando aplicável, origem de artefatos recuperados de uma publicação anterior) que apoiam a auditoria de regeneração do relatório, mas não fazem parte da proveniência \emph{científica} do experimento descrita neste apêndice e por isso não são detalhados aqui.
+Todos os caminhos persistidos são relativos ao repositório; nenhum caminho absoluto de máquina, usuário ou diretório temporário é gravado. Todos os hashes usam SHA-256. O grafo emitido para cada cenário de escala completa contém uma preparação de dataset, até dois ajustes de gerador, três execuções de simulação, uma computação de perfil e uma geração de relatório, mais as entidades correspondentes de dados e artefatos de relatório --- números compatíveis com a granularidade descrita. Os manifestos e grafos persistidos registram também metadados internos de engenharia (revisão de código e ambiente de execução) que apoiam a auditoria da execução do software, mas não fazem parte da proveniência \emph{científica} do experimento descrita neste apêndice e por isso não são detalhados aqui.
 
 O vocabulário semântico subjacente tem cada termo identificado por um ID estável (namespace \url{https://paulorenatoaz.github.io/coinfosim/ns#}), independente de mudanças posteriores no rótulo em português ou inglês; código e grafos de proveniência referenciam sempre o ID, nunca o texto do rótulo. Entre os termos centrais estão:
 

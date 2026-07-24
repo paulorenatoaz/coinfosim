@@ -290,26 +290,30 @@
   \slidetime{1:15}
   \vspace{-0.22cm}
   \centering
-  \includegraphics[width=0.97\linewidth,height=3.75cm,keepaspectratio]{\figroot/provenance/prov_profile_derivation_wide.pdf}
+  \includegraphics[width=0.97\linewidth,trim=1476pt 0pt 691pt 0pt,clip,keepaspectratio]{\figroot/provenance/provenance_occupancy_000002.pdf}
 
-  \vspace{0.02cm}
+  \vspace{0.03cm}
+  {\centering\fontsize{7.0}{8.4}\selectfont\color{CoInfoGray}
+    W3C PROV \textbullet{} \texttt{ProvDocument} \textbullet{} \texttt{prov\_to\_dot} \textbullet{} Graphviz\par}
+
+  \vspace{0.03cm}
   \metricpill{CoInfoAmber}{Entity}{dado ou artefato (reserva de treino, teste real fixo, resultado, perfil)}
   \hspace{0.04cm}
-  \metricpill{CoInfoBlue}{Activity}{computação (ajuste dos geradores, simulação, recomputação do perfil)}
+  \metricpill{CoInfoBlue}{Activity}{computação (ajuste dos geradores, simulação, computação do perfil)}
 
   \vspace{0.04cm}
   \begin{beamercolorbox}[wd=\linewidth,sep=.07cm,rounded=true]{block title}
     \centering\fontsize{8.0}{9.6}\selectfont
     O mesmo teste real fixo alimenta os três braços de avaliação; apenas a reserva de treino alimenta o ajuste dos geradores.
   \end{beamercolorbox}
-  \sourcecite{grafo formal efetivamente emitido pelo CoInfoSim, cadeia central; compatível com W3C PROV-O; relatório final, Apêndice E.}
+  \sourcecite{recorte da cadeia central do grafo Graphviz genuíno, emitido por \texttt{prov\_to\_dot} a partir do \texttt{ProvDocument} canônico do cenário Occupancy 000002; relatório final, Capítulo 3 e Apêndice E.}
 
   \speakernotes
-    {Este é o grafo de proveniência formal efetivamente emitido pelo CoInfoSim, compatível com o vocabulário PROV-O do W3C, simplificado aqui para a cadeia central experimental. A reserva de treino alimenta o ajuste da Gaussiana única e do GMM, e também o braço Real-para-Real diretamente; o teste real fixo, e apenas ele, alimenta os três braços de simulação na etapa de avaliação --- nunca o ajuste dos geradores. Os três resultados brutos alimentam uma única recomputação do perfil de cooperação preditiva. As setas rotuladas são relações padronizadas: usado por e gerado por. Isso não é um diagrama ilustrativo: os tipos e relações correspondem exatamente aos emitidos pelo código atual para cada cenário. Vale uma ressalva de escopo: essa é uma camada de vocabulário semântico e proveniência PROV-O, com uma pequena ontologia OWL 2 de apoio; não há raciocínio automático nem um banco de grafos consultável em produção --- os slides de apoio detalham esse escopo.}
+    {Este é um recorte do grafo de proveniência formal genuíno, emitido pelo CoInfoSim com a biblioteca Python \texttt{prov} --- \texttt{ProvDocument} e \texttt{prov\_to\_dot}/Graphviz --- compatível com o vocabulário PROV-O do W3C; não é um diagrama ilustrativo. A reserva de treino alimenta o ajuste da Gaussiana única e do GMM, e também o braço Real-para-Real diretamente; o teste real fixo, e apenas ele, alimenta os três braços de simulação na etapa de avaliação --- nunca o ajuste dos geradores. Os três resultados brutos alimentam uma única computação do perfil de cooperação preditiva. As setas rotuladas são relações PROV padronizadas: \texttt{used} e \texttt{wasGeneratedBy}. O recorte remove apenas os nós à margem do grafo completo deste cenário (artefatos de relatório e proveniência de origem do dataset); os tipos e relações mostrados correspondem exatamente aos emitidos pelo código atual. Vale uma ressalva de escopo: essa é uma camada de vocabulário semântico e proveniência PROV-O, com uma pequena ontologia OWL 2 de apoio; não há raciocínio automático nem um banco de grafos consultável em produção --- os slides de apoio detalham esse escopo e mostram os grafos completos do Air Quality e do SUPPORT2.}
     {Com o controle experimental estabelecido, retomo o protocolo de três braços e sigo para os indicadores de preservação do perfil.}
     {O grafo formal torna auditável que o teste real nunca participa do ajuste dos geradores.}
     {1 minuto e 15 segundos.}
-    {Não chamar esta camada de ontologia OWL completa com raciocínio automático; é vocabulário semântico e proveniência PROV-O, com uma pequena ontologia de apoio. Não mencionar recuperação de artefatos ou commits: este slide mostra proveniência experimental, não bookkeeping de regeneração de relatório.}
+    {Não chamar esta camada de ontologia OWL completa com raciocínio automático; é vocabulário semântico e proveniência PROV-O, com uma pequena ontologia de apoio. Não mencionar recuperação de artefatos ou commits: este slide mostra proveniência experimental genuína, não bookkeeping de regeneração de relatório.}
 \end{frame}
 
 % Slide 8 ---------------------------------------------------------------------
