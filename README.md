@@ -339,9 +339,6 @@ The dataset-anchored phase uses small, interpretable real-data studies with a fe
 
 The first three pipelines are implemented; the remaining examples are motivations, not plug-and-play dataset support. CoInfoSim does not claim arbitrary CSV plug-and-play support — a new dataset requires an explicit validated loader, execution spec, model builders, and dataset-specific report text.
 
-### Relationship to SLACGS and CoSenSim
-
-CoInfoSim builds on SLACGS, a simpler antecedent that studied cooperative gains in synthetic Gaussian settings organized primarily around dimensionality comparisons (lower- versus higher-dimensional models). CoInfoSim generalizes the object of comparison from dimension $d$ to the attribute subset $A \subseteq \{1,\ldots,d\}$, evaluated across dataset-anchored scenarios rather than synthetic dimensionality alone. The reproducible Monte Carlo machinery, nested sample growth, adaptive repetition, and scenario-level reporting from SLACGS — carried forward via the intermediate CoSenSim package — are retained.
 
 ### Repository structure
 
