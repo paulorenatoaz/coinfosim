@@ -454,26 +454,26 @@
     \begin{column}{0.39\linewidth}
       \centering
       \renewcommand{\arraystretch}{1.0}
+      \setlength{\tabcolsep}{0pt}
       \begin{tabular}{@{}c@{}}
-        {\tiny\textbf{Real}}\\[0.02cm]
-        \includegraphics[height=1.15cm,keepaspectratio,trim=6.5 835 737 39,clip]{\figroot/geometry/occupancy/viz_2d_real_full_000002.png}\\[0.05cm]
-        {\tiny\textbf{Gaussiana única}}\\[0.02cm]
-        \includegraphics[height=1.15cm,keepaspectratio,trim=6.5 835 737 39,clip]{\figroot/geometry/occupancy/viz_2d_gaussian_full_000002.png}\\[0.05cm]
-        {\tiny\textbf{GMM}}\\[0.02cm]
-        \includegraphics[height=1.15cm,keepaspectratio,trim=6.5 835 737 39,clip]{\figroot/geometry/occupancy/viz_2d_gmm_full_000002.png}
-      \end{tabular}\\[0.03cm]
-      {\fontsize{6.2}{7.4}\selectfont\color{CoInfoGray}geometria $(X_1,X_2)$\par}
+        {\fontsize{5.6}{6.6}\selectfont\textbf{Real}}\\[0.01cm]
+        \includegraphics[height=0.62cm,keepaspectratio,trim=6.5 835 737 39,clip]{\figroot/geometry/occupancy/viz_2d_real_full_000002.png}\\[0.015cm]
+        {\fontsize{5.6}{6.6}\selectfont\textbf{Gaussiana única}}\\[0.01cm]
+        \includegraphics[height=0.62cm,keepaspectratio,trim=6.5 835 737 39,clip]{\figroot/geometry/occupancy/viz_2d_gaussian_full_000002.png}\\[0.015cm]
+        {\fontsize{5.6}{6.6}\selectfont\textbf{GMM}}\\[0.01cm]
+        \includegraphics[height=0.62cm,keepaspectratio,trim=6.5 835 737 39,clip]{\figroot/geometry/occupancy/viz_2d_gmm_full_000002.png}
+      \end{tabular}
     \end{column}
     \begin{column}{0.58\linewidth}
       \centering
-      \includegraphics[width=0.99\linewidth,height=4.35cm,keepaspectratio]{figures/occupancy_svm_metricas_vs_n_full.pdf}
+      \includegraphics[width=0.99\linewidth,height=3.15cm,keepaspectratio]{figures/occupancy_svm_metricas_vs_n_full.pdf}
     \end{column}
   \end{columns}
 
   \vspace{-0.10cm}
   \begin{beamercolorbox}[wd=\linewidth,sep=0.08cm,rounded=true]{takeaway}
     \centering\bfseries\fontsize{9.0}{10.6}\selectfont
-    Maior semelhança geométrica visual não implica maior preservação do perfil preditivo: o GMM segue mais de perto a geometria real, mas a Gaussiana única termina à frente em $\rankrho$, $\AW$ e $\AR$; o GMM termina à frente em $\SR$.
+Maior fidelidade geométrica do GMM não implica maior preservação do perfil: Gaussiana única lidera $\rankrho$, $\AW$ e $\AR$; GMM lidera $\SR$.
   \end{beamercolorbox}
   \sourcecite{Candanedo e Feldheim (2016); cenário full 000002; séries recalculadas diretamente pelo código atual.}
 
@@ -493,19 +493,19 @@
     \begin{column}{0.39\linewidth}
       \centering
       \renewcommand{\arraystretch}{1.0}
+      \setlength{\tabcolsep}{0pt}
       \begin{tabular}{@{}c@{}}
-        {\tiny\textbf{Real}}\\[0.02cm]
-        \includegraphics[height=1.15cm,keepaspectratio,trim=6.5 835 737 39,clip]{\figroot/geometry/air_quality/viz_2d_real_full_000005.png}\\[0.05cm]
-        {\tiny\textbf{Gaussiana única}}\\[0.02cm]
-        \includegraphics[height=1.15cm,keepaspectratio,trim=6.5 835 737 39,clip]{\figroot/geometry/air_quality/viz_2d_gaussian_full_000005.png}\\[0.05cm]
-        {\tiny\textbf{GMM}}\\[0.02cm]
-        \includegraphics[height=1.15cm,keepaspectratio,trim=6.5 835 737 39,clip]{\figroot/geometry/air_quality/viz_2d_gmm_full_000005.png}
-      \end{tabular}\\[0.03cm]
-      {\fontsize{6.2}{7.4}\selectfont\color{CoInfoGray}geometria $(X_1,X_2)$\par}
+        {\fontsize{5.6}{6.6}\selectfont\textbf{Real}}\\[0.01cm]
+        \includegraphics[height=0.62cm,keepaspectratio,trim=6.5 835 737 39,clip]{\figroot/geometry/air_quality/viz_2d_real_full_000005.png}\\[0.015cm]
+        {\fontsize{5.6}{6.6}\selectfont\textbf{Gaussiana única}}\\[0.01cm]
+        \includegraphics[height=0.62cm,keepaspectratio,trim=6.5 835 737 39,clip]{\figroot/geometry/air_quality/viz_2d_gaussian_full_000005.png}\\[0.015cm]
+        {\fontsize{5.6}{6.6}\selectfont\textbf{GMM}}\\[0.01cm]
+        \includegraphics[height=0.62cm,keepaspectratio,trim=6.5 835 737 39,clip]{\figroot/geometry/air_quality/viz_2d_gmm_full_000005.png}
+      \end{tabular}
     \end{column}
     \begin{column}{0.58\linewidth}
       \centering
-      \includegraphics[width=0.99\linewidth,height=4.35cm,keepaspectratio]{figures/air_quality_gnb_metricas_vs_n_full.pdf}
+      \includegraphics[width=0.99\linewidth,height=3.15cm,keepaspectratio]{figures/air_quality_gnb_metricas_vs_n_full.pdf}
     \end{column}
   \end{columns}
 
@@ -514,7 +514,7 @@
     \centering\bfseries\fontsize{9.0}{10.6}\selectfont
     Ordenação, vencedores, existência e regime amostral das inversões preservados quase integralmente nos dois braços sintéticos --- o caso mais forte do estudo.
   \end{beamercolorbox}
-  \sourcecite{De Vito et al. (2008); cenário full 000005; séries recalculadas diretamente pelo código atual sobre dados brutos regenerados.}
+  \sourcecite{De Vito et al. (2008); cenário full 000005; séries recalculadas diretamente pelo código atual.}
 
   \speakernotes
     {Aqui, as trajetórias mostram que os dois braços sintéticos treinados com Gaussian Naive Bayes reproduzem quase integralmente as quatro dimensões do perfil de cooperação preditiva; a geometria $(X_1,X_2)$ à esquerda também mostra as duas nuvens sintéticas próximas da real. A correlação de ranking e a Winner Agreement chegam muito cedo a valores próximos de 1. A concordância de existência de inversões cresce ao longo da grade e termina em 0,7816 na Gaussiana única e 0,8836 no GMM; a similaridade do regime amostral termina acima de 0,96 nos dois braços. Este é o único caso do estudo em que os quatro indicadores concordam em apontar preservação forte ao mesmo tempo nos dois braços sintéticos.}
@@ -532,19 +532,19 @@
     \begin{column}{0.39\linewidth}
       \centering
       \renewcommand{\arraystretch}{1.0}
+      \setlength{\tabcolsep}{0pt}
       \begin{tabular}{@{}c@{}}
-        {\tiny\textbf{Real}}\\[0.02cm]
-        \includegraphics[height=1.15cm,keepaspectratio,trim=6.5 1717 737 39,clip]{\figroot/geometry/support2/viz_2d_real_full_000008.png}\\[0.05cm]
-        {\tiny\textbf{Gaussiana única}}\\[0.02cm]
-        \includegraphics[height=1.15cm,keepaspectratio,trim=6.5 1717 737 39,clip]{\figroot/geometry/support2/viz_2d_gaussian_full_000008.png}\\[0.05cm]
-        {\tiny\textbf{GMM}}\\[0.02cm]
-        \includegraphics[height=1.15cm,keepaspectratio,trim=6.5 1717 737 39,clip]{\figroot/geometry/support2/viz_2d_gmm_full_000008.png}
-      \end{tabular}\\[0.03cm]
-      {\fontsize{6.2}{7.4}\selectfont\color{CoInfoGray}geometria $(X_1,X_2)$\par}
+        {\fontsize{5.6}{6.6}\selectfont\textbf{Real}}\\[0.01cm]
+        \includegraphics[height=0.62cm,keepaspectratio,trim=6.5 1717 737 39,clip]{\figroot/geometry/support2/viz_2d_real_full_000008.png}\\[0.015cm]
+        {\fontsize{5.6}{6.6}\selectfont\textbf{Gaussiana única}}\\[0.01cm]
+        \includegraphics[height=0.62cm,keepaspectratio,trim=6.5 1717 737 39,clip]{\figroot/geometry/support2/viz_2d_gaussian_full_000008.png}\\[0.015cm]
+        {\fontsize{5.6}{6.6}\selectfont\textbf{GMM}}\\[0.01cm]
+        \includegraphics[height=0.62cm,keepaspectratio,trim=6.5 1717 737 39,clip]{\figroot/geometry/support2/viz_2d_gmm_full_000008.png}
+      \end{tabular}
     \end{column}
     \begin{column}{0.58\linewidth}
       \centering
-      \includegraphics[width=0.99\linewidth,height=4.20cm,keepaspectratio]{figures/support2_rf_metricas_vs_n_full.pdf}
+      \includegraphics[width=0.99\linewidth,height=3.05cm,keepaspectratio]{figures/support2_rf_metricas_vs_n_full.pdf}
     \end{column}
   \end{columns}
 
@@ -554,7 +554,7 @@
   \vspace{0.01cm}
   \begin{beamercolorbox}[wd=\linewidth,sep=0.08cm,rounded=true]{takeaway}
     \centering\bfseries\fontsize{9.0}{10.6}\selectfont
-    Perda absoluta, geometria visual e preservação do perfil respondem a perguntas diferentes; $A_R$ pode divergir substancialmente de $S_R$ mesmo para o mesmo par de braços.
+Perda absoluta, geometria visual e preservação do perfil são dimensões distintas; $A_R$ pode divergir de $S_R$ no mesmo par de braços.
   \end{beamercolorbox}
   \sourcecite{SUPPORT Principal Investigators (1995); Knaus et al. (1995); cenário full 000008; séries recalculadas diretamente pelo código atual.}
 
