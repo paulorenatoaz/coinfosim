@@ -1,9 +1,9 @@
 """
-Channel-subset enumeration and display labels for CoInfoSim Sprint 1.
+Attribute-subset enumeration and display labels for CoInfoSim Sprint 1.
 
-Subsets are represented internally as sorted tuples of zero-based channel
+Subsets are represented internally as sorted tuples of zero-based attribute
 indices. Display labels are one-based (``X1``, ``X2``, ...), joined with ``+``
-for multi-channel subsets (e.g. ``X1+X3``).
+for multi-attribute subsets (e.g. ``X1+X3``).
 """
 
 from __future__ import annotations
@@ -31,7 +31,7 @@ def all_nonempty_subsets(d: int) -> List[Tuple[int, ...]]:
 
 
 def subset_label(subset: Sequence[int]) -> str:
-    """Return the one-based display label for a channel ``subset``.
+    """Return the one-based display label for an attribute ``subset``.
 
     Example: ``(0, 2) -> "X1+X3"``.
     """

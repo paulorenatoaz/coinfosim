@@ -15,7 +15,7 @@ from coinfosim.simulation.monte_carlo import SimulationResult
 AIR_QUALITY_SCENARIO_REPORT_SPEC = DatasetAnchoredScenarioReportSpec(
     title="CoInfoSim — UCI Air Quality Dataset-Anchored Scenario",
     scientific_question=(
-        "Which training distribution best preserves the cooperative channel-subset "
+        "Which training distribution best preserves the cooperative attribute-subset "
         "structure observed on the fixed future real UCI Air Quality test set: real "
         "training data, single-Gaussian synthetic data, or GMM synthetic data?"
     ),
@@ -80,7 +80,7 @@ AIR_QUALITY_SCENARIO_REPORT_SPEC = DatasetAnchoredScenarioReportSpec(
         ),
         (
             "Divergences from Real → Real",
-            "Differences identify channel-subset relationships in the real training distribution that a fitted synthetic distribution does not reproduce on future real observations.",
+            "Differences identify attribute-subset relationships in the real training distribution that a fitted synthetic distribution does not reproduce on future real observations.",
         ),
         (
             "Classifier-specific behavior",

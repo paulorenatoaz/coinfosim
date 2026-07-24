@@ -125,12 +125,12 @@ def generate_air_quality_dataset_report(
         class_counts, data.class_labels, title="Class distribution by chronological split"
     )
     correlation_image = correlation_heatmap_image(
-        correlation, title="Training channel correlation matrix"
+        correlation, title="Training attribute correlation matrix"
     )
     standardized_means_image = standardized_mean_comparison_image(
         standardized_summary,
         data.channel_names,
-        title="Standardized train/test channel means",
+        title="Standardized train/test attribute means",
     )
     temporal_image = _temporal_image(data)
 
@@ -225,7 +225,7 @@ All training timestamps precede all test timestamps: <strong>{strict_order}</str
 baseline is therefore shown for each split.</p>
 <div class="figure"><img src="{class_distribution}" alt="class distribution"/></div>
 
-<h2>10. Raw channel statistics</h2>
+<h2>10. Raw attribute statistics</h2>
 {dataframe_html(raw_summary, float_cols=float_summary)}
 
 <h2>11. Standardization parameters</h2>
@@ -233,11 +233,11 @@ baseline is therefore shown for each split.</p>
 reservoir only with <code>ddof=0</code>, then applied unchanged to the fixed test.</p>
 {standardization_table_html(data.standardization)}
 
-<h2>12. Standardized channel statistics</h2>
+<h2>12. Standardized attribute statistics</h2>
 {dataframe_html(standardized_summary, float_cols=float_summary)}
 <div class="figure"><img src="{standardized_means_image}" alt="standardized means"/></div>
 
-<h2>13. Training channel correlation matrix</h2>
+<h2>13. Training attribute correlation matrix</h2>
 {dataframe_html(correlation.reset_index().rename(columns={'index': 'channel'}), float_cols={channel: '.4f' for channel in data.channel_names})}
 <div class="figure"><img src="{correlation_image}" alt="correlation heatmap"/></div>
 
@@ -266,7 +266,7 @@ The threshold is relative to this training period and supports no compliance cla
 <h2>19. Reproducibility metadata</h2>
 <ul><li>Dataset DOI: <code>10.24432/C59K5F</code></li>
 <li>File: <code>AirQualityUCI.csv</code></li>
-<li>Channels in order: {html.escape(', '.join(data.channel_names))}</li>
+<li>Attributes in order: {html.escape(', '.join(data.channel_names))}</li>
 <li>Reference: <code>{data.reference_name}</code>; quantile: {data.threshold_quantile};
 threshold: {data.threshold_value:.12g}</li><li>Split index: {data.split_index};
 training fraction: {data.train_fraction}</li><li>Standardization: training-only z-score,

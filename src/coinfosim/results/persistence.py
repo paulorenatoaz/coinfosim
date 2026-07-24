@@ -20,7 +20,7 @@ and the future synthetic Gaussian scenarios:
   are stored via their per-class means and covariances and rebuilt exactly.
 - Finite real-dataset models
   (:class:`~coinfosim.samplers.real.RealDatasetModel`) expose only lightweight
-  metadata (``d``, class labels, channel names, name), which is stored and
+  metadata (``d``, class labels, attribute names, name), which is stored and
   rebuilt. The raw data pool itself is not part of a result and is not needed
   to regenerate reports.
 """

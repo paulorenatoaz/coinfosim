@@ -231,7 +231,7 @@ def _prepare_air_quality_data(
     stds = train.loc[:, AIR_QUALITY_CHANNELS].std(ddof=0)
     if (stds <= 0).any():
         zero_channels = list(stds[stds <= 0].index)
-        raise ValueError(f"training channels have zero std: {zero_channels}")
+        raise ValueError(f"training attributes have zero std: {zero_channels}")
     standardization = StandardizationParameters(means=means, stds=stds)
     standardized_train = _standardize_frame(train, standardization)
     standardized_test = _standardize_frame(test, standardization)

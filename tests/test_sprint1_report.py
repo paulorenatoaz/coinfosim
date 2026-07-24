@@ -39,7 +39,7 @@ def test_report_contains_required_sections(tmp_path):
 
     # Title / scenario / question.
     assert "Synthetic Scenario 1" in text
-    assert "Simple Complementary Channel" in text
+    assert "Simple Complementary Attribute" in text
     assert "complementary information" in text
 
     # Required sections.

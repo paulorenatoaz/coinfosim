@@ -265,7 +265,7 @@ def calibrate_support2_random_forest(
     if int(training_provenance["training_rows"]) != training_dataset.n_samples:
         raise ValueError("training provenance row count differs from training Dataset")
     if len(training_provenance["channel_names"]) != training_dataset.d:
-        raise ValueError("training provenance channels differ from training Dataset")
+        raise ValueError("training provenance attributes differ from training Dataset")
     labels, counts = np.unique(training_dataset.y, return_counts=True)
     observed_counts = {
         str(label): int(count) for label, count in zip(labels, counts)
@@ -523,7 +523,7 @@ def load_and_validate_calibration_artifact(
         "raw_file_sha256": "stale raw-file SHA-256",
         "training_partition_fingerprint": "stale training partition fingerprint",
         "target_name": "different target",
-        "channel_names": "different channels or channel order",
+        "channel_names": "different attributes or attribute order",
         "split_seed": "different split seed",
         "dataset_slug": "different dataset",
         "training_rows": "different training row count",

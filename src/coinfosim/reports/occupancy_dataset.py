@@ -1,7 +1,7 @@
 """HTML dataset provenance and reproducibility report for the Occupancy scenario.
 
 Covers public provenance, local file roles, SHA-256 hashes, row counts,
-class distribution, channel dictionary, standardization protocol,
+class distribution, attribute dictionary, standardization protocol,
 leakage-control notes, and reproducibility metadata.
 """
 
@@ -36,7 +36,7 @@ def _class_distribution_image(data: OccupancyData) -> str:
 def _correlation_heatmap_image(data: OccupancyData) -> str:
     return correlation_heatmap_image(
         data.train_correlation(standardized=True),
-        title="Training-pool channel correlation",
+        title="Training-pool attribute correlation",
     )
 
 
@@ -44,7 +44,7 @@ def _standardized_summary_image(data: OccupancyData) -> str:
     return standardized_mean_comparison_image(
         data.standardized_channel_summary(),
         data.channel_names,
-        title="Standardized channel means",
+        title="Standardized attribute means",
     )
 
 
@@ -57,8 +57,8 @@ def generate_occupancy_dataset_report(
 
     The report includes: public provenance, citation, local file roles,
     SHA-256 hashes, train/test protocol, feature dictionary, row counts,
-    class distribution, raw channel statistics, standardization parameters,
-    standardized channel statistics, training-pool correlation matrix,
+    class distribution, raw attribute statistics, standardization parameters,
+    standardized attribute statistics, training-pool correlation matrix,
     leakage-control notes, and reproducibility metadata.
     """
 
@@ -221,7 +221,7 @@ Recompute with <code>sha256sum data/raw/occupancy/*.txt</code>.</p>
   <dt>Fixed real evaluation split</dt>
   <dd><code>datatest.txt</code> + <code>datatest2.txt</code>
       concatenated — {total_test:,} rows</dd>
-  <dt>Channels</dt><dd>{html.escape(channels)}</dd>
+  <dt>Attributes</dt><dd>{html.escape(channels)}</dd>
   <dt>Target variable</dt><dd><code>{html.escape(data.target_name)}</code></dd>
   <dt>Class labels</dt><dd>{list(data.class_labels)} (0 = unoccupied, 1 = occupied)</dd>
   <dt>Standardization</dt>
@@ -239,7 +239,7 @@ Recompute with <code>sha256sum data/raw/occupancy/*.txt</code>.</p>
 </table>
 <p>Compact notation: <code>{{X1}}</code> = Temperature,
 <code>{{X1, X3}}</code> = Temperature + Light,
-<code>{{X1, X2, X3, X4, X5}}</code> = full five-channel feature set.</p>
+<code>{{X1, X2, X3, X4, X5}}</code> = full five-attribute feature set.</p>
 
 <h2>7. Row counts</h2>
 {_dataframe_html(row_counts_df)}
@@ -248,7 +248,7 @@ Recompute with <code>sha256sum data/raw/occupancy/*.txt</code>.</p>
 {_dataframe_html(class_counts_df)}
 <div class="figure"><img src="{class_distribution}" alt="class distribution"/></div>
 
-<h2>9. Raw channel statistics</h2>
+<h2>9. Raw attribute statistics</h2>
 <p>Statistics computed on raw (unstandardized) data, split by role.</p>
 {_dataframe_html(raw_summary, float_cols=float_fmt)}
 
@@ -257,19 +257,19 @@ Recompute with <code>sha256sum data/raw/occupancy/*.txt</code>.</p>
 Applied to both the training pool and the fixed test split.</p>
 {_dataframe_html(standardization_df, float_cols=standardization_fmt)}
 
-<h2>Standardized channel statistics</h2>
+<h2>Standardized attribute statistics</h2>
 <p>After applying training-pool standardization parameters to both splits.</p>
 {_dataframe_html(standardized_summary, float_cols=float_fmt)}
-<div class="figure"><img src="{standardized_summary_plot}" alt="standardized channel means"/></div>
+<div class="figure"><img src="{standardized_summary_plot}" alt="standardized attribute means"/></div>
 
 <h2>Training-pool correlation matrix</h2>
-<p>Pearson correlation coefficients on standardized training-pool channels.</p>
+<p>Pearson correlation coefficients on standardized training-pool attributes.</p>
 {_dataframe_html(corr_df, float_cols={channel: ".3f" for channel in data.channel_names})}
 <div class="figure"><img src="{corr_heatmap}" alt="correlation heatmap"/></div>
 
 <h2>11. Leakage-control notes</h2>
 <ul>
-  <li><strong>Train-only standardization:</strong> channel means and standard deviations
+  <li><strong>Train-only standardization:</strong> attribute means and standard deviations
     are estimated exclusively from <code>datatraining.txt</code>. The same parameters
     are applied to both the training pool and the fixed test split.</li>
   <li><strong>Fixed test split:</strong> <code>datatest.txt</code> and
@@ -290,7 +290,7 @@ Applied to both the training pool and the fixed test split.</p>
   {hash_dl_items}
   <dt>Training pool rows</dt><dd>{total_train:,}</dd>
   <dt>Fixed test split rows</dt><dd>{total_test:,}</dd>
-  <dt>Channels</dt><dd>{html.escape(channels)}</dd>
+  <dt>Attributes</dt><dd>{html.escape(channels)}</dd>
   <dt>Target</dt><dd>{html.escape(data.target_name)}</dd>
   <dt>Standardization rule</dt>
   <dd>z-score, parameters fitted from training pool only (ddof=0)</dd>

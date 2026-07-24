@@ -22,7 +22,7 @@ def empirical_test_loss(estimator, test_dataset: Dataset) -> float:
         A fitted scikit-learn-style estimator exposing ``predict``.
     test_dataset:
         The test :class:`Dataset` (already restricted to the relevant
-        channels if a subset is being evaluated).
+        attributes if a subset is being evaluated).
 
     Returns
     -------

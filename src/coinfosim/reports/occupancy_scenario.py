@@ -24,7 +24,7 @@ from coinfosim.simulation.monte_carlo import SimulationResult
 
 Subset = Tuple[int, ...]
 
-# Occupancy channel order: X1..X5. Sensor names appear only in the legend and in
+# Occupancy attribute order: X1..X5. Sensor names appear only in the legend and in
 # explicit reference-subset annotations.
 _SENSOR_DISPLAY = {"CO2": "CO₂", "HumidityRatio": "Humidity Ratio"}
 _SUBSCRIPTS = str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉")
@@ -36,7 +36,7 @@ def _sensor(name: str, display_mapping: Optional[Mapping[str, str]] = None) -> s
 
 
 def _xsub(i0: int) -> str:
-    """Subscripted math label for a zero-based channel index, e.g. ``X₃``."""
+    """Subscripted math label for a zero-based attribute index, e.g. ``X₃``."""
     return "X" + str(i0 + 1).translate(_SUBSCRIPTS)
 
 
@@ -620,7 +620,7 @@ def _nstar_section(
     d = len(channel_names)
     parts: List[str] = ["<h2>8. N-star availability</h2>"]
     parts.append(
-        "<p>For each classifier and channel-subset cardinality, the best "
+        "<p>For each classifier and attribute-subset cardinality, the best "
         "subset at the largest evaluated sample size is used as a reference "
         "and compared against the best subset of every other cardinality and, "
         "when it exists, the second-best subset of the same cardinality. "
@@ -675,7 +675,7 @@ def _nstar_section(
                     if e["interp"] is not None
                 ]
                 title = (
-                    f"{classifier_label(clf)} — Best {k}-channel "
+                    f"{classifier_label(clf)} — Best {k}-attribute "
                     f"{_subset_notation(reference)} — {arm_name} (loss vs N)"
                 )
                 key = f"graph_nstar_{clf}_k{k}_{arm_key}"
@@ -697,8 +697,8 @@ def _nstar_section(
             cardinality_tabs.append(
                 (
                     f"k{k}",
-                    f"Best {k}-channel reference",
-                    f"<h4>Best {k}-channel subset</h4>"
+                    f"Best {k}-attribute reference",
+                    f"<h4>Best {k}-attribute subset</h4>"
                     + tab_group(
                         f"scenario-nstar-{clf}-k{k}-arm", arm_tabs, "real"
                     ),
@@ -742,7 +742,7 @@ def _legend_html(
         for i, name in enumerate(channel_names)
     )
     return (
-        "<div class='legend'><span class='legend-title'>Channel legend</span>"
+        "<div class='legend'><span class='legend-title'>Attribute legend</span>"
         f"{items}</div>"
     )
 
@@ -771,8 +771,8 @@ def _summary_table(
         ("Target", html.escape(target_definition)),
         ("Main arms", html.escape("; ".join(arm_labels))),
         ("Real training source", html.escape(real_training_description)),
-        ("Number of channels", str(len(channel_names))),
-        ("Non-empty channel subsets", str(len(real_result.subsets))),
+        ("Number of attributes", str(len(channel_names))),
+        ("Non-empty attribute subsets", str(len(real_result.subsets))),
         ("Classifiers", html.escape(classifiers)),
         ("Metric", "Empirical test loss (0–1 misclassification)"),
         ("Sample sizes", html.escape(str(list(real_result.sample_sizes)))),
@@ -1211,7 +1211,7 @@ def generate_occupancy_scenario_report(
         arm_summaries={
             "real_to_real": (
                 "The real-data baseline draws balanced training samples from the "
-                "standardized Occupancy training pool and evaluates every channel "
+                "standardized Occupancy training pool and evaluates every attribute "
                 "subset and classifier on the fixed real Occupancy evaluation split."
             ),
             "single_gaussian_to_real": (

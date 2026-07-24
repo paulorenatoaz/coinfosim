@@ -51,7 +51,7 @@ class RealDatasetSampler:
     base_seed:
         Base random seed controlling deterministic permutations.
     channel_names:
-        Optional channel names for model metadata.
+        Optional attribute names for model metadata.
     name:
         Optional model/scenario label for metadata.
     """

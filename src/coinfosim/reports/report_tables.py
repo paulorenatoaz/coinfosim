@@ -25,17 +25,17 @@ def compact_subset_label(
     subset: Sequence[int],
     channel_names: Optional[Sequence[str]] = None,
 ) -> str:
-    """Return a compact curly-brace label for a zero-based channel subset.
+    """Return a compact curly-brace label for a zero-based attribute subset.
 
-    With channel names: ``{Temperature, Light}``
-    Without channel names: ``{X1, X3}``
+    With attribute names: ``{Temperature, Light}``
+    Without attribute names: ``{X1, X3}``
 
     Parameters
     ----------
     subset:
-        Zero-based channel indices, e.g. ``(0, 2)``.
+        Zero-based attribute indices, e.g. ``(0, 2)``.
     channel_names:
-        Optional sequence of channel display names. When provided, channel
+        Optional sequence of attribute display names. When provided, attribute
         names are used instead of ``Xi`` placeholders.
     """
     indices = [int(i) for i in subset]
@@ -49,7 +49,7 @@ def compact_subset_label(
 
 
 def compact_subset_label_xi(subset: Sequence[int]) -> str:
-    """Return ``{X1, X3}`` notation regardless of channel names."""
+    """Return ``{X1, X3}`` notation regardless of attribute names."""
     return compact_subset_label(subset, channel_names=None)
 
 
@@ -70,19 +70,19 @@ def subset_metadata_table(
     subsets: Sequence[Sequence[int]],
     channel_names: Optional[Sequence[str]] = None,
 ) -> pd.DataFrame:
-    """Return a metadata table for a list of channel subsets.
+    """Return a metadata table for a list of attribute subsets.
 
     Columns: ``subset_id``, ``subset_label``, ``subset_size``, plus one
-    boolean column per channel (``has_temperature``, ``has_humidity``,
+    boolean column per attribute (``has_temperature``, ``has_humidity``,
     ``has_light``, ``has_co2``, ``has_humidity_ratio``) when *channel_names*
-    matches the standard five Occupancy channels.
+    matches the standard five Occupancy attributes.
 
     Parameters
     ----------
     subsets:
-        Ordered list of zero-based channel-index tuples.
+        Ordered list of zero-based attribute-index tuples.
     channel_names:
-        Optional channel names used to populate boolean membership columns.
+        Optional attribute names used to populate boolean membership columns.
     """
     ch = list(channel_names) if channel_names is not None else []
     rows: List[Dict[str, Any]] = []
@@ -96,7 +96,7 @@ def subset_metadata_table(
             ),
             "subset_size": len(s),
         }
-        # Boolean membership columns (only populated when channel names match).
+        # Boolean membership columns (only populated when attribute names match).
         for ch_name, flag in _CHANNEL_FLAGS:
             if ch:
                 try:
@@ -182,7 +182,7 @@ def full_loss_table(
     result:
         A completed :class:`~coinfosim.simulation.monte_carlo.SimulationResult`.
     channel_names:
-        Optional channel names for human-readable subset labels.
+        Optional attribute names for human-readable subset labels.
     arm:
         Optional arm identifier string (e.g. ``"real_to_real"``).
     scenario_id:

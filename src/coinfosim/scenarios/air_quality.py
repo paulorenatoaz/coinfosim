@@ -15,7 +15,7 @@ AIR_QUALITY_SCENARIO_NAME = (
 )
 AIR_QUALITY_SCENARIO_QUESTION = (
     "To what extent do single-Gaussian and class-conditional GMM synthetic "
-    "training distributions preserve the cooperative channel structure observed "
+    "training distributions preserve the cooperative attribute-subset structure observed "
     "when classifiers detect elevated benzene concentration on a fixed future "
     "real-data evaluation period?"
 )
