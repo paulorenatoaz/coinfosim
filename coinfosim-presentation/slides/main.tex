@@ -446,32 +446,66 @@
 \begin{frame}{Occupancy + SVM linear — nenhum gerador vence em todas as métricas}
   \slidetime{1:40}
   \vspace{0.05cm}
-  {\centering
-  \includegraphics[width=0.97\linewidth,height=4.35cm,keepaspectratio]{figures/occupancy_svm_metricas_vs_n_full.pdf}\par}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.39\linewidth}
+      \centering
+      \renewcommand{\arraystretch}{1.0}
+      \begin{tabular}{@{}c@{}}
+        {\tiny\textbf{Real}}\\[0.02cm]
+        \includegraphics[height=1.15cm,keepaspectratio,trim=6.5 835 737 39,clip]{\figroot/geometry/occupancy/viz_2d_real_full_000002.png}\\[0.05cm]
+        {\tiny\textbf{Gaussiana única}}\\[0.02cm]
+        \includegraphics[height=1.15cm,keepaspectratio,trim=6.5 835 737 39,clip]{\figroot/geometry/occupancy/viz_2d_gaussian_full_000002.png}\\[0.05cm]
+        {\tiny\textbf{GMM}}\\[0.02cm]
+        \includegraphics[height=1.15cm,keepaspectratio,trim=6.5 835 737 39,clip]{\figroot/geometry/occupancy/viz_2d_gmm_full_000002.png}
+      \end{tabular}\\[0.03cm]
+      {\fontsize{6.2}{7.4}\selectfont\color{CoInfoGray}geometria $(X_1,X_2)$\par}
+    \end{column}
+    \begin{column}{0.58\linewidth}
+      \centering
+      \includegraphics[width=0.99\linewidth,height=4.35cm,keepaspectratio]{figures/occupancy_svm_metricas_vs_n_full.pdf}
+    \end{column}
+  \end{columns}
 
-  \vspace{-0.12cm}
+  \vspace{-0.10cm}
   \begin{beamercolorbox}[wd=\linewidth,sep=0.08cm,rounded=true]{takeaway}
     \centering\bfseries\fontsize{9.0}{10.6}\selectfont
-    A Gaussiana única termina à frente em $\rankrho$, $\AW$ e $\AR$; o GMM termina à frente em $\SR$. A conclusão depende da dimensão do perfil e de $n$.
+    Maior semelhança geométrica visual não implica maior preservação do perfil preditivo: o GMM segue mais de perto a geometria real, mas a Gaussiana única termina à frente em $\rankrho$, $\AW$ e $\AR$; o GMM termina à frente em $\SR$.
   \end{beamercolorbox}
   \sourcecite{Candanedo e Feldheim (2016); cenário full 000002; séries recalculadas diretamente pelo código atual.}
 
   \speakernotes
-    {As quatro trajetórias do Occupancy mostram por que um único valor final não descreve todo o perfil. No SVM linear, a correlação de ranking e a Winner Agreement permanecem altas nos dois braços, mas os braços trocam de posição ao longo da grade. Em $n=512$, classificadores treinados com amostras da Gaussiana única terminam com correlação de ranking 0,9528, Winner Agreement 0,9204 e concordância de existência de inversões 0,7706, acima dos 0,8774, 0,8624 e 0,7407 obtidos com amostras do GMM. A similaridade do regime amostral das inversões inverte essa ordem: 0,7185 na Gaussiana única contra 0,7552 no GMM. Portanto, nenhum braço vence nos quatro indicadores, e a trajetória revela mudanças que uma tabela restrita a $n=512$ esconderia.}
+    {As quatro trajetórias do Occupancy mostram por que um único valor final não descreve todo o perfil. Visualmente, a geometria do GMM (painel à esquerda) segue mais de perto a nuvem de pontos real do que a Gaussiana única; ainda assim, essa maior fidelidade geométrica não se traduz em maior preservação do perfil. No SVM linear, a correlação de ranking e a Winner Agreement permanecem altas nos dois braços, mas os braços trocam de posição ao longo da grade. Em $n=512$, classificadores treinados com amostras da Gaussiana única terminam com correlação de ranking 0,9528, Winner Agreement 0,9204 e concordância de existência de inversões 0,7706, acima dos 0,8774, 0,8624 e 0,7407 obtidos com amostras do GMM. A similaridade do regime amostral das inversões inverte essa ordem: 0,7185 na Gaussiana única contra 0,7552 no GMM. Portanto, nenhum braço vence nos quatro indicadores, e a trajetória revela mudanças que uma tabela restrita a $n=512$ esconderia.}
     {O segundo caso mostra o extremo positivo: uma organização global praticamente reproduzida ao longo de toda a grade.}
-    {Nenhum gerador vence em todas as dimensões do perfil; a comparação também muda com $n$.}
+    {Fidelidade geométrica visual e fidelidade do perfil preditivo são dimensões distintas; nenhum gerador vence em todas as dimensões do perfil, e a comparação também muda com $n$.}
     {1 minuto e 40 segundos.}
-    {Não simplificar dizendo que a Gaussiana única ``venceu'': ela perde em $\SR$. Não reduzir a interpretação aos pontos finais das curvas.}
+    {Não simplificar dizendo que a Gaussiana única ``venceu'': ela perde em $\SR$. Não reduzir a interpretação aos pontos finais das curvas nem à semelhança visual da geometria.}
 \end{frame}
 
 % Slide 12 --------------------------------------------------------------------
 \begin{frame}{Air Quality + Gaussian NB: ordenação e vencedores quase perfeitos}
   \slidetime{1:40}
   \vspace{0.05cm}
-  {\centering
-  \includegraphics[width=0.97\linewidth,height=4.35cm,keepaspectratio]{figures/air_quality_gnb_metricas_vs_n_full.pdf}\par}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.39\linewidth}
+      \centering
+      \renewcommand{\arraystretch}{1.0}
+      \begin{tabular}{@{}c@{}}
+        {\tiny\textbf{Real}}\\[0.02cm]
+        \includegraphics[height=1.15cm,keepaspectratio,trim=6.5 835 737 39,clip]{\figroot/geometry/air_quality/viz_2d_real_full_000005.png}\\[0.05cm]
+        {\tiny\textbf{Gaussiana única}}\\[0.02cm]
+        \includegraphics[height=1.15cm,keepaspectratio,trim=6.5 835 737 39,clip]{\figroot/geometry/air_quality/viz_2d_gaussian_full_000005.png}\\[0.05cm]
+        {\tiny\textbf{GMM}}\\[0.02cm]
+        \includegraphics[height=1.15cm,keepaspectratio,trim=6.5 835 737 39,clip]{\figroot/geometry/air_quality/viz_2d_gmm_full_000005.png}
+      \end{tabular}\\[0.03cm]
+      {\fontsize{6.2}{7.4}\selectfont\color{CoInfoGray}geometria $(X_1,X_2)$\par}
+    \end{column}
+    \begin{column}{0.58\linewidth}
+      \centering
+      \includegraphics[width=0.99\linewidth,height=4.35cm,keepaspectratio]{figures/air_quality_gnb_metricas_vs_n_full.pdf}
+    \end{column}
+  \end{columns}
 
-  \vspace{-0.12cm}
+  \vspace{-0.10cm}
   \begin{beamercolorbox}[wd=\linewidth,sep=0.08cm,rounded=true]{takeaway}
     \centering\bfseries\fontsize{9.0}{10.6}\selectfont
     Ordenação, vencedores, existência e regime amostral das inversões preservados quase integralmente nos dois braços sintéticos --- o caso mais forte do estudo.
@@ -479,7 +513,7 @@
   \sourcecite{De Vito et al. (2008); cenário full 000005; séries recalculadas diretamente pelo código atual sobre dados brutos regenerados.}
 
   \speakernotes
-    {Aqui, as trajetórias mostram que os dois braços sintéticos treinados com Gaussian Naive Bayes reproduzem quase integralmente as quatro dimensões do perfil de cooperação preditiva. A correlação de ranking e a Winner Agreement chegam muito cedo a valores próximos de 1. A concordância de existência de inversões cresce ao longo da grade e termina em 0,7816 na Gaussiana única e 0,8836 no GMM; a similaridade do regime amostral termina acima de 0,96 nos dois braços. Este é o único caso do estudo em que os quatro indicadores concordam em apontar preservação forte ao mesmo tempo nos dois braços sintéticos.}
+    {Aqui, as trajetórias mostram que os dois braços sintéticos treinados com Gaussian Naive Bayes reproduzem quase integralmente as quatro dimensões do perfil de cooperação preditiva; a geometria $(X_1,X_2)$ à esquerda também mostra as duas nuvens sintéticas próximas da real. A correlação de ranking e a Winner Agreement chegam muito cedo a valores próximos de 1. A concordância de existência de inversões cresce ao longo da grade e termina em 0,7816 na Gaussiana única e 0,8836 no GMM; a similaridade do regime amostral termina acima de 0,96 nos dois braços. Este é o único caso do estudo em que os quatro indicadores concordam em apontar preservação forte ao mesmo tempo nos dois braços sintéticos.}
     {O terceiro caso separa outra dupla de conceitos: qualidade preditiva absoluta e preservação do perfil.}
     {O único caso do estudo com os quatro indicadores elevados ao mesmo tempo, nos dois geradores.}
     {1 minuto e 40 segundos.}
@@ -490,23 +524,40 @@
 \begin{frame}{SUPPORT2 — desempenho absoluto e perfil são dimensões distintas}
   \slidetime{1:40}
   \vspace{0.05cm}
-  {\centering
-  \includegraphics[width=0.97\linewidth,height=4.20cm,keepaspectratio]{figures/support2_rf_metricas_vs_n_full.pdf}\par}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.39\linewidth}
+      \centering
+      \renewcommand{\arraystretch}{1.0}
+      \begin{tabular}{@{}c@{}}
+        {\tiny\textbf{Real}}\\[0.02cm]
+        \includegraphics[height=1.15cm,keepaspectratio,trim=6.5 1717 737 39,clip]{\figroot/geometry/support2/viz_2d_real_full_000008.png}\\[0.05cm]
+        {\tiny\textbf{Gaussiana única}}\\[0.02cm]
+        \includegraphics[height=1.15cm,keepaspectratio,trim=6.5 1717 737 39,clip]{\figroot/geometry/support2/viz_2d_gaussian_full_000008.png}\\[0.05cm]
+        {\tiny\textbf{GMM}}\\[0.02cm]
+        \includegraphics[height=1.15cm,keepaspectratio,trim=6.5 1717 737 39,clip]{\figroot/geometry/support2/viz_2d_gmm_full_000008.png}
+      \end{tabular}\\[0.03cm]
+      {\fontsize{6.2}{7.4}\selectfont\color{CoInfoGray}geometria $(X_1,X_2)$\par}
+    \end{column}
+    \begin{column}{0.58\linewidth}
+      \centering
+      \includegraphics[width=0.99\linewidth,height=4.20cm,keepaspectratio]{figures/support2_rf_metricas_vs_n_full.pdf}
+    \end{column}
+  \end{columns}
 
-  \vspace{-0.13cm}
-  {\fontsize{6.8}{8.0}\selectfont\color{CoInfoGray}
+  \vspace{-0.08cm}
+  {\fontsize{6.6}{7.8}\selectfont\color{CoInfoGray}
     $\times$ indica métrica indisponível no prefixo, não valor zero. Menor perda em $n=512$: Real 0,4555; Gaussiana 0,4554; GMM 0,4547.\par}
   \vspace{0.01cm}
   \begin{beamercolorbox}[wd=\linewidth,sep=0.08cm,rounded=true]{takeaway}
     \centering\bfseries\fontsize{9.0}{10.6}\selectfont
-    Perda absoluta e preservação do perfil respondem a perguntas diferentes; e $A_R$ pode discordar de $S_R$ mesmo para o mesmo par de braços.
+    Perda absoluta, geometria visual e preservação do perfil respondem a perguntas diferentes; $A_R$ pode divergir substancialmente de $S_R$ mesmo para o mesmo par de braços.
   \end{beamercolorbox}
   \sourcecite{SUPPORT Principal Investigators (1995); Knaus et al. (1995); cenário full 000008; séries recalculadas diretamente pelo código atual.}
 
   \speakernotes
-    {No SUPPORT2, o Random Forest teve perda mínima próxima de 0,455 nos três braços do cenário full. O classificador que sempre escolhe a classe majoritária erra 0,4687; portanto, a melhoria absoluta é pequena e o desempenho preditivo é fraco. Os símbolos de multiplicação nos primeiros tamanhos não são zeros nem dados ausentes do relatório: $\rankrho$ e $\AW$ ficam indefinidos em $n=2$ e $n=4$ porque os rankings são constantes e não há pares válidos; $\AR$ não existe no primeiro prefixo; e $\SR$ só passa a existir em $n=16$, quando aparecem inversões compartilhadas. Depois disso, as trajetórias mostram correlação de ranking e Winner Agreement relativamente altas, $\AR$ final entre 0,43 e 0,51 e $\SR$ final entre 0,81 e 0,82.}
+    {No SUPPORT2, o Random Forest teve perda mínima próxima de 0,455 nos três braços do cenário full. O classificador que sempre escolhe a classe majoritária erra 0,4687; portanto, a melhoria absoluta é pequena e o desempenho preditivo é fraco. A geometria $(X_1,X_2)$ à esquerda também não permite distinguir os braços de forma decisiva a olho nu. Os símbolos de multiplicação nos primeiros tamanhos não são zeros nem dados ausentes do relatório: $\rankrho$ e $\AW$ ficam indefinidos em $n=2$ e $n=4$ porque os rankings são constantes e não há pares válidos; $\AR$ não existe no primeiro prefixo; e $\SR$ só passa a existir em $n=16$, quando aparecem inversões compartilhadas. Depois disso, as trajetórias mostram correlação de ranking e Winner Agreement relativamente altas, $\AR$ final entre 0,43 e 0,51 e $\SR$ final entre 0,81 e 0,82.}
     {Os três estudos de caso permitem uma síntese cuidadosa sobre o que foi e o que não foi demonstrado.}
-    {Qualidade preditiva absoluta e preservação do perfil não são equivalentes; $A_R$ e $S_R$ podem até apontar em direções opostas.}
+    {Perda preditiva absoluta, geometria visual e preservação do perfil não são equivalentes; $A_R$ e $S_R$ podem até apontar em direções opostas.}
     {1 minuto e 40 segundos.}
     {Não recomendar Random Forest como melhor classificador; não transformar preservação em evidência de boa predição clínica.}
 \end{frame}
