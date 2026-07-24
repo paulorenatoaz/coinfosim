@@ -1,0 +1,327 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix coinfosim: <https://paulorenatoaz.github.io/coinfosim/ns#> .
+
+<https://paulorenatoaz.github.io/coinfosim/ontology/coinfosim>
+    a owl:Ontology ;
+    owl:versionIRI <https://paulorenatoaz.github.io/coinfosim/ontology/coinfosim/1.0.0> ;
+    owl:imports <http://www.w3.org/ns/prov-o#> ;
+    rdfs:label "CoInfoSim Ontology"@en, "Ontologia CoInfoSim"@pt ;
+    rdfs:comment "A small OWL 2 ontology formalizing the CoInfoSim predictive-cooperation vocabulary and specializing PROV-O for CoInfoSim provenance."@en ,
+        "Uma pequena ontologia OWL 2 que formaliza o vocabulário de cooperação preditiva do CoInfoSim e especializa a PROV-O para a proveniência do CoInfoSim."@pt .
+
+coinfosim:ArtifactRecovery a owl:Class ;
+    rdfs:subClassOf prov:Activity ;
+    rdfs:label "artifact recovery"@en, "recuperação de artefatos"@pt ;
+    rdfs:comment "The activity of recovering historical artifacts from a gh-pages publication source commit."@en, "A atividade de recuperar artefatos históricos a partir de um commit de origem de publicação gh-pages."@pt .
+
+coinfosim:Attribute a owl:Class ;
+    rdfs:label "attribute"@en, "atributo"@pt ;
+    rdfs:comment "The formal model-input variable consumed directly by a classifier. Not automatically identical to an information channel."@en, "Variável formal de entrada de modelo consumida diretamente por um classificador. Não é automaticamente idêntica a um canal de informação."@pt .
+
+coinfosim:ChannelSubset a owl:Class ;
+    rdfs:label "channel subset"@en, "subconjunto de canais"@pt ;
+    rdfs:comment "A subset of information channels (attributes) evaluated together by a classifier."@en, "Um subconjunto de canais de informação (atributos) avaliado conjuntamente por um classificador."@pt .
+
+coinfosim:Classifier a owl:Class ;
+    rdfs:label "classifier"@en, "classificador"@pt ;
+    rdfs:comment "A supervised classification algorithm used to estimate predictive performance for a channel subset."@en, "Um algoritmo de classificação supervisionada usado para estimar o desempenho preditivo de um subconjunto de canais."@pt .
+
+coinfosim:CoInfoSimSoftwareAgent a owl:Class ;
+    rdfs:subClassOf prov:SoftwareAgent ;
+    rdfs:label "CoInfoSim software agent"@en, "agente de software CoInfoSim"@pt ;
+    rdfs:comment "CoInfoSim itself, the sole software agent associated with every computational activity in the provenance graph."@en, "O próprio CoInfoSim, o único agente de software associado a todas as atividades computacionais no grafo de proveniência."@pt .
+
+coinfosim:CodeRevision a owl:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:label "code revision"@en, "revisão de código"@pt ;
+    rdfs:comment "A Git commit that produced or is associated with a CoInfoSim artifact; represented as a PROV entity, never as an agent."@en, "Um commit do Git que produziu ou está associado a um artefato CoInfoSim; representado como uma entidade PROV, nunca como um agente."@pt .
+
+coinfosim:DatasetPreparation a owl:Class ;
+    rdfs:subClassOf prov:Activity ;
+    rdfs:label "dataset preparation"@en, "preparação do conjunto de dados"@pt ;
+    rdfs:comment "The activity that produces the prepared dataset, training reservoir, and fixed real test set from the source dataset."@en, "A atividade que produz o conjunto de dados preparado, o reservatório de treinamento e o conjunto de teste real fixo a partir do conjunto de dados fonte."@pt .
+
+coinfosim:EstimatedMeanTestLoss a owl:Class ;
+    rdfs:subClassOf coinfosim:PredictiveCooperationMetric ;
+    rdfs:label "estimated mean test loss"@en, "perda média estimada no conjunto de teste"@pt ;
+    rdfs:comment "The Monte Carlo estimate of expected 0-1 test loss used as the base comparison quantity between subsets, classifiers, and training conditions."@en, "Estimativa de Monte Carlo da perda esperada 0-1 no conjunto de teste, usada como grandeza-base de comparação entre subconjuntos, classificadores e condições de treinamento."@pt .
+
+coinfosim:ExecutionEnvironment a owl:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:label "execution environment"@en, "ambiente de execução"@pt ;
+    rdfs:comment "The Python/platform environment that actually executed an activity."@en, "O ambiente Python/plataforma que efetivamente executou uma atividade."@pt .
+
+coinfosim:ExperimentConfiguration a owl:Class ;
+    rdfs:subClassOf prov:Plan ;
+    rdfs:label "experiment configuration"@en, "configuração do experimento"@pt ;
+    rdfs:comment "The Monte Carlo/classifier configuration plan used by a simulation run."@en, "O plano de configuração de Monte Carlo/classificador usado por uma execução de simulação."@pt .
+
+coinfosim:FitGMM a owl:Class ;
+    rdfs:subClassOf prov:Activity ;
+    rdfs:subClassOf coinfosim:GeneratorFitting ;
+    rdfs:label "GMM fitting"@en, "ajuste GMM"@pt ;
+    rdfs:comment "The activity of fitting a class-conditional Gaussian mixture model generator on the training reservoir."@en, "A atividade de ajustar um gerador de mistura gaussiana condicional a classe no reservatório de treinamento."@pt .
+
+coinfosim:FitSingleGaussian a owl:Class ;
+    rdfs:subClassOf prov:Activity ;
+    rdfs:subClassOf coinfosim:GeneratorFitting ;
+    rdfs:label "single Gaussian fitting"@en, "ajuste gaussiano único"@pt ;
+    rdfs:comment "The activity of fitting a single class-conditional Gaussian generator on the training reservoir."@en, "A atividade de ajustar um gerador gaussiano único condicional a classe no reservatório de treinamento."@pt .
+
+coinfosim:FittedGMMGenerator a owl:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:subClassOf coinfosim:FittedGenerator ;
+    rdfs:label "fitted GMM generator"@en, "gerador GMM ajustado"@pt ;
+    rdfs:comment "A class-conditional Gaussian mixture model generator fitted on the training reservoir."@en, "Um gerador de mistura gaussiana condicional a classe, ajustado no reservatório de treinamento."@pt .
+
+coinfosim:FittedGenerator a owl:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:label "fitted generator"@en, "gerador ajustado"@pt ;
+    rdfs:comment "A synthetic data generator fitted on the training reservoir only."@en, "Um gerador de dados sintéticos ajustado apenas no reservatório de treinamento."@pt .
+
+coinfosim:FittedSingleGaussianGenerator a owl:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:subClassOf coinfosim:FittedGenerator ;
+    rdfs:label "fitted single Gaussian generator"@en, "gerador gaussiano único ajustado"@pt ;
+    rdfs:comment "A single class-conditional Gaussian generator fitted on the training reservoir."@en, "Um gerador gaussiano único condicional a classe, ajustado no reservatório de treinamento."@pt .
+
+coinfosim:FixedRealTestSet a owl:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:label "fixed real test set"@en, "conjunto de teste real fixo"@pt ;
+    rdfs:comment "The fixed real evaluation split shared by all three training-condition simulation runs."@en, "A partição real fixa de avaliação compartilhada pelos três braços de simulação de condição de treinamento."@pt .
+
+coinfosim:GMMSimulationRun a owl:Class ;
+    rdfs:subClassOf prov:Activity ;
+    rdfs:subClassOf coinfosim:SimulationRun ;
+    rdfs:label "GMM simulation run"@en, "execução de simulação GMM"@pt ;
+    rdfs:comment "The simulation run for the GMM-to-real training condition."@en, "A execução de simulação para a condição de treinamento GMM-para-real."@pt .
+
+coinfosim:GeneratorFitting a owl:Class ;
+    rdfs:subClassOf prov:Activity ;
+    rdfs:label "generator fitting"@en, "ajuste de gerador"@pt ;
+    rdfs:comment "The activity of fitting a synthetic data generator on the training reservoir."@en, "A atividade de ajustar um gerador de dados sintéticos no reservatório de treinamento."@pt .
+
+coinfosim:InformationChannel a owl:Class ;
+    rdfs:label "information channel"@en, "canal de informação"@pt ;
+    rdfs:comment "The conceptual or operational interpretation of an attribute or an explicitly defined attribute group. Not automatically identical to an attribute."@en, "Interpretação conceitual ou operacional de um atributo ou de um grupo de atributos explicitamente definido. Não é automaticamente idêntico a um atributo."@pt .
+
+coinfosim:MeanLog2ReversalDistance a owl:Class ;
+    rdfs:subClassOf coinfosim:PredictiveCooperationMetric ;
+    rdfs:label "mean log2 reversal distance"@en, "distância média das inversões em escala log2"@pt ;
+    rdfs:comment "The unnormalized mean absolute difference, on the log2(n) scale, between the latest observed reversal sample sizes of shared reversal pairs in an arm versus a reference arm."@en, "Diferença absoluta média não normalizada, na escala log2(n), entre os últimos tamanhos amostrais de inversão observados para pares de inversão compartilhados em um braço e em um braço de referência."@pt .
+
+coinfosim:PairwiseWinnerRelation a owl:Class ;
+    rdfs:label "pairwise winner relation"@en, "relação de vencedor par a par"@pt ;
+    rdfs:comment "The effective winner state between two subsets at a given sample size: which subset has lower estimated mean test loss, propagated across exact ties per the tie-propagation rule."@en, "Estado efetivo de vencedor entre dois subconjuntos em um dado tamanho amostral: qual subconjunto possui menor perda média estimada de teste, propagado através de empates exatos conforme a regra de propagação de empate."@pt .
+
+coinfosim:PredictiveComplementarity a owl:Class ;
+    rdfs:subClassOf coinfosim:PredictiveCooperation ;
+    rdfs:label "predictive complementarity"@en, "complementaridade preditiva"@pt ;
+    rdfs:comment "A form of predictive cooperation in which distinct channel contributions jointly improve predictive performance beyond any one channel alone."@en, "Forma de cooperação preditiva em que contribuições distintas de canais melhoram conjuntamente o desempenho preditivo além do que qualquer canal isolado alcança."@pt .
+
+coinfosim:PredictiveCooperation a owl:Class ;
+    rdfs:label "predictive cooperation"@en, "cooperação preditiva"@pt ;
+    rdfs:comment "Umbrella phenomenon describing how the composition of an information-channel subset affects predictive performance."@en, "Fenômeno guarda-chuva que descreve como a composição de um subconjunto de canais de informação afeta o desempenho preditivo."@pt .
+
+coinfosim:PredictiveCooperationMetric a owl:Class ;
+    rdfs:label "predictive cooperation metric"@en, "métrica de cooperação preditiva"@pt ;
+    rdfs:comment "A quantitative indicator computed as part of a predictive cooperation profile."@en, "Um indicador quantitativo computado como parte de um perfil de cooperação preditiva."@pt .
+
+coinfosim:PredictiveCooperationPattern a owl:Class ;
+    rdfs:label "predictive cooperation pattern"@en, "padrão de cooperação preditiva"@pt ;
+    rdfs:comment "An interpreted regularity identified from one or more predictive cooperation profiles. A profile is a computed artifact; a pattern is an interpretation and is never implied merely by the presence of a profile."@en, "Regularidade interpretada, identificada a partir de um ou mais perfis de cooperação preditiva. Um perfil é um artefato computado; um padrão é uma interpretação e nunca é implícito apenas pela presença de um perfil."@pt .
+
+coinfosim:PredictiveCooperationProfile a owl:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:label "predictive cooperation profile"@en, "perfil de cooperação preditiva"@pt ;
+    rdfs:comment "The computed quantitative artifact tracking the evolution of relative subset predictive performance over sample size for a fixed dataset, classifier, and training condition."@en, "Artefato quantitativo computado que acompanha a evolução do desempenho preditivo relativo entre subconjuntos ao longo do tamanho amostral, para um dataset, classificador e condição de treinamento fixos."@pt .
+
+coinfosim:PredictiveRedundancy a owl:Class ;
+    rdfs:subClassOf coinfosim:PredictiveCooperation ;
+    rdfs:label "predictive redundancy"@en, "redundância preditiva"@pt ;
+    rdfs:comment "A form of predictive cooperation in which combining channels adds little or no predictive gain over the best individual channel."@en, "Forma de cooperação preditiva em que a combinação de canais agrega pouco ou nenhum ganho preditivo em relação ao melhor canal individual."@pt .
+
+coinfosim:PreparedDataset a owl:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:label "prepared dataset"@en, "conjunto de dados preparado"@pt ;
+    rdfs:comment "The dataset after preprocessing (e.g. standardization) and splitting, produced by dataset preparation."@en, "O conjunto de dados após pré-processamento (por exemplo, padronização) e divisão, produzido pela preparação do conjunto de dados."@pt .
+
+coinfosim:PreprocessingSpecification a owl:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:label "preprocessing specification"@en, "especificação de pré-processamento"@pt ;
+    rdfs:comment "The preprocessing method (e.g. z-score standardization) and its fit scope, applied before training or evaluation."@en, "O método de pré-processamento (por exemplo, padronização z-score) e seu escopo de ajuste, aplicado antes do treinamento ou da avaliação."@pt .
+
+coinfosim:ProfileComputation a owl:Class ;
+    rdfs:subClassOf prov:Activity ;
+    rdfs:label "profile computation"@en, "computação do perfil"@pt ;
+    rdfs:comment "The activity that computes the predictive cooperation profile from the three simulation arms' result data."@en, "A atividade que computa o perfil de cooperação preditiva a partir dos dados de resultado dos três braços de simulação."@pt .
+
+coinfosim:RandomForestCalibrationArtifact a owl:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:label "Random Forest calibration artifact"@en, "artefato de calibração do Random Forest"@pt ;
+    rdfs:comment "The persisted calibration evidence used by a Random Forest classifier configuration, present only when that configuration is used."@en, "A evidência de calibração persistida usada por uma configuração de classificador Random Forest, presente apenas quando essa configuração é usada."@pt .
+
+coinfosim:RankingFidelity a owl:Class ;
+    rdfs:subClassOf coinfosim:PredictiveCooperationMetric ;
+    rdfs:label "ranking fidelity"@en, "fidelidade de ranking"@pt ;
+    rdfs:comment "Spearman rank-correlation agreement between the complete subset rankings of an arm and a reference arm at a fixed sample size."@en, "Concordância de correlação de posto de Spearman entre os rankings completos de subconjuntos de um braço e de um braço de referência, em um tamanho amostral fixo."@pt .
+
+coinfosim:RealSimulationRun a owl:Class ;
+    rdfs:subClassOf prov:Activity ;
+    rdfs:subClassOf coinfosim:SimulationRun ;
+    rdfs:label "real simulation run"@en, "execução de simulação real"@pt ;
+    rdfs:comment "The simulation run for the real-to-real training condition."@en, "A execução de simulação para a condição de treinamento real-para-real."@pt .
+
+coinfosim:RecoveredArtifactSet a owl:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:label "recovered artifact set"@en, "conjunto de artefatos recuperados"@pt ;
+    rdfs:comment "The set of historical artifacts recovered from a gh-pages publication, present only when an explicit recovery source commit is evidenced."@en, "O conjunto de artefatos históricos recuperados de uma publicação gh-pages, presente apenas quando um commit de origem de recuperação explícito é evidenciado."@pt .
+
+coinfosim:ReportArtifact a owl:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:label "report artifact"@en, "artefato de relatório"@pt ;
+    rdfs:comment "A generated HTML report: a dataset report, a per-arm Monte Carlo report, or a consolidated scenario report."@en, "Um relatório HTML gerado: um relatório de dataset, um relatório de Monte Carlo de um braço, ou um relatório consolidado de cenário."@pt .
+
+coinfosim:ReportGeneration a owl:Class ;
+    rdfs:subClassOf prov:Activity ;
+    rdfs:label "report generation"@en, "geração de relatório"@pt ;
+    rdfs:comment "The activity that generates report artifacts from a predictive cooperation profile."@en, "A atividade que gera artefatos de relatório a partir de um perfil de cooperação preditiva."@pt .
+
+coinfosim:ResultData a owl:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:label "result data"@en, "dados de resultado"@pt ;
+    rdfs:comment "The persisted Monte Carlo result payload produced by one simulation-run activity."@en, "O payload de resultado de Monte Carlo persistido, produzido por uma atividade de execução de simulação."@pt .
+
+coinfosim:ReversalExistenceAgreement a owl:Class ;
+    rdfs:subClassOf coinfosim:PredictiveCooperationMetric ;
+    rdfs:label "reversal existence agreement"@en, "concordância de existência de inversões"@pt ;
+    rdfs:comment "The Jaccard agreement, over unordered subset pairs, between the support set of pairs for which the reversal matrix is defined in an arm versus a reference arm."@en, "Concordância de Jaccard, sobre pares não ordenados de subconjuntos, entre o conjunto de suporte de pares para os quais a matriz de inversões está definida em um braço e em um braço de referência."@pt .
+
+coinfosim:ReversalMatrix a owl:Class ;
+    rdfs:label "reversal matrix"@en, "matriz de inversões"@pt ;
+    rdfs:comment "The triangular matrix R(n_t) storing, for each unordered subset pair with at least one valid winner reversal in the evaluated prefix, the latest observed reversal sample size. Upper triangle only; the current winner is recovered from the winner matrix, not stored redundantly."@en, "Matriz triangular R(n_t) que armazena, para cada par não ordenado de subconjuntos com pelo menos uma inversão de vencedor válida no prefixo avaliado, o último tamanho amostral de inversão observado. Somente triângulo superior; o vencedor atual é recuperado da matriz de vencedores, sem armazenamento redundante."@pt .
+
+coinfosim:ReversalSampleSizeSimilarity a owl:Class ;
+    rdfs:subClassOf coinfosim:PredictiveCooperationMetric ;
+    rdfs:label "reversal sample-size similarity"@en, "similaridade dos tamanhos amostrais das inversões"@pt ;
+    rdfs:comment "The normalized agreement, in [0, 1], between the latest observed reversal sample sizes of shared reversal pairs only, derived from the mean log2 reversal distance normalized by the evaluated prefix's log2 span."@en, "Concordância normalizada, em [0, 1], entre os últimos tamanhos amostrais de inversão observados apenas para pares de inversão compartilhados, derivada da distância média das inversões em escala log2 normalizada pelo intervalo log2 do prefixo avaliado."@pt .
+
+coinfosim:SimulationRun a owl:Class ;
+    rdfs:subClassOf prov:Activity ;
+    rdfs:label "simulation run"@en, "execução de simulação"@pt ;
+    rdfs:comment "The activity of running the cooperative Monte Carlo simulation for one training condition against the fixed real test set."@en, "A atividade de executar a simulação cooperativa de Monte Carlo para uma condição de treinamento em relação ao conjunto de teste real fixo."@pt .
+
+coinfosim:SingleGaussianSimulationRun a owl:Class ;
+    rdfs:subClassOf prov:Activity ;
+    rdfs:subClassOf coinfosim:SimulationRun ;
+    rdfs:label "single Gaussian simulation run"@en, "execução de simulação gaussiana única"@pt ;
+    rdfs:comment "The simulation run for the single-Gaussian-to-real training condition."@en, "A execução de simulação para a condição de treinamento gaussiana única-para-real."@pt .
+
+coinfosim:SourceDataset a owl:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:label "source dataset"@en, "conjunto de dados fonte"@pt ;
+    rdfs:comment "The original, unprocessed dataset used as the source of a CoInfoSim scenario."@en, "O conjunto de dados original e não processado usado como fonte de um cenário CoInfoSim."@pt .
+
+coinfosim:TargetSpecification a owl:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:label "target specification"@en, "especificação do alvo"@pt ;
+    rdfs:comment "The definition of the classification target, including how it is derived and its class labels."@en, "A definição do alvo de classificação, incluindo como é derivado e seus rótulos de classe."@pt .
+
+coinfosim:TrainingCondition a owl:Class ;
+    rdfs:label "training condition"@en, "condição de treinamento"@pt ;
+    rdfs:comment "One of the three fixed dataset-anchored training conditions: real-to-real, single-Gaussian-to-real, or GMM-to-real."@en, "Uma das três condições fixas de treinamento ancoradas em dataset: real-para-real, gaussiana única-para-real, ou GMM-para-real."@pt .
+
+coinfosim:TrainingReservoir a owl:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:label "training reservoir"@en, "reservatório de treinamento"@pt ;
+    rdfs:comment "The real training partition used to fit generators and to train the real-to-real simulation arm; never used to fit the fixed real test set."@en, "A partição real de treinamento usada para ajustar os geradores e treinar o braço de simulação real-para-real; nunca usada para ajustar o conjunto de teste real fixo."@pt .
+
+coinfosim:WinnerAgreement a owl:Class ;
+    rdfs:subClassOf coinfosim:PredictiveCooperationMetric ;
+    rdfs:label "Winner Agreement"@en, "concordância de vencedores"@pt ;
+    rdfs:comment "The fraction of unordered subset pairs, among those with a defined effective winner in both an arm and a reference arm, for which the effective winner agrees."@en, "Fração de pares não ordenados de subconjuntos, dentre aqueles com vencedor efetivo definido tanto no braço quanto no braço de referência, para os quais o vencedor efetivo coincide."@pt .
+
+coinfosim:WinnerMatrix a owl:Class ;
+    rdfs:label "winner matrix"@en, "matriz de vencedores"@pt ;
+    rdfs:comment "The antisymmetric display matrix W(n) of effective pairwise winner relations across all subset pairs at sample size n."@en, "Matriz antissimétrica de exibição W(n) das relações efetivas de vencedor par a par entre todos os pares de subconjuntos no tamanho amostral n."@pt .
+
+coinfosim:WinnerReversal a owl:Class ;
+    rdfs:label "winner reversal"@en, "inversão de vencedor"@pt ;
+    rdfs:comment "A valid change of the effective pairwise winner relation from one defined winner to the other. Not defined by geometric interpolation of continuous loss curves, and never triggered by the first strict winner after unresolved initial ties."@en, "Mudança válida da relação efetiva de vencedor par a par de um vencedor definido para o outro. Não é definida por interpolação geométrica de curvas contínuas de perda, e nunca é disparada pelo primeiro vencedor estrito após empates iniciais não resolvidos."@pt .
+
+########################################################################
+# Object properties (Section 17)
+########################################################################
+
+coinfosim:hasAttribute a owl:ObjectProperty ;
+    rdfs:domain coinfosim:ChannelSubset ;
+    rdfs:range coinfosim:Attribute ;
+    rdfs:label "has attribute"@en, "possui atributo"@pt .
+
+coinfosim:representsInformationChannel a owl:ObjectProperty ;
+    rdfs:domain coinfosim:Attribute ;
+    rdfs:range coinfosim:InformationChannel ;
+    rdfs:label "represents information channel"@en, "representa canal de informação"@pt .
+
+coinfosim:hasWinnerMatrix a owl:ObjectProperty ;
+    rdfs:domain coinfosim:PredictiveCooperationProfile ;
+    rdfs:range coinfosim:WinnerMatrix ;
+    rdfs:label "has winner matrix"@en, "possui matriz de vencedores"@pt .
+
+coinfosim:hasReversalMatrix a owl:ObjectProperty ;
+    rdfs:domain coinfosim:PredictiveCooperationProfile ;
+    rdfs:range coinfosim:ReversalMatrix ;
+    rdfs:label "has reversal matrix"@en, "possui matriz de inversões"@pt .
+
+coinfosim:hasMetric a owl:ObjectProperty ;
+    rdfs:domain coinfosim:PredictiveCooperationProfile ;
+    rdfs:range coinfosim:PredictiveCooperationMetric ;
+    rdfs:label "has metric"@en, "possui métrica"@pt .
+
+coinfosim:interpretsProfile a owl:ObjectProperty ;
+    rdfs:domain coinfosim:PredictiveCooperationPattern ;
+    rdfs:range coinfosim:PredictiveCooperationProfile ;
+    rdfs:label "interprets profile"@en, "interpreta perfil"@pt .
+
+coinfosim:computedForClassifier a owl:ObjectProperty ;
+    rdfs:domain coinfosim:PredictiveCooperationProfile ;
+    rdfs:range coinfosim:Classifier ;
+    rdfs:label "computed for classifier"@en, "calculado para classificador"@pt .
+
+coinfosim:computedUnderTrainingCondition a owl:ObjectProperty ;
+    rdfs:domain coinfosim:PredictiveCooperationProfile ;
+    rdfs:range coinfosim:TrainingCondition ;
+    rdfs:label "computed under training condition"@en, "calculado sob condição de treinamento"@pt .
+
+coinfosim:computedFromDataset a owl:ObjectProperty ;
+    rdfs:domain coinfosim:PredictiveCooperationProfile ;
+    rdfs:range coinfosim:PreparedDataset ;
+    rdfs:label "computed from dataset"@en, "calculado a partir do conjunto de dados"@pt .
+
+########################################################################
+# Datatype properties (Section 18)
+########################################################################
+
+coinfosim:metricValue a owl:DatatypeProperty ;
+    rdfs:domain coinfosim:PredictiveCooperationMetric ;
+    rdfs:range xsd:double ;
+    rdfs:label "metric value"@en, "valor da métrica"@pt .
+
+coinfosim:reversalSampleSize a owl:DatatypeProperty ;
+    rdfs:domain coinfosim:WinnerReversal ;
+    rdfs:range xsd:positiveInteger ;
+    rdfs:label "reversal sample size"@en, "tamanho amostral da inversão"@pt .
+
+coinfosim:subsetCardinality a owl:DatatypeProperty ;
+    rdfs:domain coinfosim:ChannelSubset ;
+    rdfs:range xsd:positiveInteger ;
+    rdfs:label "subset cardinality"@en, "cardinalidade do subconjunto"@pt .
+
+coinfosim:sampleSizePerClass a owl:DatatypeProperty ;
+    rdfs:range xsd:positiveInteger ;
+    rdfs:label "sample size per class"@en, "tamanho amostral por classe"@pt ;
+    rdfs:comment "Reused across several scientific artifacts (e.g. simulation configuration and result summaries); no fixed OWL domain is declared, since doing so would create an artificial semantic restriction."@en, "Reutilizada em vários artefatos científicos (por exemplo, configuração de simulação e resumos de resultado); nenhum domínio OWL fixo é declarado, pois isso criaria uma restrição semântica artificial."@pt .
