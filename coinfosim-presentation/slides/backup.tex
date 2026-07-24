@@ -143,72 +143,60 @@
 \end{frame}
 
 % Complemento 3b --------------------------------------------------------------
-\begin{frame}{Proveniência formal --- Occupancy}
+\begin{frame}{Proveniência --- Occupancy}
   \centering
-  \includegraphics[width=0.92\linewidth,trim=1476pt 0pt 691pt 0pt,clip,keepaspectratio]{\figroot/provenance/provenance_occupancy_000002.pdf}
+  \includegraphics[width=0.97\linewidth,height=4.5cm,keepaspectratio]{\figroot/provenance/occupancy_provenance.pdf}
 
-  \vspace{0.14cm}
-  \begin{beamercolorbox}[wd=\linewidth,sep=.13cm,rounded=true]{block body}
-    \begin{itemize}\fontsize{8.6}{10.3}\selectfont\setlength{\itemsep}{.05cm}
-      \item origem: arquivos originais do UCI Occupancy Detection;
-      \item \texttt{TrainingReservoir}: \texttt{datatraining.txt} (dados reais de treinamento);
-      \item \texttt{FixedRealTestSet}: \texttt{datatest.txt} + \texttt{datatest2.txt};
-      \item padronização (\emph{z-score}) ajustada somente no treinamento.
-    \end{itemize}
+  \vspace{0.04cm}
+  \begin{beamercolorbox}[wd=\linewidth,sep=.06cm,rounded=true]{block body}
+    \centering\fontsize{8.4}{10.0}\selectfont
+    \texttt{datatraining.txt} = reserva de treino; \texttt{datatest.txt}+\texttt{datatest2.txt} = teste real fixo (partição original do doador); padronização só no treino.
   \end{beamercolorbox}
-  \sourcecite{grafo Graphviz genuíno (recorte da cadeia central), emitido por \texttt{prov\_to\_dot} a partir do \texttt{ProvDocument} canônico do cenário Occupancy 000002; relatório final, Capítulo 3 e Apêndice E.}
+  \sourcecite{representação legível e adaptada do grafo PROV formal do cenário Occupancy 000002; o grafo Graphviz genuíno permanece nos artefatos persistidos do cenário; relatório final, Capítulo 3 e Apêndice E.}
 
   \speakernotes
-    {Este é o mesmo grafo de proveniência formal do slide principal, aqui isolado para consulta. A reserva de treino corresponde a \texttt{datatraining.txt}; o teste real fixo combina \texttt{datatest.txt} e \texttt{datatest2.txt} --- não é uma partição aleatória nova, mas os arquivos de treino/teste já distribuídos pela fonte original. A padronização é ajustada exclusivamente na reserva de treino.}
-    {O próximo slide de apoio mostra o mesmo grafo para o Air Quality, com sua divisão cronológica.}
+    {Esta é a instanciação do modelo de proveniência do slide principal para o Occupancy, aqui isolada para consulta --- uma projeção de legibilidade, não a saída direta de \texttt{prov\_to\_dot}. A reserva de treino corresponde a \texttt{datatraining.txt}; o teste real fixo combina \texttt{datatest.txt} e \texttt{datatest2.txt} --- não é uma partição aleatória nova, mas os arquivos de treino/teste já distribuídos pela fonte original. A padronização é ajustada exclusivamente na reserva de treino.}
+    {O próximo slide de apoio mostra a mesma instanciação para o Air Quality, com sua divisão cronológica.}
     {Occupancy usa a partição treino/teste original do dataset, não uma nova divisão aleatória.}
     {Slide de apoio; consulta sob demanda.}
-    {Não descrever o teste real fixo como uma partição criada por este trabalho.}
+    {Não descrever o teste real fixo como uma partição criada por este trabalho; não chamar o diagrama de saída direta do Graphviz.}
 \end{frame}
 
 % Complemento 3c --------------------------------------------------------------
-\begin{frame}{Proveniência formal --- Air Quality}
+\begin{frame}{Proveniência --- Air Quality}
   \centering
-  \includegraphics[width=0.92\linewidth,trim=1344pt 0pt 629pt 0pt,clip,keepaspectratio]{\figroot/provenance/provenance_air_quality_000005.pdf}
+  \includegraphics[width=0.97\linewidth,height=4.5cm,keepaspectratio]{\figroot/provenance/air_quality_provenance.pdf}
 
-  \vspace{0.14cm}
-  \begin{beamercolorbox}[wd=\linewidth,sep=.13cm,rounded=true]{block body}
-    \begin{itemize}\fontsize{8.6}{10.3}\selectfont\setlength{\itemsep}{.05cm}
-      \item sentinela $-200$ convertido em ausente; conjunto analítico de casos completos;
-      \item partição cronológica 80/20 (treino = passado, teste = futuro);
-      \item limiar do alvo = percentil 75 de \texttt{C6H6(GT)}, calculado somente no treino;
-      \item padronização (\emph{z-score}) ajustada somente no treinamento.
-    \end{itemize}
+  \vspace{0.04cm}
+  \begin{beamercolorbox}[wd=\linewidth,sep=.06cm,rounded=true]{block body}
+    \centering\fontsize{8.4}{10.0}\selectfont
+    sentinela $-200\to$ ausente, casos completos; divisão cronológica 80/20; limiar do alvo = percentil 75 de \texttt{C6H6(GT)} no treino; padronização só no treino.
   \end{beamercolorbox}
-  \sourcecite{grafo Graphviz genuíno (recorte da cadeia central), emitido por \texttt{prov\_to\_dot} a partir do \texttt{ProvDocument} canônico do cenário Air Quality 000005; relatório final, Capítulo 3 e Apêndice E.}
+  \sourcecite{representação legível e adaptada do grafo PROV formal do cenário Air Quality 000005; o grafo Graphviz genuíno permanece nos artefatos persistidos do cenário; relatório final, Capítulo 3 e Apêndice E.}
 
   \speakernotes
-    {O mesmo grafo formal, aqui para o Air Quality. A \texttt{TargetSpecification} e a \texttt{PreprocessingSpecification} carregam o limiar do alvo --- percentil 75 de C6H6(GT), calculado somente no treino --- e a divisão cronológica 80/20: as primeiras observações no tempo formam o treino, as últimas formam o teste real fixo. Isso reforça o controle contra vazamento temporal: nenhuma observação futura participa da parametrização do alvo, da padronização ou do ajuste dos geradores.}
-    {O último grafo de apoio mostra o SUPPORT2, com sua coorte de casos completos e a calibração do Random Forest.}
+    {A mesma instanciação de proveniência, aqui para o Air Quality. A \texttt{TargetSpecification} e a \texttt{PreprocessingSpecification} carregam o limiar do alvo --- percentil 75 de C6H6(GT), calculado somente no treino --- e a divisão cronológica 80/20: as primeiras observações no tempo formam o treino, as últimas formam o teste real fixo. Isso reforça o controle contra vazamento temporal: nenhuma observação futura participa da parametrização do alvo, da padronização ou do ajuste dos geradores.}
+    {O último slide de apoio mostra o SUPPORT2, com sua coorte de casos completos e a calibração do Random Forest.}
     {A divisão cronológica impede que o futuro vaze para o treinamento ou para a definição do alvo.}
     {Slide de apoio; consulta sob demanda.}
     {Não descrever a divisão como aleatória: é estritamente cronológica.}
 \end{frame}
 
 % Complemento 3d --------------------------------------------------------------
-\begin{frame}{Proveniência formal --- SUPPORT2}
+\begin{frame}{Proveniência --- SUPPORT2}
   \centering
-  \includegraphics[width=0.92\linewidth,trim=1266pt 0pt 593pt 0pt,clip,keepaspectratio]{\figroot/provenance/provenance_support2_000008.pdf}
+  \includegraphics[width=0.97\linewidth,height=4.5cm,keepaspectratio]{\figroot/provenance/support2_provenance.pdf}
 
-  \vspace{0.14cm}
-  \begin{beamercolorbox}[wd=\linewidth,sep=.13cm,rounded=true]{block body}
-    \begin{itemize}\fontsize{8.6}{10.3}\selectfont\setlength{\itemsep}{.05cm}
-      \item alvo derivado: mortalidade em 180 dias; coorte analítica de casos completos;
-      \item partição 80/20 com estratificação conjunta por alvo e \texttt{dzgroup};
-      \item padronização (\emph{z-score}) ajustada somente no treinamento;
-      \item \texttt{RandomForestCalibrationArtifact}, usado pelas três atividades de simulação (visível no grafo).
-    \end{itemize}
+  \vspace{0.04cm}
+  \begin{beamercolorbox}[wd=\linewidth,sep=.06cm,rounded=true]{block body}
+    \centering\fontsize{8.4}{10.0}\selectfont
+    alvo = mortalidade em 180 dias; coorte de casos completos; partição 80/20 estratificada por alvo $\times$ \texttt{dzgroup}; \texttt{RandomForestCalibrationArtifact} usado (não gerado) pelos três braços.
   \end{beamercolorbox}
-  \sourcecite{grafo Graphviz genuíno (recorte da cadeia central), emitido por \texttt{prov\_to\_dot} a partir do \texttt{ProvDocument} canônico do cenário SUPPORT2 000008; relatório final, Capítulo 3 e Apêndice E.}
+  \sourcecite{representação legível e adaptada do grafo PROV formal do cenário SUPPORT2 000008; o grafo Graphviz genuíno permanece nos artefatos persistidos do cenário; relatório final, Capítulo 3 e Apêndice E.}
 
   \speakernotes
-    {O mesmo grafo formal, aqui para o SUPPORT2. A coorte analítica retém somente casos completos nos sete canais fisiológicos, no alvo derivado e no grupo diagnóstico; a partição 80/20 estratifica conjuntamente por alvo e \texttt{dzgroup}, garantindo que os 16 estratos apareçam nas duas partições. O nó \texttt{RandomForestCalibrationArtifact}, visível no grafo, é usado pelas três atividades de simulação --- a calibração do Random Forest é compartilhada pelos três braços, não reajustada por braço.}
-    {Isso encerra os grafos formais de apoio; os slides seguintes retomam definições, configurações e resultados numéricos completos.}
+    {A mesma instanciação de proveniência, aqui para o SUPPORT2. A coorte analítica retém somente casos completos nos sete canais fisiológicos, no alvo derivado e no grupo diagnóstico; a partição 80/20 estratifica conjuntamente por alvo e \texttt{dzgroup}, garantindo que os 16 estratos apareçam nas duas partições. O nó \texttt{RandomForestCalibrationArtifact} é usado --- não gerado --- pelas três atividades de simulação: a calibração do Random Forest é compartilhada pelos três braços, não reajustada por braço, e foi feita uma única vez, apenas na reserva de treino, como operação de mantenedor.}
+    {Isso encerra os slides de proveniência de apoio; os slides seguintes retomam definições, configurações e resultados numéricos completos.}
     {A calibração do Random Forest é uma evidência de proveniência compartilhada pelos três braços de avaliação.}
     {Slide de apoio; consulta sob demanda.}
     {Não emoldurar a preservação do perfil como evidência de recomendação clínica.}

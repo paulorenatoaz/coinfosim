@@ -286,15 +286,15 @@
 \end{frame}
 
 % Slide 7 ---------------------------------------------------------------------
-\begin{frame}{Grafo formal: da reserva de treino ao perfil de cooperação preditiva}
+\begin{frame}{Modelo de proveniência experimental do CoInfoSim}
   \slidetime{1:15}
   \vspace{-0.22cm}
   \centering
-  \includegraphics[width=0.97\linewidth,trim=1476pt 0pt 691pt 0pt,clip,keepaspectratio]{\figroot/provenance/provenance_occupancy_000002.pdf}
+  \includegraphics[width=0.97\linewidth,keepaspectratio]{\figroot/provenance/prov_profile_derivation_wide.pdf}
 
   \vspace{0.03cm}
   {\centering\fontsize{7.0}{8.4}\selectfont\color{CoInfoGray}
-    W3C PROV \textbullet{} \texttt{ProvDocument} \textbullet{} \texttt{prov\_to\_dot} \textbullet{} Graphviz\par}
+    W3C PROV \textbullet{} \texttt{ProvDocument} \textbullet{} projeção legível, independente de dataset\par}
 
   \vspace{0.03cm}
   \metricpill{CoInfoAmber}{Entity}{dado ou artefato (reserva de treino, teste real fixo, resultado, perfil)}
@@ -306,14 +306,14 @@
     \centering\fontsize{8.0}{9.6}\selectfont
     O mesmo teste real fixo alimenta os três braços de avaliação; apenas a reserva de treino alimenta o ajuste dos geradores.
   \end{beamercolorbox}
-  \sourcecite{recorte da cadeia central do grafo Graphviz genuíno, emitido por \texttt{prov\_to\_dot} a partir do \texttt{ProvDocument} canônico do cenário Occupancy 000002; relatório final, Capítulo 3 e Apêndice E.}
+  \sourcecite{projeção legível do modelo de proveniência canônico, comum aos três cenários; relatório final, Capítulo 3 e Apêndice E.}
 
   \speakernotes
-    {Este é um recorte do grafo de proveniência formal genuíno, emitido pelo CoInfoSim com a biblioteca Python \texttt{prov} --- \texttt{ProvDocument} e \texttt{prov\_to\_dot}/Graphviz --- compatível com o vocabulário PROV-O do W3C; não é um diagrama ilustrativo. A reserva de treino alimenta o ajuste da Gaussiana única e do GMM, e também o braço Real-para-Real diretamente; o teste real fixo, e apenas ele, alimenta os três braços de simulação na etapa de avaliação --- nunca o ajuste dos geradores. Os três resultados brutos alimentam uma única computação do perfil de cooperação preditiva. As setas rotuladas são relações PROV padronizadas: \texttt{used} e \texttt{wasGeneratedBy}. O recorte remove apenas os nós à margem do grafo completo deste cenário (artefatos de relatório e proveniência de origem do dataset); os tipos e relações mostrados correspondem exatamente aos emitidos pelo código atual. Vale uma ressalva de escopo: essa é uma camada de vocabulário semântico e proveniência PROV-O, com uma pequena ontologia OWL 2 de apoio; não há raciocínio automático nem um banco de grafos consultável em produção --- os slides de apoio detalham esse escopo e mostram os grafos completos do Air Quality e do SUPPORT2.}
+    {Este é um modelo esquemático da arquitetura de proveniência do CoInfoSim, comum aos três cenários --- não o grafo de uma execução concreta. É uma projeção de legibilidade, elaborada a partir do \texttt{ProvDocument} canônico e do mapeamento de tipos em \texttt{docs/semantics/provenance\_mapping.md}, compatível com o vocabulário PROV-O do W3C; os tipos e relações mostrados (\texttt{used}, \texttt{wasGeneratedBy}, \texttt{wasAssociatedWith}) correspondem exatamente aos emitidos pelo código atual, mas o desenho não é a saída direta de \texttt{prov\_to\_dot}. A reserva de treino alimenta o ajuste da Gaussiana única e do GMM, e também o braço Real-para-Real diretamente; o teste real fixo, e apenas ele, alimenta os três braços de simulação na etapa de avaliação --- nunca o ajuste dos geradores. Os três resultados brutos alimentam uma única computação do perfil de cooperação preditiva. Vale uma ressalva de escopo: essa é uma camada de vocabulário semântico e proveniência PROV-O, com uma pequena ontologia OWL 2 de apoio; não há raciocínio automático nem um banco de grafos consultável em produção --- os slides de apoio instanciam esse modelo para Occupancy, Air Quality e SUPPORT2, e apontam para o grafo Graphviz genuíno de cada cenário como artefato de auditoria.}
     {Com o controle experimental estabelecido, retomo o protocolo de três braços e sigo para os indicadores de preservação do perfil.}
-    {O grafo formal torna auditável que o teste real nunca participa do ajuste dos geradores.}
+    {O modelo torna auditável que o teste real nunca participa do ajuste dos geradores; é a arquitetura comum, não uma execução específica.}
     {1 minuto e 15 segundos.}
-    {Não chamar esta camada de ontologia OWL completa com raciocínio automático; é vocabulário semântico e proveniência PROV-O, com uma pequena ontologia de apoio. Não mencionar recuperação de artefatos ou commits: este slide mostra proveniência experimental genuína, não bookkeeping de regeneração de relatório.}
+    {Não chamar este diagrama de saída direta do Graphviz/\texttt{prov\_to\_dot}: é uma projeção de legibilidade do mesmo modelo canônico. Não chamar a camada semântica de ontologia OWL completa com raciocínio automático. Não mencionar recuperação de artefatos ou commits: este slide mostra a arquitetura de proveniência experimental, não bookkeeping de regeneração de relatório.}
 \end{frame}
 
 % Slide 8 ---------------------------------------------------------------------
@@ -449,29 +449,29 @@
 % Slide 11 ---------------------------------------------------------------------
 \begin{frame}{Occupancy + SVM linear — nenhum gerador vence em todas as métricas}
   \slidetime{1:40}
-  \vspace{0.05cm}
+  \vspace{-0.14cm}
   \begin{columns}[T,onlytextwidth]
-    \begin{column}{0.39\linewidth}
+    \begin{column}{0.43\linewidth}
       \centering
       \renewcommand{\arraystretch}{1.0}
       \setlength{\tabcolsep}{0pt}
       \begin{tabular}{@{}c@{}}
-        {\fontsize{5.6}{6.6}\selectfont\textbf{Real}}\\[0.01cm]
-        \includegraphics[height=0.62cm,keepaspectratio,trim=6.5 835 737 39,clip]{\figroot/geometry/occupancy/viz_2d_real_full_000002.png}\\[0.015cm]
-        {\fontsize{5.6}{6.6}\selectfont\textbf{Gaussiana única}}\\[0.01cm]
-        \includegraphics[height=0.62cm,keepaspectratio,trim=6.5 835 737 39,clip]{\figroot/geometry/occupancy/viz_2d_gaussian_full_000002.png}\\[0.015cm]
-        {\fontsize{5.6}{6.6}\selectfont\textbf{GMM}}\\[0.01cm]
-        \includegraphics[height=0.62cm,keepaspectratio,trim=6.5 835 737 39,clip]{\figroot/geometry/occupancy/viz_2d_gmm_full_000002.png}
+        {\fontsize{5.2}{6.0}\selectfont\textbf{Real}}\\[0.01cm]
+        \includegraphics[height=0.86cm,keepaspectratio,trim=6.5 835 737 39,clip]{\figroot/geometry/occupancy/viz_2d_real_full_000002.png}\\[0.015cm]
+        {\fontsize{5.2}{6.0}\selectfont\textbf{Gaussiana única}}\\[0.01cm]
+        \includegraphics[height=0.86cm,keepaspectratio,trim=6.5 835 737 39,clip]{\figroot/geometry/occupancy/viz_2d_gaussian_full_000002.png}\\[0.015cm]
+        {\fontsize{5.2}{6.0}\selectfont\textbf{GMM}}\\[0.01cm]
+        \includegraphics[height=0.86cm,keepaspectratio,trim=6.5 835 737 39,clip]{\figroot/geometry/occupancy/viz_2d_gmm_full_000002.png}
       \end{tabular}
     \end{column}
-    \begin{column}{0.58\linewidth}
+    \begin{column}{0.54\linewidth}
       \centering
       \includegraphics[width=0.99\linewidth,height=3.15cm,keepaspectratio]{figures/occupancy_svm_metricas_vs_n_full.pdf}
     \end{column}
   \end{columns}
 
-  \vspace{-0.10cm}
-  \begin{beamercolorbox}[wd=\linewidth,sep=0.08cm,rounded=true]{takeaway}
+  \vspace{-0.36cm}
+  \begin{beamercolorbox}[wd=\linewidth,sep=0.055cm,rounded=true]{takeaway}
     \centering\bfseries\fontsize{9.0}{10.6}\selectfont
 Maior fidelidade geométrica do GMM não implica maior preservação do perfil: Gaussiana única lidera $\rankrho$, $\AW$ e $\AR$; GMM lidera $\SR$.
   \end{beamercolorbox}
@@ -488,29 +488,29 @@ Maior fidelidade geométrica do GMM não implica maior preservação do perfil: 
 % Slide 12 --------------------------------------------------------------------
 \begin{frame}{Air Quality + Gaussian NB: ordenação e vencedores quase perfeitos}
   \slidetime{1:40}
-  \vspace{0.05cm}
+  \vspace{-0.14cm}
   \begin{columns}[T,onlytextwidth]
-    \begin{column}{0.39\linewidth}
+    \begin{column}{0.43\linewidth}
       \centering
       \renewcommand{\arraystretch}{1.0}
       \setlength{\tabcolsep}{0pt}
       \begin{tabular}{@{}c@{}}
-        {\fontsize{5.6}{6.6}\selectfont\textbf{Real}}\\[0.01cm]
-        \includegraphics[height=0.62cm,keepaspectratio,trim=6.5 835 737 39,clip]{\figroot/geometry/air_quality/viz_2d_real_full_000005.png}\\[0.015cm]
-        {\fontsize{5.6}{6.6}\selectfont\textbf{Gaussiana única}}\\[0.01cm]
-        \includegraphics[height=0.62cm,keepaspectratio,trim=6.5 835 737 39,clip]{\figroot/geometry/air_quality/viz_2d_gaussian_full_000005.png}\\[0.015cm]
-        {\fontsize{5.6}{6.6}\selectfont\textbf{GMM}}\\[0.01cm]
-        \includegraphics[height=0.62cm,keepaspectratio,trim=6.5 835 737 39,clip]{\figroot/geometry/air_quality/viz_2d_gmm_full_000005.png}
+        {\fontsize{5.2}{6.0}\selectfont\textbf{Real}}\\[0.01cm]
+        \includegraphics[height=0.86cm,keepaspectratio,trim=6.5 835 737 39,clip]{\figroot/geometry/air_quality/viz_2d_real_full_000005.png}\\[0.015cm]
+        {\fontsize{5.2}{6.0}\selectfont\textbf{Gaussiana única}}\\[0.01cm]
+        \includegraphics[height=0.86cm,keepaspectratio,trim=6.5 835 737 39,clip]{\figroot/geometry/air_quality/viz_2d_gaussian_full_000005.png}\\[0.015cm]
+        {\fontsize{5.2}{6.0}\selectfont\textbf{GMM}}\\[0.01cm]
+        \includegraphics[height=0.86cm,keepaspectratio,trim=6.5 835 737 39,clip]{\figroot/geometry/air_quality/viz_2d_gmm_full_000005.png}
       \end{tabular}
     \end{column}
-    \begin{column}{0.58\linewidth}
+    \begin{column}{0.54\linewidth}
       \centering
       \includegraphics[width=0.99\linewidth,height=3.15cm,keepaspectratio]{figures/air_quality_gnb_metricas_vs_n_full.pdf}
     \end{column}
   \end{columns}
 
-  \vspace{-0.10cm}
-  \begin{beamercolorbox}[wd=\linewidth,sep=0.08cm,rounded=true]{takeaway}
+  \vspace{-0.36cm}
+  \begin{beamercolorbox}[wd=\linewidth,sep=0.055cm,rounded=true]{takeaway}
     \centering\bfseries\fontsize{9.0}{10.6}\selectfont
     Ordenação, vencedores, existência e regime amostral das inversões preservados quase integralmente nos dois braços sintéticos --- o caso mais forte do estudo.
   \end{beamercolorbox}
@@ -527,32 +527,32 @@ Maior fidelidade geométrica do GMM não implica maior preservação do perfil: 
 % Slide 13 --------------------------------------------------------------------
 \begin{frame}{SUPPORT2 — desempenho absoluto e perfil são dimensões distintas}
   \slidetime{1:40}
-  \vspace{0.05cm}
+  \vspace{-0.14cm}
   \begin{columns}[T,onlytextwidth]
-    \begin{column}{0.39\linewidth}
+    \begin{column}{0.43\linewidth}
       \centering
       \renewcommand{\arraystretch}{1.0}
       \setlength{\tabcolsep}{0pt}
       \begin{tabular}{@{}c@{}}
-        {\fontsize{5.6}{6.6}\selectfont\textbf{Real}}\\[0.01cm]
-        \includegraphics[height=0.62cm,keepaspectratio,trim=6.5 1717 737 39,clip]{\figroot/geometry/support2/viz_2d_real_full_000008.png}\\[0.015cm]
-        {\fontsize{5.6}{6.6}\selectfont\textbf{Gaussiana única}}\\[0.01cm]
-        \includegraphics[height=0.62cm,keepaspectratio,trim=6.5 1717 737 39,clip]{\figroot/geometry/support2/viz_2d_gaussian_full_000008.png}\\[0.015cm]
-        {\fontsize{5.6}{6.6}\selectfont\textbf{GMM}}\\[0.01cm]
-        \includegraphics[height=0.62cm,keepaspectratio,trim=6.5 1717 737 39,clip]{\figroot/geometry/support2/viz_2d_gmm_full_000008.png}
+        {\fontsize{5.2}{6.0}\selectfont\textbf{Real}}\\[0.01cm]
+        \includegraphics[height=0.74cm,keepaspectratio,trim=6.5 1717 737 39,clip]{\figroot/geometry/support2/viz_2d_real_full_000008.png}\\[0.015cm]
+        {\fontsize{5.2}{6.0}\selectfont\textbf{Gaussiana única}}\\[0.01cm]
+        \includegraphics[height=0.74cm,keepaspectratio,trim=6.5 1717 737 39,clip]{\figroot/geometry/support2/viz_2d_gaussian_full_000008.png}\\[0.015cm]
+        {\fontsize{5.2}{6.0}\selectfont\textbf{GMM}}\\[0.01cm]
+        \includegraphics[height=0.74cm,keepaspectratio,trim=6.5 1717 737 39,clip]{\figroot/geometry/support2/viz_2d_gmm_full_000008.png}
       \end{tabular}
     \end{column}
-    \begin{column}{0.58\linewidth}
+    \begin{column}{0.54\linewidth}
       \centering
-      \includegraphics[width=0.99\linewidth,height=3.05cm,keepaspectratio]{figures/support2_rf_metricas_vs_n_full.pdf}
+      \includegraphics[width=0.99\linewidth,height=2.75cm,keepaspectratio]{figures/support2_rf_metricas_vs_n_full.pdf}
     \end{column}
   \end{columns}
 
-  \vspace{-0.08cm}
-  {\fontsize{6.6}{7.8}\selectfont\color{CoInfoGray}
+  \vspace{-0.06cm}
+  {\fontsize{5.8}{6.8}\selectfont\color{CoInfoGray}
     $\times$ indica métrica indisponível no prefixo, não valor zero. Menor perda em $n=512$: Real 0,4555; Gaussiana 0,4554; GMM 0,4547.\par}
-  \vspace{0.01cm}
-  \begin{beamercolorbox}[wd=\linewidth,sep=0.08cm,rounded=true]{takeaway}
+  \vspace{-0.04cm}
+  \begin{beamercolorbox}[wd=\linewidth,sep=0.055cm,rounded=true]{takeaway}
     \centering\bfseries\fontsize{9.0}{10.6}\selectfont
 Perda absoluta, geometria visual e preservação do perfil são dimensões distintas; $A_R$ pode divergir de $S_R$ no mesmo par de braços.
   \end{beamercolorbox}

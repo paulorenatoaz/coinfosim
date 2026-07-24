@@ -54,7 +54,7 @@ A inspeção das projeções padronizadas mostra classes com formas irregulares,
     \includegraphics[width=\linewidth,trim=6.5 835 737 39,clip]{figures/geometry/occupancy/viz_2d_gmm_full_000002.png}
     \subcaption{GMM}
   \end{minipage}
-  \sourcebelow{relatório publicado do cenário Occupancy Detection 000002 do \CoInfoSim}
+  \sourcebelow{\href{https://paulorenatoaz.github.io/coinfosim/reports/scenarios/000002_occupancy_baseline_full/occupancy_baseline_scenario_report_full_000002.html}{relatório publicado do cenário Occupancy Detection 000002 do \CoInfoSim}}
   \notailustracao{A comparação geométrica é descritiva, restrita ao par de canais $(X_1,X_2)$. A preservação do perfil de cooperação preditiva é avaliada separadamente pelos indicadores definidos no Capítulo 4}
 \end{figure}
 
@@ -110,7 +110,7 @@ As projeções do Air Quality apresentam regiões mais compactas e elipsoidais d
     \includegraphics[width=\linewidth,trim=6.5 835 737 39,clip]{figures/geometry/air_quality/viz_2d_gmm_full_000005.png}
     \subcaption{GMM}
   \end{minipage}
-  \sourcebelow{relatório publicado do cenário Air Quality 000005 do \CoInfoSim}
+  \sourcebelow{\href{https://paulorenatoaz.github.io/coinfosim/reports/scenarios/000005_air_quality_baseline_full/air_quality_scenario_report_full_000005.html}{relatório publicado do cenário Air Quality 000005 do \CoInfoSim}}
   \notailustracao{A comparação geométrica é descritiva, restrita ao par de canais $(X_1,X_2)$. A preservação do perfil de cooperação preditiva é avaliada separadamente pelos indicadores definidos no Capítulo 4}
 \end{figure}
 
@@ -173,7 +173,7 @@ As projeções selecionadas do SUPPORT2 mostram regiões mais compatíveis com a
     \includegraphics[width=\linewidth,trim=6.5 1717 737 39,clip]{figures/geometry/support2/viz_2d_gmm_full_000008.png}
     \subcaption{GMM}
   \end{minipage}
-  \sourcebelow{relatório publicado do cenário SUPPORT2 000008 do \CoInfoSim}
+  \sourcebelow{\href{https://paulorenatoaz.github.io/coinfosim/reports/scenarios/000008_support2_baseline_full/support2_scenario_report_full_000008.html}{relatório publicado do cenário SUPPORT2 000008 do \CoInfoSim}}
   \notailustracao{A comparação geométrica é descritiva, restrita ao par de canais $(X_1,X_2)$. A preservação do perfil de cooperação preditiva é avaliada separadamente pelos indicadores definidos no Capítulo 4}
 \end{figure}
 
@@ -283,40 +283,56 @@ o que torna a paralelização por processos uma condição prática para as exec
 \section{Proveniência e rastreabilidade experimental}
 \label{sec:provenance}
 
-A proveniência formal deste trabalho segue o padrão \emph{W3C PROV}/PROV-O~\cite{provo2013}: cada artefato de dado ou resultado é uma \texttt{prov:Entity}, cada atividade computacional é uma \texttt{prov:Activity}, e o próprio \CoInfoSim{} é o único \texttt{prov:SoftwareAgent}, associado a cada atividade por \texttt{prov:wasAssociatedWith}. As relações \texttt{prov:used}, \texttt{prov:wasGeneratedBy} e \texttt{prov:wasDerivedFrom} ligam essas entidades e atividades em um único \texttt{prov.model.ProvDocument} (biblioteca Python \texttt{prov}), construído por uma função canônica única (\texttt{build\_scenario\_prov\_document}) e renderizado com \texttt{prov.dot.prov\_to\_dot}/Graphviz: não há um segundo modelo de proveniência nem uma ilustração meramente conceitual dos vínculos --- o grafo da Figura~\ref{fig:prov-occupancy} é emitido diretamente a partir desse documento formal. Essa camada torna auditável a separação entre dados usados para parametrizar treinamento e geradores e dados reservados à avaliação, e permite rastrear qualquer número reportado até o resultado bruto, a atividade computacional e o artefato de software que o produziram. A implementação adota a mesma abordagem --- W3C PROV, biblioteca Python \texttt{prov}, \texttt{ProvDocument} e \texttt{prov\_to\_dot}/Graphviz --- apresentada no notebook de curso \texttt{FCD\_M1\_4\_Provenance.ipynb}, do repositório \texttt{zavaleta/Fundamentos\_DS}~\cite{zavaleta_fcd_provenance}.
+\begin{sloppypar}
+A proveniência formal deste trabalho segue o padrão \emph{W3C PROV}/PROV-O~\cite{provo2013}: cada artefato de dado ou resultado é uma \texttt{prov:Entity}, cada atividade computacional é uma \texttt{prov:Activity}, e o próprio \CoInfoSim{} é o único \texttt{prov:SoftwareAgent}, associado a cada atividade por \texttt{prov:wasAssociatedWith}. As relações \texttt{prov:used}, \texttt{prov:wasGeneratedBy} e \texttt{prov:wasDerivedFrom} ligam essas entidades e atividades em um único \texttt{prov.model.ProvDocument} (biblioteca Python \texttt{prov}) por cenário, construído por uma função canônica única (\texttt{build\_\allowbreak{}scenario\_\allowbreak{}prov\_\allowbreak{}document}); todas as serializações --- PROV-JSON, PROV-N, PROV-O/Turtle e, quando \texttt{dot} está disponível, o grafo Graphviz em PNG/PDF via \texttt{prov.dot.prov\_to\_dot} --- derivam deterministicamente desse único documento (Apêndice~E). A implementação adota a mesma abordagem --- W3C PROV, biblioteca Python \texttt{prov}, \texttt{ProvDocument} e \texttt{prov\_to\_dot}/Graphviz --- apresentada no notebook de curso \texttt{FCD\_\allowbreak{}M1\_\allowbreak{}4\_\allowbreak{}Provenance.ipynb}, do repositório \texttt{zavaleta/\allowbreak{}Fundamentos\_DS}~\cite{zavaleta_fcd_provenance}.
+\end{sloppypar}
+
+Para tornar essa camada legível sem depender de um grafo Graphviz de grande formato, este relatório apresenta a proveniência em três níveis. O \textbf{nível 1} é um modelo genérico, independente de dataset, que introduz a arquitetura experimental invariante (Figura~\ref{fig:prov-generic}). O \textbf{nível 2} instancia esse modelo para cada um dos três estudos de caso (Figuras~\ref{fig:prov-occupancy}--\ref{fig:prov-support2}), tornando explícitas as escolhas específicas de cada dataset --- arquivos de origem, regra de partição, definição do alvo. O \textbf{nível 3} é o \texttt{ProvDocument} canônico e suas serializações formais, o artefato de auditoria completo, referenciado ao final desta seção e detalhado no Apêndice~E. Os diagramas TikZ dos níveis 1 e 2 são projeções editoriais de legibilidade, elaboradas a partir da evidência de proveniência persistida de cada cenário; eles não são a saída direta de \texttt{prov\_to\_dot} --- o grafo Graphviz genuíno permanece o artefato formal de nível 3.
 
 \begin{figure}[H]
   \centering
-  \caption{Proveniência formal (W3C PROV) do cenário Occupancy (000002), gerada a partir do \texttt{ProvDocument} canônico}
+  \caption{Modelo de proveniência experimental do CoInfoSim (projeção legível, nível 1)}
+  \label{fig:prov-generic}
+  \includegraphics[width=\textwidth]{figures/provenance/prov_profile_derivation.pdf}
+  \sourcebelow{elaboração própria; projeção de legibilidade construída a partir do mapeamento canônico em \texttt{docs/semantics/provenance\_mapping.md} (Apêndice~E)}
+  \notailustracao{Representação esquemática da arquitetura de proveniência comum aos três cenários, não o grafo de uma execução concreta; os tipos e relações mostrados (\texttt{used}, \texttt{wasGeneratedBy}, \texttt{wasAssociatedWith}) correspondem exatamente aos emitidos pelo código. As instanciações específicas de cada dataset seguem nas Figuras~\ref{fig:prov-occupancy}--\ref{fig:prov-support2}}
+\end{figure}
+
+Nesse modelo, uma \texttt{prov:Entity} representa um dado ou resultado (por exemplo, \texttt{SourceDataset}, \texttt{TrainingReservoir}, \texttt{FixedRealTestSet}, \texttt{ResultData}, \texttt{PredictiveCooperationProfile}); uma \texttt{prov:Activity} representa uma computação (\texttt{DatasetPreparation}, o ajuste de cada gerador, cada execução de simulação, a computação do perfil, a geração do relatório); e o \texttt{prov:SoftwareAgent} único é associado a cada atividade por \texttt{prov:wasAssociatedWith}. Uma atividade \texttt{prov:used} as entidades que consome como insumo e \texttt{prov:wasGeneratedBy} as entidades que produz. A granularidade é por cenário/braço, não por replicação Monte Carlo.
+
+O mesmo modelo é instanciado para os três estudos de caso. No Occupancy (cenário 000002, Figura~\ref{fig:prov-occupancy}), \texttt{datatraining.txt} é o reservatório de treinamento e \texttt{datatest.txt} e \texttt{datatest2.txt} formam o teste real fixo --- a partição original do doador, não um novo sorteio, como descrito na Seção~``Particionamento e preparação'' acima; a padronização por canal é estimada somente no treinamento.
+
+\begin{figure}[H]
+  \centering
+  \caption{Proveniência do cenário Occupancy Detection (projeção legível, nível 2)}
   \label{fig:prov-occupancy}
-  \includegraphics[width=\textwidth,trim=1476pt 0pt 691pt 0pt,clip]{figures/provenance/provenance_occupancy_000002.pdf}
-  \sourcebelow{elaboração própria; grafo Graphviz emitido por \texttt{prov\_to\_dot} a partir do \texttt{ProvDocument} do cenário 000002 (recorte da cadeia central; projeção de exibição científica; ver Apêndice~E)}
-  \notailustracao{Recorte da cadeia central do grafo completo, omitindo apenas nós à margem (origem do dataset, especificações de alvo/pré-processamento e o agente de software) e metadados de engenharia sem leitura científica direta (revisão de código, ambiente de execução); o documento PROV completo, incluindo esses nós e metadados, permanece persistido em \texttt{provenance.provjson}. Por ser um gráfico vetorial, cada rótulo pode ser ampliado individualmente; a tabela completa de papéis e serializações está no Apêndice~E}
+  \includegraphics[width=\textwidth]{figures/provenance/occupancy_provenance.pdf}
+  \sourcebelow{elaboração própria; representação legível e adaptada do grafo PROV formal do cenário 000002. O grafo original completo, gerado a partir do \texttt{ProvDocument} canônico por \texttt{prov\_to\_dot}/Graphviz, permanece disponível nos artefatos persistidos do cenário (\texttt{figures/provenance/provenance\_occupancy\_000002.pdf}; Apêndice~E)}
 \end{figure}
 
-Nesse grafo, uma \texttt{prov:Entity} representa um dado ou resultado (por exemplo, \texttt{SourceDataset}, \texttt{TrainingReservoir}, \texttt{FixedRealTestSet}, \texttt{ResultData}, \texttt{PredictiveCooperationProfile}); uma \texttt{prov:Activity} representa uma computação (\texttt{DatasetPreparation}, o ajuste de cada gerador, cada execução de simulação, a computação do perfil, a geração do relatório); e o \texttt{prov:SoftwareAgent} único é associado a cada atividade por \texttt{prov:wasAssociatedWith}. Uma atividade \texttt{prov:used} as entidades que consome como insumo e \texttt{prov:wasGeneratedBy} as entidades que produz; quando um resultado deriva de outro sem uma atividade computacional própria, a relação é \texttt{prov:wasDerivedFrom}. A granularidade é por cenário/braço, não por replicação Monte Carlo.
-
-O mesmo grafo formal é emitido para os outros dois estudos de caso. Na Air Quality (cenário 000005, Figura~\ref{fig:prov-air-quality}), a \texttt{TargetSpecification} e a \texttt{PreprocessingSpecification} correspondem à divisão cronológica 80/20 e ao limiar do alvo definido exclusivamente no percentil 75 de \texttt{C6H6(GT)} do conjunto de treinamento (Seção~\ref{sec:air-quality-split}), reforçando o controle contra vazamento temporal: nenhuma observação futura participa da parametrização do alvo, da padronização ou do ajuste dos geradores.
+Na Air Quality (cenário 000005, Figura~\ref{fig:prov-air-quality}), a \texttt{TargetSpecification} e a \texttt{PreprocessingSpecification} correspondem à divisão cronológica 80/20 e ao limiar do alvo definido exclusivamente no percentil 75 de \texttt{C6H6(GT)} do conjunto de treinamento (Seção~\ref{sec:air-quality-split}), reforçando o controle contra vazamento temporal: nenhuma observação futura participa da parametrização do alvo, da padronização ou do ajuste dos geradores.
 
 \begin{figure}[H]
   \centering
-  \caption{Proveniência formal (W3C PROV) do cenário Air Quality (000005)}
+  \caption{Proveniência do cenário UCI Air Quality (projeção legível, nível 2)}
   \label{fig:prov-air-quality}
-  \includegraphics[width=\textwidth,trim=1344pt 0pt 629pt 0pt,clip]{figures/provenance/provenance_air_quality_000005.pdf}
-  \sourcebelow{elaboração própria; grafo Graphviz emitido por \texttt{prov\_to\_dot} a partir do \texttt{ProvDocument} do cenário 000005 (recorte da cadeia central; projeção de exibição científica; ver Apêndice~E)}
+  \includegraphics[width=\textwidth]{figures/provenance/air_quality_provenance.pdf}
+  \sourcebelow{elaboração própria; representação legível e adaptada do grafo PROV formal do cenário 000005. O grafo original completo, gerado a partir do \texttt{ProvDocument} canônico por \texttt{prov\_to\_dot}/Graphviz, permanece disponível nos artefatos persistidos do cenário (\texttt{figures/provenance/provenance\_air\_quality\_000005.pdf}; Apêndice~E)}
 \end{figure}
 
-No SUPPORT2 (cenário 000008, Figura~\ref{fig:prov-support2}), o mesmo grafo evidencia a coorte analítica de casos completos, a estratificação conjunta por alvo e \texttt{dzgroup} na partição 80/20 (Seção~\ref{sec:support2-split}), a padronização ajustada somente no treinamento, e o \texttt{RandomForest\allowbreak CalibrationArtifact}, usado pelas três atividades de simulação.
+No SUPPORT2 (cenário 000008, Figura~\ref{fig:prov-support2}), o mesmo modelo evidencia a coorte analítica de casos completos, a estratificação conjunta por alvo e \texttt{dzgroup} na partição 80/20 (Seção~\ref{sec:support2-split}), a padronização ajustada somente no treinamento, e o \texttt{RandomForest\allowbreak CalibrationArtifact}, usado --- não gerado --- pelas três atividades de simulação: ele é calibrado uma única vez, apenas na reserva de treino, como operação de mantenedor separada da execução normal do cenário (Apêndice~C).
 
 \begin{figure}[H]
   \centering
-  \caption{Proveniência formal (W3C PROV) do cenário SUPPORT2 (000008)}
+  \caption{Proveniência do cenário SUPPORT2 (projeção legível, nível 2)}
   \label{fig:prov-support2}
-  \includegraphics[width=\textwidth,trim=1266pt 0pt 593pt 0pt,clip]{figures/provenance/provenance_support2_000008.pdf}
-  \sourcebelow{elaboração própria; grafo Graphviz emitido por \texttt{prov\_to\_dot} a partir do \texttt{ProvDocument} do cenário 000008 (recorte da cadeia central; projeção de exibição científica; ver Apêndice~E)}
+  \includegraphics[width=\textwidth]{figures/provenance/support2_provenance.pdf}
+  \sourcebelow{elaboração própria; representação legível e adaptada do grafo PROV formal do cenário 000008. O grafo original completo, gerado a partir do \texttt{ProvDocument} canônico por \texttt{prov\_to\_dot}/Graphviz, permanece disponível nos artefatos persistidos do cenário (\texttt{figures/provenance/provenance\_support2\_000008.pdf}; Apêndice~E)}
 \end{figure}
 
-Um invariante é comum aos três cenários e fica explícito nos três grafos: a \texttt{TrainingReservoir} alimenta o ajuste dos geradores (\texttt{FitSingleGaussian}, \texttt{FitGMM}), e o \texttt{FixedRealTestSet} nunca é \texttt{prov:used} por essas atividades de ajuste; o mesmo \texttt{FixedRealTestSet}, por sua vez, é \texttt{prov:used} pelas três atividades de simulação (real, Gaussiana única e GMM). Essa auditabilidade não prova a ausência absoluta de qualquer vazamento de informação; ela documenta e torna verificáveis os controles de separação de treino e teste descritos na seção anterior, testados automaticamente no código (\texttt{tests/test\_provenance\_model.py}).
+Um invariante é comum aos três cenários e fica explícito nas três instanciações: a \texttt{TrainingReservoir} alimenta o ajuste dos geradores (\texttt{FitSingleGaussian}, \texttt{FitGMM}), e o \texttt{FixedRealTestSet} nunca é \texttt{prov:used} por essas atividades de ajuste; o mesmo \texttt{FixedRealTestSet}, por sua vez, é \texttt{prov:used} pelas três atividades de simulação (real, Gaussiana única e GMM). Essa auditabilidade não prova a ausência absoluta de qualquer vazamento de informação; ela documenta e torna verificáveis os controles de separação de treino e teste descritos na seção anterior, testados automaticamente no código (\texttt{tests/test\_provenance\_model.py}).
+
+O nível 3 --- o artefato de auditoria --- é o \texttt{ProvDocument} canônico persistido junto de cada execução de cenário: \texttt{semantic\_manifest.json} e as serializações PROV-JSON/PROV-N/Turtle listadas no Apêndice~E, regeneráveis sem nova simulação por \texttt{coinfosim scenario regenerate} (ver \texttt{README.md}). O manifesto semântico de cada cenário está publicado ao lado do respectivo relatório, por exemplo \href{https://paulorenatoaz.github.io/coinfosim/reports/scenarios/000002_occupancy_baseline_full/semantic_manifest.json}{o manifesto do cenário Occupancy 000002}; o Apêndice~E detalha a tabela completa de artefatos e seus formatos de emissão.
 
 \subsection{Rastreabilidade experimental}
 

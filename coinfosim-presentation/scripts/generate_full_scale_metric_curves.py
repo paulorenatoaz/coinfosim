@@ -361,10 +361,11 @@ def make_figure(
             color=INK,
             marker="o",
             linestyle="--",
+            dashes=(3.4, 1.8),
             markersize=4.4,
             markerfacecolor="white",
             markeredgecolor=INK,
-            linewidth=1.5,
+            linewidth=2.0,
             label="Gaussiana única",
         ),
         Line2D(
@@ -376,7 +377,7 @@ def make_figure(
             markersize=4.4,
             markerfacecolor=INK,
             markeredgecolor=INK,
-            linewidth=1.5,
+            linewidth=2.0,
             label="GMM",
         ),
     ]
@@ -408,12 +409,13 @@ def make_figure(
     fig.legend(
         handles=arm_handles,
         loc="lower center",
-        bbox_to_anchor=(0.5, -0.085),
+        bbox_to_anchor=(0.5, -0.088),
         ncol=len(arm_handles),
         frameon=False,
         fontsize=6.8,
-        columnspacing=1.1,
-        handletextpad=0.4,
+        columnspacing=1.3,
+        handletextpad=0.5,
+        handlelength=4.2,
         title="arma sintética",
         title_fontsize=6.8,
     )

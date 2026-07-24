@@ -1,0 +1,76 @@
+% Readable scenario-specific provenance projection — UCI Air Quality
+% (scenario 000005). This is an editorial readability adaptation of the
+% canonical provenance.provn for that scenario run, not prov_to_dot output;
+% the complete original Graphviz/PROV artifacts remain published per scenario
+% (see coinfosim-report-latex/figures/provenance/provenance_air_quality_000005.pdf
+% and the scenario's semantic_manifest.json / provenance.{provjson,provn,ttl}).
+% Node/relation types follow docs/semantics/provenance_mapping.md exactly;
+% PreparedDataset is omitted here (kept only in the generic diagram) to leave
+% room for the dataset-specific notes below. The dashed grey notes attach
+% dataset-specific facts (sentinel handling, chronological split, target
+% definition) documented in data/raw/air_quality/README.md and
+% coinfosim-report-latex/chapters/04_datasets.tex — they are captions, not
+% additional PROV nodes. ArtifactRecovery/RecoveredArtifactSet/CodeRevision
+% are omitted for the same reason as in the generic diagram: report-
+% regeneration metadata, not experimental science provenance. Compilation:
+% xelatex.
+\documentclass[tikz,border=6pt]{standalone}
+\input{prov_diagram_style}
+\tikzset{relacao/.style={usedrel}, relacaofina/.style={usedrelfina}}
+
+\begin{document}
+\begin{tikzpicture}[node distance=4mm and 4mm]
+
+  % --- Origem e preparação do dataset -----------------------------------------
+  \node[entidade,minimum width=2.8cm]  (source)   at (-3.4, 1.3) {\textbf{SourceDataset}\\UCI Air Quality};
+  \node[atividade,minimum width=2.8cm] (dataprep) at (-3.4, -1.5) {\textbf{DatasetPreparation}};
+  \draw[relacao] (source) -- node[rlabel]{used} (dataprep);
+
+  \node[entidade,minimum width=2.6cm]  (trainres)  at (0, 2.6) {\textbf{TrainingReservoir}};
+  \node[entidade,minimum width=2.6cm]  (fixedtest) at (0, -2.6) {\textbf{FixedRealTestSet}};
+  \draw[relacaofina] (dataprep.east) -- ++(0.9,0) coordinate (dpbus) |- node[pos=0.3,rlabel]{wasGeneratedBy} (trainres.west);
+  \draw[relacaofina] (dpbus) |- node[pos=0.3,rlabel]{wasGeneratedBy} (fixedtest.west);
+
+  \node[nota, text width=3.4cm, above=2mm of trainres] {80\% inicial da coorte cronológica: reserva de treino};
+  \node[nota, text width=3.6cm, below=2mm of fixedtest] {20\% final: teste real futuro fixo, não um sorteio aleatório};
+  \node[nota, text width=4.6cm, below=2mm of dataprep] {sentinela $-200\to$ ausente; casos completos nos 5 sensores + \texttt{C6H6(GT)}; alvo \texttt{benzene\_elevated} = percentil 75 de \texttt{C6H6(GT)} no treino; padronização só no treino};
+
+  \node[atividade,minimum width=2.6cm] (fitgauss) at (3.2, 1.5) {\textbf{FitSingleGaussian}};
+  \node[atividade,minimum width=2.6cm] (fitgmm)   at (3.2, -3.7) {\textbf{FitGMM}};
+
+  \node[entidade,minimum width=2.9cm]  (fittedgauss) at (7.9, 1.5)  {\textbf{FittedSingleGaussian}\\\textbf{Generator}};
+  \node[entidade,minimum width=2.9cm]  (fittedgmm)   at (7.9, -3.7) {\textbf{FittedGMM}\\\textbf{Generator}};
+
+  \node[atividade,minimum width=3.5cm] (realrun)  at (12.4, 3.7)  {\textbf{RealSimulationRun}\\braço Real$\to$Real};
+  \node[atividade,minimum width=3.5cm] (gaussrun) at (12.4, 0)    {\textbf{SingleGaussianSimulationRun}\\braço Gaussiana$\to$Real};
+  \node[atividade,minimum width=3.5cm] (gmmrun)   at (12.4, -3.7) {\textbf{GMMSimulationRun}\\braço GMM$\to$Real};
+
+  \node[entidade,minimum width=2.1cm]  (resultdata) at (16.9, 0) {\textbf{ResultData}\\(3$\times$)};
+  \node[atividade,minimum width=3.5cm] (profcomp)   at (20.7, 0) {\textbf{ProfileComputation}};
+  \node[entidade,minimum width=4.4cm]  (profile)    at (25.3, 0) {\textbf{PredictiveCooperationProfile}\\$\mathbf{W}$, $\mathbf{R}$, $\rho_{\mathrm{rank}}$, $A_W$, $A_R$, $D_R$, $S_R$};
+
+  \draw[relacao] (trainres.east) -- node[rlabel,above]{used} (fitgauss.west);
+  \draw[relacao] (trainres.south) .. controls +(1.2,-2.0) and +(-2.6,3.0) .. node[rlabel,pos=0.5]{used} (fitgmm.north west);
+  \draw[relacao] (trainres.east) .. controls +(4.4,0.9) and +(-4.4,0.6) .. node[rlabel,pos=0.4]{used} (realrun.west);
+
+  \draw[relacao] (fitgauss.east) -- node[rlabel,above]{wasGeneratedBy} (fittedgauss.west);
+  \draw[relacao] (fitgmm.east)   -- node[rlabel,above]{wasGeneratedBy} (fittedgmm.west);
+  \draw[relacao] (fittedgauss.east) -- node[rlabel,above]{used} (gaussrun.west);
+  \draw[relacao] (fittedgmm.east)   -- node[rlabel,above]{used} (gmmrun.west);
+
+  \draw[relacao] (fixedtest.north) .. controls +(3.0,2.6) and +(-4.8,-4.6) .. node[rlabel,pos=0.22]{used} (realrun.south west);
+  \draw[relacao] (fixedtest.east)  .. controls +(3.6,1.9) and +(-3.6,-1.9) .. node[rlabel,pos=0.5]{used} (gaussrun.south west);
+  \draw[relacao] (fixedtest.east)  -- node[rlabel]{used} (gmmrun.west);
+
+  \draw[relacao] (realrun.east)  .. controls +(1.4,-0.7) and +(-1.4,1.7) .. node[rlabel,pos=0.6]{wasGeneratedBy} (resultdata.north west);
+  \draw[relacao] (gaussrun.east) -- node[rlabel]{wasGeneratedBy} (resultdata.west);
+  \draw[relacao] (gmmrun.east)   .. controls +(1.4,0.7) and +(-1.4,-1.7) .. node[rlabel,pos=0.6]{wasGeneratedBy} (resultdata.south west);
+
+  \draw[relacao] (resultdata) -- node[rlabel,yshift=4.5mm]{used} (profcomp);
+  \draw[relacao] (profcomp)   -- node[rlabel,yshift=4.5mm]{wasGeneratedBy} (profile);
+
+  \node[agente] (agent) at (20.7, -4.0) {\textbf{CoInfoSim}\\\texttt{prov:SoftwareAgent}};
+  \draw[relacaofina] (agent.north) -- node[rlabel]{wasAssociatedWith} (profcomp.south);
+
+\end{tikzpicture}
+\end{document}

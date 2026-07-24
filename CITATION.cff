@@ -1,14 +1,12 @@
 cff-version: 1.2.0
 message: "If you use CoInfoSim for published research, please cite this repository."
 title: "CoInfoSim: A Simulator for Cooperative Classification from Multiple Information Channels"
-version: 0.2.0
+version: 0.2.2
 authors:
   - family-names: "Azevedo"
     given-names: "Paulo"
     affiliation: "PPGI/UFRJ"
-date-released: 2026-06-15
 url: https://github.com/paulorenatoaz/coinfosim
-doi: TODO
 license: GPL-3.0
 keywords:
   - cooperative classification

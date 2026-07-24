@@ -1,14 +1,19 @@
 # Apresentação acadêmica do CoInfoSim
 
-Deck 16:9 em LaTeX Beamer, com 12 slides principais e material de apoio. A
-narrativa principal foi planejada para **18 minutos e 15 segundos**. Cada slide
-principal possui notas do apresentador no próprio fonte.
+Deck 16:9 em LaTeX Beamer, com **14 slides principais** e material de apoio. A
+narrativa principal foi planejada para **aproximadamente 21 minutos**. Cada
+slide principal possui notas do apresentador no próprio fonte.
 
-Após a conclusão principal, cinco slides opcionais compõem a seção
-**Complemento: boas práticas de Ciência de Dados**: seleção dos datasets,
-proveniência, reprodução computacional, software científico aberto e
-responsabilidade metodológica no uso do SUPPORT2. Esses slides não integram a
-duração da narrativa principal.
+Após a conclusão principal, a seção **Complemento: boas práticas de Ciência de
+Dados** reúne o material de apoio (backup), fora da duração da narrativa
+principal: seleção dos datasets, reprodutibilidade computacional, a camada
+semântica e o modelo de proveniência (incluindo as três instanciações
+legíveis por cenário — Occupancy, Air Quality e SUPPORT2), software
+científico aberto, responsabilidade metodológica no uso do SUPPORT2,
+definições formais dos quatro indicadores de preservação do perfil,
+configurações dos geradores/classificadores, resultados numéricos adicionais
+dos três cenários, limitações e ameaças à validade, e a bibliografia
+completa.
 
 ## Compilação
 

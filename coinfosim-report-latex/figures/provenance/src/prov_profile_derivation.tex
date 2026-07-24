@@ -8,26 +8,8 @@
 % da proveniência científica do experimento (Real → Real / Gaussiana única → Real /
 % GMM → Real), que é o objeto desta figura. Compilação: xelatex (determinística).
 \documentclass[tikz,border=6pt]{standalone}
-\input{../../conceptual/src/preamble_diagrams}
-
-\definecolor{ProvEntity}{RGB}{250,232,168}
-\definecolor{ProvEntityBorder}{RGB}{176,141,42}
-\definecolor{ProvActivity}{RGB}{188,206,235}
-\definecolor{ProvActivityBorder}{RGB}{47,86,145}
-\definecolor{ProvAgent}{RGB}{244,206,178}
-\definecolor{ProvAgentBorder}{RGB}{176,94,42}
-
-\tikzset{
-  entidade/.style={draw=ProvEntityBorder, fill=ProvEntity, rounded corners=6pt,
-                align=center, font=\scriptsize, inner sep=4pt, minimum height=8.5mm, minimum width=3.65cm},
-  atividade/.style={draw=ProvActivityBorder, fill=ProvActivity, rounded corners=1pt,
-                align=center, font=\scriptsize, inner sep=4pt, minimum height=8.5mm, minimum width=3.65cm},
-  agente/.style={draw=ProvAgentBorder, fill=ProvAgent, rounded corners=1pt,
-                align=center, font=\scriptsize, inner sep=4pt, minimum height=8mm, minimum width=3.0cm},
-  relacao/.style={-{Stealth[length=2.0mm]}, thick, CoinGray},
-  relacaofina/.style={-{Stealth[length=1.8mm]}, thin, CoinGray},
-  rlabel/.style={font=\tiny\itshape, text=CoinGray, fill=white, inner sep=1pt},
-}
+\input{prov_diagram_style}
+\tikzset{relacao/.style={usedrel}, relacaofina/.style={usedrelfina}}
 
 \begin{document}
 \begin{tikzpicture}[node distance=5mm and 5mm]
@@ -35,7 +17,7 @@
   % --- Preparação do dataset (tronco central) --------------------------------
   \node[entidade]  (source)   at (0, 20.4) {\textbf{SourceDataset}\\dataset de origem};
   \node[atividade] (dataprep) at (0, 18.7) {\textbf{DatasetPreparation}\\preparação do dataset};
-  \node[entidade]  (prepared) at (0, 17.0) {\textbf{PreparedDataset}\\dataset preparado (alvo, partição, padronização)};
+  \node[entidade]  (prepared) at (5.2, 18.7) {\textbf{PreparedDataset}\\dataset preparado (alvo, partição, padronização)};
 
   % --- Partição treino/teste ---------------------------------------------------
   \node[entidade] (trainres) at (-2.0, 14.9) {\textbf{TrainingReservoir}\\reserva de treino};
@@ -64,10 +46,13 @@
   \node[agente] (agent) at (-9.6, 3.1) {\textbf{CoInfoSim}\\\texttt{prov:SoftwareAgent}};
 
   % --- Relações: preparação do dataset ---------------------------------------
+  % DatasetPreparation is the sole activity that generates three sibling
+  % entities (PreparedDataset, TrainingReservoir, FixedRealTestSet); none of
+  % those entities generates another, per provenance.provn.
   \draw[relacao] (source)   -- node[rlabel]{used} (dataprep);
-  \draw[relacao] (dataprep) -- node[rlabel]{wasGeneratedBy} (prepared);
-  \draw[relacaofina] (prepared.south) -- ++(0,-4mm) -| node[pos=0.22,rlabel]{wasGeneratedBy} (trainres.north);
-  \draw[relacaofina] (prepared.south) -- ++(0,-4mm) -| node[pos=0.22,rlabel]{wasGeneratedBy} (fixedtest.north);
+  \draw[relacao] (dataprep.east) -- node[rlabel,above]{wasGeneratedBy} (prepared.west);
+  \draw[relacaofina] (dataprep.south) -- ++(0,-1.6) coordinate (dpbus) -| node[pos=0.24,rlabel]{wasGeneratedBy} (trainres.north);
+  \draw[relacaofina] (dpbus) -| node[pos=0.24,rlabel]{wasGeneratedBy} (fixedtest.north);
 
   % --- Relações: ajuste dos geradores (somente reserva de treino) ------------
   \draw[relacao] (trainres) -- node[rlabel]{used} (fitgauss);
