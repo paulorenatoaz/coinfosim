@@ -77,6 +77,7 @@ Foram selecionados os cinco canais de resposta:
 A variável \texttt{C6H6(GT)}, obtida por analisador de referência, não é fornecida ao classificador; ela é usada somente para construir o alvo binário \texttt{benzene\_elevated}. Assim, o problema representa a tentativa de inferir uma condição definida por equipamento de referência a partir de sensores potencialmente mais simples. O limiar experimental não constitui limite sanitário ou regulatório.
 
 \subsection{Conjunto analítico, alvo e divisão cronológica}
+\label{sec:air-quality-split}
 
 O arquivo possui 9.357 linhas não vazias. O valor sentinela $-200$ é convertido em ausente, e são mantidas apenas as observações completas nos cinco canais e na referência de benzeno. O conjunto analítico resultante contém 8.991 linhas; 366 observações são descartadas, sem imputação.
 
@@ -143,6 +144,7 @@ Foram utilizados sete canais fisiológicos basais:
 Com sete canais, são avaliados 127 subconjuntos não vazios. O arquivo original contém 9.105 pacientes, sendo 4.840 negativos e 4.265 positivos para o alvo derivado. A análise usa casos completos nos sete canais, nas duas variáveis necessárias ao alvo e no grupo diagnóstico \texttt{dzgroup}, empregado somente na estratificação e no relatório. A coorte final possui 8.873 pacientes, com 4.711 negativos e 4.162 positivos.
 
 \subsection{Particionamento e padronização}
+\label{sec:support2-split}
 
 Foi construído um particionamento fixo 80/20 com semente 0 e estratificação conjunta por mortalidade em 180 dias e grupo diagnóstico. Os dados reais de treinamento contêm 7.098 pacientes, com 3.768 negativos e 3.330 positivos; o teste possui 1.775 pacientes, com 943 negativos e 832 positivos. Todos os 16 estratos conjuntos aparecem nas duas partições. Após o sorteio, as linhas são ordenadas pelo identificador, e os conjuntos são auditados por impressões digitais dos IDs.
 
@@ -281,30 +283,46 @@ o que torna a paralelização por processos uma condição prática para as exec
 \section{Proveniência e rastreabilidade experimental}
 \label{sec:provenance}
 
-A proveniência não é, neste trabalho, um registro acessório de execução: é o mecanismo que torna auditável a separação entre dados usados para parametrizar treinamento e geradores e dados reservados à avaliação, e que permite rastrear qualquer número reportado até o resultado bruto, a atividade computacional e a versão de software que o produziram. Por isso ela é tratada aqui como parte do desenho experimental, e não apenas como material de reprodutibilidade. O \CoInfoSim{} distingue duas camadas, com escopos e formatos diferentes.
-
-\subsection{Rastreabilidade experimental}
-
-Cada execução persiste, junto dos resultados, os metadados necessários para reconstruir e auditar o experimento: origem e hash SHA-256 do arquivo de dados bruto; definição do alvo e seleção do conjunto analítico elegível; impressão digital da partição treino/teste; parâmetros de padronização; parâmetros dos modelos geradores e critério de seleção do GMM; classificadores e hiperparâmetros resolvidos, incluindo o artefato de calibração do Random Forest; sementes e sua política de derivação; grade efetiva de $n$, número de replicações e motivo de parada por $n$; e os resultados brutos por replicação, compactados, que permitem regenerar relatórios e figuras sem repetir a simulação de Monte Carlo. Essa camada é o que possibilita, por exemplo, verificar que a padronização e o ajuste dos geradores de um cenário usaram exclusivamente o conjunto de treinamento correspondente.
-
-\subsection{Proveniência formal do artefato científico}
-
-Além da rastreabilidade experimental, cada regeneração de cenário emite um grafo de proveniência formal, compatível com o vocabulário do \emph{W3C PROV Ontology} (PROV-O) \cite{provo2013}: um \texttt{prov:Entity} para cada artefato de dados ou resultado, um \texttt{prov:Activity} para cada atividade computacional, e um único \texttt{prov:SoftwareAgent} --- o próprio \CoInfoSim{} --- associado às atividades. A granularidade é por cenário/braço, não por replicação: uma atividade de preparação de dataset, até duas atividades de ajuste de gerador, três atividades de simulação (uma por braço), uma atividade de recomputação do perfil e uma atividade de geração de relatório, ligadas pelas relações \texttt{prov:used}, \texttt{prov:wasGeneratedBy} e \texttt{prov:wasAssociatedWith}, conforme o mapeamento completo em \texttt{docs/semantics/provenance\_mapping.md}. A cadeia central, comum a todo cenário, é
-\begin{center}
-\texttt{SourceDataset} $\to$ \texttt{DatasetPreparation} $\to$ \texttt{PreparedDataset} $\to$ \{\texttt{TrainingReservoir}, \texttt{FixedRealTestSet}\} $\to$ \{ajuste dos geradores, três execuções de simulação\} $\to$ \texttt{ResultData} $\to$ \texttt{ProfileComputation} $\to$ \texttt{PredictiveCooperationProfile} $\to$ \texttt{ReportGeneration} $\to$ \texttt{ReportArtifact},
-\end{center}
-ilustrada, com os tipos e relações efetivamente emitidos pelo código atual, na Figura~\ref{fig:prov-profile-derivation}. O Apêndice~E formaliza essa camada em detalhe, incluindo a tabela completa de tipos PROV-O, os formatos de serialização emitidos (PROV-JSON, PROV-N, PROV-O/Turtle e, quando disponível, um grafo Graphviz) e os limites explícitos do que a exportação atual modela.
+A proveniência formal deste trabalho segue o padrão \emph{W3C PROV}/PROV-O~\cite{provo2013}: cada artefato de dado ou resultado é uma \texttt{prov:Entity}, cada atividade computacional é uma \texttt{prov:Activity}, e o próprio \CoInfoSim{} é o único \texttt{prov:SoftwareAgent}, associado a cada atividade por \texttt{prov:wasAssociatedWith}. As relações \texttt{prov:used}, \texttt{prov:wasGeneratedBy} e \texttt{prov:wasDerivedFrom} ligam essas entidades e atividades em um único \texttt{prov.model.ProvDocument} (biblioteca Python \texttt{prov}), construído por uma função canônica única (\texttt{build\_scenario\_prov\_document}) e renderizado com \texttt{prov.dot.prov\_to\_dot}/Graphviz: não há um segundo modelo de proveniência nem uma ilustração meramente conceitual dos vínculos --- o grafo da Figura~\ref{fig:prov-occupancy} é emitido diretamente a partir desse documento formal. Essa camada torna auditável a separação entre dados usados para parametrizar treinamento e geradores e dados reservados à avaliação, e permite rastrear qualquer número reportado até o resultado bruto, a atividade computacional e o artefato de software que o produziram. A implementação adota a mesma abordagem --- W3C PROV, biblioteca Python \texttt{prov}, \texttt{ProvDocument} e \texttt{prov\_to\_dot}/Graphviz --- apresentada no notebook de curso \texttt{FCD\_M1\_4\_Provenance.ipynb}, do repositório \texttt{zavaleta/Fundamentos\_DS}~\cite{zavaleta_fcd_provenance}.
 
 \begin{figure}[H]
   \centering
-  \caption{Grafo de proveniência experimental formal: do dataset de origem ao artefato de relatório}
-  \label{fig:prov-profile-derivation}
-  \includegraphics[width=\textwidth]{figures/provenance/prov_profile_derivation.pdf}
-  \sourcebelow{elaboração própria; cadeia central simplificada, com os mesmos tipos e relações do grafo real (\texttt{provenance.provn}) emitido pelo código atual; ver Apêndice~E}
-  \notailustracao{A figura seleciona a cadeia central da proveniência \emph{experimental} e omite metadados de regeneração de relatório sem relevância científica direta (revisão de código, ambiente de execução); a lista completa de entidades e atividades do cenário está no Apêndice~E}
+  \caption{Proveniência formal (W3C PROV) do cenário Occupancy (000002), gerada a partir do \texttt{ProvDocument} canônico}
+  \label{fig:prov-occupancy}
+  \includegraphics[width=\textwidth]{figures/provenance/provenance_occupancy_000002.pdf}
+  \sourcebelow{elaboração própria; grafo Graphviz emitido por \texttt{prov\_to\_dot} a partir do \texttt{ProvDocument} do cenário 000002 (projeção de exibição científica; ver Apêndice~E)}
+  \notailustracao{A projeção de exibição omite apenas metadados de engenharia sem leitura científica direta (revisão de código, ambiente de execução); o documento PROV completo, incluindo esses metadados, permanece persistido em \texttt{provenance.provjson}. Por ser um gráfico vetorial, cada rótulo pode ser ampliado individualmente; a tabela completa de papéis e serializações está no Apêndice~E}
 \end{figure}
 
-O grafo formal, em conjunto com os metadados de rastreabilidade experimental, torna auditável --- para qualquer cenário regenerado --- que os dados usados para parametrizar treinamento e geradores (\texttt{TrainingReservoir}) e os dados reservados à avaliação (\texttt{FixedRealTestSet}) permaneceram entidades distintas ao longo de todo o pipeline, e que o mesmo conjunto de teste foi \texttt{prov:used} pelos três braços. Essa auditabilidade não prova a ausência absoluta de qualquer vazamento de informação; ela documenta e torna verificáveis os controles de separação de treino e teste descritos na seção anterior, testados automaticamente no código (\texttt{tests/test\_provenance\_model.py}).
+Nesse grafo, uma \texttt{prov:Entity} representa um dado ou resultado (por exemplo, \texttt{SourceDataset}, \texttt{TrainingReservoir}, \texttt{FixedRealTestSet}, \texttt{ResultData}, \texttt{PredictiveCooperationProfile}); uma \texttt{prov:Activity} representa uma computação (\texttt{DatasetPreparation}, o ajuste de cada gerador, cada execução de simulação, a computação do perfil, a geração do relatório); e o \texttt{prov:SoftwareAgent} único é associado a cada atividade por \texttt{prov:wasAssociatedWith}. Uma atividade \texttt{prov:used} as entidades que consome como insumo e \texttt{prov:wasGeneratedBy} as entidades que produz; quando um resultado deriva de outro sem uma atividade computacional própria, a relação é \texttt{prov:wasDerivedFrom}. A granularidade é por cenário/braço, não por replicação Monte Carlo.
+
+O mesmo grafo formal é emitido para os outros dois estudos de caso. Na Air Quality (cenário 000005, Figura~\ref{fig:prov-air-quality}), a \texttt{TargetSpecification} e a \texttt{PreprocessingSpecification} correspondem à divisão cronológica 80/20 e ao limiar do alvo definido exclusivamente no percentil 75 de \texttt{C6H6(GT)} do conjunto de treinamento (Seção~\ref{sec:air-quality-split}), reforçando o controle contra vazamento temporal: nenhuma observação futura participa da parametrização do alvo, da padronização ou do ajuste dos geradores.
+
+\begin{figure}[H]
+  \centering
+  \caption{Proveniência formal (W3C PROV) do cenário Air Quality (000005)}
+  \label{fig:prov-air-quality}
+  \includegraphics[width=\textwidth]{figures/provenance/provenance_air_quality_000005.pdf}
+  \sourcebelow{elaboração própria; grafo Graphviz emitido por \texttt{prov\_to\_dot} a partir do \texttt{ProvDocument} do cenário 000005 (projeção de exibição científica; ver Apêndice~E)}
+\end{figure}
+
+No SUPPORT2 (cenário 000008, Figura~\ref{fig:prov-support2}), o mesmo grafo evidencia a coorte analítica de casos completos, a estratificação conjunta por alvo e \texttt{dzgroup} na partição 80/20 (Seção~\ref{sec:support2-split}), a padronização ajustada somente no treinamento, e o \texttt{RandomForestCalibrationArtifact}, usado pelas três atividades de simulação.
+
+\begin{figure}[H]
+  \centering
+  \caption{Proveniência formal (W3C PROV) do cenário SUPPORT2 (000008)}
+  \label{fig:prov-support2}
+  \includegraphics[width=\textwidth]{figures/provenance/provenance_support2_000008.pdf}
+  \sourcebelow{elaboração própria; grafo Graphviz emitido por \texttt{prov\_to\_dot} a partir do \texttt{ProvDocument} do cenário 000008 (projeção de exibição científica; ver Apêndice~E)}
+\end{figure}
+
+Um invariante é comum aos três cenários e fica explícito nos três grafos: a \texttt{TrainingReservoir} alimenta o ajuste dos geradores (\texttt{FitSingleGaussian}, \texttt{FitGMM}), e o \texttt{FixedRealTestSet} nunca é \texttt{prov:used} por essas atividades de ajuste; o mesmo \texttt{FixedRealTestSet}, por sua vez, é \texttt{prov:used} pelas três atividades de simulação (real, Gaussiana única e GMM). Essa auditabilidade não prova a ausência absoluta de qualquer vazamento de informação; ela documenta e torna verificáveis os controles de separação de treino e teste descritos na seção anterior, testados automaticamente no código (\texttt{tests/test\_provenance\_model.py}).
+
+\subsection{Rastreabilidade experimental}
+
+Cada cenário persiste, junto dos resultados, os metadados necessários para reconstruir e auditar o experimento: origem e hash SHA-256 do arquivo de dados bruto; definição do alvo e seleção do conjunto analítico elegível; impressão digital da partição treino/teste; parâmetros de padronização; parâmetros dos modelos geradores e critério de seleção do GMM; classificadores e hiperparâmetros resolvidos, incluindo o artefato de calibração do Random Forest; sementes e sua política de derivação; grade efetiva de $n$, número de replicações e motivo de parada por $n$; e os resultados brutos por replicação, compactados, que permitem gerar relatórios e figuras sem repetir a simulação de Monte Carlo. Essa camada é o que possibilita, por exemplo, verificar que a padronização e o ajuste dos geradores de um cenário usaram exclusivamente o conjunto de treinamento correspondente.
+
+O Apêndice~E detalha essa camada em profundidade: a tabela completa de tipos PROV-O emitidos, os formatos de serialização (PROV-JSON, PROV-N, PROV-O/Turtle e, quando \texttt{dot} está disponível no ambiente, o grafo Graphviz em PNG/PDF), a tabela completa de rastreabilidade por cenário e os limites explícitos do que a exportação atual modela.
 
 \begin{sloppypar}
 O vocabulário semântico subjacente --- termos como \texttt{PredictiveCooperationProfile}, \texttt{ReversalMatrix} ou \texttt{WinnerAgreement} ---, cada um com um identificador estável e rótulos em português e inglês, é formalizado em uma pequena ontologia OWL~2 que especializa a PROV-O (\texttt{ontology/coinfosim.owl.ttl}). Essa formalização declara uma taxonomia de classes e suas relações com PROV-O, mas não implementa raciocínio automático nem opera sobre um \emph{triple store}: não deve ser lida como uma ontologia de domínio completa no sentido de uma base de conhecimento com inferência, e sim como o vocabulário canônico do projeto, expresso em uma sintaxe formal auditável.

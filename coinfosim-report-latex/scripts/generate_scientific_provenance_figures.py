@@ -115,6 +115,26 @@ def _dataset_metadata(report_data: Mapping[str, Any], scenario_json: Mapping[str
     return {"name": name}
 
 
+# Same short role vocabulary already used by the runtime evidence collector
+# in coinfosim.scenarios.dataset_anchored_runner -- reused here (rather than
+# embedding full report filenames) so PROV node labels stay concise.
+_REPORT_ROLE_PATTERNS = (
+    ("_scenario_report_", "scenario-report"),
+    ("_dataset_report_", "dataset-report"),
+    ("_real_data_monte_carlo_report_", "real-arm-report"),
+    ("_single_gaussian_to_real_monte_carlo_report_", "single-gaussian-arm-report"),
+    ("_gmm_to_real_monte_carlo_report_", "gmm-arm-report"),
+)
+
+
+def _report_artifact_role(path: str) -> str:
+    name = Path(path).name
+    for pattern, role in _REPORT_ROLE_PATTERNS:
+        if pattern in name:
+            return role
+    return "report-artifact"
+
+
 def _report_artifact_evidence(
     manifest: Mapping[str, Any], repo_root: Path
 ) -> list[ArtifactEvidence]:
@@ -124,7 +144,7 @@ def _report_artifact_evidence(
             ArtifactEvidence(
                 path=str(path),
                 sha256=str(sha256),
-                role=f"report-artifact:{Path(path).name}",
+                role=_report_artifact_role(path),
             )
         )
     return artifacts
