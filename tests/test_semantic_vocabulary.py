@@ -60,8 +60,8 @@ DEPRECATED_TERMS = [
 ]
 
 
-def test_vocabulary_version_is_1_0_0():
-    assert vocabulary_version() == "1.0.0"
+def test_vocabulary_version_is_1_1_0():
+    assert vocabulary_version() == "1.1.0"
 
 
 def test_namespace_matches_expected_ns():

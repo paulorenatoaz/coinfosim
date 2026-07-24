@@ -62,7 +62,7 @@ Provenance is scenario/arm-level, not per-replication: one
 simulation-run activities (one per training condition), one
 `ProfileComputation` activity, and one `ReportGeneration` activity per
 scenario run. There is no provenance node per Monte Carlo replication,
-sample size, channel subset, classifier fit, matrix cell, or loss estimate.
+sample size, attribute subset, classifier fit, matrix cell, or loss estimate.
 
 ## Causal structure
 

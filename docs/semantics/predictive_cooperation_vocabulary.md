@@ -11,7 +11,7 @@ ontology (OWL 2) and provenance (PROV-O) phases build on.
 - Loader: [`src/coinfosim/semantics/vocabulary.py`](../../src/coinfosim/semantics/vocabulary.py)
 - Namespace: `https://paulorenatoaz.github.io/coinfosim/ns#`
 - Full deprecated-to-canonical mapping and schema history: [`docs/migration-predictive-profile-schema.md`](../migration-predictive-profile-schema.md)
-- Vocabulary version: `1.0.0`
+- Vocabulary version: `1.1.0`
 - **Formal ontology**: [`ontology/coinfosim.owl.ttl`](../../ontology/coinfosim.owl.ttl) is the formal OWL 2 ontology (imports PROV-O). This JSON vocabulary remains the terminology ledger and the canonical *source* for labels and definitions: the ontology's `rdfs:label`/`rdfs:comment` for every concept that exists in both is copied verbatim from this file, never paraphrased (checked by `tests/test_ontology.py`). The ontology additionally declares PROV-O specialization classes (dataset/simulation/report provenance types) that have no corresponding entry here, since they are provenance roles rather than scientific vocabulary terms.
 
 ## How to use it
@@ -76,6 +76,14 @@ a stable semantic type.
 - **Reversal vs. crossing**: a winner reversal is defined by a change in the
   *effective pairwise winner relation*, not by geometric interpolation of
   continuous loss curves.
+- **Attribute subset**: the formal subset term is *attribute subset*
+  (`subconjunto de atributos`), a set of attributes evaluated together by a
+  classifier. It is represented by the ontology class `coinfosim:ChannelSubset`
+  — an internal stable identifier retained for IRI compatibility; its
+  `rdfs:label`/`rdfs:comment` are attribute-centered. It has no separate
+  entry in this JSON vocabulary table because the JSON vocabulary is the
+  terminology ledger for `PredictiveCooperationProfile`-family concepts, not
+  a full mirror of every ontology class.
 
 ## Deprecated terms
 

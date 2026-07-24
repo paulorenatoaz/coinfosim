@@ -23,12 +23,12 @@ coinfosim:Attribute a owl:Class ;
     rdfs:comment "The formal model-input variable consumed directly by a classifier. Not automatically identical to an information channel."@en, "Variável formal de entrada de modelo consumida diretamente por um classificador. Não é automaticamente idêntica a um canal de informação."@pt .
 
 coinfosim:ChannelSubset a owl:Class ;
-    rdfs:label "channel subset"@en, "subconjunto de canais"@pt ;
-    rdfs:comment "A subset of information channels (attributes) evaluated together by a classifier."@en, "Um subconjunto de canais de informação (atributos) avaliado conjuntamente por um classificador."@pt .
+    rdfs:label "attribute subset"@en, "subconjunto de atributos"@pt ;
+    rdfs:comment "A subset of attributes, jointly interpretable as an information channel or group of information channels, evaluated together by a classifier."@en, "Um subconjunto de atributos, interpretável conjuntamente como um canal de informação ou grupo de canais de informação, avaliado conjuntamente por um classificador."@pt .
 
 coinfosim:Classifier a owl:Class ;
     rdfs:label "classifier"@en, "classificador"@pt ;
-    rdfs:comment "A supervised classification algorithm used to estimate predictive performance for a channel subset."@en, "Um algoritmo de classificação supervisionada usado para estimar o desempenho preditivo de um subconjunto de canais."@pt .
+    rdfs:comment "A supervised classification algorithm used to estimate predictive performance for an attribute subset."@en, "Um algoritmo de classificação supervisionada usado para estimar o desempenho preditivo de um subconjunto de atributos."@pt .
 
 coinfosim:CoInfoSimSoftwareAgent a owl:Class ;
     rdfs:subClassOf prov:SoftwareAgent ;
@@ -121,11 +121,11 @@ coinfosim:PairwiseWinnerRelation a owl:Class ;
 coinfosim:PredictiveComplementarity a owl:Class ;
     rdfs:subClassOf coinfosim:PredictiveCooperation ;
     rdfs:label "predictive complementarity"@en, "complementaridade preditiva"@pt ;
-    rdfs:comment "A form of predictive cooperation in which distinct channel contributions jointly improve predictive performance beyond any one channel alone."@en, "Forma de cooperação preditiva em que contribuições distintas de canais melhoram conjuntamente o desempenho preditivo além do que qualquer canal isolado alcança."@pt .
+    rdfs:comment "A form of predictive cooperation in which distinct attributes jointly improve predictive performance beyond what any one attribute achieves alone."@en, "Forma de cooperação preditiva em que atributos distintos melhoram conjuntamente o desempenho preditivo além do que qualquer atributo isolado alcança."@pt .
 
 coinfosim:PredictiveCooperation a owl:Class ;
     rdfs:label "predictive cooperation"@en, "cooperação preditiva"@pt ;
-    rdfs:comment "Umbrella phenomenon describing how the composition of an information-channel subset affects predictive performance."@en, "Fenômeno guarda-chuva que descreve como a composição de um subconjunto de canais de informação afeta o desempenho preditivo."@pt .
+    rdfs:comment "Umbrella phenomenon describing how the composition of an attribute subset affects predictive performance."@en, "Fenômeno guarda-chuva que descreve como a composição de um subconjunto de atributos afeta o desempenho preditivo."@pt .
 
 coinfosim:PredictiveCooperationMetric a owl:Class ;
     rdfs:label "predictive cooperation metric"@en, "métrica de cooperação preditiva"@pt ;
@@ -138,12 +138,12 @@ coinfosim:PredictiveCooperationPattern a owl:Class ;
 coinfosim:PredictiveCooperationProfile a owl:Class ;
     rdfs:subClassOf prov:Entity ;
     rdfs:label "predictive cooperation profile"@en, "perfil de cooperação preditiva"@pt ;
-    rdfs:comment "The computed quantitative artifact tracking the evolution of relative subset predictive performance over sample size for a fixed dataset, classifier, and training condition."@en, "Artefato quantitativo computado que acompanha a evolução do desempenho preditivo relativo entre subconjuntos ao longo do tamanho amostral, para um dataset, classificador e condição de treinamento fixos."@pt .
+    rdfs:comment "The computed quantitative artifact tracking the evolution of relative predictive performance among attribute subsets over sample size, for a fixed dataset, classifier, and training condition."@en, "Artefato quantitativo computado que acompanha a evolução do desempenho preditivo relativo entre subconjuntos de atributos ao longo do tamanho amostral, para um dataset, classificador e condição de treinamento fixos."@pt .
 
 coinfosim:PredictiveRedundancy a owl:Class ;
     rdfs:subClassOf coinfosim:PredictiveCooperation ;
     rdfs:label "predictive redundancy"@en, "redundância preditiva"@pt ;
-    rdfs:comment "A form of predictive cooperation in which combining channels adds little or no predictive gain over the best individual channel."@en, "Forma de cooperação preditiva em que a combinação de canais agrega pouco ou nenhum ganho preditivo em relação ao melhor canal individual."@pt .
+    rdfs:comment "A form of predictive cooperation in which combining attributes adds little or no predictive gain over the best relevant smaller configuration."@en, "Forma de cooperação preditiva em que a combinação de atributos agrega pouco ou nenhum ganho preditivo em relação à melhor configuração menor relevante."@pt .
 
 coinfosim:PreparedDataset a owl:Class ;
     rdfs:subClassOf prov:Entity ;

@@ -1,5 +1,5 @@
 {
-  "vocabulary_version": "1.0.0",
+  "vocabulary_version": "1.1.0",
   "namespace": "https://paulorenatoaz.github.io/coinfosim/ns#",
   "preferred_language": "en",
   "concepts": {
@@ -10,8 +10,8 @@
         "pt": "cooperação preditiva"
       },
       "definitions": {
-        "en": "Umbrella phenomenon describing how the composition of an information-channel subset affects predictive performance.",
-        "pt": "Fenômeno guarda-chuva que descreve como a composição de um subconjunto de canais de informação afeta o desempenho preditivo."
+        "en": "Umbrella phenomenon describing how the composition of an attribute subset affects predictive performance.",
+        "pt": "Fenômeno guarda-chuva que descreve como a composição de um subconjunto de atributos afeta o desempenho preditivo."
       },
       "symbol": null,
       "broader_concept": null,
@@ -28,8 +28,8 @@
         "pt": "complementaridade preditiva"
       },
       "definitions": {
-        "en": "A form of predictive cooperation in which distinct channel contributions jointly improve predictive performance beyond any one channel alone.",
-        "pt": "Forma de cooperação preditiva em que contribuições distintas de canais melhoram conjuntamente o desempenho preditivo além do que qualquer canal isolado alcança."
+        "en": "A form of predictive cooperation in which distinct attributes jointly improve predictive performance beyond what any one attribute achieves alone.",
+        "pt": "Forma de cooperação preditiva em que atributos distintos melhoram conjuntamente o desempenho preditivo além do que qualquer atributo isolado alcança."
       },
       "symbol": null,
       "broader_concept": "coinfosim:PredictiveCooperation",
@@ -43,8 +43,8 @@
         "pt": "redundância preditiva"
       },
       "definitions": {
-        "en": "A form of predictive cooperation in which combining channels adds little or no predictive gain over the best individual channel.",
-        "pt": "Forma de cooperação preditiva em que a combinação de canais agrega pouco ou nenhum ganho preditivo em relação ao melhor canal individual."
+        "en": "A form of predictive cooperation in which combining attributes adds little or no predictive gain over the best relevant smaller configuration.",
+        "pt": "Forma de cooperação preditiva em que a combinação de atributos agrega pouco ou nenhum ganho preditivo em relação à melhor configuração menor relevante."
       },
       "symbol": null,
       "broader_concept": "coinfosim:PredictiveCooperation",
@@ -58,8 +58,8 @@
         "pt": "perfil de cooperação preditiva"
       },
       "definitions": {
-        "en": "The computed quantitative artifact tracking the evolution of relative subset predictive performance over sample size for a fixed dataset, classifier, and training condition.",
-        "pt": "Artefato quantitativo computado que acompanha a evolução do desempenho preditivo relativo entre subconjuntos ao longo do tamanho amostral, para um dataset, classificador e condição de treinamento fixos."
+        "en": "The computed quantitative artifact tracking the evolution of relative predictive performance among attribute subsets over sample size, for a fixed dataset, classifier, and training condition.",
+        "pt": "Artefato quantitativo computado que acompanha a evolução do desempenho preditivo relativo entre subconjuntos de atributos ao longo do tamanho amostral, para um dataset, classificador e condição de treinamento fixos."
       },
       "symbol": null,
       "broader_concept": "coinfosim:PredictiveCooperation",
