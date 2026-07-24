@@ -4,15 +4,10 @@
 \section{Guia de leitura, disponibilidade de dados e escopo dos resultados}
 \label{sec:resultados-guia}
 
-O \CoInfoSim{} produz, para cada dataset, braço experimental, classificador e tamanho amostral, rankings completos dos subconjuntos, curvas de perda, a matriz de vencedores $\Wmat$, a matriz de inversões $\Rmat$ e as séries progressivas dos quatro indicadores de preservação definidos no Capítulo~6. A reprodução integral dessas saídas tornaria o relatório excessivamente volumoso; por isso, este capítulo seleciona resultados capazes de responder às perguntas de pesquisa.
+O \CoInfoSim{} produz, para cada dataset, braço experimental, classificador e tamanho amostral, rankings completos dos subconjuntos, curvas de perda, a matriz de vencedores $\Wmat$, a matriz de inversões $\Rmat$ e as séries progressivas dos quatro indicadores de preservação definidos no Capítulo~4. A reprodução integral dessas saídas tornaria o relatório excessivamente volumoso; por isso, este capítulo seleciona resultados capazes de responder às perguntas de pesquisa, apresentados por dataset: Occupancy Detection (cenário 000002), UCI Air Quality (cenário 000005, com o cenário 000006 tratado como extensão suplementar no Apêndice~A conforme a política editorial do Capítulo~3) e SUPPORT2 (cenários 000007 e 000008).
 
-\begin{limitationbox}[Disponibilidade de dados nesta revisão]
-Uma revisão editorial anterior desta migração científica --- do antigo esquema de $\NstarHistorical$/similaridade composta para o esquema $\Wmat/\Rmat$ descrito no Capítulo~6 --- não dispunha localmente dos resultados brutos por replicação das execuções \textit{full} ($n$ até 512) de Occupancy Detection (cenário 000002), UCI Air Quality (cenário 000005) e SUPPORT2 (cenários 000007 e 000008), e por isso reportava $\AR$, $\DR$ e $\SR$ como indisponíveis para esses quatro cenários, herdando apenas $\rankrho$ e $\AW$ das tabelas e figuras publicadas anteriormente. Essa lacuna foi fechada nesta revisão: os resultados brutos por replicação das quatro execuções foram recuperados e regenerados sob o refatoramento semântico do arcabouço de perfil de cooperação preditiva (\texttt{coinfosim.results.predictive\_profile}), e persistidos neste repositório junto dos relatórios HTML republicados (Apêndice~A). Consequentemente:
-\begin{itemize}
-  \item $\rankrho$ e $\AW$ para os quatro cenários foram \textbf{recalculados diretamente pelo código atual} a partir desses resultados brutos, não herdados de tabelas ou figuras antigas; os valores coincidem, dentro da precisão de transcrição das versões anteriores, com os relatados antes desta migração, confirmando computacionalmente a equivalência matemática entre as duas versões desses dois indicadores (Seção~\ref{sec:resultados-guia});
-  \item $\AR$, $\DR$ e $\SR$ para os quatro cenários também foram \textbf{recalculados diretamente pelo código atual} nesta revisão, e deixam de ser reportados como indisponíveis: as Tabelas~\ref{tab:occupancy-final}, \ref{tab:air-final} e \ref{tab:support2-original}, e a Seção~\ref{sec:support2-rf}, apresentam esses três indicadores lado a lado com $\rankrho$ e $\AW$, complementados por figuras da evolução dos quatro indicadores ao longo da grade amostral completa ($n$ até 512).
-\end{itemize}
-Nenhum valor antigo de similaridade de $\NstarHistorical$ é reportado nesta revisão, e nenhum valor de $\AR$ ou $\SR$ foi derivado algebricamente do antigo produto: todos os valores dos quatro indicadores apresentados neste capítulo, para os quatro cenários de escala completa, foram computados diretamente pelo esquema $\Wmat/\Rmat$ vigente, sobre os resultados brutos por replicação regenerados; nenhuma execução \textit{smoke} ou de escala reduzida é reportada neste relatório. Ver Apêndice~A para os identificadores de execução e URLs dos relatórios republicados, e Apêndice~B para os comandos exatos de regeneração.
+\begin{limitationbox}[Escopo dos dados apresentados]
+Os quatro indicadores de preservação --- $\rankrho$, $\AW$, $\AR$ e $\SR$, além de $\DR$ --- apresentados neste capítulo foram computados diretamente pelo esquema $\Wmat/\Rmat$ vigente (\texttt{coinfosim.results.predictive\_profile}), sobre os resultados brutos por replicação das execuções \textit{full} de Occupancy, Air Quality e SUPPORT2 (Apêndice~A). Nenhuma execução \textit{smoke} ou de escala reduzida é reportada como evidência científica neste relatório --- o modo \textit{smoke} é reservado a testes e validação computacional do código (Apêndice~B). Os identificadores de execução e as URLs dos relatórios republicados estão no Apêndice~A; os comandos exatos de regeneração, sem nova simulação de Monte Carlo, estão no Apêndice~B.
 \end{limitationbox}
 
 As visualizações geométricas foram mantidas como parte importante da interpretação; elas não dependem do esquema de métricas e, portanto, não são afetadas pela limitação acima. Elas não constituem um indicador de preservação e não permitem concluir, isoladamente, em qual condição de treinamento sintético o perfil de cooperação preditiva é melhor reproduzido. Sua função é mostrar quão diferente pode ser a aparência dos dados sintéticos e, em seguida, contrastar essa aparência com os resultados de preservação do perfil observados após o treinamento dos classificadores.
@@ -21,46 +16,7 @@ As visualizações geométricas foram mantidas como parte importante da interpre
 
 \subsection{Geometria real e aproximações sintéticas}
 
-As projeções do Occupancy exibem concentrações estreitas, formas alongadas, limites abruptos e regiões de alta densidade que não se ajustam naturalmente a uma única elipse por classe. A Gaussiana única substitui essa geometria por nuvens regulares e suaves, produzindo uma aproximação visualmente grosseira. O GMM acompanha melhor a multimodalidade e parte das concentrações presentes nos dados reais de treinamento.
-
-Essa diferença visual é relevante porque estabelece um teste difícil para a hipótese do trabalho: as amostras de um gerador que não imita bem a nuvem podem, ainda assim, induzir relações semelhantes entre subconjuntos após o treinamento do classificador. O painel geométrico da Figura~\ref{fig:geom-occupancy-resultados} é composto pelas projeções bidimensionais publicadas no cenário 000002, mantendo os mesmos pares de canais e a mesma escala em dados reais, Gaussiana única e GMM.
-
-\begin{figure}[H]
-  \centering
-  \caption{Comparação geométrica entre os dados reais de treinamento e as amostras sintéticas do Occupancy Detection}
-  \label{fig:geom-occupancy-resultados}
-  \begin{minipage}{\textwidth}
-    \centering
-    \includegraphics[width=\textwidth,height=0.80\textheight,keepaspectratio]{figures/geometry/occupancy/viz_2d_real_full_000002.png}
-    \subcaption{Dados reais: concentração irregular e afastamento de uma geometria elíptica simples}
-  \end{minipage}
-  \sourcebelow{relatório publicado do cenário Occupancy Detection 000002}
-\end{figure}
-
-\begin{figure}[H]
-  \ContinuedFloat
-  \centering
-  \caption[]{Comparação geométrica entre os dados reais de treinamento e as amostras sintéticas do Occupancy Detection (continuação)}
-  \begin{minipage}{\textwidth}
-    \centering
-    \includegraphics[width=\textwidth,height=0.80\textheight,keepaspectratio]{figures/geometry/occupancy/viz_2d_gaussian_full_000002.png}
-    \subcaption{Gaussiana única: a aproximação regulariza fortemente as formas observadas}
-  \end{minipage}
-  \sourcebelow{relatório publicado do cenário Occupancy Detection 000002}
-\end{figure}
-
-\begin{figure}[H]
-  \ContinuedFloat
-  \centering
-  \caption[]{Comparação geométrica entre os dados reais de treinamento e as amostras sintéticas do Occupancy Detection (continuação)}
-  \begin{minipage}{\textwidth}
-    \centering
-    \includegraphics[width=\textwidth,height=0.80\textheight,keepaspectratio]{figures/geometry/occupancy/viz_2d_gmm_full_000002.png}
-    \subcaption{GMM: a mistura acompanha melhor a forma empírica}
-  \end{minipage}
-  \sourcebelow{relatório publicado do cenário Occupancy Detection 000002}
-  \notailustracao{A fidelidade geométrica é uma inspeção descritiva e não substitui os indicadores de preservação do perfil}
-\end{figure}
+As projeções do Occupancy, apresentadas na Figura~\ref{fig:geom-occupancy-dataset} do Capítulo~3, exibem concentrações estreitas, formas alongadas, limites abruptos e regiões de alta densidade que não se ajustam naturalmente a uma única elipse por classe. A Gaussiana única substitui essa geometria por nuvens regulares e suaves, produzindo uma aproximação visualmente grosseira; o GMM acompanha melhor a multimodalidade e parte das concentrações presentes nos dados reais de treinamento. Essa diferença visual é relevante porque estabelece um teste difícil para a hipótese do trabalho: as amostras de um gerador que não imita bem a nuvem podem, ainda assim, induzir relações semelhantes entre subconjuntos após o treinamento do classificador --- é essa possibilidade que os indicadores desta seção avaliam.
 
 \subsection{Ordenação global e relações efetivas de vencedor}
 
@@ -131,7 +87,7 @@ A Figura~\ref{fig:occupancy-winner-matrices} usa o resultado par a par observado
 
 \subsection{Existência e tamanho amostral das inversões}
 
-Os valores de $\AR$, $\DR$ e $\SR$ do cenário 000002, reportados na Tabela~\ref{tab:occupancy-final}, foram recalculados diretamente pelo código atual a partir dos resultados brutos regenerados desta execução (Seção~\ref{sec:resultados-guia}). As figuras de matriz de inversões e as curvas de $\NstarHistorical$ publicadas nas versões anteriores deste relatório dependiam do objeto retirado do arcabouço ativo e não são reproduzidas aqui; as matrizes $\Wmat$/$\Rmat$ completas deste cenário, no esquema atual, permanecem disponíveis no relatório HTML republicado (Apêndice~A). A leitura qualitativa de que a ordenação e as relações efetivas de vencedor foram bem preservadas no Gaussian Naive Bayes e de forma mais heterogênea nos classificadores lineares permanece válida, mas a leitura numérica da existência e do regime amostral das inversões mostra que essa hierarquia não se repete: o Gaussian Naive Bayes, apesar do $\rankrho$ e do $\AW$ mais altos entre os três classificadores, obteve os valores de $\AR$ mais baixos do cenário ($0{,}4364$ e $0{,}6667$), enquanto os classificadores lineares, com ordenação e relações de vencedor mais heterogêneas, concordaram sobre a existência de inversões em proporção mais alta ($\AR$ entre $0{,}7089$ e $0{,}7714$). Existência de inversões e ordenação global respondem, portanto, a aspectos distintos do treinamento sintético neste dataset.
+Os valores de $\AR$, $\DR$ e $\SR$ do cenário 000002, reportados na Tabela~\ref{tab:occupancy-final}, foram recalculados diretamente pelo código atual a partir dos resultados brutos regenerados desta execução (Seção~\ref{sec:resultados-guia}); as matrizes $\Wmat$/$\Rmat$ completas deste cenário permanecem disponíveis no relatório HTML republicado (Apêndice~A). A leitura qualitativa de que a ordenação e as relações efetivas de vencedor foram bem preservadas no Gaussian Naive Bayes e de forma mais heterogênea nos classificadores lineares permanece válida, mas a leitura numérica da existência e do regime amostral das inversões mostra que essa hierarquia não se repete: o Gaussian Naive Bayes, apesar do $\rankrho$ e do $\AW$ mais altos entre os três classificadores, obteve os valores de $\AR$ mais baixos do cenário ($0{,}4364$ e $0{,}6667$), enquanto os classificadores lineares, com ordenação e relações de vencedor mais heterogêneas, concordaram sobre a existência de inversões em proporção mais alta ($\AR$ entre $0{,}7089$ e $0{,}7714$). Existência de inversões e ordenação global respondem, portanto, a aspectos distintos do treinamento sintético neste dataset.
 
 A Figura~\ref{fig:occupancy-metric-curves} mostra a evolução dos quatro indicadores ao longo de toda a grade amostral ($n$ de 2 a 512) para o Gaussian Naive Bayes, o classificador que evidencia essa dissociação. $\rankrho$ e $\AW$ sobem rapidamente e permanecem próximos de 1 a partir de $n$ pequeno; $\AR$, em contraste, oscila em patamar baixo por toda a grade no braço da Gaussiana única, e só cresce de forma mais visível no braço do GMM a partir de $n=128$. $\SR$ permanece intermediário a alto nos dois braços. A trajetória deixa claro que a baixa concordância de existência de inversões não é um efeito transitório de $n$ pequeno: ela persiste até o maior tamanho amostral avaliado.
 
@@ -160,50 +116,14 @@ A Figura~\ref{fig:occupancy-metric-curves} mostra a evolução dos quatro indica
     \includegraphics[width=\linewidth]{figures/predictive_profile_metrics/occupancy/occupancy_gnb_reversal_sample_size_similarity.png}
   \end{minipage}
   \sourcebelow{elaboração própria, computado diretamente pelo código atual a partir do relatório republicado do cenário Occupancy Detection 000002}
-  \notailustracao{A série de $\rankrho$ e $\AW$ é indexada por $n$ por classe; a de $\AR$ e $\SR$, pelo prefixo $n_t$ (Capítulo~6). A curva \RealToReal{} é a autocomparação trivial (valor 1 em todo o domínio) e serve apenas de referência visual}
+  \notailustracao{A série de $\rankrho$ e $\AW$ é indexada por $n$ por classe; a de $\AR$ e $\SR$, pelo prefixo $n_t$ (Capítulo~4). A curva \RealToReal{} é a autocomparação trivial (valor 1 em todo o domínio) e serve apenas de referência visual}
 \end{figure}
 
 \section{UCI Air Quality}
 
 \subsection{Geometria e referência real}
 
-As projeções do Air Quality são mais compatíveis com regiões gaussianas do que as do Occupancy. Embora existam assimetrias, correlações fortes, sensibilidade cruzada e deriva temporal, as classes formam regiões mais regulares no espaço padronizado. A Gaussiana única e o GMM reproduzem visualmente uma parcela maior da organização real, sobretudo nos pares de sensores mais correlacionados com a referência de benzeno, como mostra a Figura~\ref{fig:geom-air-resultados}.
-
-\begin{figure}[H]
-  \centering
-  \caption{Comparação geométrica entre os dados reais de treinamento e as amostras sintéticas do UCI Air Quality}
-  \label{fig:geom-air-resultados}
-  \begin{minipage}{\textwidth}
-    \centering
-    \includegraphics[width=\textwidth,height=0.80\textheight,keepaspectratio]{figures/geometry/air_quality/viz_2d_real_full_000005.png}
-    \subcaption{Dados reais}
-  \end{minipage}
-  \sourcebelow{relatório publicado do cenário Air Quality 000005}
-\end{figure}
-
-\begin{figure}[H]
-  \ContinuedFloat
-  \centering
-  \caption[]{Comparação geométrica entre os dados reais de treinamento e as amostras sintéticas do UCI Air Quality (continuação)}
-  \begin{minipage}{\textwidth}
-    \centering
-    \includegraphics[width=\textwidth,height=0.80\textheight,keepaspectratio]{figures/geometry/air_quality/viz_2d_gaussian_full_000005.png}
-    \subcaption{Gaussiana única}
-  \end{minipage}
-  \sourcebelow{relatório publicado do cenário Air Quality 000005}
-\end{figure}
-
-\begin{figure}[H]
-  \ContinuedFloat
-  \centering
-  \caption[]{Comparação geométrica entre os dados reais de treinamento e as amostras sintéticas do UCI Air Quality (continuação)}
-  \begin{minipage}{\textwidth}
-    \centering
-    \includegraphics[width=\textwidth,height=0.80\textheight,keepaspectratio]{figures/geometry/air_quality/viz_2d_gmm_full_000005.png}
-    \subcaption{GMM}
-  \end{minipage}
-  \sourcebelow{relatório publicado do cenário Air Quality 000005}
-\end{figure}
+As projeções do Air Quality, apresentadas na Figura~\ref{fig:geom-air-dataset} do Capítulo~3, são mais compatíveis com regiões gaussianas do que as do Occupancy. Embora existam assimetrias, correlações fortes, sensibilidade cruzada e deriva temporal, as classes formam regiões mais regulares no espaço padronizado, e a Gaussiana única e o GMM reproduzem visualmente uma parcela maior da organização real, sobretudo nos pares de sensores mais correlacionados com a referência de benzeno.
 
 \subsection{Ordenação global e relações efetivas de vencedor}
 
@@ -274,7 +194,7 @@ A Figura~\ref{fig:air-quality-metric-curves} acompanha essa preservação ao lon
     \includegraphics[width=\linewidth]{figures/predictive_profile_metrics/air_quality/air_quality_gnb_reversal_sample_size_similarity.png}
   \end{minipage}
   \sourcebelow{elaboração própria, computado diretamente pelo código atual a partir do relatório republicado do cenário Air Quality 000005}
-  \notailustracao{A série de $\rankrho$ e $\AW$ é indexada por $n$ por classe; a de $\AR$ e $\SR$, pelo prefixo $n_t$ (Capítulo~6). A curva \RealToReal{} é a autocomparação trivial (valor 1 em todo o domínio) e serve apenas de referência visual}
+  \notailustracao{A série de $\rankrho$ e $\AW$ é indexada por $n$ por classe; a de $\AR$ e $\SR$, pelo prefixo $n_t$ (Capítulo~4). A curva \RealToReal{} é a autocomparação trivial (valor 1 em todo o domínio) e serve apenas de referência visual}
 \end{figure}
 
 \section{SUPPORT2}
@@ -332,7 +252,7 @@ A Figura~\ref{fig:support2-metric-curves} mostra a evolução dos quatro indicad
     \includegraphics[width=\linewidth]{figures/predictive_profile_metrics/support2/support2_svm_reversal_sample_size_similarity.png}
   \end{minipage}
   \sourcebelow{elaboração própria, computado diretamente pelo código atual a partir dos resultados brutos regenerados do cenário SUPPORT2 000007}
-  \notailustracao{A série de $\rankrho$ e $\AW$ é indexada por $n$ por classe; a de $\AR$ e $\SR$, pelo prefixo $n_t$ (Capítulo~6). A curva \RealToReal{} é a autocomparação trivial (valor 1 em todo o domínio) e serve apenas de referência visual}
+  \notailustracao{A série de $\rankrho$ e $\AW$ é indexada por $n$ por classe; a de $\AR$ e $\SR$, pelo prefixo $n_t$ (Capítulo~4). A curva \RealToReal{} é a autocomparação trivial (valor 1 em todo o domínio) e serve apenas de referência visual}
 \end{figure}
 
 \subsection{Random Forest: desempenho absoluto e preservação do perfil}
@@ -348,7 +268,7 @@ O cenário 000008 (execução \textit{full}, $n\leq512$) executou somente Random
   \notailustracao{A linha tracejada representa o erro de classificação obtido ao predizer sempre a classe majoritária no teste real. Este valor de perda não depende do esquema de métricas revisado e é reportado sem a ressalva de disponibilidade da Seção~\ref{sec:resultados-guia}}
 \end{figure}
 
-$\rankrho$ e $\AW$ do cenário 000008 mostram que esse baixo desempenho absoluto não impediu preservação elevada da ordenação e das relações efetivas de vencedor: o braço treinado com amostras da Gaussiana única atingiu $\rankrho=0{,}8387$ e $\AW=0{,}8281$; o braço treinado com amostras do GMM atingiu $0{,}8665$ e $0{,}8429$. $\AR$, $\DR$ e $\SR$ de escala completa ($n\leq512$) foram recalculados diretamente pelo código atual a partir dos resultados brutos regenerados deste cenário (Seção~\ref{sec:resultados-guia}): o braço da Gaussiana única obteve $\AR=0{,}5052$, $\DR=1{,}4684$ e $\SR=0{,}8165$; o braço do GMM obteve $\AR=0{,}4272$, $\DR=1{,}5532$ e $\SR=0{,}8059$ --- o mesmo padrão qualitativo do SVM linear na Tabela~\ref{tab:support2-original}, com $\AR$ relativamente baixo combinado a $\SR$ relativamente alto. As antigas figuras de matrizes dirigidas de $\NstarHistorical$ e de curvas cooperativas com marcação de último cruzamento, publicadas nas versões anteriores deste relatório para este cenário, dependiam do objeto retirado do arcabouço ativo e não são reproduzidas; as matrizes $\Wmat$/$\Rmat$ completas deste cenário, no esquema atual, já foram apresentadas na Figura~\ref{fig:wr-matrices-support2} do Capítulo~6, e permanecem disponíveis por completo no relatório HTML republicado (Apêndice~A).
+$\rankrho$ e $\AW$ do cenário 000008 mostram que esse baixo desempenho absoluto não impediu preservação elevada da ordenação e das relações efetivas de vencedor: o braço treinado com amostras da Gaussiana única atingiu $\rankrho=0{,}8387$ e $\AW=0{,}8281$; o braço treinado com amostras do GMM atingiu $0{,}8665$ e $0{,}8429$. $\AR$, $\DR$ e $\SR$ de escala completa ($n\leq512$) foram recalculados diretamente pelo código atual a partir dos resultados brutos regenerados deste cenário (Seção~\ref{sec:resultados-guia}): o braço da Gaussiana única obteve $\AR=0{,}5052$, $\DR=1{,}4684$ e $\SR=0{,}8165$; o braço do GMM obteve $\AR=0{,}4272$, $\DR=1{,}5532$ e $\SR=0{,}8059$ --- o mesmo padrão qualitativo do SVM linear na Tabela~\ref{tab:support2-original}, com $\AR$ relativamente baixo combinado a $\SR$ relativamente alto. As matrizes $\Wmat$/$\Rmat$ completas deste cenário são apresentadas na Figura~\ref{fig:wr-matrices-support2-appendix} do Apêndice~D, e permanecem disponíveis por completo no relatório HTML republicado (Apêndice~A).
 
 A Figura~\ref{fig:support2-rf-metric-curves} mostra a evolução dos quatro indicadores por $n$ para o Random Forest. $\rankrho$ e $\AW$ crescem de forma relativamente suave e terminam em patamar comparável ao dos classificadores lineares do cenário 000007; $\AR$ permanece baixo por quase toda a grade, com uma leve recuperação apenas nos maiores valores de $n$, enquanto $\SR$ se mantém estável e alto desde o início --- o contraste visual entre os dois painéis inferiores é a mesma dissociação relatada na Tabela~\ref{tab:support2-original} para os demais classificadores do SUPPORT2, aqui mais acentuada.
 
@@ -377,7 +297,7 @@ A Figura~\ref{fig:support2-rf-metric-curves} mostra a evolução dos quatro indi
     \includegraphics[width=\linewidth]{figures/predictive_profile_metrics/support2/support2_rf_reversal_sample_size_similarity.png}
   \end{minipage}
   \sourcebelow{elaboração própria, computado diretamente pelo código atual a partir dos resultados brutos regenerados do cenário SUPPORT2 000008}
-  \notailustracao{A série de $\rankrho$ e $\AW$ é indexada por $n$ por classe; a de $\AR$ e $\SR$, pelo prefixo $n_t$ (Capítulo~6). A curva \RealToReal{} é a autocomparação trivial (valor 1 em todo o domínio) e serve apenas de referência visual}
+  \notailustracao{A série de $\rankrho$ e $\AW$ é indexada por $n$ por classe; a de $\AR$ e $\SR$, pelo prefixo $n_t$ (Capítulo~4). A curva \RealToReal{} é a autocomparação trivial (valor 1 em todo o domínio) e serve apenas de referência visual}
 \end{figure}
 
 \subsection{Comparação do Random Forest com os demais classificadores}
