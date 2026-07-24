@@ -2,11 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
-# Changelog
-
-All notable changes to this project will be documented in this file.
-
 ## [Unreleased]
+- First-release terminology and identity consolidation: adopt **attribute**
+  / **attribute subset** as the formal terms for a classifier's model-input
+  variables and their combinations, with **predictor variable** /
+  **predictive attribute** as natural prose variants. **Information
+  channel** is preserved as a distinct, narrower operational/motivational
+  concept (the idea that a measurement source, sensor, procedure, or other
+  acquisition mechanism provides information to a classifier), and no
+  longer serves as the default synonym for every classifier input. Adopts
+  the public software title **CoInfoSim: A Simulator for Predictive
+  Cooperation Across Attribute Subsets** and the Portuguese academic title
+  **Preservação do perfil de cooperação preditiva entre atributos** across
+  README, CITATION.cff, package/CLI metadata, the published site, the
+  scientific report, the presentation, and HTML reports. Updates the
+  `PredictiveCooperation`/`PredictiveComplementarity`/`PredictiveRedundancy`/
+  `PredictiveCooperationProfile` definitions in
+  `scientific_vocabulary.json` (bumped to `1.1.0`) and
+  `ontology/coinfosim.owl.ttl` to be defined primarily over attributes and
+  attribute subsets. No stable IRIs, persisted JSON keys/fields (including
+  `channel_names`), or scientific results/protocol change.
 - Add the canonical predictive-cooperation-profile semantic vocabulary
   (`src/coinfosim/resources/scientific_vocabulary.json`, 17 concepts with
   stable `coinfosim:` IDs, EN/PT labels and definitions) and a JSON-LD 1.1

@@ -1,11 +1,11 @@
 """
-CoInfoSim - A Simulator for Cooperative Classification from Multiple Information Channels
+CoInfoSim - A Simulator for Predictive Cooperation Across Attribute Subsets
 
-A scientific Python package for evaluating when cooperation among information
-channels improves supervised classification. CoInfoSim compares isolated
-channels, channel pairs, and larger channel subsets through Monte Carlo
-simulation of the average classification loss. It is an academic evolution of
-the SLACGS and CoSenSim lines of work.
+A scientific Python package for evaluating when cooperation among attributes
+improves supervised classification. CoInfoSim compares isolated attributes,
+attribute pairs, and larger attribute subsets through Monte Carlo simulation
+of the average classification loss. It is an academic evolution of the
+SLACGS and CoSenSim lines of work.
 """
 
 from __future__ import annotations

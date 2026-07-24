@@ -1,17 +1,17 @@
 cff-version: 1.2.0
 message: "If you use CoInfoSim for published research, please cite this repository."
-title: "CoInfoSim: A Simulator for Cooperative Classification from Multiple Information Channels"
+title: "CoInfoSim: A Simulator for Predictive Cooperation Across Attribute Subsets"
 version: 0.2.2
 authors:
   - family-names: "Azevedo"
-    given-names: "Paulo"
+    given-names: "Paulo Renato"
     affiliation: "PPGI/UFRJ"
 url: https://github.com/paulorenatoaz/coinfosim
 license: GPL-3.0
 keywords:
   - cooperative classification
   - predictive cooperation profile
-  - information channels
-  - multi-channel classification
+  - attribute subsets
+  - predictor variables
   - Monte Carlo simulation
-  - channel subset selection
+  - attribute subset selection
