@@ -8,8 +8,8 @@ but decoupled from the legacy ``Model`` class. It operates directly on NumPy
 arrays / :class:`~coinfosim.samplers.dataset.Dataset` objects produced by the
 new pipeline.
 
-Axes use mathematical channel labels ($X_1, X_2, \\ldots$); sensor names are
-intentionally not used here (the scenario report carries a sticky channel
+Axes use mathematical attribute labels ($X_1, X_2, \\ldots$); sensor names are
+intentionally not used here (the scenario report carries a sticky attribute
 legend instead). Ellipses/ellipsoids are estimated empirically from the plotted
 sample's per-class mean and covariance, so the same code works for both the
 real-data arm and the Gaussian-anchored arm.

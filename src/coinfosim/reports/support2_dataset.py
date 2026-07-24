@@ -131,7 +131,7 @@ def generate_support2_dataset_report(
         title="SUPPORT2 death_180d class counts",
     )
     corr_image = correlation_heatmap_image(
-        data.train_correlation(), title="Standardized training-channel correlations"
+        data.train_correlation(), title="Standardized training-attribute correlations"
     )
     corr = data.train_correlation().reset_index().rename(columns={"index": "channel"})
 
@@ -160,9 +160,9 @@ def generate_support2_dataset_report(
 <h2>5. Why hospdead is not the target</h2>
 <p><strong>hospdead is not used as the primary target or as a predictor.</strong> It describes in-hospital death, which is a different estimand from the approved fixed 180-day outcome and does not implement the original six-month prognostic objective.</p>
 
-<h2>6. Selected channels and measurement timing</h2>
+<h2>6. Selected attributes and measurement timing</h2>
 <table class="data"><thead><tr><th>Index</th><th>Column</th><th>Definition</th></tr></thead><tbody>{channel_rows}</tbody></table>
-<p>Channels are baseline physiologic measurements in the fixed order shown. All 127 non-empty subsets use this same seven-channel cohort.</p>
+<p>Attributes are baseline physiologic measurements in the fixed order shown. All 127 non-empty subsets use this same seven-attribute cohort.</p>
 
 <h2>7. Excluded variables and leakage controls</h2>
 <p><code>death</code>, <code>d.time</code>, <code>death_180d</code>, <code>hospdead</code>, <code>surv2m</code>, <code>surv6m</code>, <code>id</code>, and <code>dzgroup</code> never enter predictor data. <code>dzgroup</code> is used only for stratification and reporting. No target-source, alternative-outcome, post-baseline survival estimate, identifier, or disease-group field enters standardization, Gaussian/GMM fitting, subset enumeration, or classifiers.</p>
@@ -192,10 +192,10 @@ def generate_support2_dataset_report(
 <p>Z-score means and population standard deviations are fitted only on the 7,098-row training reservoir with <code>ddof=0</code>, then applied unchanged to test rows. Imputation, clipping, winsorization, transformation, outlier removal, target-dependent preprocessing, and dimensionality reduction are absent.</p>
 {standardization_table_html(data.standardization)}
 
-<h2>15. Marginal channel diagnostics</h2>
+<h2>15. Marginal attribute diagnostics</h2>
 {dataframe_html(marginal, float_cols={column: ".6f" for column in marginal.columns if column != "channel"})}
 
-<h2>16. Class-conditional channel diagnostics</h2>
+<h2>16. Class-conditional attribute diagnostics</h2>
 {dataframe_html(class_conditional, float_cols={column: ".6f" for column in class_conditional.columns if column != SUPPORT2_TARGET})}
 
 <h2>17. Correlation diagnostics</h2>

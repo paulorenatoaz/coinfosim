@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "coinfosim"
 version = "0.2.1"
-description = "CoInfoSim: a simulator for cooperative classification from multiple information channels."
+description = "CoInfoSim: a simulator for predictive cooperation across attribute subsets."
 readme = "README.md"
 requires-python = ">=3.10"
 license = "GPL-3.0-or-later"

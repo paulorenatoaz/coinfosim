@@ -8,7 +8,7 @@ uses the CoInfoSim vocabulary instead of the legacy dimensionality/Bayes-risk
 terminology:
 
 - scenarios and experiment arms (real-data arm, Gaussian-anchored arm);
-- channel subsets and classifiers;
+- attribute subsets and classifiers;
 - empirical test loss;
 - sample sizes (``n_per_class``) and replications;
 - replication batches and CI half-width;
@@ -224,7 +224,7 @@ class CooperativeProgressReporter:
         body = [
             f"Experiment arm         : {arm}",
             f"Sample sizes           : {n_sample_sizes}  {list(sample_sizes)}",
-            f"Channel subsets        : {n_subsets}",
+            f"Attribute subsets      : {n_subsets}",
             f"Classifiers            : {n_classifiers}",
             f"Subset x classifier    : {n_cells} cells",
             f"Fixed test size        : {fixed_test_size}",

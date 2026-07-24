@@ -48,6 +48,16 @@
   \end{tikzpicture}%
 }
 
+% Instantânea de ranking: título curto + ordenação 1º/2º/3º de subconjuntos.
+\newcommand{\rankingsnapshot}[4]{%
+  \begin{beamercolorbox}[wd=\linewidth,sep=.10cm,rounded=true]{block body}
+    {\centering\bfseries\fontsize{8.4}{10.0}\selectfont\color{CoInfoInk} #1\par}
+    \vspace{0.05cm}
+    {\centering\fontsize{8.6}{10.4}\selectfont
+      1\textsuperscript{o} #2 \textbullet\ 2\textsuperscript{o} #3 \textbullet\ 3\textsuperscript{o} #4\par}
+  \end{beamercolorbox}%
+}
+
 % Cartão de resultados usado no material de apoio.
 \newcommand{\resultcard}[4]{%
   \begin{beamercolorbox}[wd=\linewidth,sep=0.15cm,rounded=true]{block body}

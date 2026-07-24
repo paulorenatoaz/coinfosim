@@ -100,7 +100,7 @@ def load_occupancy_data(raw_dir: Path | str = "data/raw/occupancy") -> Occupancy
         If any required raw file is missing.
     ValueError
         If required columns contain missing values, labels are not binary
-        ``{0, 1}``, or a training channel has zero standard deviation.
+        ``{0, 1}``, or a training attribute has zero standard deviation.
     """
 
     raw_dir = Path(raw_dir)
@@ -127,7 +127,7 @@ def load_occupancy_data(raw_dir: Path | str = "data/raw/occupancy") -> Occupancy
     stds = raw_train.loc[:, OCCUPANCY_CHANNELS].std(ddof=0)
     if (stds <= 0).any():
         zero_channels = list(stds[stds <= 0].index)
-        raise ValueError(f"training channels have zero std: {zero_channels}")
+        raise ValueError(f"training attributes have zero std: {zero_channels}")
 
     standardization = StandardizationParameters(means=means, stds=stds)
     standardized_train = _standardize_frame(raw_train, standardization)

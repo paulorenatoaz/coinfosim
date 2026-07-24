@@ -5,7 +5,7 @@ O Capítulo~3 (Seção~\ref{sec:provenance}) apresenta a proveniência como comp
 
 \section{Escopo da camada formal}
 
-A proveniência formal do \CoInfoSim{} é compatível com o vocabulário do \emph{W3C PROV Ontology} (PROV-O) \cite{provo2013}: cada objeto do experimento é modelado como \texttt{prov:Entity} (um dado ou artefato), \texttt{prov:Activity} (uma computação) ou \texttt{prov:Agent} --- neste caso, especificamente \texttt{prov:SoftwareAgent}, papel do próprio \CoInfoSim{}. Uma execução de simulação é sempre uma atividade, nunca uma entidade. A granularidade é por cenário e por braço experimental, não por replicação Monte Carlo: não há nó de proveniência por réplica, tamanho amostral, subconjunto de canais, ajuste de classificador, célula de matriz ou estimativa de perda individual.
+A proveniência formal do \CoInfoSim{} é compatível com o vocabulário do \emph{W3C PROV Ontology} (PROV-O) \cite{provo2013}: cada objeto do experimento é modelado como \texttt{prov:Entity} (um dado ou artefato), \texttt{prov:Activity} (uma computação) ou \texttt{prov:Agent} --- neste caso, especificamente \texttt{prov:SoftwareAgent}, papel do próprio \CoInfoSim{}. Uma execução de simulação é sempre uma atividade, nunca uma entidade. A granularidade é por cenário e por braço experimental, não por replicação Monte Carlo: não há nó de proveniência por réplica, tamanho amostral, subconjunto de atributos, ajuste de classificador, célula de matriz ou estimativa de perda individual.
 
 A exportação é construída, para cada cenário, a partir de um único modelo canônico da biblioteca Python \texttt{prov} (\texttt{ProvDocument}), montado a partir de evidências normalizadas de proveniência. Desse modelo derivam, deterministicamente, todos os artefatos serializados listados na Tabela~\ref{tab:prov-artifacts}; nenhum deles é produzido de forma independente ou pode divergir dos demais.
 
@@ -170,7 +170,7 @@ Para evitar sobreinterpretação, ficam registrados explicitamente os limites de
 \begin{itemize}
   \item a ontologia OWL~2 declara uma taxonomia de classes com rótulos e comentários bilíngues; ela \textbf{não} implementa raciocínio automático, não é servida por um motor de inferência e não é consultável por um \emph{endpoint} SPARQL;
   \item não há implantação de um \emph{triple store}; os artefatos são arquivos versionados junto de cada cenário, não um banco de grafos consultável em tempo real;
-  \item a proveniência é de escopo cenário/braço, não por replicação, subconjunto de canais ou célula de matriz --- perguntas nesse nível de granularidade devem ser respondidas pelos resultados brutos persistidos (Apêndice~A), não pelo grafo formal;
+  \item a proveniência é de escopo cenário/braço, não por replicação, subconjunto de atributos ou célula de matriz --- perguntas nesse nível de granularidade devem ser respondidas pelos resultados brutos persistidos (Apêndice~A), não pelo grafo formal;
   \item o grafo documenta e torna auditáveis os controles de separação entre dados de treinamento e dados de teste efetivamente implementados; ele não constitui, por si só, uma prova formal de ausência de vazamento de informação.
 \end{itemize}
 

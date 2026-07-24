@@ -14,7 +14,7 @@ from coinfosim.samplers.dataset import Dataset
 
 @dataclass(frozen=True)
 class StandardizationParameters:
-    """Per-channel standardization parameters learned from training data."""
+    """Per-attribute standardization parameters learned from training data."""
 
     means: pd.Series
     stds: pd.Series

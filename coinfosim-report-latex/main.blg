@@ -1,15 +1,15 @@
 [0] Config.pm:307> INFO - This is Biber 2.19
-[1] Config.pm:310> INFO - Logfile is 'build/main.blg'
-[98] biber:340> INFO - === Fri Jul 24, 2026, 01:24:59
-[117] Biber.pm:419> INFO - Reading 'build/main.bcf'
-[217] Biber.pm:979> INFO - Found 36 citekeys in bib section 0
-[233] Biber.pm:4419> INFO - Processing section 0
-[246] Biber.pm:4610> INFO - Looking for bibtex file 'references/references.bib' for section 0
-[248] bibtex.pm:1713> INFO - LaTeX decoding ...
-[291] bibtex.pm:1519> INFO - Found BibTeX data source 'references/references.bib'
-[655] UCollate.pm:68> INFO - Overriding locale 'pt-BR' defaults 'variable = shifted' with 'variable = non-ignorable'
-[655] UCollate.pm:68> INFO - Overriding locale 'pt-BR' defaults 'normalization = NFD' with 'normalization = prenormalized'
-[655] Biber.pm:4239> INFO - Sorting list 'nty/global//global/global' of type 'entry' with template 'nty' and locale 'pt-BR'
-[655] Biber.pm:4245> INFO - No sort tailoring available for locale 'pt-BR'
-[706] bbl.pm:660> INFO - Writing 'build/main.bbl' with encoding 'UTF-8'
-[728] bbl.pm:763> INFO - Output to build/main.bbl
+[0] Config.pm:310> INFO - Logfile is 'build/main.blg'
+[94] biber:340> INFO - === Fri Jul 24, 2026, 06:20:01
+[113] Biber.pm:419> INFO - Reading 'build/main.bcf'
+[202] Biber.pm:979> INFO - Found 36 citekeys in bib section 0
+[217] Biber.pm:4419> INFO - Processing section 0
+[231] Biber.pm:4610> INFO - Looking for bibtex file 'references/references.bib' for section 0
+[234] bibtex.pm:1713> INFO - LaTeX decoding ...
+[276] bibtex.pm:1519> INFO - Found BibTeX data source 'references/references.bib'
+[649] UCollate.pm:68> INFO - Overriding locale 'pt-BR' defaults 'normalization = NFD' with 'normalization = prenormalized'
+[649] UCollate.pm:68> INFO - Overriding locale 'pt-BR' defaults 'variable = shifted' with 'variable = non-ignorable'
+[649] Biber.pm:4239> INFO - Sorting list 'nty/global//global/global' of type 'entry' with template 'nty' and locale 'pt-BR'
+[649] Biber.pm:4245> INFO - No sort tailoring available for locale 'pt-BR'
+[698] bbl.pm:660> INFO - Writing 'build/main.bbl' with encoding 'UTF-8'
+[723] bbl.pm:763> INFO - Output to build/main.bbl

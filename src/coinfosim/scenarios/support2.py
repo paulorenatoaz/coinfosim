@@ -13,7 +13,7 @@ from coinfosim.scenarios.dataset_anchored import (
 SUPPORT2_SCENARIO_NAME = "SUPPORT2 180-Day Mortality Baseline"
 SUPPORT2_SCENARIO_QUESTION = (
     "To what extent do class-conditional Single Gaussian and GMM synthetic "
-    "training distributions preserve the cooperative channel-subset structure "
+    "training distributions preserve the cooperative attribute-subset structure "
     "observed for 180-day mortality prediction on a fixed real SUPPORT2 test set?"
 )
 SUPPORT2_TRAINING_SOURCE = (

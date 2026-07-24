@@ -1,22 +1,22 @@
 \chapter{FUNDAMENTAÇÃO CONCEITUAL E TRABALHOS RELACIONADOS}
 
-\section{Canais e subconjuntos de informação}
+\section{Atributos, canais de informação e subconjuntos}
 
 Considere uma tarefa de classificação supervisionada em que cada observação é representada por um vetor padronizado
 \begin{equation}
   X=(X_1,\ldots,X_d),
   \label{eq:input-vector}
 \end{equation}
-no qual cada componente $X_j$ corresponde a um canal de informação. O rótulo da observação é denotado por $Y\in\{1,\ldots,K\}$, sendo $K$ o número de classes.
+no qual cada componente $X_j$ é um \textbf{atributo}: a variável formal de entrada do modelo, consumida diretamente por um classificador. O rótulo da observação é denotado por $Y\in\{1,\ldots,K\}$, sendo $K$ o número de classes.
 
-O termo canal enfatiza a origem informacional da variável, e não apenas sua posição em uma tabela. Em um sistema de monitoramento, $X_j$ pode ser a resposta de um sensor; em uma aplicação clínica, uma medida fisiológica ou um resultado laboratorial; em outros contextos, um atributo derivado, um registro administrativo ou uma avaliação humana. Dois canais diferentes podem inclusive compartilhar a mesma infraestrutura de produção, aspecto relevante para a discussão de custos retomada no Apêndice~F.
+Um atributo pode ser interpretado operacionalmente como um \textbf{canal de informação}: o termo enfatiza a origem informacional da variável --- a fonte de aquisição --- e não apenas sua posição em uma tabela. Em um sistema de monitoramento, $X_j$ pode ser a resposta de um sensor; em uma aplicação clínica, uma medida fisiológica ou um resultado laboratorial; em outros contextos, um atributo derivado computacionalmente, um registro administrativo ou uma avaliação humana. Um canal de informação pode corresponder a um único atributo ou a um grupo de atributos explicitamente agrupado; dois canais diferentes podem inclusive compartilhar a mesma infraestrutura de produção, aspecto relevante para a discussão de custos retomada no Apêndice~F. O restante deste relatório usa \emph{atributo} como termo formal e reserva \emph{canal de informação} para o sentido operacional aqui introduzido.
 
-Seja $I\subseteq\{1,\ldots,d\}$ um conjunto de índices. O subconjunto de canais correspondente é
+Seja $I\subseteq\{1,\ldots,d\}$ um conjunto de índices. O subconjunto de atributos correspondente é
 \begin{equation}
   S_I=\{X_i:i\in I\}.
   \label{eq:subset-si}
 \end{equation}
-Para $d$ canais, existem $2^d-1$ subconjuntos não vazios: cinco canais produzem 31 subconjuntos e sete canais produzem 127. A avaliação exaustiva evita que a análise dependa de uma ordem arbitrária de inclusão e permite comparar configurações de mesma cardinalidade. A Figura~\ref{fig:conceito-reticulado} ilustra a diferença com um exemplo de três canais: enquanto uma cadeia prefixada avalia apenas uma sequência aninhada de subconjuntos, a enumeração exaustiva percorre todo o espaço de combinações.
+Para $d$ atributos, existem $2^d-1$ subconjuntos não vazios: cinco atributos produzem 31 subconjuntos e sete atributos produzem 127. A avaliação exaustiva evita que a análise dependa de uma ordem arbitrária de inclusão e permite comparar configurações de mesma cardinalidade. A Figura~\ref{fig:conceito-reticulado} ilustra a diferença com um exemplo de três atributos: enquanto uma cadeia prefixada avalia apenas uma sequência aninhada de subconjuntos, a enumeração exaustiva percorre todo o espaço de combinações.
 
 \begin{figure}[H]
   \centering
@@ -28,21 +28,21 @@ Para $d$ canais, existem $2^d-1$ subconjuntos não vazios: cinco canais produzem
 
 \section{Cooperação, complementaridade e redundância}
 
-A literatura de seleção de variáveis distingue relevância individual de utilidade conjunta. Uma variável pode conter informação sobre $Y$ quando analisada isoladamente e, ainda assim, ser dispensável na presença de outra variável que carrega informação semelhante; de modo inverso, uma variável com desempenho marginal modesto pode melhorar significativamente um classificador quando complementa um canal mais forte. \textcite{guyon2003} destacam que variáveis relevantes podem ser redundantes e que a avaliação de subconjuntos é necessária para capturar dependências que um ranking marginal não revela; trabalhos de seleção informacional também modelam explicitamente o equilíbrio entre relevância para o alvo, redundância e complementaridade condicional \cite{brown2012}.
+A literatura de seleção de variáveis distingue relevância individual de utilidade conjunta. Uma variável pode conter informação sobre $Y$ quando analisada isoladamente e, ainda assim, ser dispensável na presença de outra variável que carrega informação semelhante; de modo inverso, uma variável com desempenho marginal modesto pode melhorar significativamente um classificador quando complementa um atributo mais forte. \textcite{guyon2003} destacam que variáveis relevantes podem ser redundantes e que a avaliação de subconjuntos é necessária para capturar dependências que um ranking marginal não revela; trabalhos de seleção informacional também modelam explicitamente o equilíbrio entre relevância para o alvo, redundância e complementaridade condicional \cite{brown2012}.
 
 Neste relatório, três noções são separadas:
 
 \begin{description}
-  \item[Relevância marginal:] capacidade de um canal contribuir para a classificação quando observado isoladamente;
-  \item[Redundância:] sobreposição de informação útil entre canais, de forma que a inclusão conjunta produz ganho pequeno ou nulo;
-  \item[Complementaridade:] contribuição adicional que emerge da combinação, ainda que um dos canais seja fraco individualmente.
+  \item[Relevância marginal:] capacidade de um atributo contribuir para a classificação quando observado isoladamente;
+  \item[Redundância:] sobreposição de informação útil entre atributos, de forma que a inclusão conjunta produz ganho pequeno ou nulo;
+  \item[Complementaridade:] contribuição adicional que emerge da combinação, ainda que um dos atributos seja fraco individualmente.
 \end{description}
 
-A cooperação é observada quando um subconjunto produz menor perda que configurações mais simples em determinado regime amostral --- uma definição operacional, que não exige atribuir causalidade aos canais nem interpretar a cooperação como interação física entre sensores. A Figura~\ref{fig:conceito-cooperacao} resume as três noções em um exemplo com quatro canais.
+A cooperação é observada quando um subconjunto produz menor perda que configurações mais simples em determinado regime amostral --- uma definição operacional, que não exige atribuir causalidade aos atributos nem interpretar a cooperação como interação física entre sensores. A Figura~\ref{fig:conceito-cooperacao} resume as três noções em um exemplo com quatro atributos.
 
 \begin{figure}[H]
   \centering
-  \caption{Relações informacionais entre canais e alvo: relevância, redundância e complementaridade}
+  \caption{Relações informacionais entre atributos e alvo: relevância, redundância e complementaridade}
   \label{fig:conceito-cooperacao}
   \includegraphics[width=0.80\textwidth]{figures/conceptual/cooperacao_canais.pdf}
   \sourcebelow{elaboração própria}
@@ -53,14 +53,14 @@ A formulação se relaciona a métodos \emph{wrapper} de seleção de variáveis
 
 \section{Dimensionalidade e pequenas amostras}
 
-A inclusão de canais cria uma tensão entre informação potencial e dificuldade de estimação. Em um cenário ideal, um classificador com acesso a mais variáveis poderia ignorar qualquer informação inútil; em amostras finitas, porém, os parâmetros, fronteiras e dependências precisam ser estimados, e o aumento da dimensão amplia o espaço de hipóteses e pode elevar a variância do modelo. O estudo clássico de \textcite{hughes1968} analisou a acurácia média de reconhecedores estatísticos em função do número de medidas e do tamanho da amostra de treinamento, resultado frequentemente associado ao \emph{peaking phenomenon}: em determinadas condições, adicionar dimensões melhora inicialmente o desempenho, mas, para um tamanho amostral fixo, a dificuldade de estimação pode superar o ganho informacional. \textcite{raudys1991} sistematizam efeitos de pequenas amostras e apresentam recomendações práticas para reconhecimento estatístico de padrões.
+A inclusão de atributos cria uma tensão entre informação potencial e dificuldade de estimação. Em um cenário ideal, um classificador com acesso a mais variáveis poderia ignorar qualquer informação inútil; em amostras finitas, porém, os parâmetros, fronteiras e dependências precisam ser estimados, e o aumento da dimensão amplia o espaço de hipóteses e pode elevar a variância do modelo. O estudo clássico de \textcite{hughes1968} analisou a acurácia média de reconhecedores estatísticos em função do número de medidas e do tamanho da amostra de treinamento, resultado frequentemente associado ao \emph{peaking phenomenon}: em determinadas condições, adicionar dimensões melhora inicialmente o desempenho, mas, para um tamanho amostral fixo, a dificuldade de estimação pode superar o ganho informacional. \textcite{raudys1991} sistematizam efeitos de pequenas amostras e apresentam recomendações práticas para reconhecimento estatístico de padrões.
 
-O \CoInfoSim{} investiga uma manifestação relacionada, mas não idêntica: em vez de aumentar apenas a dimensão por uma sequência prefixada, compara subconjuntos diferentes. Uma dupla pode superar um canal isolado somente após determinado tamanho amostral; uma tripla pode precisar de ainda mais dados; e subconjuntos de mesma cardinalidade podem trocar de posição conforme o classificador aprende dependências específicas. Seja $f$ um classificador e $n$ o número de amostras de treinamento por classe; a perda média de um subconjunto $S_I$ será denotada por
+O \CoInfoSim{} investiga uma manifestação relacionada, mas não idêntica: em vez de aumentar apenas a dimensão por uma sequência prefixada, compara subconjuntos diferentes. Uma dupla pode superar um atributo isolado somente após determinado tamanho amostral; uma tripla pode precisar de ainda mais dados; e subconjuntos de mesma cardinalidade podem trocar de posição conforme o classificador aprende dependências específicas. Seja $f$ um classificador e $n$ o número de amostras de treinamento por classe; a perda média de um subconjunto $S_I$ será denotada por
 \begin{equation}
   \overline{L}_{S_I,f}(n).
   \label{eq:mean-loss-foundation}
 \end{equation}
-A dependência explícita em $n$ é essencial: não se trata apenas de registrar o desempenho final, mas de observar como as curvas se aproximam, se cruzam e eventualmente se estabilizam. O fenômeno não deve ser interpretado como uma lei segundo a qual o melhor canal isolado sempre vence em pequenas amostras ou subconjuntos maiores sempre vencem no limite: a forma das curvas depende da distribuição, do classificador, do ruído e das relações entre canais, e o valor da análise experimental está precisamente em não impor previamente essa ordenação.
+A dependência explícita em $n$ é essencial: não se trata apenas de registrar o desempenho final, mas de observar como as curvas se aproximam, se cruzam e eventualmente se estabilizam. O fenômeno não deve ser interpretado como uma lei segundo a qual o melhor atributo isolado sempre vence em pequenas amostras ou subconjuntos maiores sempre vencem no limite: a forma das curvas depende da distribuição, do classificador, do ruído e das relações entre atributos, e o valor da análise experimental está precisamente em não impor previamente essa ordenação.
 
 \section{Treinamento sintético e avaliação em dados reais}
 
@@ -72,7 +72,7 @@ O desenho do \CoInfoSim{} adota a mesma direção geral, mas amplia o objeto ava
   &\GaussianToReal,\label{eq:arm-gaussian}\\
   &\GMMToReal.\label{eq:arm-gmm}
 \end{align}
-No primeiro braço, o treinamento também utiliza amostras reais de treinamento balanceadas; nos demais, o treinamento dos classificadores utiliza amostras sintéticas produzidas por modelos geradores ajustados exclusivamente aos dados reais de treinamento. O teste é compartilhado pelos três braços, o que reduz uma fonte de variação: as diferenças observadas não decorrem de conjuntos de avaliação distintos. A pergunta deixa de ser apenas "o treinamento sintético prediz bem?" e passa a incluir "o treinamento sintético preserva as relações entre configurações de canais?".
+No primeiro braço, o treinamento também utiliza amostras reais de treinamento balanceadas; nos demais, o treinamento dos classificadores utiliza amostras sintéticas produzidas por modelos geradores ajustados exclusivamente aos dados reais de treinamento. O teste é compartilhado pelos três braços, o que reduz uma fonte de variação: as diferenças observadas não decorrem de conjuntos de avaliação distintos. A pergunta deixa de ser apenas "o treinamento sintético prediz bem?" e passa a incluir "o treinamento sintético preserva as relações entre configurações de atributos?".
 
 Essa mudança permite separar três tipos de fidelidade, que podem se relacionar mas dos quais nenhum implica automaticamente os demais:
 
@@ -86,7 +86,7 @@ Essa separação será retomada na análise dos resultados, especialmente nos ce
 
 \section{Perfil de cooperação preditiva}
 
-O \PredictiveCooperationProfile{} é a representação quantitativa de como o desempenho preditivo relativo dos subconjuntos de canais evolui ao longo do tamanho amostral, para um dataset, um classificador e uma condição de treinamento determinados. Ele é definido a partir das curvas de perda média estimada dos subconjuntos e organizado em três níveis analíticos crescentes de detalhe: a \textbf{ordenação global} dos subconjuntos em cada $n$; a \textbf{relação efetiva de vencedor par a par}, que resume, para cada par de subconjuntos, qual deles tem menor perda estimada em cada $n$, com uma regra explícita de propagação sob empate exato; e a \textbf{dinâmica de inversões}, isto é, os momentos em que a relação efetiva de vencedor de um par troca de sentido ao longo do tamanho amostral.
+O \PredictiveCooperationProfile{} é a representação quantitativa de como o desempenho preditivo relativo dos subconjuntos de atributos evolui ao longo do tamanho amostral, para um dataset, um classificador e uma condição de treinamento determinados. Ele é definido a partir das curvas de perda média estimada dos subconjuntos e organizado em três níveis analíticos crescentes de detalhe: a \textbf{ordenação global} dos subconjuntos em cada $n$; a \textbf{relação efetiva de vencedor par a par}, que resume, para cada par de subconjuntos, qual deles tem menor perda estimada em cada $n$, com uma regra explícita de propagação sob empate exato; e a \textbf{dinâmica de inversões}, isto é, os momentos em que a relação efetiva de vencedor de um par troca de sentido ao longo do tamanho amostral.
 
 É importante distinguir o perfil de um \PredictiveCooperationPattern{}: o perfil é o objeto quantitativo --- a série de rankings, matrizes de vencedores e matrizes de inversões ao longo de $n$ --- enquanto um padrão é uma regularidade interpretada a partir de um ou mais perfis, como "pares redundantes raramente invertem" ou "o vencedor entre duas famílias de subconjuntos se estabiliza cedo". O relatório reporta perfis diretamente e discute padrões apenas como leitura interpretativa desses perfis, nunca como o dado bruto.
 

@@ -3,17 +3,17 @@
 
 \section{Critérios de seleção}
 
-A passagem dos cenários gaussianos idealizados para experimentos ancorados em dados reais exigiu mais do que a escolha de bases públicas com número suficiente de linhas. O protocolo demanda que cada variável selecionada possa ser interpretada como um canal de informação, que o alvo possua significado defensável no domínio, que o número de canais permita a enumeração exaustiva dos subconjuntos não vazios e que seja possível construir uma separação entre treinamento e teste compatível com a dependência presente nos dados. Também se exigiu que todas as operações dependentes dos dados --- definição de limiar, padronização, parametrização dos geradores e calibração dos classificadores --- fossem executadas sem acesso ao conjunto de teste, para evitar o vazamento de informação descrito por \textcite{Kaufman2012}: em dados com estrutura temporal, espacial, hierárquica ou por grupos, divisões aleatórias podem produzir estimativas excessivamente otimistas, e a estratégia de validação deve representar a forma de generalização de interesse \cite{Roberts2017,Bergmeir2012}.
+A passagem dos cenários gaussianos idealizados para experimentos ancorados em dados reais exigiu mais do que a escolha de bases públicas com número suficiente de linhas. O protocolo demanda que cada variável selecionada possa ser interpretada como um canal de informação, que o alvo possua significado defensável no domínio, que o número de atributos permita a enumeração exaustiva dos subconjuntos não vazios e que seja possível construir uma separação entre treinamento e teste compatível com a dependência presente nos dados. Também se exigiu que todas as operações dependentes dos dados --- definição de limiar, padronização, parametrização dos geradores e calibração dos classificadores --- fossem executadas sem acesso ao conjunto de teste, para evitar o vazamento de informação descrito por \textcite{Kaufman2012}: em dados com estrutura temporal, espacial, hierárquica ou por grupos, divisões aleatórias podem produzir estimativas excessivamente otimistas, e a estratégia de validação deve representar a forma de generalização de interesse \cite{Roberts2017,Bergmeir2012}.
 
-Foram priorizados problemas binários de pequena ou média dimensionalidade, com canais fisicamente ou semanticamente interpretáveis e conjuntos de dados reais de treinamento capazes de sustentar amostragem balanceada em diferentes valores de $n$. A dimensionalidade foi deliberadamente mantida baixa: com $d$ canais, o número de subconjuntos não vazios é $2^d-1$, de modo que o custo do experimento cresce exponencialmente antes mesmo de considerar classificadores, braços, tamanhos amostrais e replicações. Dois candidatos foram avaliados e adiados por essa razão: dados de informação de estado do canal em redes Wi-Fi (CSI) e dados de monitoramento de um sistema hidráulico industrial. Em ambos, as observações estão organizadas por sessão, indivíduo, posição ou ciclo operacional, de modo que uma divisão aleatória de linhas poderia colocar no treinamento e no teste medições correlacionadas, permitindo que o classificador explorasse dependências específicas da sessão em vez de generalizar para novas condições \cite{Roberts2017,Bergmeir2012}. A incorporação correta desses dois conjuntos exigiria definir a unidade amostral, a política de agrupamento e o regime de generalização de interesse --- uma extensão explícita para dados dependentes no tempo, fora do escopo temporal deste trabalho, mas que permanece uma agenda relevante (Capítulo~7).
+Foram priorizados problemas binários de pequena ou média dimensionalidade, com atributos fisicamente ou semanticamente interpretáveis e conjuntos de dados reais de treinamento capazes de sustentar amostragem balanceada em diferentes valores de $n$. A dimensionalidade foi deliberadamente mantida baixa: com $d$ atributos, o número de subconjuntos não vazios é $2^d-1$, de modo que o custo do experimento cresce exponencialmente antes mesmo de considerar classificadores, braços, tamanhos amostrais e replicações. Dois candidatos foram avaliados e adiados por essa razão: dados de informação de estado do canal em redes Wi-Fi (CSI) e dados de monitoramento de um sistema hidráulico industrial. Em ambos, as observações estão organizadas por sessão, indivíduo, posição ou ciclo operacional, de modo que uma divisão aleatória de linhas poderia colocar no treinamento e no teste medições correlacionadas, permitindo que o classificador explorasse dependências específicas da sessão em vez de generalizar para novas condições \cite{Roberts2017,Bergmeir2012}. A incorporação correta desses dois conjuntos exigiria definir a unidade amostral, a política de agrupamento e o regime de generalização de interesse --- uma extensão explícita para dados dependentes no tempo, fora do escopo temporal deste trabalho, mas que permanece uma agenda relevante (Capítulo~7).
 
 \section{Occupancy Detection}
 
 \subsection{Origem e finalidade}
 
-O dataset \textit{Occupancy Detection}, disponibilizado no UCI Machine Learning Repository sob o DOI \texttt{10.24432/C5X01N}, foi apresentado por \textcite{candanedo2016} para detectar a ocupação de uma sala a partir de medições ambientais. O rótulo binário foi obtido por fotografias com marcação temporal, enquanto os canais registram temperatura, umidade relativa, luminosidade, concentração de dióxido de carbono e razão de umidade. O conjunto também foi empregado posteriormente em estudos de séries multivariadas e detecção de ocupação \cite{Wu2019}; trabalhos relacionados investigaram ainda transferência a partir de dados ambientais sintéticos para reduzir a necessidade de coleta real \cite{Weber2020}.
+O dataset \textit{Occupancy Detection}, disponibilizado no UCI Machine Learning Repository sob o DOI \texttt{10.24432/C5X01N}, foi apresentado por \textcite{candanedo2016} para detectar a ocupação de uma sala a partir de medições ambientais. O rótulo binário foi obtido por fotografias com marcação temporal, enquanto os atributos registram temperatura, umidade relativa, luminosidade, concentração de dióxido de carbono e razão de umidade. O conjunto também foi empregado posteriormente em estudos de séries multivariadas e detecção de ocupação \cite{Wu2019}; trabalhos relacionados investigaram ainda transferência a partir de dados ambientais sintéticos para reduzir a necessidade de coleta real \cite{Weber2020}.
 
-O cenário utiliza cinco canais:
+O cenário utiliza cinco atributos:
 
 \begin{enumerate}[label=$X_{\arabic*}$:]
   \item \texttt{Temperature}, em graus Celsius;
@@ -23,17 +23,17 @@ O cenário utiliza cinco canais:
   \item \texttt{HumidityRatio}, razão entre massa de água e massa de ar.
 \end{enumerate}
 
-O alvo \texttt{Occupancy} assume 0 para sala desocupada e 1 para sala ocupada. Com cinco canais, o experimento avalia os 31 subconjuntos não vazios.
+O alvo \texttt{Occupancy} assume 0 para sala desocupada e 1 para sala ocupada. Com cinco atributos, o experimento avalia os 31 subconjuntos não vazios.
 
 \subsection{Particionamento e preparação}
 
 Foi preservada a divisão distribuída com o dataset. O arquivo \texttt{datatraining.txt}, com 8.143 linhas, constitui os dados reais de treinamento. Os arquivos \texttt{datatest.txt} e \texttt{datatest2.txt}, com 2.665 e 9.752 linhas, respectivamente, são concatenados para formar um teste real fixo com 12.417 observações. Nos dados reais de treinamento, as classes 0 e 1 possuem 6.414 e 1.729 registros; no teste combinado, os totais correspondentes são 9.396 e 3.021.
 
-A média e o desvio-padrão de cada canal são estimados exclusivamente nos dados reais de treinamento, usando desvio populacional ($\mathrm{ddof}=0$), e aplicados aos dois conjuntos. Não há imputação, e os arquivos empregados não apresentam valores ausentes nas colunas obrigatórias.
+A média e o desvio-padrão de cada atributo são estimados exclusivamente nos dados reais de treinamento, usando desvio populacional ($\mathrm{ddof}=0$), e aplicados aos dois conjuntos. Não há imputação, e os arquivos empregados não apresentam valores ausentes nas colunas obrigatórias.
 
 \subsection{Geometria observada}
 
-A inspeção das projeções padronizadas mostra classes com formas irregulares, concentrações alongadas e regiões cuja geometria se distancia de uma única elipse gaussiana. Essa característica torna o cenário especialmente informativo: a Gaussiana única produz pontos visualmente muito diferentes dos dados reais, enquanto o GMM acompanha melhor parte da forma empírica. Ainda assim, como será discutido no Capítulo~5, fidelidade visual e preservação do perfil de cooperação preditiva não coincidem necessariamente. A Figura~\ref{fig:geom-occupancy-dataset} apresenta a projeção representativa $(X_1,X_2)$ nos três braços, extraída do relatório do cenário 000002; a matriz completa com todos os pares de canais está no Apêndice~A (Seção~\ref{ap:geometria-completa}).
+A inspeção das projeções padronizadas mostra classes com formas irregulares, concentrações alongadas e regiões cuja geometria se distancia de uma única elipse gaussiana. Essa característica torna o cenário especialmente informativo: a Gaussiana única produz pontos visualmente muito diferentes dos dados reais, enquanto o GMM acompanha melhor parte da forma empírica. Ainda assim, como será discutido no Capítulo~5, fidelidade visual e preservação do perfil de cooperação preditiva não coincidem necessariamente. A Figura~\ref{fig:geom-occupancy-dataset} apresenta a projeção representativa $(X_1,X_2)$ nos três braços, extraída do relatório do cenário 000002; a matriz completa com todos os pares de atributos está no Apêndice~A (Seção~\ref{ap:geometria-completa}).
 
 \begin{figure}[H]
   \centering
@@ -55,7 +55,7 @@ A inspeção das projeções padronizadas mostra classes com formas irregulares,
     \subcaption{GMM}
   \end{minipage}
   \sourcebelow{\href{https://paulorenatoaz.github.io/coinfosim/reports/scenarios/000002_occupancy_baseline_full/occupancy_baseline_scenario_report_full_000002.html}{relatório publicado do cenário Occupancy Detection 000002 do \CoInfoSim}}
-  \notailustracao{A comparação geométrica é descritiva, restrita ao par de canais $(X_1,X_2)$. A preservação do perfil de cooperação preditiva é avaliada separadamente pelos indicadores definidos no Capítulo 4}
+  \notailustracao{A comparação geométrica é descritiva, restrita ao par de atributos $(X_1,X_2)$. A preservação do perfil de cooperação preditiva é avaliada separadamente pelos indicadores definidos no Capítulo 4}
 \end{figure}
 
 \section{UCI Air Quality}
@@ -111,7 +111,7 @@ As projeções do Air Quality apresentam regiões mais compactas e elipsoidais d
     \subcaption{GMM}
   \end{minipage}
   \sourcebelow{\href{https://paulorenatoaz.github.io/coinfosim/reports/scenarios/000005_air_quality_baseline_full/air_quality_scenario_report_full_000005.html}{relatório publicado do cenário Air Quality 000005 do \CoInfoSim}}
-  \notailustracao{A comparação geométrica é descritiva, restrita ao par de canais $(X_1,X_2)$. A preservação do perfil de cooperação preditiva é avaliada separadamente pelos indicadores definidos no Capítulo 4}
+  \notailustracao{A comparação geométrica é descritiva, restrita ao par de atributos $(X_1,X_2)$. A preservação do perfil de cooperação preditiva é avaliada separadamente pelos indicadores definidos no Capítulo 4}
 \end{figure}
 
 \section{SUPPORT2}
@@ -127,9 +127,9 @@ O presente trabalho não reproduz integralmente uma tarefa de sobrevivência com
 \end{equation}
 O dia 180 é inclusivo. Pacientes com \texttt{death}=0 possuem acompanhamento superior ao horizonte no arquivo validado, permitindo a classificação binária sem rotular como sobrevivente um indivíduo cuja observação terminasse antes de 180 dias. Variáveis diretamente ligadas ao desfecho, como \texttt{death}, \texttt{d.time}, \texttt{hospdead}, \texttt{surv2m} e \texttt{surv6m}, são excluídas dos preditores.
 
-\subsection{Canais e coorte de casos completos}
+\subsection{Atributos e coorte de casos completos}
 
-Foram utilizados sete canais fisiológicos basais:
+Foram utilizados sete atributos fisiológicos basais:
 
 \begin{enumerate}[label=$X_{\arabic*}$:]
   \item \texttt{meanbp}: pressão arterial média;
@@ -141,7 +141,7 @@ Foram utilizados sete canais fisiológicos basais:
   \item \texttt{sod}: sódio sérico.
 \end{enumerate}
 
-Com sete canais, são avaliados 127 subconjuntos não vazios. O arquivo original contém 9.105 pacientes, sendo 4.840 negativos e 4.265 positivos para o alvo derivado. A análise usa casos completos nos sete canais, nas duas variáveis necessárias ao alvo e no grupo diagnóstico \texttt{dzgroup}, empregado somente na estratificação e no relatório. A coorte final possui 8.873 pacientes, com 4.711 negativos e 4.162 positivos.
+Com sete atributos, são avaliados 127 subconjuntos não vazios. O arquivo original contém 9.105 pacientes, sendo 4.840 negativos e 4.265 positivos para o alvo derivado. A análise usa casos completos nos sete atributos, nas duas variáveis necessárias ao alvo e no grupo diagnóstico \texttt{dzgroup}, empregado somente na estratificação e no relatório. A coorte final possui 8.873 pacientes, com 4.711 negativos e 4.162 positivos.
 
 \subsection{Particionamento e padronização}
 \label{sec:support2-split}
@@ -152,7 +152,7 @@ A padronização utiliza somente o treinamento e $\mathrm{ddof}=0$. Não há imp
 
 \subsection{Geometria observada}
 
-As projeções selecionadas do SUPPORT2 mostram regiões mais compatíveis com aproximações elipsoidais do que o Occupancy, ainda que as classes permaneçam fortemente sobrepostas. Essa combinação --- forma aproximadamente regular e baixa separabilidade --- é relevante para distinguir a dificuldade de classificar pacientes da capacidade de preservar relações relativas entre subconjuntos; o resultado do Random Forest, discutido no Capítulo~5, torna essa distinção especialmente clara. A Figura~\ref{fig:geom-support2-dataset} apresenta a projeção representativa $(X_1,X_2)$ nos três braços do cenário 000008; a matriz completa com todos os pares de canais fisiológicos está no Apêndice~A (Seção~\ref{ap:geometria-completa}).
+As projeções selecionadas do SUPPORT2 mostram regiões mais compatíveis com aproximações elipsoidais do que o Occupancy, ainda que as classes permaneçam fortemente sobrepostas. Essa combinação --- forma aproximadamente regular e baixa separabilidade --- é relevante para distinguir a dificuldade de classificar pacientes da capacidade de preservar relações relativas entre subconjuntos; o resultado do Random Forest, discutido no Capítulo~5, torna essa distinção especialmente clara. A Figura~\ref{fig:geom-support2-dataset} apresenta a projeção representativa $(X_1,X_2)$ nos três braços do cenário 000008; a matriz completa com todos os pares de atributos fisiológicos está no Apêndice~A (Seção~\ref{ap:geometria-completa}).
 
 \begin{figure}[H]
   \centering
@@ -174,7 +174,7 @@ As projeções selecionadas do SUPPORT2 mostram regiões mais compatíveis com a
     \subcaption{GMM}
   \end{minipage}
   \sourcebelow{\href{https://paulorenatoaz.github.io/coinfosim/reports/scenarios/000008_support2_baseline_full/support2_scenario_report_full_000008.html}{relatório publicado do cenário SUPPORT2 000008 do \CoInfoSim}}
-  \notailustracao{A comparação geométrica é descritiva, restrita ao par de canais $(X_1,X_2)$. A preservação do perfil de cooperação preditiva é avaliada separadamente pelos indicadores definidos no Capítulo 4}
+  \notailustracao{A comparação geométrica é descritiva, restrita ao par de atributos $(X_1,X_2)$. A preservação do perfil de cooperação preditiva é avaliada separadamente pelos indicadores definidos no Capítulo 4}
 \end{figure}
 
 \section{Síntese comparativa}
@@ -191,7 +191,7 @@ A Tabela \ref{tab:datasets-comparison} resume as diferenças que condicionam a i
     \midrule
     Domínio & Ambiente construído & Monitoramento ambiental & Prognóstico clínico \\
     Alvo & Ocupação da sala & Benzeno elevado, derivado da referência & Mortalidade em até 180 dias \\
-    Canais & 5 & 5 & 7 \\
+    Atributos & 5 & 5 & 7 \\
     Subconjuntos & 31 & 31 & 127 \\
     Dados reais de treinamento & 8.143 & 7.192 & 7.098 \\
     Teste real fixo & 12.417 & 1.799 & 1.775 \\
@@ -207,7 +207,7 @@ A Tabela \ref{tab:datasets-comparison} resume as diferenças que condicionam a i
 
 \subsection{Notação}
 
-Considere um vetor padronizado de $d$ canais de informação, $X=(X_1,\ldots,X_d)$, e um alvo binário $Y\in\{0,1\}$. Um conjunto de índices $I\subseteq\{1,\ldots,d\}$ determina o subconjunto de canais $S_I=\{X_i:i\in I\}$; a coleção de todos os subconjuntos não vazios é denotada por $\mathcal{S}$, com $|\mathcal{S}|=2^d-1$. O classificador é indicado por $f$, o braço experimental por $g$, o número de amostras de treinamento por classe por $n$ e a replicação Monte Carlo por $r$.
+Considere um vetor padronizado de $d$ atributos, $X=(X_1,\ldots,X_d)$, e um alvo binário $Y\in\{0,1\}$. Um conjunto de índices $I\subseteq\{1,\ldots,d\}$ determina o subconjunto de atributos $S_I=\{X_i:i\in I\}$; a coleção de todos os subconjuntos não vazios é denotada por $\mathcal{S}$, com $|\mathcal{S}|=2^d-1$. O classificador é indicado por $f$, o braço experimental por $g$, o número de amostras de treinamento por classe por $n$ e a replicação Monte Carlo por $r$.
 
 Para uma observação de teste $(x_t,y_t)$, a perda utilizada é o erro de classificação. Se o teste fixo possui $m$ observações, a perda da replicação é
 \begin{equation}
@@ -226,12 +226,12 @@ O simulador calcula perda empírica no teste; não estima erro de treinamento, e
 
 \subsection{Padronização e prevenção de vazamento de informação}
 
-Para cada canal $j$, a média $\widehat{\mu}_j$ e o desvio-padrão $\widehat{\sigma}_j$ são calculados somente nos dados reais de treinamento. As observações são transformadas por
+Para cada atributo $j$, a média $\widehat{\mu}_j$ e o desvio-padrão $\widehat{\sigma}_j$ são calculados somente nos dados reais de treinamento. As observações são transformadas por
 \begin{equation}
   Z_j=\frac{X_j-\widehat{\mu}_j}{\widehat{\sigma}_j}.
   \label{eq:zscore}
 \end{equation}
-O mesmo par de parâmetros é aplicado ao teste real, o que impede que estatísticas do teste influenciem o treinamento dos classificadores, a parametrização dos geradores ou a calibração, além de evitar que canais com escalas numericamente maiores dominem classificadores sensíveis à escala, como SVM linear e Regressão Logística \cite{pedregosa2011}. Os modelos geradores são parametrizados no mesmo espaço padronizado e produzem as amostras sintéticas nesse espaço: médias, covariâncias e componentes não representam diretamente unidades físicas como graus Celsius, \textit{ppm} ou miligramas por decilitro, mas descrevem a geometria relativa dos canais após a transformação definida no treinamento.
+O mesmo par de parâmetros é aplicado ao teste real, o que impede que estatísticas do teste influenciem o treinamento dos classificadores, a parametrização dos geradores ou a calibração, além de evitar que atributos com escalas numericamente maiores dominem classificadores sensíveis à escala, como SVM linear e Regressão Logística \cite{pedregosa2011}. Os modelos geradores são parametrizados no mesmo espaço padronizado e produzem as amostras sintéticas nesse espaço: médias, covariâncias e componentes não representam diretamente unidades físicas como graus Celsius, \textit{ppm} ou miligramas por decilitro, mas descrevem a geometria relativa dos atributos após a transformação definida no treinamento.
 
 O protocolo separa seis operações --- definição ou derivação do alvo; seleção do conjunto analítico elegível; construção dos dados reais de treinamento e do teste real fixo; estimação dos parâmetros de padronização somente no treinamento; parametrização dos modelos geradores e eventual calibração do classificador somente no treinamento; e avaliação de todos os braços no mesmo teste real fixo --- de modo que nenhuma informação produzida a partir do teste participe da construção do classificador ou de suas entradas. No Air Quality, por exemplo, o percentil que define o alvo é calculado apenas na parte cronologicamente anterior; no SUPPORT2, o alvo é derivado antes do particionamento, mas suas variáveis-fonte são excluídas dos preditores. Esse cuidado responde ao problema de vazamento descrito por \textcite{Kaufman2012} e às limitações de validação aleatória em observações dependentes \cite{Roberts2017,Bergmeir2012}; a Seção~\ref{sec:provenance} mostra como a proveniência registrada torna essa separação auditável.
 
@@ -300,7 +300,7 @@ Para tornar essa camada legível sem depender de um grafo Graphviz de grande for
 
 Nesse modelo, uma \texttt{prov:Entity} representa um dado ou resultado (por exemplo, \texttt{SourceDataset}, \texttt{TrainingReservoir}, \texttt{FixedRealTestSet}, \texttt{ResultData}, \texttt{PredictiveCooperationProfile}); uma \texttt{prov:Activity} representa uma computação (\texttt{DatasetPreparation}, o ajuste de cada gerador, cada execução de simulação, a computação do perfil, a geração do relatório); e o \texttt{prov:SoftwareAgent} único é associado a cada atividade por \texttt{prov:wasAssociatedWith}. Uma atividade \texttt{prov:used} as entidades que consome como insumo e \texttt{prov:wasGeneratedBy} as entidades que produz. A granularidade é por cenário/braço, não por replicação Monte Carlo.
 
-O mesmo modelo é instanciado para os três estudos de caso. No Occupancy (cenário 000002, Figura~\ref{fig:prov-occupancy}), \texttt{datatraining.txt} é o reservatório de treinamento e \texttt{datatest.txt} e \texttt{datatest2.txt} formam o teste real fixo --- a partição original do doador, não um novo sorteio, como descrito na Seção~``Particionamento e preparação'' acima; a padronização por canal é estimada somente no treinamento.
+O mesmo modelo é instanciado para os três estudos de caso. No Occupancy (cenário 000002, Figura~\ref{fig:prov-occupancy}), \texttt{datatraining.txt} é o reservatório de treinamento e \texttt{datatest.txt} e \texttt{datatest2.txt} formam o teste real fixo --- a partição original do doador, não um novo sorteio, como descrito na Seção~``Particionamento e preparação'' acima; a padronização por atributo é estimada somente no treinamento.
 
 \begin{figure}[H]
   \centering

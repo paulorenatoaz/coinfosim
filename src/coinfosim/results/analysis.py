@@ -246,7 +246,7 @@ def _best_single_subset(
     sample_sizes: Sequence[int],
     subsets: Sequence[Subset],
 ) -> Subset:
-    """Return the single-channel subset with lowest mean loss at the largest n."""
+    """Return the single-attribute subset with lowest mean loss at the largest n."""
     singles = [s for s in subsets if len(s) == 1]
     n = max(sample_sizes)
     return best_subset(accumulator, classifier_name, n, singles).subset
@@ -258,7 +258,7 @@ def _best_pair_subset(
     sample_sizes: Sequence[int],
     subsets: Sequence[Subset],
 ) -> Subset:
-    """Return the two-channel subset with lowest mean loss at the largest n."""
+    """Return the two-attribute subset with lowest mean loss at the largest n."""
     pairs = [s for s in subsets if len(s) == 2]
     n = max(sample_sizes)
     return best_subset(accumulator, classifier_name, n, pairs).subset

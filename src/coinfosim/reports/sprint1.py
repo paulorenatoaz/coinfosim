@@ -90,7 +90,7 @@ def _loss_curve_image(
     ax.set_ylabel("Empirical test loss (misclassification rate)")
     ax.set_title(f"Empirical test loss — {classifier_label(classifier_name)}")
     ax.grid(True, which="both", alpha=0.3)
-    ax.legend(title="Channel subset", fontsize=8, ncol=2)
+    ax.legend(title="Attribute subset", fontsize=8, ncol=2)
     return _fig_to_base64(fig)
 
 
@@ -99,7 +99,7 @@ def _scatter_image(
     channels: Sequence[int],
     n_show: int = 300,
 ) -> str:
-    """2D scatter plot of the two given channels from the fixed test set."""
+    """2D scatter plot of the two given attributes from the fixed test set."""
     test = sampler.sample_test()
     i, j = channels
     fig, ax = plt.subplots(figsize=(4.5, 4))
@@ -119,7 +119,7 @@ def _scatter_image(
 def _scatter_3d_image(
     sampler: GaussianClassConditionalSampler, n_show: int = 300
 ) -> Optional[str]:
-    """Optional 3D scatter of all three channels."""
+    """Optional 3D scatter of all three attributes."""
     test = sampler.sample_test()
     if test.d < 3:
         return None
@@ -362,7 +362,7 @@ def generate_sprint1_report(
 
 <h2>Model parameters</h2>
 <dl class="meta">
-  <dt>Channels (d)</dt><dd>{model.d}</dd>
+  <dt>Attributes (d)</dt><dd>{model.d}</dd>
   <dt>Classes (K)</dt><dd>{model.K} (labels {list(model.class_labels)})</dd>
   <dt>μ₀</dt><dd>{_vector_html(model.mean(0))}</dd>
   <dt>μ₁</dt><dd>{_vector_html(model.mean(1))}</dd>
@@ -381,7 +381,7 @@ def generate_sprint1_report(
   <dt>Replication batch size</dt><dd>{config.replication_batch_size}</dd>
   <dt>Base seed</dt><dd>{config.base_seed}</dd>
   <dt>Classifiers</dt><dd>{html.escape(classifiers_list)}</dd>
-  <dt>Channel subsets</dt><dd>{html.escape(subsets_list)}</dd>
+  <dt>Attribute subsets</dt><dd>{html.escape(subsets_list)}</dd>
   <dt>Runtime</dt><dd>{result.runtime_seconds:.2f} s</dd>
 </dl>
 
@@ -393,7 +393,7 @@ def generate_sprint1_report(
 {loss_curve_html}
 
 <h2>Best-subset rankings</h2>
-<p>For each classifier and sample size, the channel subset with the lowest mean empirical test loss
+<p>For each classifier and sample size, the attribute subset with the lowest mean empirical test loss
 (<code>A*_f(n) = argmin_A Lbar_(A,f)(n)</code>).</p>
 {_dataframe_html(rankings_display, float_cols={"Mean test loss": ".4f"})}
 

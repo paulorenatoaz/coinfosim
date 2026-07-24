@@ -1,7 +1,7 @@
 """
 Synthetic scenario definitions for CoInfoSim Sprint 1.
 
-Only **Synthetic Scenario 1 — Simple Complementary Channel** is implemented
+Only **Synthetic Scenario 1 — Simple Complementary Attribute** is implemented
 in this sprint.
 """
 
@@ -11,9 +11,9 @@ from dataclasses import dataclass
 
 from coinfosim.models.gaussian import GaussianSimulationModel
 
-SCENARIO_1_NAME = "Synthetic Scenario 1 — Simple Complementary Channel"
+SCENARIO_1_NAME = "Synthetic Scenario 1 — Simple Complementary Attribute"
 SCENARIO_1_QUESTION = (
-    "When does an individually weaker channel improve classification by "
+    "When does an individually weaker attribute improve classification by "
     "adding complementary information?"
 )
 
@@ -41,7 +41,7 @@ class SyntheticScenario:
 
 
 def make_synthetic_scenario_1() -> SyntheticScenario:
-    """Construct Synthetic Scenario 1 — Simple Complementary Channel."""
+    """Construct Synthetic Scenario 1 — Simple Complementary Attribute."""
     model = GaussianSimulationModel(
         means={0: _MU0, 1: _MU1},
         covariances={0: _SIGMA, 1: _SIGMA},

@@ -1,4 +1,4 @@
-# CoInfoSim: A Simulator for Cooperative Classification from Multiple Information Channels
+# CoInfoSim: A Simulator for Predictive Cooperation Across Attribute Subsets
 
 **Author:** Paulo Renato Azevedo — Programa de Pós-Graduação em Informática (PPGI), UFRJ
 **Research advisors:** Prof. Don Towsley (University of Massachusetts Amherst) · Prof. Daniel Sadoc Menasché (UFRJ)
@@ -7,7 +7,7 @@
 
 The research advisors guided the underlying research program; they are not repository authors. The course professors are listed because this revision was prepared for their Data Science course and are not research advisors.
 
-CoInfoSim is a research simulator for evaluating **predictive cooperation among information channels** in supervised classification tasks. In plain terms: it asks whether training a classifier on *synthetic* data — sampled from a fitted Gaussian model — reproduces the same cooperative behavior among input-channel subsets observed when training on *real* data, evaluated on one shared, held-out real test set. It studies the **predictive cooperation profile** of a channel subset — how its predictive performance relative to other subsets evolves as the number of labeled training samples per class grows — comparing real versus synthetic training-condition arms evaluated on the same fixed real test set.
+CoInfoSim is a research simulator for evaluating **predictive cooperation across attribute subsets** in supervised classification tasks. In plain terms: it asks whether training a classifier on *synthetic* data — sampled from a fitted Gaussian model — reproduces the same cooperative behavior among attribute subsets observed when training on *real* data, evaluated on one shared, held-out real test set. It studies the **predictive cooperation profile** of an attribute subset — how its predictive performance relative to other subsets evolves as the number of labeled training samples per class grows — comparing real versus synthetic training-condition arms evaluated on the same fixed real test set. The name *CoInfoSim* comes from the broader idea that each attribute can be interpreted as an **information channel**: a measurement source, sensor, procedure, or other acquisition mechanism that provides information to the classifier.
 
 ## Project artifacts
 
@@ -33,7 +33,7 @@ real dataset
   → dataset-specific preparation
   → fixed training reservoir + fixed real test set
   → real / Single-Gaussian / GMM training arms
-  → classifiers over channel subsets and sample-size grid
+  → classifiers over attribute subsets and sample-size grid
   → persisted results
   → predictive cooperation profile
   → reports / visualizations / provenance
@@ -41,7 +41,7 @@ real dataset
 
 See [Repository structure](#repository-structure) below for the code layout, and the [scientific report](coinfosim-report-latex/main.pdf) for the full experimental design.
 
-> **Core research question:** When does cooperation among information channels improve supervised classification?
+> **Core research question:** When does cooperation among attribute subsets improve supervised classification?
 
 > **Status:** Active research project. The installable CLI runs three reproducible, dataset-anchored scenarios — Occupancy Detection, UCI Air Quality, and SUPPORT2 180-day mortality — each comparing real, single-Gaussian synthetic, and class-conditional GMM synthetic training on one fixed real evaluation set.
 
@@ -205,7 +205,7 @@ $$
 X = (X_1, \ldots, X_d)
 $$
 
-be a **standardized** input vector, where each component $X_j$ is an **information channel**, and let $Y \in \{1, \ldots, K\}$ be the class label. An information channel may be a sensor reading, a sensor-derived variable, a laboratory or contextual measurement, an engineered feature, or any other standardized observable variable available to a classifier. Multi-channel sensing systems are an important *motivating* application, but the formulation is intentionally broader.
+be a **standardized** input vector, where each component $X_j$ is an **attribute** — the formal model-input variable consumed directly by a classifier — and let $Y \in \{1, \ldots, K\}$ be the class label. An attribute can be interpreted as an **information channel**: a sensor reading, a sensor-derived variable, a laboratory or contextual measurement, an engineered feature, or any other acquisition source that provides information to the classifier. One information channel may correspond to one attribute or to an explicitly defined group of attributes; multi-channel sensing systems are an important *motivating* application, but the formulation is intentionally broader.
 
 In the parametric Gaussian mode, each class is described by its own class-conditional distribution:
 
@@ -227,11 +227,11 @@ $$
 
 so differences in location, dispersion, correlation, or distributional shape may all affect classification.
 
-A **channel subset** is denoted $A \subseteq \{1, \ldots, d\}$, and the classifier observes only the restricted vector $X_A$. For $d = 3$, the simulator evaluates all $2^3 - 1 = 7$ non-empty subsets — three isolated channels, three pairs, and the full three-channel set.
+An **attribute subset** is denoted $A \subseteq \{1, \ldots, d\}$, and the classifier observes only the restricted vector $X_A$. For $d = 3$, the simulator evaluates all $2^3 - 1 = 7$ non-empty subsets — three isolated attributes, three pairs, and the full three-attribute set.
 
 #### Balanced sampling and standardization
 
-The initial protocol uses **class-balanced** sampling: $n$ always denotes the number of labeled training samples *per class*. Synthetic simulations generate $n$ samples per class; real-data simulations draw balanced subsets from the training reservoir. When sampling without replacement from real data, the feasible maximum $n$ is limited by the smallest class in the training reservoir. CoInfoSim operates on **standardized** channels by default, which matters for scale-sensitive classifiers such as Linear SVM and Logistic Regression. In dataset-anchored mode, the estimated parameters $\hat{\mu}_c$ and $\hat{\Sigma}_c$ are computed from standardized data.
+The initial protocol uses **class-balanced** sampling: $n$ always denotes the number of labeled training samples *per class*. Synthetic simulations generate $n$ samples per class; real-data simulations draw balanced subsets from the training reservoir. When sampling without replacement from real data, the feasible maximum $n$ is limited by the smallest class in the training reservoir. CoInfoSim operates on **standardized** attributes by default, which matters for scale-sensitive classifiers such as Linear SVM and Logistic Regression. In dataset-anchored mode, the estimated parameters $\hat{\mu}_c$ and $\hat{\Sigma}_c$ are computed from standardized data.
 
 ### Core empirical object
 
@@ -241,7 +241,7 @@ $$
 \overline{L}_{A,f}(n),
 $$
 
-the average loss for channel subset $A$, classifier $f$, and $n$ labeled training samples per class. For replication $r$,
+the average loss for attribute subset $A$, classifier $f$, and $n$ labeled training samples per class. For replication $r$,
 
 $$
 \widehat{L}_{A,f,r}(n) = \frac{1}{m} \sum_{i=1}^{m} \mathbf{1}\{\widehat{Y}^{(A,f)}_{i,r}(n) \neq Y_i\},
@@ -275,11 +275,11 @@ These three remain the historical default set. The SUPPORT2 protocol explicitly 
 
 CoInfoSim is organized into three phases.
 
-#### Phase 1 — Idealized Synthetic Multi-Channel Scenarios
+#### Phase 1 — Idealized Synthetic Multi-Attribute Scenarios
 
-Controlled experiments using manually specified Gaussian simulation models, each defined by class centers and covariance matrices. The initial focus is binary classification with three standardized channels. This phase studies additive gains from weak but complementary channels, redundancy among strong channels, channel-subset ranking as $n$ grows, predictive cooperation profiles and pairwise winner reversals, and differences among the initial classifiers.
+Controlled experiments using manually specified Gaussian simulation models, each defined by class centers and covariance matrices. The initial focus is binary classification with three standardized attributes. This phase studies additive gains from weak but complementary attributes, redundancy among strong attributes, attribute-subset ranking as $n$ grows, predictive cooperation profiles and pairwise winner reversals, and differences among the initial classifiers.
 
-#### Phase 2 — Dataset-Anchored Multi-Channel Simulation
+#### Phase 2 — Dataset-Anchored Multi-Attribute Simulation
 
 Real datasets are used to build dataset-anchored scenarios. Each implemented dataset provides an explicit scientific protocol, prepared training/test data, and dataset-specific reporting text. The standard three-arm design compares balanced training from the real standardized reservoir, a training-fitted single Gaussian per class, and a training-fitted class-conditional GMM. Every arm is evaluated on the same fixed real test set. The dataset-anchored scenario report compares
 
@@ -305,8 +305,9 @@ Channel cost is treated generically and may include acquisition, deployment, cal
 
 | Term | Meaning |
 |---|---|
-| Information channel | A component $X_j$ of the input vector $X$ |
-| Channel subset $A$ | A subset $A \subseteq \{1,\ldots,d\}$ observed by the classifier |
+| Attribute | A component $X_j$ of the input vector $X$; the formal model-input variable a classifier consumes |
+| Attribute subset $A$ | A subset $A \subseteq \{1,\ldots,d\}$ observed by the classifier |
+| Information channel | The broader operational/acquisition interpretation of an attribute or an explicitly defined attribute group; motivates the name CoInfoSim |
 | Simulation model | The object holding the class-conditional parameters $\{(\mu_c, \Sigma_c)\}$ |
 | Scenario | One or more simulation models grouped around an experimental question |
 | Scenario grid | A scenario whose models come from a parameter grid |
@@ -319,28 +320,28 @@ Channel cost is treated generically and may include acquisition, deployment, cal
 The reporting system is layered and dataset-aware. Automated reports display the parameters explicitly defined in each simulation model together with generic loss, ranking, and predictive cooperation profile (winner/reversal) analyses; dataset-specific provenance and interpretation remain explicit rather than being inferred from arbitrary input files. The structure is:
 
 1. **Project index** — published entry point listing scenario, dataset, and simulation reports, result files, generation date, and software/commit version.
-2. **Dataset report** — dataset name and source, target $Y$, class distribution, candidate and selected channels, preprocessing and standardization, training reservoir/test set, and visual diagnostics of standardized data.
+2. **Dataset report** — dataset name and source, target $Y$, class distribution, candidate and selected attributes, preprocessing and standardization, training reservoir/test set, and visual diagnostics of standardized data.
 3. **Simulation report** — model id and source, class centers and covariance matrices, evaluated subsets, classifiers, values of $n$, repetitions/convergence, loss curves $\overline{L}_{A,f}(n)$, subset rankings, thresholds $N^*$, and data-geometry visualizations.
 4. **Scenario report** — the scenario question, a table of simulation models, links to simulation reports, aggregate loss curves, threshold summaries, best-subset maps, scenario-grid heatmaps, and animations of geometry across the scenario.
 5. **Dataset-anchored scenario report** — links to the dataset report and three arm reports, real-versus-synthetic loss curves and rankings, and separate ranking-fidelity, Winner Agreement, reversal existence agreement, and reversal sample-size similarity metrics.
 
-Implemented dataset-anchored reports include real and synthetic projection panels, loss curves $\overline{L}_{A,f}(n)$, channel-subset rankings, paired winner ($W$) and reversal ($R$) matrices, and separate structural-fidelity curves. Broader grids and animations remain future work.
+Implemented dataset-anchored reports include real and synthetic projection panels, loss curves $\overline{L}_{A,f}(n)$, attribute-subset rankings, paired winner ($W$) and reversal ($R$) matrices, and separate structural-fidelity curves. Broader grids and animations remain future work.
 
 ### Real-world motivating cases
 
-The dataset-anchored phase uses small, interpretable real-data studies with a few selected channels:
+The dataset-anchored phase uses small, interpretable real-data studies with a few selected attributes:
 
 - **Occupancy detection** — implemented with Temperature, Humidity, Light, CO₂, and HumidityRatio.
 - **Air quality** — implemented with five PT08 metal-oxide sensor responses and a benzene reference used only to construct the target.
-- **SUPPORT2 180-day mortality** — implemented with seven baseline physiologic channels and a fixed endpoint derived from `death` and `d.time`.
-- **Water potability** — channels such as pH, conductivity, and turbidity (future work).
+- **SUPPORT2 180-day mortality** — implemented with seven baseline physiologic attributes and a fixed endpoint derived from `death` and `d.time`.
+- **Water potability** — attributes such as pH, conductivity, and turbidity (future work).
 - **Hydraulic systems / condition monitoring** — multiple physical or operational measurements for fault classification (future work).
 
 The first three pipelines are implemented; the remaining examples are motivations, not plug-and-play dataset support. CoInfoSim does not claim arbitrary CSV plug-and-play support — a new dataset requires an explicit validated loader, execution spec, model builders, and dataset-specific report text.
 
 ### Relationship to SLACGS and CoSenSim
 
-CoInfoSim evolves from SLACGS, which studied cooperative gains in synthetic Gaussian settings and was organized primarily around dimensionality comparisons (lower- versus higher-dimensional models). CoInfoSim generalizes that idea: the object of comparison is no longer dimension $d$ but the channel subset $A \subseteq \{1,\ldots,d\}$, and the framing moves from sensor networks to multi-channel classification. The intermediate CoSenSim stage carried this toward real-data-anchored sensor studies; CoInfoSim completes the generalization to information channels. The reproducible Monte Carlo machinery, nested sample growth, adaptive repetition, and scenario-level reporting from SLACGS are retained.
+CoInfoSim builds on SLACGS, a simpler antecedent that studied cooperative gains in synthetic Gaussian settings organized primarily around dimensionality comparisons (lower- versus higher-dimensional models). CoInfoSim generalizes the object of comparison from dimension $d$ to the attribute subset $A \subseteq \{1,\ldots,d\}$, evaluated across dataset-anchored scenarios rather than synthetic dimensionality alone. The reproducible Monte Carlo machinery, nested sample growth, adaptive repetition, and scenario-level reporting from SLACGS — carried forward via the intermediate CoSenSim package — are retained.
 
 ### Repository structure
 

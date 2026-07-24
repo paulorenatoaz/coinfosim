@@ -18,7 +18,7 @@ from coinfosim.cli.context import CLIContext
 
 app = typer.Typer(
     name="coinfosim",
-    help="CoInfoSim - A Simulator for Cooperative Classification from Multiple Information Channels",
+    help="CoInfoSim - A Simulator for Predictive Cooperation Across Attribute Subsets",
     add_completion=False,
     rich_markup_mode="rich",
     no_args_is_help=True,

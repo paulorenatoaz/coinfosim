@@ -2,7 +2,7 @@
 Class-conditional Gaussian Mixture Model for CoInfoSim.
 
 :class:`GMMSimulationModel` represents one Gaussian mixture per class in the
-full channel space. It is a distinct model type from
+full attribute space. It is a distinct model type from
 :class:`~coinfosim.models.gaussian.GaussianSimulationModel`: instead of a single
 mean/covariance per class it stores, for each class, a set of mixture weights,
 component means and component covariances, plus optional per-class model
@@ -23,7 +23,7 @@ import numpy as np
 
 
 class GMMSimulationModel:
-    """A class-conditional Gaussian mixture model in the full channel space.
+    """A class-conditional Gaussian mixture model in the full attribute space.
 
     Parameters
     ----------
@@ -39,7 +39,7 @@ class GMMSimulationModel:
         metadata (candidate/selected component counts, BIC/AIC scores, fit
         configuration).
     channel_names:
-        Optional channel names.
+        Optional attribute names.
     name:
         Optional model label.
     """

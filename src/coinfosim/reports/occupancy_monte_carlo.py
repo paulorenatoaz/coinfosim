@@ -26,7 +26,7 @@ _REAL_ARM_SUMMARY = (
 
 _REAL_SCIENTIFIC_ROLE = (
     "This arm is the empirical baseline. It directly measures cooperative "
-    "channel structure under real Occupancy training data. Results from the "
+    "attribute-subset structure under real Occupancy training data. Results from the "
     "other arms are compared against this reference."
 )
 
@@ -61,7 +61,7 @@ _SG2R_ARM_SUMMARY = (
 _SG2R_SCIENTIFIC_ROLE = (
     "This arm tests whether a simple unimodal class-conditional Gaussian "
     "approximation of the training distribution is sufficient to preserve the "
-    "cooperative channel structure observed under real evaluation."
+    "cooperative attribute-subset structure observed under real evaluation."
 )
 
 _SG2R_TRAINING_PROTOCOL = """

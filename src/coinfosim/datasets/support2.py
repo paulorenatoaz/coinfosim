@@ -343,7 +343,7 @@ def _prepare_support2_data(
     means = train.loc[:, SUPPORT2_CHANNELS].mean()
     stds = train.loc[:, SUPPORT2_CHANNELS].std(ddof=0)
     if means.isna().any() or stds.isna().any() or (stds <= 0).any():
-        raise ValueError("SUPPORT2 training channels require finite nonzero variance")
+        raise ValueError("SUPPORT2 training attributes require finite nonzero variance")
     standardization = StandardizationParameters(means=means, stds=stds)
     standardized_train = _standardize_frame(train, standardization)
     standardized_test = _standardize_frame(test, standardization)

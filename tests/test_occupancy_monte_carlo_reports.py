@@ -84,7 +84,7 @@ def test_real_monte_carlo_report_generated(tmp_path):
     assert "Real-data" in text or "Real \u2192 Real" in text
     assert "Loss curves" in text
     assert "Nested cardinality" in text
-    assert "1-channel + full reference" in text
+    assert "1-attribute + full reference" in text
     assert "Subset ranking by sample size" in text
     assert "13. Pairwise winner and reversal dynamics" in text
     assert "Winner matrix" in text

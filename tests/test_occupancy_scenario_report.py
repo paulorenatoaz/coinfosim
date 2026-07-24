@@ -143,9 +143,9 @@ def test_occupancy_scenario_report_academic_layout(tmp_path):
     assert "Single Gaussian → Real Monte Carlo" in text
     assert "GMM → Real Monte Carlo" in text
 
-    # Sticky channel legend retained.
+    # Sticky attribute legend retained.
     assert "class='legend'" in text
-    assert "Channel legend" in text
+    assert "Attribute legend" in text
     assert "X₁" in text
     assert "Temperature" in text
 

@@ -3,7 +3,7 @@ Minimal dataset container for CoInfoSim Sprint 1.
 
 :class:`Dataset` stores a feature matrix ``X`` of shape ``(n_samples, d)``
 and a target vector ``y`` of shape ``(n_samples,)``. It supports restricting
-the features to a channel subset via :meth:`Dataset.select_channels`.
+the features to an attribute subset via :meth:`Dataset.select_channels`.
 """
 
 from __future__ import annotations
@@ -63,16 +63,16 @@ class Dataset:
 
     @property
     def d(self) -> int:
-        """Number of channels (columns) currently present."""
+        """Number of attributes (columns) currently present."""
         return self._X.shape[1]
 
     def select_channels(self, subset: Sequence[int]) -> "Dataset":
-        """Return a new :class:`Dataset` restricted to the given channels.
+        """Return a new :class:`Dataset` restricted to the given attributes.
 
         Parameters
         ----------
         subset:
-            Sequence of zero-based channel indices (non-empty, in range).
+            Sequence of zero-based attribute indices (non-empty, in range).
         """
         idx = np.asarray(list(subset), dtype=int)
         if idx.size == 0:

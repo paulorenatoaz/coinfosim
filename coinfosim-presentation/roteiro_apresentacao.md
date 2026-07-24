@@ -8,21 +8,21 @@ Leia isso em voz alta pelo menos duas vezes antes de apresentar — o texto foi 
 
 ## Slide 1 — Título (0:00 – 0:45)
 
-Boa tarde a todos. O trabalho que vou apresentar chama-se *Preservação da estrutura de cooperação entre canais de informação*, e a pergunta que ele responde é esta: **o treinamento com amostras sintéticas reproduz a evolução da cooperação observada com amostras reais?**
+Boa tarde a todos. O trabalho que vou apresentar chama-se *Preservação do perfil de cooperação preditiva entre atributos*, e a pergunta que ele responde é esta: **o treinamento com amostras sintéticas reproduz a evolução da cooperação observada com amostras reais?**
 
-Uma coisa precisa ficar clara desde o primeiro minuto, porque ela organiza tudo o que vem depois: amostras sintéticas, aqui, **não** são usadas para aumentar a acurácia do classificador. Elas são usadas para investigar se o treinamento sintético reproduz o comportamento cooperativo dos subconjuntos de canais que observamos quando o treinamento é feito com dados reais. Se você guardar só uma frase desta apresentação, guarde essa.
+Uma coisa precisa ficar clara desde o primeiro minuto, porque ela organiza tudo o que vem depois: amostras sintéticas, aqui, **não** são usadas para aumentar a acurácia do classificador. Elas são usadas para investigar se o treinamento sintético reproduz o comportamento cooperativo dos subconjuntos de atributos que observamos quando o treinamento é feito com dados reais. Se você guardar só uma frase desta apresentação, guarde essa.
 
 *(Transição: Para entender por que essa pergunta importa, começo pela decisão operacional que existe antes de qualquer gerador sintético.)*
 
 ---
 
-## Slide 2 — Por que comparar subconjuntos de canais? (0:45 – 2:05)
+## Slide 2 — Por que comparar subconjuntos de atributos? (0:45 – 2:05)
 
 Em operações reais, cada variável — cada canal — pode representar um sensor ambiental, um exame laboratorial, uma medição fisiológica, a saída de um equipamento, ou até uma informação fornecida por um especialista. Quando decidimos quais canais usar num classificador, adicionar mais um canal pode trazer sinal complementar — mas também pode trazer redundância, mais dimensionalidade, mais complexidade de integração e mais custo operacional.
 
 E há uma armadilha estatística aqui: com poucas amostras, acrescentar dimensões pode até **piorar** a estimação — é o efeito de pequenas amostras associado ao fenômeno de Hughes. Então "mais canais" não é uma resposta óbvia.
 
-Este trabalho não resolve a decisão econômica de quais canais vale a pena manter. Ele constrói a etapa anterior a essa decisão: mapear como **todos** os subconjuntos possíveis de canais se comportam na tarefa de classificação, treinando um classificador para cada subconjunto. E a aposta é a seguinte: se essa organização puder ser reproduzida por treinamento sintético, teremos uma ferramenta estrutural útil para estudos operacionais futuros — sem precisar coletar mais dados reais para cada nova pergunta.
+Este trabalho não resolve a decisão econômica de quais canais vale a pena manter. Ele constrói a etapa anterior a essa decisão: mapear como **todos** os subconjuntos possíveis de atributos se comportam na tarefa de classificação, treinando um classificador para cada subconjunto. E a aposta é a seguinte: se essa organização puder ser reproduzida por treinamento sintético, teremos uma ferramenta estrutural útil para estudos operacionais futuros — sem precisar coletar mais dados reais para cada nova pergunta.
 
 *(Transição: Essa motivação operacional leva à definição precisa do que estou chamando de estrutura de cooperação.)*
 
@@ -32,7 +32,7 @@ Este trabalho não resolve a decisão econômica de quais canais vale a pena man
 
 Aqui está o coração conceitual da apresentação, então vou com calma.
 
-A estrutura começa com curvas de perda no mesmo teste real. Para cada tamanho de treinamento por classe — vou chamar esse tamanho de **n** — cada subconjunto de canais origina um classificador próprio, e esse classificador tem uma perda média, estimada por simulação de Monte Carlo.
+A estrutura começa com curvas de perda no mesmo teste real. Para cada tamanho de treinamento por classe — vou chamar esse tamanho de **n** — cada subconjunto de atributos origina um classificador próprio, e esse classificador tem uma perda média, estimada por simulação de Monte Carlo.
 
 Repare no gráfico: com poucas amostras, um canal isolado pode ter a menor perda, porque exige menos estimação — é mais simples de aprender. Mas, à medida que o treinamento cresce, um par de canais, ou um conjunto maior, pode passar a aproveitar informação complementar e ultrapassar o canal isolado. É exatamente isso que as três curvas mostram: uma inversão de posições ao longo de n.
 
@@ -74,7 +74,7 @@ O protocolo parte de um único reservatório real de treinamento. Toda a padroni
 
 A partir daí, temos três braços experimentais. No primeiro, Real para Real, cada replicação simplesmente sorteia amostras reais balanceadas por classe — é a nossa referência. No segundo braço, uma Gaussiana única por classe é parametrizada a partir dos dados reais de treinamento, no espaço completo de canais, e produz as amostras sintéticas usadas para treinar os classificadores. No terceiro braço, um GMM — uma mistura de gaussianas — por classe é parametrizado a partir dos mesmos dados reais; o número de componentes é escolhido pelo critério BIC.
 
-Para cada tamanho da grade — n igual a 2, 4, 8, e assim por diante até 512 amostras por classe — repetimos o treinamento de cada classificador em **todos** os subconjuntos não vazios de canais: são 31 subconjuntos quando há cinco canais, e 127 quando há sete. As replicações de Monte Carlo estimam as perdas médias com a precisão que definimos como alvo.
+Para cada tamanho da grade — n igual a 2, 4, 8, e assim por diante até 512 amostras por classe — repetimos o treinamento de cada classificador em **todos** os subconjuntos não vazios de atributos: são 31 subconjuntos quando há cinco atributos, e 127 quando há sete. As replicações de Monte Carlo estimam as perdas médias com a precisão que definimos como alvo.
 
 O ponto crucial: a **única** coisa que muda entre os três braços é a origem das amostras de treinamento. O conjunto de teste real é fixo e compartilhado pelos três — é ele que nos permite comparar as estruturas obtidas em uma base absolutamente comum.
 

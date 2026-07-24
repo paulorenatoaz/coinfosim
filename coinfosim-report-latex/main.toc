@@ -16,13 +16,13 @@
 \contentsline {chapter}{\chapternumberline {1}\MakeTextUppercase []{INTRODUÇÃO}}{14}{chapter.1}%
 \contentsline {section}{\numberline {1.1}Motivação operacional}{14}{section.1.1}%
 \contentsline {section}{\numberline {1.2}Problema científico}{15}{section.1.2}%
-\contentsline {section}{\numberline {1.3}Evolução do \textsf {SLACGS}{} ao \textsf {CoInfoSim}}{16}{section.1.3}%
-\contentsline {section}{\numberline {1.4}Pergunta central, perguntas de pesquisa e objetivos}{17}{section.1.4}%
+\contentsline {section}{\numberline {1.3}Um antecedente mais simples: o \textsf {SLACGS}{}}{16}{section.1.3}%
+\contentsline {section}{\numberline {1.4}Pergunta central, perguntas de pesquisa e objetivos}{16}{section.1.4}%
 \contentsline {section}{\numberline {1.5}Contribuições do trabalho}{18}{section.1.5}%
-\contentsline {section}{\numberline {1.6}Organização do relatório}{19}{section.1.6}%
+\contentsline {section}{\numberline {1.6}Organização do relatório}{18}{section.1.6}%
 \setlength {\cftchapterindent }{0em} \setlength {\cftchapternumwidth }{\cftlastnumwidth }
 \contentsline {chapter}{\chapternumberline {2}\MakeTextUppercase []{FUNDAMENTAÇÃO CONCEITUAL E TRABALHOS RELACIONADOS}}{20}{chapter.2}%
-\contentsline {section}{\numberline {2.1}Canais e subconjuntos de informação}{20}{section.2.1}%
+\contentsline {section}{\numberline {2.1}Atributos, canais de informação e subconjuntos}{20}{section.2.1}%
 \contentsline {section}{\numberline {2.2}Cooperação, complementaridade e redundância}{21}{section.2.2}%
 \contentsline {section}{\numberline {2.3}Dimensionalidade e pequenas amostras}{22}{section.2.3}%
 \contentsline {section}{\numberline {2.4}Treinamento sintético e avaliação em dados reais}{23}{section.2.4}%
@@ -43,7 +43,7 @@
 \contentsline {subsection}{\numberline {3.3.3}Geometria observada}{30}{subsection.3.3.3}%
 \contentsline {section}{\numberline {3.4}SUPPORT2}{31}{section.3.4}%
 \contentsline {subsection}{\numberline {3.4.1}Origem e reformulação do alvo}{31}{subsection.3.4.1}%
-\contentsline {subsection}{\numberline {3.4.2}Canais e coorte de casos completos}{31}{subsection.3.4.2}%
+\contentsline {subsection}{\numberline {3.4.2}Atributos e coorte de casos completos}{31}{subsection.3.4.2}%
 \contentsline {subsection}{\numberline {3.4.3}Particionamento e padronização}{32}{subsection.3.4.3}%
 \contentsline {subsection}{\numberline {3.4.4}Geometria observada}{32}{subsection.3.4.4}%
 \contentsline {section}{\numberline {3.5}Síntese comparativa}{33}{section.3.5}%
@@ -54,138 +54,146 @@
 \contentsline {subsection}{\numberline {3.6.4}Enumeração de subconjuntos, amostragem balanceada e grade de $n$}{36}{subsection.3.6.4}%
 \contentsline {subsection}{\numberline {3.6.5}Réplicas Monte Carlo e critério de parada}{36}{subsection.3.6.5}%
 \contentsline {section}{\numberline {3.7}Proveniência e rastreabilidade experimental}{37}{section.3.7}%
-\contentsline {subsection}{\numberline {3.7.1}Rastreabilidade experimental}{39}{subsection.3.7.1}%
+\contentsline {subsection}{\numberline {3.7.1}Rastreabilidade experimental}{41}{subsection.3.7.1}%
 \setlength {\cftchapterindent }{0em} \setlength {\cftchapternumwidth }{\cftlastnumwidth }
-\contentsline {chapter}{\chapternumberline {4}\MakeTextUppercase []{PERFIL DE COOPERAÇÃO PREDITIVA: OBJETOS FORMAIS E INDICADORES DE PRESERVAÇÃO}}{40}{chapter.4}%
-\contentsline {section}{\numberline {4.1}Da perda média estimada ao perfil de cooperação preditiva}{40}{section.4.1}%
-\contentsline {section}{\numberline {4.2}Ordenação dos subconjuntos e correlação de ranking}{41}{section.4.2}%
-\contentsline {section}{\numberline {4.3}Relação efetiva de vencedor e matriz de vencedores $\ensuremath {\mathbf {W}}$}{41}{section.4.3}%
-\contentsline {section}{\numberline {4.4}\textit {Winner Agreement}}{43}{section.4.4}%
-\contentsline {section}{\numberline {4.5}Inversões de superioridade preditiva e matriz de inversões $\ensuremath {\mathbf {R}}$}{43}{section.4.5}%
-\contentsline {section}{\numberline {4.6}Concordância de existência de inversões}{44}{section.4.6}%
-\contentsline {section}{\numberline {4.7}Distância e similaridade dos tamanhos amostrais das inversões}{44}{section.4.7}%
-\contentsline {section}{\numberline {4.8}Leitura integrada do perfil}{46}{section.4.8}%
+\contentsline {chapter}{\chapternumberline {4}\MakeTextUppercase []{PERFIL DE COOPERAÇÃO PREDITIVA: OBJETOS FORMAIS E INDICADORES DE PRESERVAÇÃO}}{42}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Da perda média estimada ao perfil de cooperação preditiva}{42}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Ordenação dos subconjuntos e correlação de ranking}{43}{section.4.2}%
+\contentsline {section}{\numberline {4.3}Relação efetiva de vencedor e matriz de vencedores $\ensuremath {\mathbf {W}}$}{43}{section.4.3}%
+\contentsline {section}{\numberline {4.4}\textit {Winner Agreement}}{45}{section.4.4}%
+\contentsline {section}{\numberline {4.5}Inversões de superioridade preditiva e matriz de inversões $\ensuremath {\mathbf {R}}$}{45}{section.4.5}%
+\contentsline {section}{\numberline {4.6}Concordância de existência de inversões}{46}{section.4.6}%
+\contentsline {section}{\numberline {4.7}Distância e similaridade dos tamanhos amostrais das inversões}{46}{section.4.7}%
+\contentsline {section}{\numberline {4.8}Leitura integrada do perfil}{48}{section.4.8}%
 \setlength {\cftchapterindent }{0em} \setlength {\cftchapternumwidth }{\cftlastnumwidth }
-\contentsline {chapter}{\chapternumberline {5}\MakeTextUppercase []{RESULTADOS EXPERIMENTAIS}}{47}{chapter.5}%
-\contentsline {section}{\numberline {5.1}Guia de leitura, disponibilidade de dados e escopo dos resultados}{47}{section.5.1}%
-\contentsline {section}{\numberline {5.2}Occupancy Detection}{47}{section.5.2}%
-\contentsline {subsection}{\numberline {5.2.1}Geometria real e aproximações sintéticas}{47}{subsection.5.2.1}%
-\contentsline {subsection}{\numberline {5.2.2}Ordenação global e relações efetivas de vencedor}{48}{subsection.5.2.2}%
-\contentsline {subsection}{\numberline {5.2.3}Evolução do resultado par a par observado}{50}{subsection.5.2.3}%
-\contentsline {subsection}{\numberline {5.2.4}Existência e tamanho amostral das inversões}{50}{subsection.5.2.4}%
-\contentsline {section}{\numberline {5.3}UCI Air Quality}{51}{section.5.3}%
-\contentsline {subsection}{\numberline {5.3.1}Geometria e referência real}{51}{subsection.5.3.1}%
-\contentsline {subsection}{\numberline {5.3.2}Ordenação global e relações efetivas de vencedor}{52}{subsection.5.3.2}%
-\contentsline {section}{\numberline {5.4}SUPPORT2}{54}{section.5.4}%
-\contentsline {subsection}{\numberline {5.4.1}Ordenação global e relações efetivas de vencedor com classificadores lineares e Gaussian Naive Bayes}{54}{subsection.5.4.1}%
-\contentsline {subsection}{\numberline {5.4.2}Random Forest: desempenho absoluto e preservação do perfil}{56}{subsection.5.4.2}%
-\contentsline {subsection}{\numberline {5.4.3}Comparação do Random Forest com os demais classificadores}{57}{subsection.5.4.3}%
-\contentsline {section}{\numberline {5.5}Síntese dos cenários}{58}{section.5.5}%
+\contentsline {chapter}{\chapternumberline {5}\MakeTextUppercase []{RESULTADOS EXPERIMENTAIS}}{49}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Guia de leitura, disponibilidade de dados e escopo dos resultados}{49}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Occupancy Detection}{49}{section.5.2}%
+\contentsline {subsection}{\numberline {5.2.1}Geometria real e aproximações sintéticas}{49}{subsection.5.2.1}%
+\contentsline {subsection}{\numberline {5.2.2}Ordenação global e relações efetivas de vencedor}{50}{subsection.5.2.2}%
+\contentsline {subsection}{\numberline {5.2.3}Evolução do resultado par a par observado}{52}{subsection.5.2.3}%
+\contentsline {subsection}{\numberline {5.2.4}Existência e tamanho amostral das inversões}{52}{subsection.5.2.4}%
+\contentsline {section}{\numberline {5.3}UCI Air Quality}{53}{section.5.3}%
+\contentsline {subsection}{\numberline {5.3.1}Geometria e referência real}{53}{subsection.5.3.1}%
+\contentsline {subsection}{\numberline {5.3.2}Ordenação global e relações efetivas de vencedor}{54}{subsection.5.3.2}%
+\contentsline {section}{\numberline {5.4}SUPPORT2}{56}{section.5.4}%
+\contentsline {subsection}{\numberline {5.4.1}Ordenação global e relações efetivas de vencedor com classificadores lineares e Gaussian Naive Bayes}{56}{subsection.5.4.1}%
+\contentsline {subsection}{\numberline {5.4.2}Random Forest: desempenho absoluto e preservação do perfil}{58}{subsection.5.4.2}%
+\contentsline {subsection}{\numberline {5.4.3}Comparação do Random Forest com os demais classificadores}{59}{subsection.5.4.3}%
+\contentsline {section}{\numberline {5.5}Síntese dos cenários}{60}{section.5.5}%
 \setlength {\cftchapterindent }{0em} \setlength {\cftchapternumwidth }{\cftlastnumwidth }
-\contentsline {chapter}{\chapternumberline {6}\MakeTextUppercase []{DISCUSSÃO TRANSVERSAL}}{60}{chapter.6}%
-\contentsline {section}{\numberline {6.1}Resposta síntese às perguntas de pesquisa}{60}{section.6.1}%
-\contentsline {section}{\numberline {6.2}Preservação multidimensional}{60}{section.6.2}%
-\contentsline {section}{\numberline {6.3}Fidelidade geométrica e preservação do perfil}{61}{section.6.3}%
-\contentsline {section}{\numberline {6.4}Desempenho preditivo absoluto e preservação do perfil}{61}{section.6.4}%
-\contentsline {section}{\numberline {6.5}O papel da simplicidade}{62}{section.6.5}%
-\contentsline {section}{\numberline {6.6}Relação com a literatura}{63}{section.6.6}%
-\contentsline {section}{\numberline {6.7}Implicações operacionais e agenda de custos}{63}{section.6.7}%
+\contentsline {chapter}{\chapternumberline {6}\MakeTextUppercase []{DISCUSSÃO TRANSVERSAL}}{62}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Resposta síntese às perguntas de pesquisa}{62}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Preservação multidimensional}{62}{section.6.2}%
+\contentsline {section}{\numberline {6.3}Fidelidade geométrica e preservação do perfil}{63}{section.6.3}%
+\contentsline {section}{\numberline {6.4}Desempenho preditivo absoluto e preservação do perfil}{63}{section.6.4}%
+\contentsline {section}{\numberline {6.5}O papel da simplicidade}{64}{section.6.5}%
+\contentsline {section}{\numberline {6.6}Relação com a literatura}{65}{section.6.6}%
+\contentsline {section}{\numberline {6.7}Implicações operacionais e agenda de custos}{65}{section.6.7}%
 \setlength {\cftchapterindent }{0em} \setlength {\cftchapternumwidth }{\cftlastnumwidth }
-\contentsline {chapter}{\chapternumberline {7}\MakeTextUppercase []{LIMITAÇÕES E AMEAÇAS À VALIDADE}}{64}{chapter.7}%
-\contentsline {section}{\numberline {7.1}Validade interna}{64}{section.7.1}%
-\contentsline {subsection}{\numberline {7.1.1}Particionamentos fixos e dependência do teste}{64}{subsection.7.1.1}%
-\contentsline {subsection}{\numberline {7.1.2}Incerteza Monte Carlo}{65}{subsection.7.1.2}%
-\contentsline {subsection}{\numberline {7.1.3}Balanceamento das amostras de treinamento}{65}{subsection.7.1.3}%
-\contentsline {subsection}{\numberline {7.1.4}Parametrização dos geradores}{65}{subsection.7.1.4}%
-\contentsline {subsection}{\numberline {7.1.5}Calibração e aleatoriedade do Random Forest}{66}{subsection.7.1.5}%
-\contentsline {section}{\numberline {7.2}Validade de construto}{66}{section.7.2}%
-\contentsline {subsection}{\numberline {7.2.1}O que os quatro indicadores representam}{66}{subsection.7.2.1}%
-\contentsline {subsection}{\numberline {7.2.2}Dependência da grade amostral avaliada}{67}{subsection.7.2.2}%
-\contentsline {subsection}{\numberline {7.2.3}Perda 0--1 como medida de desempenho}{67}{subsection.7.2.3}%
-\contentsline {section}{\numberline {7.3}Validade externa}{67}{section.7.3}%
-\contentsline {subsection}{\numberline {7.3.1}Número e diversidade dos datasets}{67}{subsection.7.3.1}%
-\contentsline {subsection}{\numberline {7.3.2}Classificadores avaliados}{68}{subsection.7.3.2}%
-\contentsline {subsection}{\numberline {7.3.3}Interpretação de custos}{68}{subsection.7.3.3}%
-\contentsline {section}{\numberline {7.4}Limitações computacionais}{68}{section.7.4}%
-\contentsline {section}{\numberline {7.5}Seleção e apresentação de resultados}{68}{section.7.5}%
-\contentsline {section}{\numberline {7.6}Limites da extrapolação}{69}{section.7.6}%
-\contentsline {section}{\numberline {7.7}Escopo e completude dos dados apresentados}{69}{section.7.7}%
+\contentsline {chapter}{\chapternumberline {7}\MakeTextUppercase []{LIMITAÇÕES E AMEAÇAS À VALIDADE}}{66}{chapter.7}%
+\contentsline {section}{\numberline {7.1}Validade interna}{66}{section.7.1}%
+\contentsline {subsection}{\numberline {7.1.1}Particionamentos fixos e dependência do teste}{66}{subsection.7.1.1}%
+\contentsline {subsection}{\numberline {7.1.2}Incerteza Monte Carlo}{67}{subsection.7.1.2}%
+\contentsline {subsection}{\numberline {7.1.3}Balanceamento das amostras de treinamento}{67}{subsection.7.1.3}%
+\contentsline {subsection}{\numberline {7.1.4}Parametrização dos geradores}{67}{subsection.7.1.4}%
+\contentsline {subsection}{\numberline {7.1.5}Calibração e aleatoriedade do Random Forest}{68}{subsection.7.1.5}%
+\contentsline {section}{\numberline {7.2}Validade de construto}{68}{section.7.2}%
+\contentsline {subsection}{\numberline {7.2.1}O que os quatro indicadores representam}{68}{subsection.7.2.1}%
+\contentsline {subsection}{\numberline {7.2.2}Dependência da grade amostral avaliada}{69}{subsection.7.2.2}%
+\contentsline {subsection}{\numberline {7.2.3}Perda 0--1 como medida de desempenho}{69}{subsection.7.2.3}%
+\contentsline {section}{\numberline {7.3}Validade externa}{69}{section.7.3}%
+\contentsline {subsection}{\numberline {7.3.1}Número e diversidade dos datasets}{69}{subsection.7.3.1}%
+\contentsline {subsection}{\numberline {7.3.2}Classificadores avaliados}{70}{subsection.7.3.2}%
+\contentsline {subsection}{\numberline {7.3.3}Interpretação de custos}{70}{subsection.7.3.3}%
+\contentsline {section}{\numberline {7.4}Limitações computacionais}{70}{section.7.4}%
+\contentsline {section}{\numberline {7.5}Seleção e apresentação de resultados}{70}{section.7.5}%
+\contentsline {section}{\numberline {7.6}Limites da extrapolação}{71}{section.7.6}%
+\contentsline {section}{\numberline {7.7}Escopo e completude dos dados apresentados}{71}{section.7.7}%
 \setlength {\cftchapterindent }{0em} \setlength {\cftchapternumwidth }{\cftlastnumwidth }
-\contentsline {chapter}{\chapternumberline {8}\MakeTextUppercase []{CONCLUSÃO}}{70}{chapter.8}%
+\contentsline {chapter}{\chapternumberline {8}\MakeTextUppercase []{CONCLUSÃO}}{72}{chapter.8}%
 \vspace {\cftbeforechapterskip }
 \setlength {\cftchapterindent }{\cftlastnumwidth } \setlength {\cftchapternumwidth }{2em}
-\contentsline {chapter}{REFERÊNCIAS}{73}{section*.41}%
+\contentsline {chapter}{REFERÊNCIAS}{75}{section*.42}%
 \renewcommand *{\cftappendixname }{AP\^ENDICE \space }
 \setlength {\cftpartindent }{\cftlastnumwidth } \setlength {\cftpartnumwidth }{2em}
 \cftinsert {A}
-\contentsline {part}{\uppercase {Ap\^endices}}{76}{section*.42}%
+\contentsline {part}{\uppercase {Ap\^endices}}{78}{section*.43}%
 \setlength {\cftchapterindent }{0em} \setlength {\cftchapternumwidth }{\cftlastnumwidth }
 \setlength {\cftchapterindent }{\cftlastnumwidth } \setlength {\cftchapternumwidth }{2em}
 \cftinsert {A}
-\contentsline {appendix}{\chapternumberline {A}\MakeTextUppercase []{MAPA DOS RESULTADOS SUPLEMENTARES}}{77}{appendix.A}%
-\contentsline {section}{\numberline {A.1}Cenários principais}{77}{section.A.1}%
-\contentsline {section}{\numberline {A.2}Relatórios detalhados de Occupancy}{78}{section.A.2}%
-\contentsline {section}{\numberline {A.3}Relatórios detalhados de Air Quality}{78}{section.A.3}%
-\contentsline {subsection}{\numberline {A.3.1}Extensão full-scale (cenário 000006)}{79}{subsection.A.3.1}%
-\contentsline {section}{\numberline {A.4}Relatórios detalhados de SUPPORT2}{79}{section.A.4}%
-\contentsline {section}{\numberline {A.5}Matrizes completas de projeções geométricas}{80}{section.A.5}%
-\contentsline {section}{\numberline {A.6}Política de uso do material suplementar}{90}{section.A.6}%
+\contentsline {appendix}{\chapternumberline {A}\MakeTextUppercase []{MAPA DOS RESULTADOS SUPLEMENTARES}}{79}{appendix.A}%
+\contentsline {section}{\numberline {A.1}Cenários principais}{79}{section.A.1}%
+\contentsline {section}{\numberline {A.2}Relatórios detalhados de Occupancy}{80}{section.A.2}%
+\contentsline {section}{\numberline {A.3}Relatórios detalhados de Air Quality}{80}{section.A.3}%
+\contentsline {subsection}{\numberline {A.3.1}Extensão full-scale (cenário 000006)}{81}{subsection.A.3.1}%
+\contentsline {section}{\numberline {A.4}Relatórios detalhados de SUPPORT2}{81}{section.A.4}%
+\contentsline {section}{\numberline {A.5}Matrizes completas de projeções geométricas}{82}{section.A.5}%
+\contentsline {section}{\numberline {A.6}Política de uso do material suplementar}{92}{section.A.6}%
 \setlength {\cftchapterindent }{0em} \setlength {\cftchapternumwidth }{\cftlastnumwidth }
 \setlength {\cftchapterindent }{\cftlastnumwidth } \setlength {\cftchapternumwidth }{2em}
 \cftinsert {A}
-\contentsline {appendix}{\chapternumberline {B}\MakeTextUppercase []{REPRODUTIBILIDADE COMPUTACIONAL}}{91}{appendix.B}%
-\contentsline {section}{\numberline {B.1}Repositório e versão auditada}{91}{section.B.1}%
-\contentsline {section}{\numberline {B.2}Estrutura dos artefatos persistidos}{91}{section.B.2}%
-\contentsline {section}{\numberline {B.3}Configuração experimental comum}{92}{section.B.3}%
-\contentsline {section}{\numberline {B.4}Política de sementes}{92}{section.B.4}%
-\contentsline {section}{\numberline {B.5}Calibração do Random Forest}{92}{section.B.5}%
-\contentsline {section}{\numberline {B.6}Paralelização}{93}{section.B.6}%
-\contentsline {section}{\numberline {B.7}Regeneração dos relatórios}{93}{section.B.7}%
-\contentsline {section}{\numberline {B.8}Regeneração direta dos indicadores $\ensuremath {\mathbf {W}}$/$\ensuremath {\mathbf {R}}$ a partir de resultados persistidos}{94}{section.B.8}%
-\contentsline {section}{\numberline {B.9}Compilação deste relatório}{95}{section.B.9}%
-\contentsline {section}{\numberline {B.10}Checklist mínimo de replicação}{95}{section.B.10}%
+\contentsline {appendix}{\chapternumberline {B}\MakeTextUppercase []{REPRODUTIBILIDADE COMPUTACIONAL}}{93}{appendix.B}%
+\contentsline {section}{\numberline {B.1}Repositório e versão auditada}{93}{section.B.1}%
+\contentsline {section}{\numberline {B.2}Estrutura dos artefatos persistidos}{93}{section.B.2}%
+\contentsline {section}{\numberline {B.3}Configuração experimental comum}{94}{section.B.3}%
+\contentsline {section}{\numberline {B.4}Política de sementes}{94}{section.B.4}%
+\contentsline {section}{\numberline {B.5}Calibração do Random Forest}{94}{section.B.5}%
+\contentsline {section}{\numberline {B.6}Paralelização}{95}{section.B.6}%
+\contentsline {section}{\numberline {B.7}Regeneração dos relatórios}{95}{section.B.7}%
+\contentsline {section}{\numberline {B.8}Regeneração direta dos indicadores $\ensuremath {\mathbf {W}}$/$\ensuremath {\mathbf {R}}$ a partir de resultados persistidos}{96}{section.B.8}%
+\contentsline {section}{\numberline {B.9}Compilação deste relatório}{97}{section.B.9}%
+\contentsline {section}{\numberline {B.10}Checklist mínimo de replicação}{97}{section.B.10}%
 \setlength {\cftchapterindent }{0em} \setlength {\cftchapternumwidth }{\cftlastnumwidth }
 \setlength {\cftchapterindent }{\cftlastnumwidth } \setlength {\cftchapternumwidth }{2em}
 \cftinsert {A}
-\contentsline {appendix}{\chapternumberline {C}\MakeTextUppercase []{CLASSIFICADORES E MODELOS GERADORES}}{97}{appendix.C}%
-\contentsline {section}{\numberline {C.1}Classificadores}{97}{section.C.1}%
-\contentsline {subsection}{\numberline {C.1.1}Linear SVM}{97}{subsection.C.1.1}%
-\contentsline {subsection}{\numberline {C.1.2}Regressão logística}{97}{subsection.C.1.2}%
-\contentsline {subsection}{\numberline {C.1.3}Gaussian Naive Bayes}{97}{subsection.C.1.3}%
-\contentsline {subsection}{\numberline {C.1.4}Random Forest}{97}{subsection.C.1.4}%
-\contentsline {section}{\numberline {C.2}Modelos geradores}{98}{section.C.2}%
-\contentsline {subsection}{\numberline {C.2.1}Gaussiana única por classe}{98}{subsection.C.2.1}%
-\contentsline {subsection}{\numberline {C.2.2}Mistura de gaussianas (GMM)}{99}{subsection.C.2.2}%
+\contentsline {appendix}{\chapternumberline {C}\MakeTextUppercase []{CLASSIFICADORES E MODELOS GERADORES}}{99}{appendix.C}%
+\contentsline {section}{\numberline {C.1}Classificadores}{99}{section.C.1}%
+\contentsline {subsection}{\numberline {C.1.1}Linear SVM}{99}{subsection.C.1.1}%
+\contentsline {subsection}{\numberline {C.1.2}Regressão logística}{99}{subsection.C.1.2}%
+\contentsline {subsection}{\numberline {C.1.3}Gaussian Naive Bayes}{99}{subsection.C.1.3}%
+\contentsline {subsection}{\numberline {C.1.4}Random Forest}{99}{subsection.C.1.4}%
+\contentsline {section}{\numberline {C.2}Modelos geradores}{100}{section.C.2}%
+\contentsline {subsection}{\numberline {C.2.1}Gaussiana única por classe}{100}{subsection.C.2.1}%
+\contentsline {subsection}{\numberline {C.2.2}Mistura de gaussianas (GMM)}{101}{subsection.C.2.2}%
 \setlength {\cftchapterindent }{0em} \setlength {\cftchapternumwidth }{\cftlastnumwidth }
 \setlength {\cftchapterindent }{\cftlastnumwidth } \setlength {\cftchapternumwidth }{2em}
 \cftinsert {A}
-\contentsline {appendix}{\chapternumberline {D}\MakeTextUppercase []{FORMALIZAÇÕES COMPLEMENTARES DO PERFIL DE COOPERAÇÃO PREDITIVA}}{100}{appendix.D}%
-\contentsline {section}{\numberline {D.1}Resultado par a par observado e os quatro casos de empate}{100}{section.D.1}%
-\contentsline {section}{\numberline {D.2}Conjunto de eventos de inversão e construção completa de $\ensuremath {\mathbf {R}}$}{100}{section.D.2}%
-\contentsline {subsection}{\numberline {D.2.1}Justificativa do armazenamento triangular}{101}{subsection.D.2.1}%
-\contentsline {subsection}{\numberline {D.2.2}Casos degenerados}{101}{subsection.D.2.2}%
-\contentsline {section}{\numberline {D.3}Exemplo numérico estendido}{101}{section.D.3}%
-\contentsline {section}{\numberline {D.4}Matrizes $\ensuremath {\mathbf {W}}$/$\ensuremath {\mathbf {R}}$ completas: SUPPORT2, Random Forest}{102}{section.D.4}%
-\contentsline {section}{\numberline {D.5}Evolução do resultado par a par observado: exemplo em escala real}{103}{section.D.5}%
+\contentsline {appendix}{\chapternumberline {D}\MakeTextUppercase []{FORMALIZAÇÕES COMPLEMENTARES DO PERFIL DE COOPERAÇÃO PREDITIVA}}{102}{appendix.D}%
+\contentsline {section}{\numberline {D.1}Resultado par a par observado e os quatro casos de empate}{102}{section.D.1}%
+\contentsline {section}{\numberline {D.2}Conjunto de eventos de inversão e construção completa de $\ensuremath {\mathbf {R}}$}{102}{section.D.2}%
+\contentsline {subsection}{\numberline {D.2.1}Justificativa do armazenamento triangular}{103}{subsection.D.2.1}%
+\contentsline {subsection}{\numberline {D.2.2}Casos degenerados}{103}{subsection.D.2.2}%
+\contentsline {section}{\numberline {D.3}Exemplo numérico estendido}{103}{section.D.3}%
+\contentsline {section}{\numberline {D.4}Matrizes $\ensuremath {\mathbf {W}}$/$\ensuremath {\mathbf {R}}$ completas: SUPPORT2, Random Forest}{104}{section.D.4}%
+\contentsline {section}{\numberline {D.5}Evolução do resultado par a par observado: exemplo em escala real}{105}{section.D.5}%
 \setlength {\cftchapterindent }{0em} \setlength {\cftchapternumwidth }{\cftlastnumwidth }
 \setlength {\cftchapterindent }{\cftlastnumwidth } \setlength {\cftchapternumwidth }{2em}
 \cftinsert {A}
-\contentsline {appendix}{\chapternumberline {E}\MakeTextUppercase []{PROVENIÊNCIA FORMAL E CAMADA SEMÂNTICA}}{105}{appendix.E}%
-\contentsline {section}{\numberline {E.1}Escopo da camada formal}{105}{section.E.1}%
-\contentsline {section}{\numberline {E.2}Mapeamento de tipos}{106}{section.E.2}%
-\contentsline {section}{\numberline {E.3}Semantic manifest e vocabulário}{107}{section.E.3}%
-\contentsline {section}{\numberline {E.4}Tabela de rastreabilidade completa}{108}{section.E.4}%
-\contentsline {section}{\numberline {E.5}Não-objetivos}{109}{section.E.5}%
+\contentsline {appendix}{\chapternumberline {E}\MakeTextUppercase []{PROVENIÊNCIA FORMAL E CAMADA SEMÂNTICA}}{107}{appendix.E}%
+\contentsline {section}{\numberline {E.1}Escopo da camada formal}{107}{section.E.1}%
+\contentsline {section}{\numberline {E.2}Mapeamento de tipos}{108}{section.E.2}%
+\contentsline {section}{\numberline {E.3}Semantic manifest e vocabulário}{109}{section.E.3}%
+\contentsline {section}{\numberline {E.4}Tabela de rastreabilidade completa}{110}{section.E.4}%
+\contentsline {section}{\numberline {E.5}Não-objetivos}{111}{section.E.5}%
 \setlength {\cftchapterindent }{0em} \setlength {\cftchapternumwidth }{\cftlastnumwidth }
 \setlength {\cftchapterindent }{\cftlastnumwidth } \setlength {\cftchapternumwidth }{2em}
 \cftinsert {A}
-\contentsline {appendix}{\chapternumberline {F}\MakeTextUppercase []{EXTENSÃO CUSTO-EFICIÊNCIA E PROJEÇÃO}}{110}{appendix.F}%
-\contentsline {section}{\numberline {F.1}Do perfil de cooperação preditiva à configuração de canais}{110}{section.F.1}%
-\contentsline {section}{\numberline {F.2}Custos não se reduzem ao número de canais}{110}{section.F.2}%
-\contentsline {section}{\numberline {F.3}Exemplos operacionais por domínio}{111}{section.F.3}%
-\contentsline {subsection}{\numberline {F.3.1}Monitoramento ambiental}{111}{subsection.F.3.1}%
-\contentsline {subsection}{\numberline {F.3.2}Ambientes construídos}{112}{subsection.F.3.2}%
-\contentsline {subsection}{\numberline {F.3.3}Aplicações clínicas}{112}{subsection.F.3.3}%
-\contentsline {section}{\numberline {F.4}Uma formulação futura de decisão custo-eficiência}{112}{section.F.4}%
-\contentsline {section}{\numberline {F.5}Hipótese de projeção para regimes amostrais maiores}{113}{section.F.5}%
-\contentsline {section}{\numberline {F.6}Síntese da agenda}{113}{section.F.6}%
+\contentsline {appendix}{\chapternumberline {F}\MakeTextUppercase []{EXTENSÃO CUSTO-EFICIÊNCIA E PROJEÇÃO}}{112}{appendix.F}%
+\contentsline {section}{\numberline {F.1}Do perfil de cooperação preditiva à configuração de canais}{112}{section.F.1}%
+\contentsline {section}{\numberline {F.2}Custos não se reduzem ao número de canais}{112}{section.F.2}%
+\contentsline {section}{\numberline {F.3}Exemplos operacionais por domínio}{113}{section.F.3}%
+\contentsline {subsection}{\numberline {F.3.1}Monitoramento ambiental}{113}{subsection.F.3.1}%
+\contentsline {subsection}{\numberline {F.3.2}Ambientes construídos}{114}{subsection.F.3.2}%
+\contentsline {subsection}{\numberline {F.3.3}Aplicações clínicas}{114}{subsection.F.3.3}%
+\contentsline {section}{\numberline {F.4}Uma formulação futura de decisão custo-eficiência}{114}{section.F.4}%
+\contentsline {section}{\numberline {F.5}Hipótese de projeção para regimes amostrais maiores}{115}{section.F.5}%
+\contentsline {section}{\numberline {F.6}Síntese da agenda}{115}{section.F.6}%
+\setlength {\cftchapterindent }{0em} \setlength {\cftchapternumwidth }{\cftlastnumwidth }
+\setlength {\cftchapterindent }{\cftlastnumwidth } \setlength {\cftchapternumwidth }{2em}
+\cftinsert {A}
+\contentsline {appendix}{\chapternumberline {G}\MakeTextUppercase []{ANTECEDENTES TÉCNICOS: DO SLACGS AO COINFOSIM}}{117}{appendix.G}%
+\contentsline {section}{\numberline {G.1}O simulador antecedente}{117}{section.G.1}%
+\contentsline {section}{\numberline {G.2}Por que enumerar todos os subconjuntos não vazios}{117}{section.G.2}%
+\contentsline {section}{\numberline {G.3}A ancoragem em dados reais}{117}{section.G.3}%
+\contentsline {section}{\numberline {G.4}Sensores, canais de informação e atributos formais}{118}{section.G.4}%

@@ -113,7 +113,7 @@ def subset_display_label(
     subset: Sequence[int],
     channel_names: Optional[Sequence[str]] = None,
 ) -> str:
-    """Return a readable display label for a zero-based channel subset."""
+    """Return a readable display label for a zero-based attribute subset."""
 
     indices = tuple(int(i) for i in subset)
     if not indices:
@@ -287,8 +287,8 @@ defined as the misclassification rate on the fixed test set.</div>
   <dt>Sample sizes</dt><dd>{list(result.config.sample_sizes)}</dd>
   <dt>Classifiers</dt><dd>{html.escape(classifiers)}</dd>
   <dt>Number of classifiers</dt><dd>{len(result.classifier_names)}</dd>
-  <dt>Channel subsets</dt><dd>{html.escape(subsets)}</dd>
-  <dt>Number of channel subsets</dt><dd>{len(result.subsets)}</dd>
+  <dt>Attribute subsets</dt><dd>{html.escape(subsets)}</dd>
+  <dt>Number of attribute subsets</dt><dd>{len(result.subsets)}</dd>
   <dt>Fixed test set</dt><dd>{html.escape(fixed_test_description)} ({result.metadata.get("fixed_test_size", "unknown")} rows)</dd>
   <dt>Monte Carlo stopping rule</dt><dd>Standard-error rule at replication batch boundaries</dd>
   <dt>Target CI half-width</dt><dd>{result.config.ci_half_width_target}</dd>
@@ -668,12 +668,12 @@ _STRUCTURED_CSS = """
   a { color: #1f77b4; }
   ul li { margin: .3rem 0; }
 
-  /* Sticky channel legend (single, persistent, opaque). */
-  .channel-legend { position: sticky; top: 0; z-index: 100; background: #fffbe6;
+  /* Sticky attribute legend (single, persistent, opaque). */
+  .attribute-legend { position: sticky; top: 0; z-index: 100; background: #fffbe6;
     border: 1px solid #e6d97a; border-bottom: 2px solid #d9c65a;
     border-radius: 0 0 6px 6px; padding: .55rem 1rem; font-size: .9rem;
     margin: 0 0 1.2rem 0; box-shadow: 0 2px 6px rgba(0,0,0,.10); }
-  .channel-legend .leg-item { margin-right: 1.2rem; white-space: nowrap; }
+  .attribute-legend .leg-item { margin-right: 1.2rem; white-space: nowrap; }
 
   /* Yellow reference highlight for the full-subset row / baseline. */
   tr.ref-row td { background: #fff2b8; font-weight: 600; }
@@ -702,7 +702,7 @@ def _compact_sub(subset: Sequence[int]) -> str:
 
 
 def _sticky_legend_html(channel_names: Sequence[str]) -> str:
-    """Return the single sticky channel legend (variable → channel name)."""
+    """Return the single sticky attribute legend (variable → attribute name)."""
     display = {"CO2": "CO₂", "HumidityRatio": "Humidity Ratio"}
     items = "".join(
         f"<span class='leg-item'><b>X{str(i + 1).translate(_SUBSCRIPTS)}</b> = "
@@ -710,8 +710,8 @@ def _sticky_legend_html(channel_names: Sequence[str]) -> str:
         for i, ch in enumerate(channel_names)
     )
     return (
-        "<div class='channel-legend' id='sticky-legend'>"
-        "<strong>Channels:</strong> " + items + "</div>"
+        "<div class='attribute-legend' id='sticky-legend'>"
+        "<strong>Attributes:</strong> " + items + "</div>"
     )
 
 
@@ -736,10 +736,10 @@ def _loss_curve_by_dimension_image(
     classifier: str,
     channel_names: Optional[Sequence[str]],
 ) -> str:
-    """Loss vs N for the best k-channel subset per dimension plus the full subset.
+    """Loss vs N for the best k-attribute subset per dimension plus the full subset.
 
     The full (largest-dimension) subset is drawn as a thick yellow reference
-    line. Best k-channel subsets are selected at the largest evaluated N.
+    line. Best k-attribute subsets are selected at the largest evaluated N.
     """
     sizes = result.sample_sizes
     n_max = max(sizes)
@@ -769,12 +769,12 @@ def _loss_curve_by_dimension_image(
             ax.errorbar(
                 sizes, means, yerr=errs, marker="o", markersize=4, linewidth=1.4,
                 capsize=2, color=cmap(frac), alpha=0.9,
-                label=f"{_compact_sub(subset)} — best {k}-ch",
+                label=f"{_compact_sub(subset)} — best {k}-attr",
             )
     ax.set_xscale("log", base=2)
     ax.set_xlabel("n_per_class")
     ax.set_ylabel("Empirical test loss")
-    ax.set_title(f"Best k-channel subsets — {classifier_label(classifier)}")
+    ax.set_title(f"Best k-attribute subsets — {classifier_label(classifier)}")
     ax.grid(True, which="both", alpha=0.3)
     ax.legend(title="Subset (best per dimension)", fontsize=8)
     return _fig_to_base64(fig)
@@ -819,7 +819,7 @@ def _loss_curve_nested_cardinality_image(
     ax.set_xlabel("n_per_class")
     ax.set_ylabel("Empirical test loss")
     ax.set_title(
-        f"{cardinality}-channel subsets + full reference — {classifier_label(classifier)}"
+        f"{cardinality}-attribute subsets + full reference — {classifier_label(classifier)}"
     )
     ax.grid(True, which="both", alpha=0.3)
     ax.legend(title="Subset", fontsize=7, ncol=2)
@@ -841,12 +841,12 @@ def _loss_curves_panel(
     for k in range(1, max(len(s) for s in result.subsets)):
         nested_tabs.append((
             f"k{k}",
-            f"{k}-channel + full reference",
+            f"{k}-attribute + full reference",
             "<div class='figure'><img src='"
             + _loss_curve_nested_cardinality_image(
                 result, classifier, k, full_reference_label
             )
-            + f"' alt='{k}-channel nested loss curves {html.escape(classifier_label(classifier))}'/></div>",
+            + f"' alt='{k}-attribute nested loss curves {html.escape(classifier_label(classifier))}'/></div>",
         ))
     nested_panel = _tab_group(f"losscurve-nested-{classifier}", nested_tabs, "k1")
     view_tabs = [
@@ -857,11 +857,11 @@ def _loss_curves_panel(
 
 
 _DIM_NAMES = {
-    1: "Best single channel",
+    1: "Best single attribute",
     2: "Best pair",
     3: "Best triple",
-    4: "Best four-channel",
-    5: "Best five-channel",
+    4: "Best four-attribute",
+    5: "Best five-attribute",
 }
 
 
@@ -880,10 +880,10 @@ def _best_by_dimension_table(result: SimulationResult, classifier: str) -> str:
         se = result.accumulator.standard_error(n, subset, classifier)
         hw = 1.96 * se
         if k == d:
-            label = f"Full {d}-channel (reference)"
+            label = f"Full {d}-attribute (reference)"
             rowcls = " class='ref-row'"
         else:
-            label = _DIM_NAMES.get(k, f"Best {k}-channel")
+            label = _DIM_NAMES.get(k, f"Best {k}-attribute")
             rowcls = ""
         rows_html += (
             f"<tr{rowcls}><td>{html.escape(label)}</td>"
@@ -897,7 +897,7 @@ def _best_by_dimension_table(result: SimulationResult, classifier: str) -> str:
     return (
         f"<table class='data'><thead><tr>{head}</tr></thead>"
         f"<tbody>{rows_html}</tbody></table>"
-        "<p class='ref-note'>The highlighted row is the full-channel reference subset.</p>"
+        "<p class='ref-note'>The highlighted row is the full-attribute reference subset.</p>"
     )
 
 
@@ -1066,7 +1066,7 @@ def generate_structured_monte_carlo_report(
 
     Used for the standard dataset-anchored arms (Real → Real, Single Gaussian
     → Real, GMM → Real). The report uses a single sticky
-    channel legend, compact subscript variable notation (``{X₁, X₃}``), static
+    attribute legend, compact subscript variable notation (``{X₁, X₃}``), static
     per-classifier tab selectors (Linear SVM default), a yellow full-subset
     reference highlight, and expandable full tables. The old
     :func:`generate_monte_carlo_report` is kept for Sprint 1 backward
@@ -1183,7 +1183,7 @@ def generate_structured_monte_carlo_report(
 {legend_html}
 <div class="notice"><strong>Metric.</strong> Empirical test loss (misclassification rate
 on the fixed real evaluation split). The test-loss scale is preserved as-is.
-Channel subsets use compact variable notation (see sticky legend above);
+Attribute subsets use compact variable notation (see sticky legend above);
 full sensor names appear in metadata and appendices.</div>
 
 {_section(1, "Arm summary",
@@ -1203,7 +1203,7 @@ full sensor names appear in metadata and appendices.</div>
   <dt>Mode</dt><dd><code>{html.escape(str(result.config.mode))}</code></dd>
   <dt>Sample sizes (n_per_class)</dt><dd>{list(result.config.sample_sizes)}</dd>
   <dt>Classifiers</dt><dd>{html.escape(classifiers_str)}</dd>
-  <dt>Channel subsets evaluated</dt><dd>{len(result.subsets)} subsets</dd>
+  <dt>Attribute subsets evaluated</dt><dd>{len(result.subsets)} subsets</dd>
   <dt>Fixed test set</dt>
   <dd>{html.escape(fixed_test_description)}
       ({result.metadata.get("fixed_test_size", "unknown")} rows)</dd>
@@ -1216,7 +1216,7 @@ full sensor names appear in metadata and appendices.</div>
   <dt>Runtime</dt><dd>{result.runtime_seconds:.2f} s</dd>
 </dl>
 {_classifier_configuration_html(result)}
-<details><summary>List all evaluated channel subsets</summary>
+<details><summary>List all evaluated attribute subsets</summary>
 <p>{html.escape(subsets_compact)}</p></details>
 
 {_section(5, "Training/evaluation protocol", training_protocol_html)}
@@ -1246,14 +1246,14 @@ scale). All quantities preserve the empirical test-loss scale.</p>
 cardinality</strong> shows the best subset for every available dimension from
 1 through {dimension}, including the {html.escape(reference_label)}.
 <strong>Nested cardinality</strong> shows all subsets of one selected
-cardinality against the same {dimension}-channel reference. Linear SVM is shown
+cardinality against the same {dimension}-attribute reference. Linear SVM is shown
 by default; error bars show &plusmn;1 SE.</p>
 {losscurve_html}
 
 <h2>11. Best subset comparison</h2>
 <p>Interpretable comparison of the best subset at every available dimension
-from 1 through {dimension}, including the full {dimension}-channel subset.
-The full-channel reference row is highlighted. Select a classifier below
+from 1 through {dimension}, including the full {dimension}-attribute subset.
+The full-attribute reference row is highlighted. Select a classifier below
 (Linear SVM default).</p>
 {bestsub_html}
 
@@ -1261,7 +1261,7 @@ The full-channel reference row is highlighted. Select a classifier below
 <p>Subsets are ranked by empirical test loss for the selected classifier and
 selected sample size. The largest evaluated sample size is shown by default, but
 rankings for all evaluated <code>n_per_class</code> values are available through
-the selector. The full-channel reference row is highlighted.</p>
+the selector. The full-attribute reference row is highlighted.</p>
 {finalrank_html}
 
 <h2>13. Pairwise winner and reversal dynamics</h2>

@@ -15,7 +15,7 @@ covariance matrices::
         covariances={0: Sigma0, 1: Sigma1},
     )
 
-Channels (features) are referenced internally by zero-based indices.
+Attributes (features) are referenced internally by zero-based indices.
 """
 
 from __future__ import annotations
@@ -35,7 +35,7 @@ class GaussianSimulationModel:
     covariances:
         Mapping from class label to a ``(d, d)`` covariance matrix.
 
-    The number of channels ``d`` and the set of class labels ``K`` are
+    The number of attributes ``d`` and the set of class labels ``K`` are
     inferred from the inputs. All mean vectors and covariance matrices are
     stored internally as NumPy arrays of dtype ``float``.
 
@@ -121,7 +121,7 @@ class GaussianSimulationModel:
 
     @property
     def d(self) -> int:
-        """Number of channels (features)."""
+        """Number of attributes (features)."""
         return self._d
 
     @property
@@ -155,12 +155,12 @@ class GaussianSimulationModel:
     def restrict_to_subset(
         self, subset: Sequence[int]
     ) -> "GaussianSimulationModel":
-        """Return a new model restricted to the given channel ``subset``.
+        """Return a new model restricted to the given attribute ``subset``.
 
         Parameters
         ----------
         subset:
-            Sequence of zero-based channel indices (non-empty, in range).
+            Sequence of zero-based attribute indices (non-empty, in range).
         """
         idx = self._validate_subset(subset)
         restricted_means = {
@@ -181,7 +181,7 @@ class GaussianSimulationModel:
                 f"subset indices must be in range [0, {self._d}); got {tuple(subset)}"
             )
         if len(set(idx.tolist())) != idx.size:
-            raise ValueError(f"subset must not contain duplicate channels; got {tuple(subset)}")
+            raise ValueError(f"subset must not contain duplicate attributes; got {tuple(subset)}")
         return idx
 
     def __repr__(self) -> str:  # pragma: no cover - debugging aid

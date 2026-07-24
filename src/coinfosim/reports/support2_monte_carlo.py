@@ -17,7 +17,7 @@ _PROVENANCE = """
 <p>Dataset: <strong>SUPPORT2</strong>, 9,105 seriously ill hospitalized adults
 (DOI <code>10.3886/ICPSR02957.v2</code>). The target is derived before splitting:
 <code>death_180d = (death == 1 and d.time &lt;= 180)</code>. The seven baseline
-physiologic channels use the complete-case cohort; death, d.time, hospdead,
+physiologic attributes use the complete-case cohort; death, d.time, hospdead,
 survival estimates, ID, and disease group are excluded from classifier input.</p>
 """
 _ROBUSTNESS = """
@@ -64,7 +64,7 @@ def generate_support2_real_monte_carlo_report(
             "training reservoir according to death_180d. Evaluation uses the same "
             "fixed real SUPPORT2 test set."
         ),
-        scientific_role="Empirical reference for cooperative channel-subset structure.",
+        scientific_role="Empirical reference for cooperative attribute-subset structure.",
         training_protocol_html=(
             "<dl class='meta'><dt>Training source</dt><dd>Balanced real SUPPORT2 "
             "training-reservoir draws labeled by death_180d</dd><dt>Evaluation "
