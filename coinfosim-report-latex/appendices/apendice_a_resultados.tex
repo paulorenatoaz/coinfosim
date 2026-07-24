@@ -1,7 +1,7 @@
 \chapter{MAPA DOS RESULTADOS SUPLEMENTARES}
 \label{ap:resultados}
 
-Os relatórios HTML publicados contêm os rankings completos, curvas de perda, matrizes de vencedores $\Wmat$ e de inversões $\Rmat$, os quatro indicadores de preservação e metadados de execução, sob o esquema $\Wmat/\Rmat$ vigente (Capítulo~6). Este apêndice registra os artefatos utilizados na auditoria do relatório, incluindo a resolução da limitação de disponibilidade de dados descrita na Seção~\ref{sec:resultados-guia} e detalhada no Apêndice~B. A página inicial da publicação é:
+Os relatórios HTML publicados contêm os rankings completos, curvas de perda, matrizes de vencedores $\Wmat$ e de inversões $\Rmat$, os quatro indicadores de preservação e metadados de execução, sob o esquema $\Wmat/\Rmat$ vigente (Capítulo~4). Este apêndice registra os artefatos utilizados na auditoria do relatório, incluindo a resolução da limitação de disponibilidade de dados descrita na Seção~\ref{sec:resultados-guia} e detalhada no Apêndice~B. A página inicial da publicação é:
 
 \begin{center}
 \url{https://paulorenatoaz.github.io/coinfosim/}
@@ -53,7 +53,21 @@ O cenário 000005 é a entrada principal e referencia:
   \item GMM $\rightarrow$ Real, simulação 000017: \url{https://paulorenatoaz.github.io/coinfosim/reports/simulations/000017_air_quality_gmm_to_real_full/air_quality_gmm_to_real_monte_carlo_report_full_000017.html}.
 \end{itemize}
 
-Os valores de $\rankrho$, $\AW$, $\AR$, $\DR$ e $\SR$ do PDF foram computados diretamente pelo código atual a partir dos resultados brutos por replicação regenerados deste cenário, e conferidos contra o payload \texttt{predictive\_cooperation\_profile} embutido no \texttt{scenario.json} republicado, além das visualizações bidimensionais de dados reais, Gaussiana única e GMM. Esses valores são reportados no Capítulo~7 (Tabela~\ref{tab:air-final}), nos termos da Seção~\ref{sec:resultados-guia}.
+Os valores de $\rankrho$, $\AW$, $\AR$, $\DR$ e $\SR$ do PDF foram computados diretamente pelo código atual a partir dos resultados brutos por replicação regenerados deste cenário, e conferidos contra o payload \texttt{predictive\_cooperation\_profile} embutido no \texttt{scenario.json} republicado, além das visualizações bidimensionais de dados reais, Gaussiana única e GMM. Esses valores são reportados no Capítulo~5 (Tabela~\ref{tab:air-final}), nos termos da Seção~\ref{sec:resultados-guia}.
+
+\subsection{Extensão full-scale (cenário 000006)}
+
+Conforme a política editorial do Capítulo~3 (Seção de proveniência), o cenário 000006 --- Air Quality em modo \textit{full-scale}, grade estendida até 1.024 amostras por classe --- é tratado como extensão suplementar e não é combinado com os valores do cenário 000005 no mesmo indicador. Seus artefatos são:
+
+\begin{itemize}
+  \item relatório do dataset: \url{https://paulorenatoaz.github.io/coinfosim/reports/scenarios/000006_air_quality_baseline_full-scale/air_quality_dataset_report_full-scale_000006.html};
+  \item relatório do cenário: \url{https://paulorenatoaz.github.io/coinfosim/reports/scenarios/000006_air_quality_baseline_full-scale/air_quality_scenario_report_full-scale_000006.html};
+  \item Real $\rightarrow$ Real, simulação 000018: \url{https://paulorenatoaz.github.io/coinfosim/reports/simulations/000018_air_quality_real_data_full-scale/air_quality_real_data_monte_carlo_report_full-scale_000018.html};
+  \item Gaussiana única $\rightarrow$ Real, simulação 000019: \url{https://paulorenatoaz.github.io/coinfosim/reports/simulations/000019_air_quality_single_gaussian_to_real_full-scale/air_quality_single_gaussian_to_real_monte_carlo_report_full-scale_000019.html};
+  \item GMM $\rightarrow$ Real, simulação 000020: \url{https://paulorenatoaz.github.io/coinfosim/reports/simulations/000020_air_quality_gmm_to_real_full-scale/air_quality_gmm_to_real_monte_carlo_report_full-scale_000020.html}.
+\end{itemize}
+
+Seus resultados brutos por replicação estão disponíveis para auditoria e regeneração nos mesmos termos dos demais cenários acadêmicos, mas não são tabulados no corpo do relatório por usarem um prefixo amostral não comparável a $n\leq512$.
 
 \section{Relatórios detalhados de SUPPORT2}
 
@@ -77,8 +91,85 @@ Os valores de $\rankrho$, $\AW$, $\AR$, $\DR$ e $\SR$ da Tabela~\ref{tab:support
 
 \noindent diretamente (mesma função que o relatório HTML usa para renderizar o cenário sob demanda).
 
+\section{Matrizes completas de projeções geométricas}
+\label{ap:geometria-completa}
+
+O corpo do relatório (Capítulo~4) mostra, para cada dataset, apenas a projeção bidimensional $(X_1,X_2)$ como comparação representativa entre dados reais, Gaussiana única e GMM. Esta seção reproduz a matriz completa de projeções par a par entre todos os canais, nos três braços, para os quatro cenários principais. Como no corpo do texto, essas figuras são inspeções exploratórias, não testes formais de aderência nem provas de preservação do perfil de cooperação preditiva (Seção~\ref{sec:provenance}).
+
+\begin{figure}[H]
+  \centering
+  \caption{Matriz completa de projeções --- Occupancy Detection, dados reais}
+  \label{fig:geom-occupancy-full-real}
+  \includegraphics[width=\textwidth,height=0.85\textheight,keepaspectratio]{figures/geometry/occupancy/viz_2d_real_full_000002.png}
+  \sourcebelow{relatório publicado do cenário Occupancy Detection 000002 do \CoInfoSim}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \caption{Matriz completa de projeções --- Occupancy Detection, Gaussiana única}
+  \label{fig:geom-occupancy-full-gaussian}
+  \includegraphics[width=\textwidth,height=0.85\textheight,keepaspectratio]{figures/geometry/occupancy/viz_2d_gaussian_full_000002.png}
+  \sourcebelow{relatório publicado do cenário Occupancy Detection 000002 do \CoInfoSim}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \caption{Matriz completa de projeções --- Occupancy Detection, GMM}
+  \label{fig:geom-occupancy-full-gmm}
+  \includegraphics[width=\textwidth,height=0.85\textheight,keepaspectratio]{figures/geometry/occupancy/viz_2d_gmm_full_000002.png}
+  \sourcebelow{relatório publicado do cenário Occupancy Detection 000002 do \CoInfoSim}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \caption{Matriz completa de projeções --- UCI Air Quality, dados reais}
+  \label{fig:geom-air-full-real}
+  \includegraphics[width=\textwidth,height=0.85\textheight,keepaspectratio]{figures/geometry/air_quality/viz_2d_real_full_000005.png}
+  \sourcebelow{relatório publicado do cenário Air Quality 000005 do \CoInfoSim}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \caption{Matriz completa de projeções --- UCI Air Quality, Gaussiana única}
+  \label{fig:geom-air-full-gaussian}
+  \includegraphics[width=\textwidth,height=0.85\textheight,keepaspectratio]{figures/geometry/air_quality/viz_2d_gaussian_full_000005.png}
+  \sourcebelow{relatório publicado do cenário Air Quality 000005 do \CoInfoSim}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \caption{Matriz completa de projeções --- UCI Air Quality, GMM}
+  \label{fig:geom-air-full-gmm}
+  \includegraphics[width=\textwidth,height=0.85\textheight,keepaspectratio]{figures/geometry/air_quality/viz_2d_gmm_full_000005.png}
+  \sourcebelow{relatório publicado do cenário Air Quality 000005 do \CoInfoSim}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \caption{Matriz completa de projeções --- SUPPORT2, dados reais}
+  \label{fig:geom-support2-full-real}
+  \includegraphics[width=\textwidth,height=0.85\textheight,keepaspectratio]{figures/geometry/support2/viz_2d_real_full_000008.png}
+  \sourcebelow{relatório publicado do cenário SUPPORT2 000008 do \CoInfoSim}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \caption{Matriz completa de projeções --- SUPPORT2, Gaussiana única}
+  \label{fig:geom-support2-full-gaussian}
+  \includegraphics[width=\textwidth,height=0.85\textheight,keepaspectratio]{figures/geometry/support2/viz_2d_gaussian_full_000008.png}
+  \sourcebelow{relatório publicado do cenário SUPPORT2 000008 do \CoInfoSim}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \caption{Matriz completa de projeções --- SUPPORT2, GMM}
+  \label{fig:geom-support2-full-gmm}
+  \includegraphics[width=\textwidth,height=0.85\textheight,keepaspectratio]{figures/geometry/support2/viz_2d_gmm_full_000008.png}
+  \sourcebelow{relatório publicado do cenário SUPPORT2 000008 do \CoInfoSim}
+\end{figure}
+
 \section{Política de uso do material suplementar}
 
-Os relatórios online listados na Seção~\ref{ap:resultados-cenarios} são a fonte exaustiva dos resultados desta revisão, incluindo as matrizes $\Wmat$/$\Rmat$ completas de cada cenário. O PDF não reproduz todas as matrizes e curvas porque isso prejudicaria a leitura e duplicaria centenas de visualizações; ele apresenta uma seleção orientada pelas hipóteses científicas, com os quatro indicadores tabulados por completo e ilustrados por figuras de evolução por $n$ (Capítulo~7). A rastreabilidade é preservada por meio dos IDs imutáveis de cenário e simulação, nomes de arquivos, parâmetros registrados e resultados JSON persistidos no ambiente auditado. Todos os resultados apresentados neste relatório, em texto, tabelas e figuras, são de execuções \textit{full} ou \textit{full-scale}; nenhum resultado de execução \textit{smoke} é reportado como evidência --- o modo \textit{smoke} do \CoInfoSim{} é usado apenas para testes e validação computacional do próprio código (Apêndice~B), nunca como fonte de resultados científicos.
+Os relatórios online listados na Seção~\ref{ap:resultados-cenarios} são a fonte exaustiva dos resultados desta revisão, incluindo as matrizes $\Wmat$/$\Rmat$ completas de cada cenário. O PDF não reproduz todas as matrizes e curvas porque isso prejudicaria a leitura e duplicaria centenas de visualizações; ele apresenta uma seleção orientada pelas hipóteses científicas, com os quatro indicadores tabulados por completo e ilustrados por figuras de evolução por $n$ (Capítulo~5). A rastreabilidade é preservada por meio dos IDs imutáveis de cenário e simulação, nomes de arquivos, parâmetros registrados e resultados JSON persistidos no ambiente auditado. Todos os resultados apresentados neste relatório, em texto, tabelas e figuras, são de execuções \textit{full} ou \textit{full-scale}; nenhum resultado de execução \textit{smoke} é reportado como evidência --- o modo \textit{smoke} do \CoInfoSim{} é usado apenas para testes e validação computacional do próprio código (Apêndice~B), nunca como fonte de resultados científicos.
 
-Os gráficos vetoriais de $\rankrho$/$\AW$ reconstruídos a partir de tabelas finais publicadas anteriormente para Occupancy e Air Quality (identificados individualmente em \texttt{figures/FIGURE\_SOURCES.md} e nas fontes de cada figura no corpo do texto) foram incorporados sem recortes que alterassem eixos, ordem dos subconjuntos, escala ou legenda; os valores de $\rankrho$/$\AW$ que ilustram foram confirmados computacionalmente nesta revisão a partir dos resultados brutos regenerados, dentro da precisão de transcrição das versões anteriores (Seção~\ref{sec:resultados-guia}). As matrizes $\Wmat$/$\Rmat$ do SUPPORT2 (Figura~\ref{fig:wr-matrices-support2}) e as figuras de evolução dos quatro indicadores por $n$ (Capítulo~7) foram geradas diretamente pelas funções vigentes de \texttt{coinfosim.reports.predictive\_profile\_visualization} sobre os resultados brutos regenerados dos quatro cenários de escala completa. Os valores de $\AR$, $\DR$ e $\SR$ apresentados em todas as tabelas do Capítulo~7 foram computados diretamente pelo código atual sobre resultados brutos por replicação, sem reconstrução a partir de nenhuma tabela ou figura publicada anteriormente --- esses três indicadores não existiam sob o esquema anterior de $\NstarHistorical$.
+Os gráficos vetoriais de $\rankrho$/$\AW$ reconstruídos a partir de tabelas finais publicadas anteriormente para Occupancy e Air Quality (identificados individualmente em \texttt{figures/FIGURE\_SOURCES.md} e nas fontes de cada figura no corpo do texto) foram incorporados sem recortes que alterassem eixos, ordem dos subconjuntos, escala ou legenda; os valores de $\rankrho$/$\AW$ que ilustram foram confirmados computacionalmente nesta revisão a partir dos resultados brutos regenerados, dentro da precisão de transcrição das versões anteriores (Seção~\ref{sec:resultados-guia}). As matrizes $\Wmat$/$\Rmat$ do SUPPORT2 (Figura~\ref{fig:wr-matrices-support2-appendix}, Apêndice~D) e as figuras de evolução dos quatro indicadores por $n$ (Capítulo~5) foram geradas diretamente pelas funções vigentes de \texttt{coinfosim.reports.predictive\_profile\_visualization} sobre os resultados brutos regenerados dos quatro cenários de escala completa. Os valores de $\AR$, $\DR$ e $\SR$ apresentados em todas as tabelas do Capítulo~5 foram computados diretamente pelo código atual sobre resultados brutos por replicação, sem reconstrução a partir de nenhuma tabela ou figura publicada anteriormente --- esses três indicadores não existiam sob o esquema anterior de $\NstarHistorical$.

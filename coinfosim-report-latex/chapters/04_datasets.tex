@@ -33,43 +33,29 @@ A média e o desvio-padrão de cada canal são estimados exclusivamente nos dado
 
 \subsection{Geometria observada}
 
-A inspeção das projeções padronizadas mostra classes com formas irregulares, concentrações alongadas e regiões cuja geometria se distancia de uma única elipse gaussiana. Essa característica torna o cenário especialmente informativo: a Gaussiana única produz pontos visualmente muito diferentes dos dados reais, enquanto o GMM acompanha melhor parte da forma empírica. Ainda assim, como será discutido no Capítulo~5, fidelidade visual e preservação do perfil de cooperação preditiva não coincidem necessariamente. A Figura~\ref{fig:geom-occupancy-dataset} apresenta as projeções bidimensionais padronizadas dos três braços, extraídas do relatório do cenário 000002.
+A inspeção das projeções padronizadas mostra classes com formas irregulares, concentrações alongadas e regiões cuja geometria se distancia de uma única elipse gaussiana. Essa característica torna o cenário especialmente informativo: a Gaussiana única produz pontos visualmente muito diferentes dos dados reais, enquanto o GMM acompanha melhor parte da forma empírica. Ainda assim, como será discutido no Capítulo~5, fidelidade visual e preservação do perfil de cooperação preditiva não coincidem necessariamente. A Figura~\ref{fig:geom-occupancy-dataset} apresenta a projeção representativa $(X_1,X_2)$ nos três braços, extraída do relatório do cenário 000002; a matriz completa com todos os pares de canais está no Apêndice~A (Seção~\ref{ap:geometria-completa}).
 
 \begin{figure}[H]
   \centering
-  \caption{Geometrias padronizadas do cenário Occupancy Detection}
+  \caption{Geometria representativa do cenário Occupancy Detection}
   \label{fig:geom-occupancy-dataset}
-  \begin{minipage}{\textwidth}
+  \begin{minipage}{0.32\textwidth}
     \centering
-    \includegraphics[width=\textwidth,height=0.82\textheight,keepaspectratio]{figures/geometry/occupancy/viz_2d_real_full_000002.png}
+    \includegraphics[width=\linewidth,trim=6.5 835 737 39,clip]{figures/geometry/occupancy/viz_2d_real_full_000002.png}
     \subcaption{Dados reais}
-  \end{minipage}
-  \sourcebelow{relatório publicado do cenário Occupancy Detection 000002 do \CoInfoSim}
-\end{figure}
-
-\begin{figure}[H]
-  \ContinuedFloat
-  \centering
-  \caption[]{Geometrias padronizadas do cenário Occupancy Detection (continuação)}
-  \begin{minipage}{\textwidth}
+  \end{minipage}\hfill
+  \begin{minipage}{0.32\textwidth}
     \centering
-    \includegraphics[width=\textwidth,height=0.82\textheight,keepaspectratio]{figures/geometry/occupancy/viz_2d_gaussian_full_000002.png}
+    \includegraphics[width=\linewidth,trim=6.5 835 737 39,clip]{figures/geometry/occupancy/viz_2d_gaussian_full_000002.png}
     \subcaption{Gaussiana única}
-  \end{minipage}
-  \sourcebelow{relatório publicado do cenário Occupancy Detection 000002 do \CoInfoSim}
-\end{figure}
-
-\begin{figure}[H]
-  \ContinuedFloat
-  \centering
-  \caption[]{Geometrias padronizadas do cenário Occupancy Detection (continuação)}
-  \begin{minipage}{\textwidth}
+  \end{minipage}\hfill
+  \begin{minipage}{0.32\textwidth}
     \centering
-    \includegraphics[width=\textwidth,height=0.82\textheight,keepaspectratio]{figures/geometry/occupancy/viz_2d_gmm_full_000002.png}
+    \includegraphics[width=\linewidth,trim=6.5 835 737 39,clip]{figures/geometry/occupancy/viz_2d_gmm_full_000002.png}
     \subcaption{GMM}
   \end{minipage}
   \sourcebelow{relatório publicado do cenário Occupancy Detection 000002 do \CoInfoSim}
-  \notailustracao{A comparação geométrica é descritiva. A preservação do perfil de cooperação preditiva é avaliada separadamente pelos indicadores definidos no Capítulo 4}
+  \notailustracao{A comparação geométrica é descritiva, restrita ao par de canais $(X_1,X_2)$. A preservação do perfil de cooperação preditiva é avaliada separadamente pelos indicadores definidos no Capítulo 4}
 \end{figure}
 
 \section{UCI Air Quality}
@@ -102,42 +88,29 @@ Além da execução \textit{full} de referência (cenário 000005, $n$ até 512)
 
 \subsection{Geometria observada}
 
-As projeções do Air Quality apresentam regiões mais compactas e elipsoidais do que as observadas no Occupancy, embora não sejam perfeitamente gaussianas. A maior regularidade fornece um contraste útil para investigar quando uma única Gaussiana já retém informação estrutural suficiente e quando os componentes adicionais do GMM modificam as relações entre subconjuntos. A Figura~\ref{fig:geom-air-dataset} apresenta as projeções bidimensionais dos cinco sensores nos três braços, com as classes definidas pela referência de benzeno.
+As projeções do Air Quality apresentam regiões mais compactas e elipsoidais do que as observadas no Occupancy, embora não sejam perfeitamente gaussianas. A maior regularidade fornece um contraste útil para investigar quando uma única Gaussiana já retém informação estrutural suficiente e quando os componentes adicionais do GMM modificam as relações entre subconjuntos. A Figura~\ref{fig:geom-air-dataset} apresenta a projeção representativa $(X_1,X_2)$ nos três braços, com as classes definidas pela referência de benzeno; a matriz completa com todos os pares de sensores está no Apêndice~A (Seção~\ref{ap:geometria-completa}).
 
 \begin{figure}[H]
   \centering
-  \caption{Geometrias padronizadas do cenário UCI Air Quality}
+  \caption{Geometria representativa do cenário UCI Air Quality}
   \label{fig:geom-air-dataset}
-  \begin{minipage}{\textwidth}
+  \begin{minipage}{0.32\textwidth}
     \centering
-    \includegraphics[width=\textwidth,height=0.82\textheight,keepaspectratio]{figures/geometry/air_quality/viz_2d_real_full_000005.png}
+    \includegraphics[width=\linewidth,trim=6.5 835 737 39,clip]{figures/geometry/air_quality/viz_2d_real_full_000005.png}
     \subcaption{Dados reais}
-  \end{minipage}
-  \sourcebelow{relatório publicado do cenário Air Quality 000005 do \CoInfoSim}
-\end{figure}
-
-\begin{figure}[H]
-  \ContinuedFloat
-  \centering
-  \caption[]{Geometrias padronizadas do cenário UCI Air Quality (continuação)}
-  \begin{minipage}{\textwidth}
+  \end{minipage}\hfill
+  \begin{minipage}{0.32\textwidth}
     \centering
-    \includegraphics[width=\textwidth,height=0.82\textheight,keepaspectratio]{figures/geometry/air_quality/viz_2d_gaussian_full_000005.png}
+    \includegraphics[width=\linewidth,trim=6.5 835 737 39,clip]{figures/geometry/air_quality/viz_2d_gaussian_full_000005.png}
     \subcaption{Gaussiana única}
-  \end{minipage}
-  \sourcebelow{relatório publicado do cenário Air Quality 000005 do \CoInfoSim}
-\end{figure}
-
-\begin{figure}[H]
-  \ContinuedFloat
-  \centering
-  \caption[]{Geometrias padronizadas do cenário UCI Air Quality (continuação)}
-  \begin{minipage}{\textwidth}
+  \end{minipage}\hfill
+  \begin{minipage}{0.32\textwidth}
     \centering
-    \includegraphics[width=\textwidth,height=0.82\textheight,keepaspectratio]{figures/geometry/air_quality/viz_2d_gmm_full_000005.png}
+    \includegraphics[width=\linewidth,trim=6.5 835 737 39,clip]{figures/geometry/air_quality/viz_2d_gmm_full_000005.png}
     \subcaption{GMM}
   \end{minipage}
   \sourcebelow{relatório publicado do cenário Air Quality 000005 do \CoInfoSim}
+  \notailustracao{A comparação geométrica é descritiva, restrita ao par de canais $(X_1,X_2)$. A preservação do perfil de cooperação preditiva é avaliada separadamente pelos indicadores definidos no Capítulo 4}
 \end{figure}
 
 \section{SUPPORT2}
@@ -177,42 +150,29 @@ A padronização utiliza somente o treinamento e $\mathrm{ddof}=0$. Não há imp
 
 \subsection{Geometria observada}
 
-As projeções selecionadas do SUPPORT2 mostram regiões mais compatíveis com aproximações elipsoidais do que o Occupancy, ainda que as classes permaneçam fortemente sobrepostas. Essa combinação --- forma aproximadamente regular e baixa separabilidade --- é relevante para distinguir a dificuldade de classificar pacientes da capacidade de preservar relações relativas entre subconjuntos; o resultado do Random Forest, discutido no Capítulo~5, torna essa distinção especialmente clara. A Figura~\ref{fig:geom-support2-dataset} apresenta as projeções bidimensionais dos sete canais fisiológicos nos três braços do cenário 000008.
+As projeções selecionadas do SUPPORT2 mostram regiões mais compatíveis com aproximações elipsoidais do que o Occupancy, ainda que as classes permaneçam fortemente sobrepostas. Essa combinação --- forma aproximadamente regular e baixa separabilidade --- é relevante para distinguir a dificuldade de classificar pacientes da capacidade de preservar relações relativas entre subconjuntos; o resultado do Random Forest, discutido no Capítulo~5, torna essa distinção especialmente clara. A Figura~\ref{fig:geom-support2-dataset} apresenta a projeção representativa $(X_1,X_2)$ nos três braços do cenário 000008; a matriz completa com todos os pares de canais fisiológicos está no Apêndice~A (Seção~\ref{ap:geometria-completa}).
 
 \begin{figure}[H]
   \centering
-  \caption{Geometrias padronizadas do cenário SUPPORT2}
+  \caption{Geometria representativa do cenário SUPPORT2}
   \label{fig:geom-support2-dataset}
-  \begin{minipage}{\textwidth}
+  \begin{minipage}{0.32\textwidth}
     \centering
-    \includegraphics[width=\textwidth,height=0.80\textheight,keepaspectratio]{figures/geometry/support2/viz_2d_real_full_000008.png}
+    \includegraphics[width=\linewidth,trim=6.5 1717 737 39,clip]{figures/geometry/support2/viz_2d_real_full_000008.png}
     \subcaption{Dados reais}
-  \end{minipage}
-  \sourcebelow{relatório publicado do cenário SUPPORT2 000008 do \CoInfoSim}
-\end{figure}
-
-\begin{figure}[H]
-  \ContinuedFloat
-  \centering
-  \caption[]{Geometrias padronizadas do cenário SUPPORT2 (continuação)}
-  \begin{minipage}{\textwidth}
+  \end{minipage}\hfill
+  \begin{minipage}{0.32\textwidth}
     \centering
-    \includegraphics[width=\textwidth,height=0.80\textheight,keepaspectratio]{figures/geometry/support2/viz_2d_gaussian_full_000008.png}
+    \includegraphics[width=\linewidth,trim=6.5 1717 737 39,clip]{figures/geometry/support2/viz_2d_gaussian_full_000008.png}
     \subcaption{Gaussiana única}
-  \end{minipage}
-  \sourcebelow{relatório publicado do cenário SUPPORT2 000008 do \CoInfoSim}
-\end{figure}
-
-\begin{figure}[H]
-  \ContinuedFloat
-  \centering
-  \caption[]{Geometrias padronizadas do cenário SUPPORT2 (continuação)}
-  \begin{minipage}{\textwidth}
+  \end{minipage}\hfill
+  \begin{minipage}{0.32\textwidth}
     \centering
-    \includegraphics[width=\textwidth,height=0.80\textheight,keepaspectratio]{figures/geometry/support2/viz_2d_gmm_full_000008.png}
+    \includegraphics[width=\linewidth,trim=6.5 1717 737 39,clip]{figures/geometry/support2/viz_2d_gmm_full_000008.png}
     \subcaption{GMM}
   \end{minipage}
   \sourcebelow{relatório publicado do cenário SUPPORT2 000008 do \CoInfoSim}
+  \notailustracao{A comparação geométrica é descritiva, restrita ao par de canais $(X_1,X_2)$. A preservação do perfil de cooperação preditiva é avaliada separadamente pelos indicadores definidos no Capítulo 4}
 \end{figure}
 
 \section{Síntese comparativa}
