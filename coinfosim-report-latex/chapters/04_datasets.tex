@@ -289,9 +289,9 @@ A proveniência formal deste trabalho segue o padrão \emph{W3C PROV}/PROV-O~\ci
   \centering
   \caption{Proveniência formal (W3C PROV) do cenário Occupancy (000002), gerada a partir do \texttt{ProvDocument} canônico}
   \label{fig:prov-occupancy}
-  \includegraphics[width=\textwidth]{figures/provenance/provenance_occupancy_000002.pdf}
-  \sourcebelow{elaboração própria; grafo Graphviz emitido por \texttt{prov\_to\_dot} a partir do \texttt{ProvDocument} do cenário 000002 (projeção de exibição científica; ver Apêndice~E)}
-  \notailustracao{A projeção de exibição omite apenas metadados de engenharia sem leitura científica direta (revisão de código, ambiente de execução); o documento PROV completo, incluindo esses metadados, permanece persistido em \texttt{provenance.provjson}. Por ser um gráfico vetorial, cada rótulo pode ser ampliado individualmente; a tabela completa de papéis e serializações está no Apêndice~E}
+  \includegraphics[width=\textwidth,trim=1476pt 0pt 691pt 0pt,clip]{figures/provenance/provenance_occupancy_000002.pdf}
+  \sourcebelow{elaboração própria; grafo Graphviz emitido por \texttt{prov\_to\_dot} a partir do \texttt{ProvDocument} do cenário 000002 (recorte da cadeia central; projeção de exibição científica; ver Apêndice~E)}
+  \notailustracao{Recorte da cadeia central do grafo completo, omitindo apenas nós à margem (origem do dataset, especificações de alvo/pré-processamento e o agente de software) e metadados de engenharia sem leitura científica direta (revisão de código, ambiente de execução); o documento PROV completo, incluindo esses nós e metadados, permanece persistido em \texttt{provenance.provjson}. Por ser um gráfico vetorial, cada rótulo pode ser ampliado individualmente; a tabela completa de papéis e serializações está no Apêndice~E}
 \end{figure}
 
 Nesse grafo, uma \texttt{prov:Entity} representa um dado ou resultado (por exemplo, \texttt{SourceDataset}, \texttt{TrainingReservoir}, \texttt{FixedRealTestSet}, \texttt{ResultData}, \texttt{PredictiveCooperationProfile}); uma \texttt{prov:Activity} representa uma computação (\texttt{DatasetPreparation}, o ajuste de cada gerador, cada execução de simulação, a computação do perfil, a geração do relatório); e o \texttt{prov:SoftwareAgent} único é associado a cada atividade por \texttt{prov:wasAssociatedWith}. Uma atividade \texttt{prov:used} as entidades que consome como insumo e \texttt{prov:wasGeneratedBy} as entidades que produz; quando um resultado deriva de outro sem uma atividade computacional própria, a relação é \texttt{prov:wasDerivedFrom}. A granularidade é por cenário/braço, não por replicação Monte Carlo.
@@ -302,8 +302,8 @@ O mesmo grafo formal é emitido para os outros dois estudos de caso. Na Air Qual
   \centering
   \caption{Proveniência formal (W3C PROV) do cenário Air Quality (000005)}
   \label{fig:prov-air-quality}
-  \includegraphics[width=\textwidth]{figures/provenance/provenance_air_quality_000005.pdf}
-  \sourcebelow{elaboração própria; grafo Graphviz emitido por \texttt{prov\_to\_dot} a partir do \texttt{ProvDocument} do cenário 000005 (projeção de exibição científica; ver Apêndice~E)}
+  \includegraphics[width=\textwidth,trim=1344pt 0pt 629pt 0pt,clip]{figures/provenance/provenance_air_quality_000005.pdf}
+  \sourcebelow{elaboração própria; grafo Graphviz emitido por \texttt{prov\_to\_dot} a partir do \texttt{ProvDocument} do cenário 000005 (recorte da cadeia central; projeção de exibição científica; ver Apêndice~E)}
 \end{figure}
 
 No SUPPORT2 (cenário 000008, Figura~\ref{fig:prov-support2}), o mesmo grafo evidencia a coorte analítica de casos completos, a estratificação conjunta por alvo e \texttt{dzgroup} na partição 80/20 (Seção~\ref{sec:support2-split}), a padronização ajustada somente no treinamento, e o \texttt{RandomForest\allowbreak CalibrationArtifact}, usado pelas três atividades de simulação.
@@ -312,8 +312,8 @@ No SUPPORT2 (cenário 000008, Figura~\ref{fig:prov-support2}), o mesmo grafo evi
   \centering
   \caption{Proveniência formal (W3C PROV) do cenário SUPPORT2 (000008)}
   \label{fig:prov-support2}
-  \includegraphics[width=\textwidth]{figures/provenance/provenance_support2_000008.pdf}
-  \sourcebelow{elaboração própria; grafo Graphviz emitido por \texttt{prov\_to\_dot} a partir do \texttt{ProvDocument} do cenário 000008 (projeção de exibição científica; ver Apêndice~E)}
+  \includegraphics[width=\textwidth,trim=1266pt 0pt 593pt 0pt,clip]{figures/provenance/provenance_support2_000008.pdf}
+  \sourcebelow{elaboração própria; grafo Graphviz emitido por \texttt{prov\_to\_dot} a partir do \texttt{ProvDocument} do cenário 000008 (recorte da cadeia central; projeção de exibição científica; ver Apêndice~E)}
 \end{figure}
 
 Um invariante é comum aos três cenários e fica explícito nos três grafos: a \texttt{TrainingReservoir} alimenta o ajuste dos geradores (\texttt{FitSingleGaussian}, \texttt{FitGMM}), e o \texttt{FixedRealTestSet} nunca é \texttt{prov:used} por essas atividades de ajuste; o mesmo \texttt{FixedRealTestSet}, por sua vez, é \texttt{prov:used} pelas três atividades de simulação (real, Gaussiana única e GMM). Essa auditabilidade não prova a ausência absoluta de qualquer vazamento de informação; ela documenta e torna verificáveis os controles de separação de treino e teste descritos na seção anterior, testados automaticamente no código (\texttt{tests/test\_provenance\_model.py}).

@@ -1,15 +1,15 @@
 [0] Config.pm:307> INFO - This is Biber 2.19
-[0] Config.pm:310> INFO - Logfile is 'presentation.blg'
-[91] biber:340> INFO - === Thu Jul 23, 2026, 20:55:34
-[109] Biber.pm:419> INFO - Reading 'presentation.bcf'
-[183] Biber.pm:976> INFO - Using all citekeys in bib section 0
-[198] Biber.pm:4419> INFO - Processing section 0
-[211] Biber.pm:4610> INFO - Looking for bibtex file 'references.bib' for section 0
-[213] bibtex.pm:1713> INFO - LaTeX decoding ...
-[234] bibtex.pm:1519> INFO - Found BibTeX data source 'references.bib'
-[435] UCollate.pm:68> INFO - Overriding locale 'pt-BR' defaults 'variable = shifted' with 'variable = non-ignorable'
-[435] UCollate.pm:68> INFO - Overriding locale 'pt-BR' defaults 'normalization = NFD' with 'normalization = prenormalized'
-[435] Biber.pm:4239> INFO - Sorting list 'nyt/global//global/global' of type 'entry' with template 'nyt' and locale 'pt-BR'
-[435] Biber.pm:4245> INFO - No sort tailoring available for locale 'pt-BR'
-[471] bbl.pm:660> INFO - Writing 'presentation.bbl' with encoding 'UTF-8'
-[482] bbl.pm:763> INFO - Output to presentation.bbl
+[0] Config.pm:310> INFO - Logfile is 'build/presentation.blg'
+[92] biber:340> INFO - === Thu Jul 23, 2026, 23:17:06
+[111] Biber.pm:419> INFO - Reading 'build/presentation.bcf'
+[186] Biber.pm:976> INFO - Using all citekeys in bib section 0
+[201] Biber.pm:4419> INFO - Processing section 0
+[215] Biber.pm:4610> INFO - Looking for bibtex file 'references.bib' for section 0
+[216] bibtex.pm:1713> INFO - LaTeX decoding ...
+[237] bibtex.pm:1519> INFO - Found BibTeX data source 'references.bib'
+[450] UCollate.pm:68> INFO - Overriding locale 'pt-BR' defaults 'variable = shifted' with 'variable = non-ignorable'
+[450] UCollate.pm:68> INFO - Overriding locale 'pt-BR' defaults 'normalization = NFD' with 'normalization = prenormalized'
+[450] Biber.pm:4239> INFO - Sorting list 'nyt/global//global/global' of type 'entry' with template 'nyt' and locale 'pt-BR'
+[450] Biber.pm:4245> INFO - No sort tailoring available for locale 'pt-BR'
+[488] bbl.pm:660> INFO - Writing 'build/presentation.bbl' with encoding 'UTF-8'
+[500] bbl.pm:763> INFO - Output to build/presentation.bbl

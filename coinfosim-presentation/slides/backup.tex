@@ -57,9 +57,9 @@
 \begin{frame}{Reprodutibilidade computacional}
   \begin{columns}[T,onlytextwidth]
     \begin{column}{0.54\textwidth}
-      \begin{beamercolorbox}[wd=\linewidth,sep=.13cm,rounded=true]{block body}
-        {\sffamily\bfseries\color{CoInfoBlue}Cada execução registra}\par\vspace{.04cm}
-        \begin{itemize}\fontsize{8.4}{10.0}\selectfont\setlength{\itemsep}{.02cm}
+      \begin{beamercolorbox}[wd=\linewidth,sep=.09cm,rounded=true]{block body}
+        {\sffamily\bfseries\fontsize{8.6}{10.2}\selectfont\color{CoInfoBlue}Cada execução registra}\par\vspace{.03cm}
+        \begin{itemize}\fontsize{7.6}{9.0}\selectfont\setlength{\itemsep}{.01cm}
           \item sementes, grade de $n$, braços, classificadores e subconjuntos;
           \item padronização, alvo, parâmetros da Gaussiana e componentes do GMM;
           \item hashes dos arquivos e impressões digitais das partições;
@@ -70,23 +70,23 @@
       \end{beamercolorbox}
     \end{column}
     \begin{column}{0.43\textwidth}
-      \begin{beamercolorbox}[wd=\linewidth,sep=.12cm,rounded=true]{block body}
-        {\sffamily\bfseries\color{CoInfoBlue}Reprodutibilidade}\par
-        {\fontsize{8.2}{9.8}\selectfont Executar novamente o mesmo protocolo com os mesmos artefatos e configuração.}
+      \begin{beamercolorbox}[wd=\linewidth,sep=.09cm,rounded=true]{block body}
+        {\sffamily\bfseries\fontsize{8.6}{10.2}\selectfont\color{CoInfoBlue}Reprodutibilidade}\par
+        {\fontsize{7.6}{9.0}\selectfont Executar novamente o mesmo protocolo com os mesmos artefatos e configuração.}
       \end{beamercolorbox}
 
-      \vspace{.09cm}
-      \begin{beamercolorbox}[wd=\linewidth,sep=.12cm,rounded=true]{block body}
-        {\sffamily\bfseries\color{CoInfoPlum}Replicabilidade}\par
-        {\fontsize{8.2}{9.8}\selectfont Obter evidência compatível em novas execuções, implementações ou cenários.}
+      \vspace{.06cm}
+      \begin{beamercolorbox}[wd=\linewidth,sep=.09cm,rounded=true]{block body}
+        {\sffamily\bfseries\fontsize{8.6}{10.2}\selectfont\color{CoInfoPlum}Replicabilidade}\par
+        {\fontsize{7.6}{9.0}\selectfont Obter evidência compatível em novas execuções, implementações ou cenários.}
       \end{beamercolorbox}
 
     \end{column}
   \end{columns}
 
-  \vspace{.09cm}
-  \begin{beamercolorbox}[wd=\linewidth,sep=.12cm,rounded=true]{takeaway}
-    \centering\sffamily\bfseries\fontsize{10.2}{12.1}\selectfont
+  \vspace{.05cm}
+  \begin{beamercolorbox}[wd=\linewidth,sep=.08cm,rounded=true]{takeaway}
+    \centering\sffamily\bfseries\fontsize{9.4}{11.1}\selectfont
     Não basta rodar o experimento: é preciso poder auditar como ele foi rodado, sem repetir a simulação de Monte Carlo.
   \end{beamercolorbox}
   \sourcecite{Relatório final, Apêndice B; README e artefatos persistidos em \texttt{output/reports}.}
@@ -103,9 +103,9 @@
 \begin{frame}{Camada semântica e escopo da proveniência}
   \begin{columns}[T,onlytextwidth]
     \begin{column}{0.52\textwidth}
-      \begin{beamercolorbox}[wd=\linewidth,sep=.13cm,rounded=true]{block body}
-        {\sffamily\bfseries\color{CoInfoBlue}O que existe}\par\vspace{.05cm}
-        \begin{itemize}\fontsize{8.3}{9.9}\selectfont\setlength{\itemsep}{.03cm}
+      \begin{beamercolorbox}[wd=\linewidth,sep=.09cm,rounded=true]{block body}
+        {\sffamily\bfseries\fontsize{8.6}{10.2}\selectfont\color{CoInfoBlue}O que existe}\par\vspace{.03cm}
+        \begin{itemize}\fontsize{7.7}{9.1}\selectfont\setlength{\itemsep}{.02cm}
           \item vocabulário semântico versionado, com ID estável e rótulo pt/en por conceito;
           \item contexto JSON-LD e uma pequena ontologia OWL~2 que especializa PROV-O;
           \item proveniência formal por cenário: \texttt{prov:Entity}, \texttt{prov:Activity}, \texttt{prov:SoftwareAgent};
@@ -115,9 +115,9 @@
       \end{beamercolorbox}
     \end{column}
     \begin{column}{0.45\textwidth}
-      \begin{beamercolorbox}[wd=\linewidth,sep=.13cm,rounded=true]{block body}
-        {\sffamily\bfseries\color{CoInfoRose}O que não existe (ainda)}\par\vspace{.05cm}
-        \begin{itemize}\fontsize{8.3}{9.9}\selectfont\setlength{\itemsep}{.03cm}
+      \begin{beamercolorbox}[wd=\linewidth,sep=.09cm,rounded=true]{block body}
+        {\sffamily\bfseries\fontsize{8.6}{10.2}\selectfont\color{CoInfoRose}O que não existe (ainda)}\par\vspace{.03cm}
+        \begin{itemize}\fontsize{7.7}{9.1}\selectfont\setlength{\itemsep}{.02cm}
           \item raciocínio automático ou motor de inferência sobre a ontologia;
           \item \emph{triple store} ou \emph{endpoint} SPARQL consultável;
           \item proveniência por replicação, subconjunto ou célula de matriz --- o escopo é cenário/braço;
@@ -127,9 +127,9 @@
     \end{column}
   \end{columns}
 
-  \vspace{.10cm}
-  \begin{beamercolorbox}[wd=\linewidth,sep=.12cm,rounded=true]{takeaway}
-    \centering\sffamily\bfseries\fontsize{10.0}{11.9}\selectfont
+  \vspace{.06cm}
+  \begin{beamercolorbox}[wd=\linewidth,sep=.08cm,rounded=true]{takeaway}
+    \centering\sffamily\bfseries\fontsize{9.4}{11.1}\selectfont
     Vocabulário semântico versionado + proveniência PROV-O/JSON-LD, com uma pequena ontologia de apoio --- não uma ontologia OWL completa com raciocínio automático.
   \end{beamercolorbox}
   \sourcecite{Relatório final, Apêndice E; \texttt{docs/semantics/}; \texttt{ontology/coinfosim.owl.ttl}.}

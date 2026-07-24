@@ -42,7 +42,7 @@
       \field{labeltitlesource}{title}
       \field{note}{Software de pesquisa, versão em desenvolvimento}
       \field{title}{CoInfoSim: A Simulator for Cooperative Classification from Multiple Information Channels}
-      \field{version}{0.1.0}
+      \field{version}{0.2.2}
       \field{year}{2026}
       \verb{urlraw}
       \verb https://github.com/paulorenatoaz/coinfosim
@@ -205,44 +205,6 @@
       \field{year}{2016}
       \field{pages}{28\bibrangedash 39}
       \range{pages}{12}
-    \endentry
-    \entry{ChowRobbins1965}{article}{}
-      \name{author}{2}{}{%
-        {{un=0,uniquepart=base,hash=239385703bdf4e267c55a890516a9988}{%
-           family={Chow},
-           familyi={C\bibinitperiod},
-           given={Yuan\bibnamedelima Shih},
-           giveni={Y\bibinitperiod\bibinitdelim S\bibinitperiod},
-           givenun=0}}%
-        {{un=0,uniquepart=base,hash=163566b92b332258782e61e3d217a2bb}{%
-           family={Robbins},
-           familyi={R\bibinitperiod},
-           given={Herbert},
-           giveni={H\bibinitperiod},
-           givenun=0}}%
-      }
-      \strng{namehash}{7f329d0a548bf7ee3a927e3701c21954}
-      \strng{fullhash}{7f329d0a548bf7ee3a927e3701c21954}
-      \strng{bibnamehash}{7f329d0a548bf7ee3a927e3701c21954}
-      \strng{authorbibnamehash}{7f329d0a548bf7ee3a927e3701c21954}
-      \strng{authornamehash}{7f329d0a548bf7ee3a927e3701c21954}
-      \strng{authorfullhash}{7f329d0a548bf7ee3a927e3701c21954}
-      \field{sortinit}{C}
-      \field{sortinithash}{4d103a86280481745c9c897c925753c0}
-      \field{extradatescope}{labelyear}
-      \field{labeldatesource}{}
-      \field{labelnamesource}{author}
-      \field{labeltitlesource}{title}
-      \field{journaltitle}{The Annals of Mathematical Statistics}
-      \field{number}{2}
-      \field{title}{On the Asymptotic Theory of Fixed-Width Sequential Confidence Intervals for the Mean}
-      \field{volume}{36}
-      \field{year}{1965}
-      \field{pages}{457\bibrangedash 462}
-      \range{pages}{6}
-      \verb{doi}
-      \verb 10.1214/aoms/1177700156
-      \endverb
     \endentry
     \entry{cortes1995}{article}{}
       \name{author}{2}{}{%
@@ -983,6 +945,51 @@
       \verb https://www.jmlr.org/papers/v20/18-424.html
       \endverb
     \endentry
+    \entry{provo2013}{misc}{}
+      \name{author}{3}{}{%
+        {{un=0,uniquepart=base,hash=9215d9070c52dc480037cdb51829151e}{%
+           family={Lebo},
+           familyi={L\bibinitperiod},
+           given={Timothy},
+           giveni={T\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=d27e0e877262562950350591dab7b6f7}{%
+           family={Sahoo},
+           familyi={S\bibinitperiod},
+           given={Satya},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=c2c483131cded4fe94434bd27adf6ef4}{%
+           family={McGuinness},
+           familyi={M\bibinitperiod},
+           given={Deborah},
+           giveni={D\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{organization}{1}{%
+        {W3C Recommendation}%
+      }
+      \strng{namehash}{bb624cd29da4493b71998a5a1441fb33}
+      \strng{fullhash}{bb624cd29da4493b71998a5a1441fb33}
+      \strng{bibnamehash}{bb624cd29da4493b71998a5a1441fb33}
+      \strng{authorbibnamehash}{bb624cd29da4493b71998a5a1441fb33}
+      \strng{authornamehash}{bb624cd29da4493b71998a5a1441fb33}
+      \strng{authorfullhash}{bb624cd29da4493b71998a5a1441fb33}
+      \field{sortinit}{L}
+      \field{sortinithash}{7c47d417cecb1f4bd38d1825c427a61a}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{{PROV-O}: The {PROV} Ontology}
+      \field{year}{2013}
+      \verb{urlraw}
+      \verb https://www.w3.org/TR/prov-o/
+      \endverb
+      \verb{url}
+      \verb https://www.w3.org/TR/prov-o/
+      \endverb
+    \endentry
     \entry{mclachlan2000}{book}{}
       \name{author}{2}{}{%
         {{un=0,uniquepart=base,hash=abd4070cc1fb6059efb3753297023184}{%
@@ -1509,6 +1516,32 @@
       \verb{eprint}
       \verb 1911.12082
       \endverb
+    \endentry
+    \entry{zavaleta_fcd_provenance}{misc}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=cbde6fc6eed9e5f73ca7b70356c124dd}{%
+           family={Zavaleta},
+           familyi={Z\bibinitperiod},
+           given={José},
+           giveni={J\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{cbde6fc6eed9e5f73ca7b70356c124dd}
+      \strng{fullhash}{cbde6fc6eed9e5f73ca7b70356c124dd}
+      \strng{bibnamehash}{cbde6fc6eed9e5f73ca7b70356c124dd}
+      \strng{authorbibnamehash}{cbde6fc6eed9e5f73ca7b70356c124dd}
+      \strng{authornamehash}{cbde6fc6eed9e5f73ca7b70356c124dd}
+      \strng{authorfullhash}{cbde6fc6eed9e5f73ca7b70356c124dd}
+      \field{sortinit}{Z}
+      \field{sortinithash}{96892c0b0a36bb8557c40c49813d48b3}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{Notebook de curso, repositório \texttt{zavaleta/Fundamentos\_DS}, Funda\-mentos de Ciência de Dados}
+      \field{note}{Exemplo de proveniência com W3C PROV, biblioteca Python \texttt{prov}, \texttt{ProvDocument} e \texttt{prov\_to\_dot}/Graphviz}
+      \field{title}{{FCD\_M1\_4\_Provenance.ipynb}}
+      \field{year}{2024}
     \endentry
   \enddatalist
 \endrefsection
