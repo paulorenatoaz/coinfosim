@@ -1,0 +1,42 @@
+% Shared visual grammar for CoInfoSim's readable TikZ provenance diagrams.
+% Included by the generic model and by the three scenario-specific
+% projections (Occupancy, Air Quality, SUPPORT2) so that node color/shape and
+% relation-arrow style are identical across the whole diagram family:
+%   prov:Entity        -> yellow, rounded-corner box
+%   prov:Activity       -> blue, sharp-corner box
+%   prov:SoftwareAgent   -> orange, sharp-corner box (rounder pill)
+%   used / wasGeneratedBy / wasDerivedFrom / wasAssociatedWith -> one arrow
+%   family per relation, labeled in italics along the edge.
+% These diagrams are editorial/readability projections of the canonical
+% prov.model.ProvDocument; they are not prov_to_dot output. See
+% docs/semantics/provenance_mapping.md for the authoritative role table.
+\input{../../conceptual/src/preamble_diagrams}
+
+\definecolor{ProvEntity}{RGB}{250,232,168}
+\definecolor{ProvEntityBorder}{RGB}{176,141,42}
+\definecolor{ProvActivity}{RGB}{188,206,235}
+\definecolor{ProvActivityBorder}{RGB}{47,86,145}
+\definecolor{ProvAgent}{RGB}{248,196,120}
+\definecolor{ProvAgentBorder}{RGB}{191,120,20}
+\definecolor{ProvNote}{RGB}{255,255,255}
+\definecolor{ProvNoteBorder}{RGB}{170,170,170}
+
+\tikzset{
+  entidade/.style={draw=ProvEntityBorder, fill=ProvEntity, rounded corners=6pt,
+                align=center, font=\scriptsize, inner sep=4pt, minimum height=8.5mm, minimum width=3.65cm},
+  atividade/.style={draw=ProvActivityBorder, fill=ProvActivity, rounded corners=1pt,
+                align=center, font=\scriptsize, inner sep=4pt, minimum height=8.5mm, minimum width=3.65cm},
+  agente/.style={draw=ProvAgentBorder, fill=ProvAgent, rounded corners=1pt,
+                align=center, font=\scriptsize, inner sep=4pt, minimum height=8mm, minimum width=3.0cm},
+  nota/.style={draw=ProvNoteBorder, fill=ProvNote, rounded corners=2pt, dashed,
+                align=left, font=\fontsize{6.2}{7.4}\selectfont, text=CoinGray,
+                inner sep=3pt},
+  % Relation families: one arrow style per PROV relation, reused identically
+  % across every diagram in the family.
+  usedrel/.style={-{Stealth[length=2.0mm]}, thick, CoinGray},
+  usedrelfina/.style={-{Stealth[length=1.8mm]}, thin, CoinGray},
+  generatedrel/.style={-{Stealth[length=2.0mm]}, thick, CoinGray},
+  derivedrel/.style={-{Stealth[length=1.8mm]}, thick, dashed, ProvAgentBorder},
+  associatedrel/.style={-{Stealth[length=1.6mm]}, thin, dash dot, ProvAgentBorder},
+  rlabel/.style={font=\tiny\itshape, text=CoinGray, fill=white, inner sep=1pt},
+}

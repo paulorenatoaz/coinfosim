@@ -1,33 +1,43 @@
-% Diagrama de proveniência experimental formal (versão larga, para slide 16:9).
-% Mesmos tipos e relações PROV-O do diagrama do relatório (prov_profile_derivation.tex),
-% reorganizados horizontalmente: TrainingReservoir/FixedRealTestSet -> ajuste dos
-% geradores -> três braços de simulação -> ResultData -> ProfileComputation ->
-% PredictiveCooperationProfile. Omite deliberadamente ArtifactRecovery/
-% RecoveredArtifactSet/CodeRevision (metadados de regeneração de relatório, não
-% proveniência científica do experimento). Compilação: xelatex (determinística).
-\documentclass[tikz,border=4pt]{standalone}
+% Readable scenario-specific provenance projection — UCI Air Quality
+% (scenario 000005). This is an editorial readability adaptation of the
+% canonical provenance.provn for that scenario run, not prov_to_dot output;
+% the complete original Graphviz/PROV artifacts remain published per scenario
+% (see coinfosim-report-latex/figures/provenance/provenance_air_quality_000005.pdf
+% and the scenario's semantic_manifest.json / provenance.{provjson,provn,ttl}).
+% Node/relation types follow docs/semantics/provenance_mapping.md exactly;
+% PreparedDataset is omitted here (kept only in the generic diagram) to leave
+% room for the dataset-specific notes below. The dashed grey notes attach
+% dataset-specific facts (sentinel handling, chronological split, target
+% definition) documented in data/raw/air_quality/README.md and
+% coinfosim-report-latex/chapters/04_datasets.tex — they are captions, not
+% additional PROV nodes. ArtifactRecovery/RecoveredArtifactSet/CodeRevision
+% are omitted for the same reason as in the generic diagram: report-
+% regeneration metadata, not experimental science provenance. Compilation:
+% xelatex.
+\documentclass[tikz,border=6pt]{standalone}
 \input{prov_diagram_style}
-\tikzset{
-  entidade/.style={draw=ProvEntityBorder, fill=ProvEntity, rounded corners=5pt,
-                align=center, font=\footnotesize, inner sep=4pt},
-  atividade/.style={draw=ProvActivityBorder, fill=ProvActivity, rounded corners=1pt,
-                align=center, font=\footnotesize, inner sep=4pt},
-  relacao/.style={-{Stealth[length=1.8mm]}, thick, CoinGray},
-}
+\tikzset{relacao/.style={usedrel}, relacaofina/.style={usedrelfina}}
 
 \begin{document}
 \begin{tikzpicture}[node distance=4mm and 4mm]
 
+  % --- Origem e preparação do dataset -----------------------------------------
+  \node[entidade,minimum width=2.8cm]  (source)   at (-3.4, 1.3) {\textbf{SourceDataset}\\UCI Air Quality};
+  \node[atividade,minimum width=2.8cm] (dataprep) at (-3.4, -1.5) {\textbf{DatasetPreparation}};
+  \draw[relacao] (source) -- node[rlabel]{used} (dataprep);
+
   \node[entidade,minimum width=2.6cm]  (trainres)  at (0, 2.6) {\textbf{TrainingReservoir}};
   \node[entidade,minimum width=2.6cm]  (fixedtest) at (0, -2.6) {\textbf{FixedRealTestSet}};
+  \draw[relacaofina] (dataprep.east) -- ++(0.9,0) coordinate (dpbus) |- node[pos=0.3,rlabel]{wasGeneratedBy} (trainres.west);
+  \draw[relacaofina] (dpbus) |- node[pos=0.3,rlabel]{wasGeneratedBy} (fixedtest.west);
+
+  \node[nota, text width=3.4cm, above=2mm of trainres] {80\% inicial da coorte cronológica: reserva de treino};
+  \node[nota, text width=3.6cm, below=2mm of fixedtest] {20\% final: teste real futuro fixo, não um sorteio aleatório};
+  \node[nota, text width=4.6cm, below=2mm of dataprep] {sentinela $-200\to$ ausente; casos completos nos 5 sensores + \texttt{C6H6(GT)}; alvo \texttt{benzene\_elevated} = percentil 75 de \texttt{C6H6(GT)} no treino; padronização só no treino};
 
   \node[atividade,minimum width=2.6cm] (fitgauss) at (3.2, 1.5) {\textbf{FitSingleGaussian}};
   \node[atividade,minimum width=2.6cm] (fitgmm)   at (3.2, -3.7) {\textbf{FitGMM}};
 
-  % Generator-fitting activities generate entities, which the simulation-run
-  % activities then use -- matching provenance.provn exactly. A direct
-  % activity-to-activity "wasGeneratedBy" edge (skipping these entities) is
-  % not valid PROV and was corrected here.
   \node[entidade,minimum width=2.9cm]  (fittedgauss) at (7.9, 1.5)  {\textbf{FittedSingleGaussian}\\\textbf{Generator}};
   \node[entidade,minimum width=2.9cm]  (fittedgmm)   at (7.9, -3.7) {\textbf{FittedGMM}\\\textbf{Generator}};
 
@@ -58,6 +68,9 @@
 
   \draw[relacao] (resultdata) -- node[rlabel,yshift=4.5mm]{used} (profcomp);
   \draw[relacao] (profcomp)   -- node[rlabel,yshift=4.5mm]{wasGeneratedBy} (profile);
+
+  \node[agente] (agent) at (20.7, -4.0) {\textbf{CoInfoSim}\\\texttt{prov:SoftwareAgent}};
+  \draw[relacaofina] (agent.north) -- node[rlabel]{wasAssociatedWith} (profcomp.south);
 
 \end{tikzpicture}
 \end{document}
