@@ -2530,6 +2530,8 @@
     <bcf:citekey order="70" intorder="2">knaus1995</bcf:citekey>
     <bcf:citekey order="71" intorder="1">joshi2009</bcf:citekey>
     <bcf:citekey order="71" intorder="2">krause2008</bcf:citekey>
+    <bcf:citekey order="72" intorder="1">azevedo2026coinfosim</bcf:citekey>
+    <bcf:citekey order="73" intorder="1">esteban2017</bcf:citekey>
   </bcf:section>
   <!-- SORTING TEMPLATES -->
   <bcf:sortingtemplate name="nty">

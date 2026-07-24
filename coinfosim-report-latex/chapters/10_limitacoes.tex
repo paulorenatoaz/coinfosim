@@ -19,7 +19,7 @@ Este capítulo delimita o alcance das evidências antes de detalhar cada ameaça
     \addlinespace
     Externa & Três datasets binários, tabulares e de baixa dimensão; Random Forest apenas no SUPPORT2. & Os resultados não se generalizam automaticamente a outros domínios ou classificadores. & Ampliar datasets, dimensionalidades, classes e famílias de modelos. \\
     \addlinespace
-    Computacional & A enumeração cresce como $2^d-1$. & O custo restringe o protocolo exaustivo a poucos canais. & Avaliar busca estruturada ou amostragem de subconjuntos sem perder comparações relevantes. \\
+    Computacional & A enumeração cresce como $2^d-1$. & O custo restringe o protocolo exaustivo a poucos atributos. & Avaliar busca estruturada ou amostragem de subconjuntos sem perder comparações relevantes. \\
     \addlinespace
     Extrapolação & A grade termina no maior $n$ avaliado em cada dataset. & A última inversão observada pode não ser a última fora da grade. & Validar previsões em tamanhos amostrais deliberadamente ocultados. \\
     \bottomrule
@@ -85,7 +85,7 @@ O perfil de cooperação preditiva pode depender da métrica de desempenho utili
 
 \subsection{Número e diversidade dos datasets}
 
-O estudo inclui três datasets públicos de domínios distintos, o que melhora a diversidade em relação ao SLACGS idealizado. Ainda assim, três cenários são insuficientes para generalizar relações entre geometria e preservação. Occupancy, Air Quality e SUPPORT2 possuem baixa dimensionalidade, alvo binário e número de canais compatível com enumeração exaustiva.
+O estudo inclui três datasets públicos de domínios distintos, o que melhora a diversidade em relação ao SLACGS idealizado. Ainda assim, três cenários são insuficientes para generalizar relações entre geometria e preservação. Occupancy, Air Quality e SUPPORT2 possuem baixa dimensionalidade, alvo binário e número de atributos compatível com enumeração exaustiva.
 
 Não foram incluídos problemas de alta dimensão, múltiplas classes, imagens, texto, sinais brutos ou séries temporais modeladas explicitamente. Os candidatos CSI Wi-Fi e sistema hidráulico foram adiados justamente porque exigem tratamento de sessões, ciclos e dependência temporal. Assim, os resultados valem para o desenho tabular adotado, não para aprendizado multicanal em geral.
 
@@ -101,7 +101,7 @@ O trabalho não coleta dados financeiros nem implementa restrições operacionai
 
 \section{Limitações computacionais}
 
-A enumeração exaustiva cresce como $2^d-1$. Com cinco canais, cada cenário possui 31 subconjuntos; com sete, o SUPPORT2 possui 127. O custo total ainda é multiplicado por braços, classificadores, tamanhos amostrais e replicações. Esse crescimento limita a aplicação direta do protocolo a dimensionalidades maiores.
+A enumeração exaustiva cresce como $2^d-1$. Com cinco atributos, cada cenário possui 31 subconjuntos; com sete, o SUPPORT2 possui 127. O custo total ainda é multiplicado por braços, classificadores, tamanhos amostrais e replicações. Esse crescimento limita a aplicação direta do protocolo a dimensionalidades maiores.
 
 O Random Forest demandou aproximadamente três a cinco vezes o tempo das simulações com classificadores lineares no ambiente utilizado. Por isso, não foi executado em Occupancy e Air Quality dentro do prazo do trabalho. Essa assimetria experimental impede uma comparação cruzada completa, embora o estudo adicional no SUPPORT2 permaneça informativo.
 

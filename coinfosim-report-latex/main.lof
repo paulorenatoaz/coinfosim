@@ -1,36 +1,37 @@
 \babel@toc {brazil}{}\relax 
 \babel@toc {brazil}{}\relax 
-\contentsline {figure}{\numberline {1}{\ignorespaces Cadeia prefixada de dimensões e enumeração exaustiva de subconjuntos}}{20}{figure.caption.9}%
-\contentsline {figure}{\numberline {2}{\ignorespaces Relações informacionais entre canais e alvo: relevância, redundância e complementaridade}}{22}{figure.caption.10}%
+\contentsline {figure}{\numberline {1}{\ignorespaces Cadeia prefixada de dimensões e enumeração exaustiva de subconjuntos}}{21}{figure.caption.9}%
+\contentsline {figure}{\numberline {2}{\ignorespaces Relações informacionais entre atributos e alvo: relevância, redundância e complementaridade}}{22}{figure.caption.10}%
 \contentsline {figure}{\numberline {3}{\ignorespaces Geometria representativa do cenário Occupancy Detection}}{29}{figure.caption.11}%
 \contentsline {figure}{\numberline {4}{\ignorespaces Geometria representativa do cenário UCI Air Quality}}{31}{figure.caption.12}%
 \contentsline {figure}{\numberline {5}{\ignorespaces Geometria representativa do cenário SUPPORT2}}{33}{figure.caption.13}%
 \contentsline {figure}{\numberline {6}{\ignorespaces Fluxo experimental do \textsf {CoInfoSim}{} com os três braços e o teste real compartilhado}}{35}{figure.caption.15}%
-\contentsline {figure}{\numberline {7}{\ignorespaces Proveniência formal (W3C PROV) do cenário Occupancy (000002), gerada a partir do \texttt {ProvDocument} canônico}}{37}{figure.caption.16}%
-\contentsline {figure}{\numberline {8}{\ignorespaces Proveniência formal (W3C PROV) do cenário Air Quality (000005)}}{38}{figure.caption.17}%
-\contentsline {figure}{\numberline {9}{\ignorespaces Proveniência formal (W3C PROV) do cenário SUPPORT2 (000008)}}{38}{figure.caption.18}%
-\contentsline {figure}{\numberline {10}{\ignorespaces Visão esquemática dos três níveis analíticos do perfil de cooperação preditiva}}{40}{figure.caption.19}%
-\contentsline {figure}{\numberline {11}{\ignorespaces Trajetória didática da relação efetiva de vencedor $W_{ij}$ com empate inicial, primeiro vencedor, empate propagado e inversão válida}}{42}{figure.caption.20}%
-\contentsline {figure}{\numberline {12}{\ignorespaces Construção separada de $A_R$ e $S_R$ em prefixos crescentes da grade amostral}}{45}{figure.caption.21}%
-\contentsline {figure}{\numberline {13}{\ignorespaces Correlação dos rankings completos no Occupancy Detection em $n=512$}}{49}{figure.caption.23}%
-\contentsline {figure}{\numberline {14}{\ignorespaces \textit {Winner Agreement}{} no Occupancy Detection em $n=512$}}{49}{figure.caption.24}%
-\contentsline {figure}{\numberline {15}{\ignorespaces Resultado par a par observado no Occupancy Detection, \ensuremath {\text {Real}\rightarrow \text {Real}}{}, SVM linear}}{50}{figure.caption.25}%
-\contentsline {figure}{\numberline {16}{\ignorespaces Evolução dos quatro indicadores por $n$ no Occupancy Detection, Gaussian Naive Bayes (cenário 000002)}}{51}{figure.caption.26}%
-\contentsline {figure}{\numberline {17}{\ignorespaces Correlação dos rankings completos no UCI Air Quality em $n=512$}}{52}{figure.caption.28}%
-\contentsline {figure}{\numberline {18}{\ignorespaces \textit {Winner Agreement}{} no UCI Air Quality em $n=512$}}{53}{figure.caption.29}%
-\contentsline {figure}{\numberline {19}{\ignorespaces Evolução dos quatro indicadores por $n$ no UCI Air Quality, Gaussian Naive Bayes (cenário 000005)}}{54}{figure.caption.30}%
-\contentsline {figure}{\numberline {20}{\ignorespaces Evolução dos quatro indicadores por $n$ no SUPPORT2, SVM linear (cenário 000007)}}{55}{figure.caption.32}%
-\contentsline {figure}{\numberline {21}{\ignorespaces Menor perda do Random Forest no SUPPORT2 em $n=512$ (execução \textit {full}, cenário 000008)}}{56}{figure.caption.33}%
-\contentsline {figure}{\numberline {22}{\ignorespaces Evolução dos quatro indicadores por $n$ no SUPPORT2, Random Forest (cenário 000008)}}{57}{figure.caption.34}%
-\contentsline {figure}{\numberline {23}{\ignorespaces Relação conceitual entre desempenho preditivo absoluto e preservação do perfil de cooperação preditiva}}{62}{figure.caption.37}%
-\contentsline {figure}{\numberline {24}{\ignorespaces Matriz completa de projeções --- Occupancy Detection, dados reais}}{81}{figure.caption.43}%
-\contentsline {figure}{\numberline {25}{\ignorespaces Matriz completa de projeções --- Occupancy Detection, Gaussiana única}}{82}{figure.caption.44}%
-\contentsline {figure}{\numberline {26}{\ignorespaces Matriz completa de projeções --- Occupancy Detection, GMM}}{83}{figure.caption.45}%
-\contentsline {figure}{\numberline {27}{\ignorespaces Matriz completa de projeções --- UCI Air Quality, dados reais}}{84}{figure.caption.46}%
-\contentsline {figure}{\numberline {28}{\ignorespaces Matriz completa de projeções --- UCI Air Quality, Gaussiana única}}{85}{figure.caption.47}%
-\contentsline {figure}{\numberline {29}{\ignorespaces Matriz completa de projeções --- UCI Air Quality, GMM}}{86}{figure.caption.48}%
-\contentsline {figure}{\numberline {30}{\ignorespaces Matriz completa de projeções --- SUPPORT2, dados reais}}{87}{figure.caption.49}%
-\contentsline {figure}{\numberline {31}{\ignorespaces Matriz completa de projeções --- SUPPORT2, Gaussiana única}}{88}{figure.caption.50}%
-\contentsline {figure}{\numberline {32}{\ignorespaces Matriz completa de projeções --- SUPPORT2, GMM}}{89}{figure.caption.51}%
-\contentsline {figure}{\numberline {33}{\ignorespaces Matrizes pareadas $\mathbf {W}$ e $\mathbf {R}$ no maior $n$ avaliado do cenário SUPPORT2 (execução \textit {full}, $n\leq 512$, cenário 000008), Random Forest}}{103}{figure.caption.52}%
-\contentsline {figure}{\numberline {34}{\ignorespaces Evolução do resultado par a par observado no cenário Occupancy Full, braço Real para Real, Linear SVM}}{104}{figure.caption.53}%
+\contentsline {figure}{\numberline {7}{\ignorespaces Modelo de proveniência experimental do CoInfoSim (projeção legível, nível 1)}}{38}{figure.caption.16}%
+\contentsline {figure}{\numberline {8}{\ignorespaces Proveniência do cenário Occupancy Detection (projeção legível, nível 2)}}{39}{figure.caption.17}%
+\contentsline {figure}{\numberline {9}{\ignorespaces Proveniência do cenário UCI Air Quality (projeção legível, nível 2)}}{40}{figure.caption.18}%
+\contentsline {figure}{\numberline {10}{\ignorespaces Proveniência do cenário SUPPORT2 (projeção legível, nível 2)}}{40}{figure.caption.19}%
+\contentsline {figure}{\numberline {11}{\ignorespaces Visão esquemática dos três níveis analíticos do perfil de cooperação preditiva}}{42}{figure.caption.20}%
+\contentsline {figure}{\numberline {12}{\ignorespaces Trajetória didática da relação efetiva de vencedor $W_{ij}$ com empate inicial, primeiro vencedor, empate propagado e inversão válida}}{44}{figure.caption.21}%
+\contentsline {figure}{\numberline {13}{\ignorespaces Construção separada de $A_R$ e $S_R$ em prefixos crescentes da grade amostral}}{47}{figure.caption.22}%
+\contentsline {figure}{\numberline {14}{\ignorespaces Correlação dos rankings completos no Occupancy Detection em $n=512$}}{51}{figure.caption.24}%
+\contentsline {figure}{\numberline {15}{\ignorespaces \textit {Winner Agreement}{} no Occupancy Detection em $n=512$}}{51}{figure.caption.25}%
+\contentsline {figure}{\numberline {16}{\ignorespaces Resultado par a par observado no Occupancy Detection, \ensuremath {\text {Real}\rightarrow \text {Real}}{}, SVM linear}}{52}{figure.caption.26}%
+\contentsline {figure}{\numberline {17}{\ignorespaces Evolução dos quatro indicadores por $n$ no Occupancy Detection, Gaussian Naive Bayes (cenário 000002)}}{53}{figure.caption.27}%
+\contentsline {figure}{\numberline {18}{\ignorespaces Correlação dos rankings completos no UCI Air Quality em $n=512$}}{54}{figure.caption.29}%
+\contentsline {figure}{\numberline {19}{\ignorespaces \textit {Winner Agreement}{} no UCI Air Quality em $n=512$}}{55}{figure.caption.30}%
+\contentsline {figure}{\numberline {20}{\ignorespaces Evolução dos quatro indicadores por $n$ no UCI Air Quality, Gaussian Naive Bayes (cenário 000005)}}{56}{figure.caption.31}%
+\contentsline {figure}{\numberline {21}{\ignorespaces Evolução dos quatro indicadores por $n$ no SUPPORT2, SVM linear (cenário 000007)}}{57}{figure.caption.33}%
+\contentsline {figure}{\numberline {22}{\ignorespaces Menor perda do Random Forest no SUPPORT2 em $n=512$ (execução \textit {full}, cenário 000008)}}{58}{figure.caption.34}%
+\contentsline {figure}{\numberline {23}{\ignorespaces Evolução dos quatro indicadores por $n$ no SUPPORT2, Random Forest (cenário 000008)}}{59}{figure.caption.35}%
+\contentsline {figure}{\numberline {24}{\ignorespaces Relação conceitual entre desempenho preditivo absoluto e preservação do perfil de cooperação preditiva}}{64}{figure.caption.38}%
+\contentsline {figure}{\numberline {25}{\ignorespaces Matriz completa de projeções --- Occupancy Detection, dados reais}}{83}{figure.caption.44}%
+\contentsline {figure}{\numberline {26}{\ignorespaces Matriz completa de projeções --- Occupancy Detection, Gaussiana única}}{84}{figure.caption.45}%
+\contentsline {figure}{\numberline {27}{\ignorespaces Matriz completa de projeções --- Occupancy Detection, GMM}}{85}{figure.caption.46}%
+\contentsline {figure}{\numberline {28}{\ignorespaces Matriz completa de projeções --- UCI Air Quality, dados reais}}{86}{figure.caption.47}%
+\contentsline {figure}{\numberline {29}{\ignorespaces Matriz completa de projeções --- UCI Air Quality, Gaussiana única}}{87}{figure.caption.48}%
+\contentsline {figure}{\numberline {30}{\ignorespaces Matriz completa de projeções --- UCI Air Quality, GMM}}{88}{figure.caption.49}%
+\contentsline {figure}{\numberline {31}{\ignorespaces Matriz completa de projeções --- SUPPORT2, dados reais}}{89}{figure.caption.50}%
+\contentsline {figure}{\numberline {32}{\ignorespaces Matriz completa de projeções --- SUPPORT2, Gaussiana única}}{90}{figure.caption.51}%
+\contentsline {figure}{\numberline {33}{\ignorespaces Matriz completa de projeções --- SUPPORT2, GMM}}{91}{figure.caption.52}%
+\contentsline {figure}{\numberline {34}{\ignorespaces Matrizes pareadas $\mathbf {W}$ e $\mathbf {R}$ no maior $n$ avaliado do cenário SUPPORT2 (execução \textit {full}, $n\leq 512$, cenário 000008), Random Forest}}{105}{figure.caption.53}%
+\contentsline {figure}{\numberline {35}{\ignorespaces Evolução do resultado par a par observado no cenário Occupancy Full, braço Real para Real, Linear SVM}}{106}{figure.caption.54}%
