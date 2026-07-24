@@ -99,3 +99,16 @@ REFACTOR_PLAN.md
 # LaTeX report build artifacts
 #coinfosim-report-latex/
 #coinfosim-presentation/
+coinfosim-presentation/presentation.fdb_latexmk
+coinfosim-presentation/presentation.fls
+coinfosim-presentation/presentation.xdv
+coinfosim-presentation/presentation.synctex.gz
+
+# Local planning / task-specification working files (chat-LLM context, not part of the repo)
+/coinfosim_academic_documents_0_2_2_editorial_tasks.md
+/coinfosim_plano_editorial_proveniencia.md
+/coinfosim_predictive_profile_semantic_refactor_plan.md
+/coinfosim_results_and_provenance_revision_tasks.md
+/coinfosim_scientific_editorial_revision_map.md
+/provenance_ontology_implementation_tasks.md
+/Task_Specification_edit_provenance_graphs_prepare_readme.txt
