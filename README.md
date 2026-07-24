@@ -1,6 +1,45 @@
 # CoInfoSim: A Simulator for Cooperative Classification from Multiple Information Channels
 
-CoInfoSim is a research simulator for evaluating **predictive cooperation among information channels** in supervised classification tasks. It studies the **predictive cooperation profile** of a channel subset — how its predictive performance relative to other subsets evolves as the number of labeled training samples per class grows — comparing real versus synthetic training-condition arms evaluated on the same fixed real test set.
+**Author:** Paulo Renato Azevedo — Programa de Pós-Graduação em Informática (PPGI), UFRJ
+**Research advisors:** Prof. Don Towsley (University of Massachusetts Amherst) · Prof. Daniel Sadoc Menasché (UFRJ)
+**Course:** Ciência de Dados — UFRJ
+**Course professors:** Prof. Jorge Zavaleta · Prof. Sérgio Serra
+
+The research advisors guided the underlying research program; they are not repository authors. The course professors are listed because this revision was prepared for their Data Science course and are not research advisors.
+
+CoInfoSim is a research simulator for evaluating **predictive cooperation among information channels** in supervised classification tasks. In plain terms: it asks whether training a classifier on *synthetic* data — sampled from a fitted Gaussian model — reproduces the same cooperative behavior among input-channel subsets observed when training on *real* data, evaluated on one shared, held-out real test set. It studies the **predictive cooperation profile** of a channel subset — how its predictive performance relative to other subsets evolves as the number of labeled training samples per class grows — comparing real versus synthetic training-condition arms evaluated on the same fixed real test set.
+
+## Project artifacts
+
+| Artifact | Where to find it |
+|---|---|
+| Source code | this repository, [`src/coinfosim/`](src/coinfosim/) |
+| Scientific report (PDF) | [`coinfosim-report-latex/main.pdf`](coinfosim-report-latex/main.pdf) |
+| Academic presentation (PDF, Beamer) | [`coinfosim-presentation/presentation.pdf`](coinfosim-presentation/presentation.pdf) |
+| Experimental reports (published HTML) | [GitHub Pages project site](https://paulorenatoaz.github.io/coinfosim/) |
+| Project data | published dataset mirror linked from the [project home page](https://paulorenatoaz.github.io/coinfosim/); provenance/licensing per dataset in [`data/raw/`](data/raw/) |
+| Result figures and visualizations | published scenario reports on [GitHub Pages](https://paulorenatoaz.github.io/coinfosim/) |
+| Readable provenance diagrams | [`provenance/`](provenance/) (editorial projections; see [`provenance/README.md`](provenance/README.md)) |
+| Canonical PROV artifacts (audit layer) | persisted next to each scenario run (`semantic_manifest.json`, `provenance.provjson`/`.provn`/`.ttl`); manifest published alongside each scenario report — see [Report regeneration](#report-regeneration) below |
+| Ontology / semantic layer | [`ontology/coinfosim.owl.ttl`](ontology/coinfosim.owl.ttl), [`docs/semantics/`](docs/semantics/) |
+| Citation | [`CITATION.cff`](CITATION.cff) |
+| License | [`LICENSE`](LICENSE) |
+| Generative-AI disclosure | [below](#generative-ai-disclosure) |
+
+## Architecture at a glance
+
+```text
+real dataset
+  → dataset-specific preparation
+  → fixed training reservoir + fixed real test set
+  → real / Single-Gaussian / GMM training arms
+  → classifiers over channel subsets and sample-size grid
+  → persisted results
+  → predictive cooperation profile
+  → reports / visualizations / provenance
+```
+
+See [Repository structure](#repository-structure) below for the code layout, and the [scientific report](coinfosim-report-latex/main.pdf) for the full experimental design.
 
 > **Core research question:** When does cooperation among information channels improve supervised classification?
 
@@ -147,6 +186,10 @@ If you use CoInfoSim in published research, please cite this repository. See [CI
 ## License
 
 CoInfoSim is distributed under the GNU General Public License v3.0 (GPL-3.0), inherited from the SLACGS project from which it is derived. See the [LICENSE](LICENSE) file for the full text. Note that the GPL-3.0 license applies to the CoInfoSim *software*; dataset licenses/acknowledgment requirements are tracked separately (see [Dataset download and cache behavior](#dataset-download-and-cache-behavior)).
+
+## Generative AI disclosure
+
+This project used the generative-AI models GPT-5.6 and Claude Sonnet 5 as supporting tools during research and development. Methodological decisions, experimental validation, scientific interpretation, and responsibility for the final content remained with the author.
 
 ---
 

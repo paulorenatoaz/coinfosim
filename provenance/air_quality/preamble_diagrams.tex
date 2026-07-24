@@ -1,0 +1,27 @@
+% Preâmbulo compartilhado dos diagramas conceituais do relatório CoInfoSim.
+% Compilação: xelatex (determinística; nenhum dado experimental é usado).
+\usepackage{fontspec}
+\setmainfont{Liberation Sans}
+\setsansfont{Liberation Sans}
+\usepackage{amsmath}
+\usepackage{bm}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,fit,backgrounds,decorations.pathreplacing,matrix,patterns}
+\definecolor{CoinAccent}{RGB}{25,80,140}
+\definecolor{CoinAccentDark}{RGB}{18,55,95}
+\definecolor{CoinAccentPale}{RGB}{237,242,248}
+\definecolor{CoinGray}{RGB}{95,95,95}
+\definecolor{CoinGrayPale}{RGB}{246,246,246}
+\definecolor{CoinWin}{RGB}{76,140,90}    % verde discreto (vitória)
+\definecolor{CoinLose}{RGB}{182,88,79}   % vermelho discreto (derrota)
+\tikzset{
+  bloco/.style={draw=CoinAccentDark, fill=CoinAccentPale, rounded corners=1.2pt,
+                align=center, font=\small, inner sep=4pt, minimum height=7mm},
+  bloconeutro/.style={draw=CoinGray, fill=CoinGrayPale, rounded corners=1.2pt,
+                align=center, font=\small, inner sep=4pt, minimum height=7mm},
+  blocoreal/.style={draw=CoinAccentDark, fill=white, rounded corners=1.2pt,
+                align=center, font=\small, inner sep=4pt, minimum height=7mm},
+  seta/.style={-{Stealth[length=2.4mm]}, thick, CoinAccentDark},
+  setacinza/.style={-{Stealth[length=2.4mm]}, thick, CoinGray},
+  rotulo/.style={font=\footnotesize\itshape, text=CoinGray, align=center},
+}
