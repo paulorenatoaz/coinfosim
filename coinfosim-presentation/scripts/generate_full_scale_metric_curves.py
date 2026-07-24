@@ -77,6 +77,9 @@ ARMS = (
     ("single_gaussian_to_real", "Gaussiana única → Real"),
     ("gmm_to_real", "GMM → Real"),
 )
+# Colors are the dark (GMM) reference; the light (Single Gaussian) variant is
+# looked up from LIGHT_COLORS. Hue/marker-shape encode the metric; lightness,
+# line style, and marker fill encode the synthetic arm (task plan Section 3).
 METRICS = (
     (
         "rho_rank",
@@ -111,6 +114,26 @@ METRICS = (
         "^",
     ),
 )
+
+LIGHT_COLORS = {
+    "rho_rank": "#9FB3D8",
+    "winner_agreement": "#DCC49B",
+    "reversal_existence_agreement": "#A6C5B2",
+    "reversal_sample_size_similarity": "#C5ADC4",
+}
+
+ARM_STYLE = {
+    "single_gaussian_to_real": {
+        "linestyle": "--",
+        "filled": False,
+        "x_jitter": -0.06,
+    },
+    "gmm_to_real": {
+        "linestyle": "-",
+        "filled": True,
+        "x_jitter": 0.06,
+    },
+}
 
 INK = "#3B3E58"
 GRAY = "#6C6980"
@@ -264,68 +287,101 @@ def make_figure(
         y_min + 0.055 + index * 0.045 for index in range(len(METRICS))
     ]
 
-    fig, axes = plt.subplots(1, 2, figsize=(10.0, 2.1), sharex=True, sharey=True)
+    fig, ax = plt.subplots(1, 1, figsize=(5.6, 3.15))
     has_missing = False
-    for ax, (arm, arm_title) in zip(axes, ARMS, strict=True):
+    for arm, _ in ARMS:
+        arm_style = ARM_STYLE[arm]
         for metric_index, (
             metric,
             metric_label,
             _,
             _,
-            color,
+            dark_color,
             marker,
         ) in enumerate(METRICS):
+            color = dark_color if arm_style["filled"] else LIGHT_COLORS[metric]
             points = data[arm][metric]
             ax.plot(
                 [n for n, _ in points],
                 [value for _, value in points],
                 color=color,
                 marker=marker,
-                markersize=3.7,
-                markeredgecolor="white",
-                markeredgewidth=0.5,
-                linewidth=1.6,
+                linestyle=arm_style["linestyle"],
+                markersize=4.0,
+                markerfacecolor=color if arm_style["filled"] else "white",
+                markeredgecolor=color,
+                markeredgewidth=0.9,
+                linewidth=1.5,
             )
             missing_n = [n for n, value in points if value is None]
             if missing_n:
                 has_missing = True
+                jittered_n = [
+                    n * (2.0 ** arm_style["x_jitter"]) for n in missing_n
+                ]
                 ax.scatter(
-                    missing_n,
+                    jittered_n,
                     [missing_baselines[metric_index]] * len(missing_n),
                     color=color,
                     marker="x",
-                    s=20,
-                    linewidths=1.25,
+                    s=18,
+                    linewidths=1.1,
                     zorder=4,
                 )
-        ax.set_xscale("log", base=2)
-        ax.set_xticks(sample_sizes, [str(value) for value in sample_sizes])
-        ax.set_ylim(y_min, 1.02)
-        if y_min < 0:
-            ax.set_yticks([-1.0, -0.5, 0.0, 0.5, 1.0])
-        else:
-            ax.set_yticks([0.0, 0.25, 0.5, 0.75, 1.0])
-        ax.grid(True, which="major", color=GRID, linewidth=0.65)
-        ax.set_axisbelow(True)
-        ax.set_title(arm_title, fontweight="bold", pad=2)
-        ax.set_xlabel("$n$ por classe")
-        for side in ("top", "right"):
-            ax.spines[side].set_visible(False)
+    ax.set_xscale("log", base=2)
+    ax.set_xticks(sample_sizes, [str(value) for value in sample_sizes])
+    ax.set_ylim(y_min, 1.02)
+    if y_min < 0:
+        ax.set_yticks([-1.0, -0.5, 0.0, 0.5, 1.0])
+    else:
+        ax.set_yticks([0.0, 0.25, 0.5, 0.75, 1.0])
+    ax.grid(True, which="major", color=GRID, linewidth=0.65)
+    ax.set_axisbelow(True)
+    ax.set_xlabel("$n$ por classe")
+    ax.set_ylabel("valor da métrica")
+    for side in ("top", "right"):
+        ax.spines[side].set_visible(False)
 
-    handles = [
+    metric_handles = [
         Line2D(
             [],
             [],
-            color=color,
+            color=dark_color,
             marker=marker,
-            markersize=4.2,
+            markersize=4.4,
             linewidth=1.6,
             label=metric_label,
         )
-        for _, metric_label, _, _, color, marker in METRICS
+        for _, metric_label, _, _, dark_color, marker in METRICS
+    ]
+    arm_handles = [
+        Line2D(
+            [],
+            [],
+            color=INK,
+            marker="o",
+            linestyle="--",
+            markersize=4.4,
+            markerfacecolor="white",
+            markeredgecolor=INK,
+            linewidth=1.5,
+            label="Gaussiana única",
+        ),
+        Line2D(
+            [],
+            [],
+            color=INK,
+            marker="o",
+            linestyle="-",
+            markersize=4.4,
+            markerfacecolor=INK,
+            markeredgecolor=INK,
+            linewidth=1.5,
+            label="GMM",
+        ),
     ]
     if has_missing:
-        handles.append(
+        arm_handles.append(
             Line2D(
                 [],
                 [],
@@ -336,27 +392,43 @@ def make_figure(
                 label="indisponível",
             )
         )
-    fig.legend(
-        handles=handles,
+    metric_legend = fig.legend(
+        handles=metric_handles,
         loc="lower center",
-        bbox_to_anchor=(0.5, -0.01),
-        ncol=len(handles),
+        bbox_to_anchor=(0.5, 0.005),
+        ncol=len(metric_handles),
         frameon=False,
         fontsize=7.4,
-        columnspacing=1.25,
+        columnspacing=1.1,
         handletextpad=0.4,
+        title="métrica",
+        title_fontsize=7.4,
+    )
+    fig.add_artist(metric_legend)
+    fig.legend(
+        handles=arm_handles,
+        loc="lower center",
+        bbox_to_anchor=(0.5, -0.085),
+        ncol=len(arm_handles),
+        frameon=False,
+        fontsize=6.8,
+        columnspacing=1.1,
+        handletextpad=0.4,
+        title="arma sintética",
+        title_fontsize=6.8,
     )
     fig.subplots_adjust(
-        left=0.06,
-        right=0.995,
-        top=0.86,
-        bottom=0.26,
-        wspace=0.10,
+        left=0.11,
+        right=0.98,
+        top=0.97,
+        bottom=0.34,
     )
     output.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(
         output,
         format="pdf",
+        bbox_inches="tight",
+        pad_inches=0.05,
         metadata={
             "Title": spec.title,
             "Author": "CoInfoSim",
