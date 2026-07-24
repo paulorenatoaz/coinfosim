@@ -9,35 +9,7 @@ O código-fonte está disponível em:
 \url{https://github.com/paulorenatoaz/coinfosim}
 \end{center}
 
-A auditoria metodológica original e a redação dos resultados herdados (Seção~\ref{sec:resultados-guia}) consideraram o estado do repositório na branch \texttt{feature/support2-random-forest} então vigente. A presente revisão editorial --- que migra a terminologia e a matemática ativa do arcabouço $\NstarHistorical$ retirado para o esquema $\Wmat/\Rmat$ dos perfis de cooperação preditiva --- parte de:
-
-\begin{quote}
-\texttt{ce1bafd83a34fc3aeef504ab450fa8d75dbcaff3}\\
-\textit{Merge feature/support2-random-forest (main)}
-\end{quote}
-
-na branch \texttt{feature/academic-report-revision}, que já inclui, fundido em \texttt{main}, o refatoramento de código descrito em
-
-\begin{center}
-\small\texttt{docs/tasks/\allowbreak predictive\_cooperation\_profile\_refactor\_tasks.md}
-\end{center}
-
-\noindent O commit final desta revisão editorial é
-
-\begin{quote}
-\texttt{f7cfb0b3}\\
-\textit{docs: professionally revise report and presentation for predictive profiles}
-\end{quote}
-
-\noindent registrado também no log de revisão
-
-\begin{center}
-\small\texttt{docs/tasks/\allowbreak academic\_documents\_predictive\_profile\_revision\_log.md}
-\end{center}
-
-A citação do software é fornecida em \texttt{CITATION.cff} e na entrada bibliográfica \texttt{azevedo2026coinfosim} \cite{azevedo2026coinfosim}.
-
-Uma revisão editorial subsequente (Seção~\ref{sec:resultados-guia}) fechou a lacuna de disponibilidade de dados então registrada: os resultados brutos por replicação das execuções \textit{full} de Occupancy, Air Quality e SUPPORT2 foram recuperados e regenerados sob o refatoramento semântico do arcabouço de perfil de cooperação preditiva, e os quatro indicadores foram recalculados diretamente pelo código atual para os quatro cenários de escala completa (Capítulo~7). O commit final desta revisão é registrado em \texttt{REVISION\_LOG.md}.
+Este relatório documenta o \CoInfoSim{} \CoInfoSimVersion{}. Os quatro indicadores de preservação do perfil de cooperação preditiva ($\rankrho$, $\AW$, $\AR$, $\DR$, $\SR$) foram computados diretamente pelo código atual (\texttt{coinfosim.results.predictive\_profile}) para os cenários de escala completa (Capítulo~5), a partir dos resultados brutos por replicação persistidos, sem nova simulação de Monte Carlo. A citação do software é fornecida em \texttt{CITATION.cff} e na entrada bibliográfica \texttt{azevedo2026coinfosim} \cite{azevedo2026coinfosim}.
 
 \section{Estrutura dos artefatos persistidos}
 
@@ -55,7 +27,7 @@ Cada execução de simulação persiste configuração, metadados, estado do acu
   \item número de replicações e razão de parada para cada $n$.
 \end{itemize}
 
-Os arquivos \texttt{scenario.json} e \texttt{simulation.json} contêm registros legíveis; o resultado completo permanece em arquivos compactados adjacentes para a regeneração exata dos relatórios.
+Os arquivos \texttt{scenario.json} e \texttt{simulation.json} contêm registros legíveis; o resultado completo permanece em arquivos compactados adjacentes para a regeneração exata dos relatórios. Cada cenário regenerado emite ainda, ao lado do relatório HTML, o manifesto semântico e os artefatos de proveniência formal (\texttt{semantic\_manifest.json}, \texttt{provenance.provjson}, \texttt{provenance.provn}, \texttt{provenance.ttl}); este apêndice descreve apenas onde e como esses artefatos são produzidos --- sua interpretação formal, o mapeamento de tipos PROV-O e os limites da camada semântica são detalhados no Apêndice~E.
 
 \section{Configuração experimental comum}
 
@@ -124,8 +96,8 @@ coinfosim scenario regenerate <slug> --run-id <id> \
 
 Essa separação mantém o cálculo científico independente da apresentação. A publicação no GitHub Pages copia os diretórios de relatórios e dados para o ramo de publicação e reconstrói a página inicial que aponta para os cenários disponíveis.
 
-\begin{limitationbox}[Estado do renderizador HTML no commit então auditado --- resolvido nesta revisão]
-Uma revisão editorial anterior identificou que o renderizador de cenário ainda emitia rótulos do arcabouço $\NstarHistorical$ retirado (por exemplo, "Progressive N-star similarity") mesmo quando a camada de análise já implementava corretamente os indicadores do esquema $\Wmat/\Rmat$, e registrou essa inconsistência como um bloqueio de terminologia fora do escopo daquela revisão (que não alterava \texttt{src/coinfosim}). Esse bloqueio foi resolvido pelo refatoramento semântico do arcabouço de perfil de cooperação preditiva: o renderizador de cenário e a camada de análise (\texttt{coinfosim.results.predictive\_profile}) usam agora a mesma terminologia canônica --- $\Wmat$, $\Rmat$, $\rankrho$, $\AW$, $\AR$, $\SR$, $\DR$ --- em \texttt{schema\_version=3}, com \texttt{coinfosim.results.structural} mantido apenas como \textit{shim} de compatibilidade que reexporta as funções canônicas sob os nomes anteriores.
+\begin{limitationbox}[Terminologia do renderizador HTML]
+O renderizador de cenário e a camada de análise (\texttt{coinfosim.results.predictive\_profile}) usam a mesma terminologia canônica --- $\Wmat$, $\Rmat$, $\rankrho$, $\AW$, $\AR$, $\SR$, $\DR$ --- em \texttt{schema\_version=3}, idêntica à deste relatório.
 \end{limitationbox}
 
 \section{Regeneração direta dos indicadores $\Wmat$/$\Rmat$ a partir de resultados persistidos}
@@ -179,7 +151,7 @@ O mesmo padrão, combinado com as funções do módulo
   \item \texttt{profile\_metric\_series\_figure},
 \end{itemize}
 
-\noindent produziu, respectivamente, as matrizes $\Wmat$/$\Rmat$ em \path{figures/wr_matrices/support2_full/} (Capítulo~6) e as figuras de evolução dos quatro indicadores por $n$ em \path{figures/predictive_profile_metrics/} (Capítulo~7). Este comando é reprodutível por qualquer pessoa com acesso ao repositório e ao diretório \path{output/reports/} (rastreado fora do controle de versão, mas presente no ambiente auditado); ele não requer, nem executa, nenhuma nova simulação. Nenhum resultado de execução \textit{smoke} foi utilizado para gerar figuras ou tabelas deste relatório; o modo \textit{smoke} do \CoInfoSim{} (Seção anterior) é reservado a testes e validação computacional do código, não a produção de evidência científica.
+\noindent produziu, respectivamente, as matrizes $\Wmat$/$\Rmat$ em \path{figures/wr_matrices/support2_full/} (Apêndice~D) e as figuras de evolução dos quatro indicadores por $n$ em \path{figures/predictive_profile_metrics/} (Capítulo~5). Este comando é reprodutível por qualquer pessoa com acesso ao repositório e ao diretório \path{output/reports/} (rastreado fora do controle de versão, mas presente no ambiente auditado); ele não requer, nem executa, nenhuma nova simulação. Nenhum resultado de execução \textit{smoke} foi utilizado para gerar figuras ou tabelas deste relatório; o modo \textit{smoke} do \CoInfoSim{} (Seção anterior) é reservado a testes e validação computacional do código, não a produção de evidência científica.
 
 \section{Compilação deste relatório}
 
@@ -189,9 +161,7 @@ Este documento usa XeLaTeX e Biber. A compilação recomendada é:
 latexmk -xelatex main.tex
 \end{verbatim}
 
-O preâmbulo segue o manual acadêmico da UFRJ para página A4, margens, espaçamento, paginação e estrutura, com elementos tipográficos inspirados no template da Sociedade Brasileira de Computação. O PDF final deve ser renderizado e inspecionado visualmente após qualquer alteração de figuras, tabelas ou metadados.
-
-Uma revisão editorial anterior não dispunha dos binários \texttt{xelatex} nem \texttt{biber} no ambiente então utilizado, e não pôde compilar nem inspecionar visualmente o PDF resultante. Esse ambiente foi posteriormente completado com o TeXLive necessário; o documento é compilado e inspecionado visualmente ao final de cada revisão desde então, incluindo a presente.
+O preâmbulo segue o manual acadêmico da UFRJ para página A4, margens, espaçamento, paginação e estrutura, com elementos tipográficos inspirados no template da Sociedade Brasileira de Computação. O PDF final é renderizado e inspecionado visualmente após qualquer alteração de figuras, tabelas ou metadados, incluindo ao final desta revisão.
 
 \section{Checklist mínimo de replicação}
 

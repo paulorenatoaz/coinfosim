@@ -1,26 +1,11 @@
-\chapter{SELEÇÃO, CARACTERIZAÇÃO E PREPARAÇÃO DOS DATASETS}
+\chapter{DADOS, DESENHO EXPERIMENTAL E PROVENIÊNCIA}
+\label{chap:datasets}
 
 \section{Critérios de seleção}
 
-A passagem dos cenários gaussianos idealizados para experimentos ancorados em dados reais exigiu mais do que a escolha de bases públicas com número suficiente de linhas. O protocolo demanda que cada variável selecionada possa ser interpretada como um canal de informação, que o alvo possua significado defensável no domínio, que o número de canais permita a enumeração exaustiva dos subconjuntos não vazios e que seja possível construir uma separação entre treinamento e teste compatível com a dependência presente nos dados. Também se exigiu que todas as operações dependentes dos dados --- definição de limiar, padronização, parametrização dos geradores e calibração dos classificadores --- fossem executadas sem acesso ao conjunto de teste.
+A passagem dos cenários gaussianos idealizados para experimentos ancorados em dados reais exigiu mais do que a escolha de bases públicas com número suficiente de linhas. O protocolo demanda que cada variável selecionada possa ser interpretada como um canal de informação, que o alvo possua significado defensável no domínio, que o número de canais permita a enumeração exaustiva dos subconjuntos não vazios e que seja possível construir uma separação entre treinamento e teste compatível com a dependência presente nos dados. Também se exigiu que todas as operações dependentes dos dados --- definição de limiar, padronização, parametrização dos geradores e calibração dos classificadores --- fossem executadas sem acesso ao conjunto de teste, para evitar o vazamento de informação descrito por \textcite{Kaufman2012}: em dados com estrutura temporal, espacial, hierárquica ou por grupos, divisões aleatórias podem produzir estimativas excessivamente otimistas, e a estratégia de validação deve representar a forma de generalização de interesse \cite{Roberts2017,Bergmeir2012}.
 
-Esses critérios são importantes porque a disponibilidade pública de um arquivo tabular não garante que suas linhas possam ser tratadas como observações independentes. Vazamento de informação pode ocorrer quando variáveis relacionadas ao desfecho, etapas de pré-processamento ou observações correlacionadas aparecem simultaneamente no treinamento e na avaliação \cite{Kaufman2012}. Em dados com estrutura temporal, espacial, hierárquica ou por grupos, divisões aleatórias podem produzir estimativas excessivamente otimistas; nesses casos, a estratégia de validação deve representar a forma de generalização de interesse \cite{Roberts2017,Bergmeir2012}.
-
-Foram priorizados problemas binários de pequena ou média dimensionalidade, com canais fisicamente ou semanticamente interpretáveis e conjuntos de dados reais de treinamento capazes de sustentar amostragem balanceada em diferentes valores de $n$. A dimensionalidade foi deliberadamente mantida baixa: com $d$ canais, o número de subconjuntos não vazios é $2^d-1$, de modo que o custo do experimento cresce exponencialmente antes mesmo de considerar classificadores, braços, tamanhos amostrais e replicações.
-
-\section{Datasets considerados e não incorporados}
-
-\subsection{CSI Wi-Fi}
-
-Dados de informação de estado do canal em redes Wi-Fi foram considerados por representarem um exemplo natural de múltiplos canais de informação. Entretanto, as observações costumam estar organizadas por indivíduo, sessão, posição, ambiente ou janela temporal. Uma divisão aleatória de linhas poderia colocar no treinamento e no teste medições muito próximas ou provenientes da mesma realização física, permitindo que o classificador explorasse dependências específicas da sessão em vez de generalizar para novas condições.
-
-A incorporação desse tipo de dado exigiria definir previamente a unidade amostral, a política de agrupamento e o regime de generalização: novas janelas da mesma sessão, novas sessões do mesmo indivíduo, novos indivíduos ou novos ambientes. Como essa modelagem excedia o escopo temporal do presente trabalho, o dataset não foi tratado como uma tabela de linhas independentes. A decisão segue as recomendações de validação estruturada para dados temporal e hierarquicamente dependentes \cite{Roberts2017,Bergmeir2012}.
-
-\subsection{Sistema hidráulico industrial}
-
-Também foi estudada a possibilidade de utilizar dados de monitoramento de um sistema hidráulico industrial. Nesse domínio, diferentes sensores registram séries durante ciclos operacionais, e o alvo pode representar falhas ou condições do equipamento. Apesar da aderência à motivação de custo e seleção de sensores, a transformação de séries e ciclos em observações classificáveis requer decisões próprias: agregação temporal, segmentação, independência entre ciclos e separação por período ou regime operacional.
-
-O dataset permanece relevante para trabalhos futuros, mas sua inclusão no protocolo atual exigiria uma extensão explícita para dados dependentes no tempo. O adiamento evita que uma sequência temporal seja artificialmente tratada como um conjunto tabular independente e reduz o risco de vazamento entre ciclos correlacionados \cite{Kaufman2012,Roberts2017}.
+Foram priorizados problemas binários de pequena ou média dimensionalidade, com canais fisicamente ou semanticamente interpretáveis e conjuntos de dados reais de treinamento capazes de sustentar amostragem balanceada em diferentes valores de $n$. A dimensionalidade foi deliberadamente mantida baixa: com $d$ canais, o número de subconjuntos não vazios é $2^d-1$, de modo que o custo do experimento cresce exponencialmente antes mesmo de considerar classificadores, braços, tamanhos amostrais e replicações. Dois candidatos foram avaliados e adiados por essa razão: dados de informação de estado do canal em redes Wi-Fi (CSI) e dados de monitoramento de um sistema hidráulico industrial. Em ambos, as observações estão organizadas por sessão, indivíduo, posição ou ciclo operacional, de modo que uma divisão aleatória de linhas poderia colocar no treinamento e no teste medições correlacionadas, permitindo que o classificador explorasse dependências específicas da sessão em vez de generalizar para novas condições \cite{Roberts2017,Bergmeir2012}. A incorporação correta desses dois conjuntos exigiria definir a unidade amostral, a política de agrupamento e o regime de generalização de interesse --- uma extensão explícita para dados dependentes no tempo, fora do escopo temporal deste trabalho, mas que permanece uma agenda relevante (Capítulo~7).
 
 \section{Occupancy Detection}
 
@@ -42,13 +27,13 @@ O alvo \texttt{Occupancy} assume 0 para sala desocupada e 1 para sala ocupada. C
 
 \subsection{Particionamento e preparação}
 
-Foi preservada a divisão distribuída com o dataset. O arquivo \texttt{datatraining.txt}, com 8.143 linhas, constitui os dados reais de treinamento. Os arquivos \texttt{datatest.txt} e \texttt{datatest2.txt}, com 2.665 e 9.752 linhas, respectivamente, são concatenados para formar um teste real fixo com 12.417 observações. Nos dados reais de treinamento, as classes 0 e 1 possuem 6.414 e 1.729 registros. No teste combinado, os totais correspondentes são 9.396 e 3.021.
+Foi preservada a divisão distribuída com o dataset. O arquivo \texttt{datatraining.txt}, com 8.143 linhas, constitui os dados reais de treinamento. Os arquivos \texttt{datatest.txt} e \texttt{datatest2.txt}, com 2.665 e 9.752 linhas, respectivamente, são concatenados para formar um teste real fixo com 12.417 observações. Nos dados reais de treinamento, as classes 0 e 1 possuem 6.414 e 1.729 registros; no teste combinado, os totais correspondentes são 9.396 e 3.021.
 
-A média e o desvio-padrão de cada canal são estimados exclusivamente nos dados reais de treinamento, usando desvio populacional ($\mathrm{ddof}=0$), e aplicados aos dois conjuntos. Não há imputação, e os arquivos empregados não apresentam valores ausentes nas colunas obrigatórias. A amostragem Monte Carlo do braço real é balanceada, sem reposição dentro de cada replicação, sendo seu maior $n$ limitado pela classe minoritária dos dados reais de treinamento.
+A média e o desvio-padrão de cada canal são estimados exclusivamente nos dados reais de treinamento, usando desvio populacional ($\mathrm{ddof}=0$), e aplicados aos dois conjuntos. Não há imputação, e os arquivos empregados não apresentam valores ausentes nas colunas obrigatórias.
 
 \subsection{Geometria observada}
 
-A inspeção das projeções padronizadas mostra classes com formas irregulares, concentrações alongadas e regiões cuja geometria se distancia de uma única elipse gaussiana. Essa característica torna o cenário especialmente informativo: a Gaussiana única produz pontos visualmente muito diferentes dos dados reais, enquanto o GMM acompanha melhor parte da forma empírica. Ainda assim, como será discutido nos resultados, fidelidade visual e preservação do perfil de cooperação preditiva não coincidem necessariamente. No maior $n$, a Gaussiana única pode apresentar correlação de ranking e \WinnersAgreement{} ligeiramente superiores às do GMM, mesmo quando o GMM parece imitar melhor a nuvem real. A Figura~\ref{fig:geom-occupancy-dataset} apresenta as projeções bidimensionais padronizadas dos três braços, extraídas do relatório do cenário 000002.
+A inspeção das projeções padronizadas mostra classes com formas irregulares, concentrações alongadas e regiões cuja geometria se distancia de uma única elipse gaussiana. Essa característica torna o cenário especialmente informativo: a Gaussiana única produz pontos visualmente muito diferentes dos dados reais, enquanto o GMM acompanha melhor parte da forma empírica. Ainda assim, como será discutido no Capítulo~5, fidelidade visual e preservação do perfil de cooperação preditiva não coincidem necessariamente. A Figura~\ref{fig:geom-occupancy-dataset} apresenta as projeções bidimensionais padronizadas dos três braços, extraídas do relatório do cenário 000002.
 
 \begin{figure}[H]
   \centering
@@ -84,7 +69,7 @@ A inspeção das projeções padronizadas mostra classes com formas irregulares,
     \subcaption{GMM}
   \end{minipage}
   \sourcebelow{relatório publicado do cenário Occupancy Detection 000002 do \CoInfoSim}
-  \notailustracao{A comparação geométrica é descritiva. A preservação do perfil de cooperação preditiva é avaliada separadamente pelos indicadores definidos no Capítulo 6}
+  \notailustracao{A comparação geométrica é descritiva. A preservação do perfil de cooperação preditiva é avaliada separadamente pelos indicadores definidos no Capítulo 4}
 \end{figure}
 
 \section{UCI Air Quality}
@@ -103,15 +88,17 @@ Foram selecionados os cinco canais de resposta:
   \item \texttt{PT08.S5(O3)}.
 \end{enumerate}
 
-A variável \texttt{C6H6(GT)}, obtida por analisador de referência, não é fornecida ao classificador. Ela é usada somente para construir o alvo binário \texttt{benzene\_elevated}. Assim, o problema representa a tentativa de inferir uma condição definida por equipamento de referência a partir de sensores potencialmente mais simples. O limiar experimental não constitui limite sanitário ou regulatório.
+A variável \texttt{C6H6(GT)}, obtida por analisador de referência, não é fornecida ao classificador; ela é usada somente para construir o alvo binário \texttt{benzene\_elevated}. Assim, o problema representa a tentativa de inferir uma condição definida por equipamento de referência a partir de sensores potencialmente mais simples. O limiar experimental não constitui limite sanitário ou regulatório.
 
-\subsection{Coorte, alvo e divisão cronológica}
+\subsection{Conjunto analítico, alvo e divisão cronológica}
 
-O arquivo possui 9.357 linhas não vazias. O valor sentinela $-200$ é convertido em ausente, e são mantidas apenas as observações completas nos cinco canais e na referência de benzeno. A coorte resultante contém 8.991 linhas; 366 observações são descartadas, sem imputação.
+O arquivo possui 9.357 linhas não vazias. O valor sentinela $-200$ é convertido em ausente, e são mantidas apenas as observações completas nos cinco canais e na referência de benzeno. O conjunto analítico resultante contém 8.991 linhas; 366 observações são descartadas, sem imputação.
 
-Depois da ordenação temporal, as primeiras 7.192 observações, correspondentes a 80\% da coorte, formam os dados reais de treinamento; as 1.799 observações posteriores formam o teste real fixo. O treinamento cobre o período de 10 de março de 2004, às 18h, até 16 de janeiro de 2005, à 1h. O teste começa imediatamente depois, às 2h, e termina em 4 de abril de 2005, às 14h. Esse corte preserva uma tarefa de generalização para observações futuras e impede que medições posteriores participem da parametrização dos geradores.
+Depois da ordenação temporal, as primeiras 7.192 observações, correspondentes a um corte cronológico de 80\% do conjunto analítico, formam os dados reais de treinamento; as 1.799 observações posteriores formam o teste real fixo. O treinamento cobre o período de 10 de março de 2004, às 18h, até 16 de janeiro de 2005, à 1h; o teste começa imediatamente depois, às 2h, e termina em 4 de abril de 2005, às 14h. Esse corte preserva uma tarefa de generalização para observações futuras e impede que medições posteriores participem da parametrização dos geradores.
 
-O limiar do alvo é o percentil 75 da referência \texttt{C6H6(GT)} calculado somente no treinamento, igual a 14,5 na preparação atual. A classe positiva satisfaz \texttt{C6H6(GT) >= 14.5}. O treinamento contém 5.374 negativos e 1.818 positivos; o teste, 1.524 negativos e 275 positivos. Os parâmetros de padronização são estimados apenas no treinamento e aplicados ao teste.
+O limiar do alvo é o percentil 75 da referência \texttt{C6H6(GT)} calculado somente no treinamento, igual a 14,5 na preparação atual; a classe positiva satisfaz \texttt{C6H6(GT) >= 14.5}. O treinamento contém 5.374 negativos e 1.818 positivos; o teste, 1.524 negativos e 275 positivos. Os parâmetros de padronização são estimados apenas no treinamento e aplicados ao teste.
+
+Além da execução \textit{full} de referência (cenário 000005, $n$ até 512), o Air Quality também foi executado em modo \textit{full-scale} (cenário 000006), que estende a mesma grade até 1.024 amostras por classe --- a maior potência de dois que não excede a classe minoritária do treinamento nesse dataset. Como o cenário 000006 usa um prefixo amostral diferente do dos demais cenários acadêmicos, este relatório adota a seguinte política editorial: os quatro indicadores de preservação do Air Quality no corpo do texto (Capítulo~5) usam sempre o cenário 000005, comparável diretamente a Occupancy e SUPPORT2 em $n\leq512$; o cenário 000006 é tratado como extensão suplementar, referenciada no Apêndice~A, e nunca é combinado com valores do cenário 000005 no mesmo indicador.
 
 \subsection{Geometria observada}
 
@@ -160,12 +147,10 @@ As projeções do Air Quality apresentam regiões mais compactas e elipsoidais d
 O SUPPORT foi um estudo multicêntrico sobre prognóstico, preferências e cuidados oferecidos a pacientes adultos gravemente enfermos \cite{support1995}. O modelo prognóstico associado estimou sobrevivência com base em informações clínicas disponíveis no início do acompanhamento \cite{knaus1995}. A versão pública SUPPORT2 utilizada neste trabalho é identificada pelo DOI \texttt{10.3886/ICPSR02957.v2}. O conjunto tornou-se um benchmark frequente em estudos de análise de sobrevivência e aprendizado de máquina, incluindo comparações entre modelos neurais, Cox e métodos de floresta de sobrevivência \cite{Kvamme2019Cox,Kvamme2019Continuous}.
 
 O presente trabalho não reproduz integralmente uma tarefa de sobrevivência com censura. Foi derivado um alvo binário fixo de mortalidade em 180 dias:
-
 \begin{equation}
   Y=\mathbb{1}\{\texttt{death}=1 \;\land\; \texttt{d.time}\leq 180\}.
   \label{eq:death180}
 \end{equation}
-
 O dia 180 é inclusivo. Pacientes com \texttt{death}=0 possuem acompanhamento superior ao horizonte no arquivo validado, permitindo a classificação binária sem rotular como sobrevivente um indivíduo cuja observação terminasse antes de 180 dias. Variáveis diretamente ligadas ao desfecho, como \texttt{death}, \texttt{d.time}, \texttt{hospdead}, \texttt{surv2m} e \texttt{surv6m}, são excluídas dos preditores.
 
 \subsection{Canais e coorte de casos completos}
@@ -192,7 +177,7 @@ A padronização utiliza somente o treinamento e $\mathrm{ddof}=0$. Não há imp
 
 \subsection{Geometria observada}
 
-As projeções selecionadas do SUPPORT2 mostram regiões mais compatíveis com aproximações elipsoidais do que o Occupancy, ainda que as classes permaneçam fortemente sobrepostas. Essa combinação --- forma aproximadamente regular e baixa separabilidade --- é relevante para distinguir a dificuldade de classificar pacientes da capacidade de preservar relações relativas entre subconjuntos. O resultado do Random Forest, discutido posteriormente, torna essa distinção especialmente clara. A Figura~\ref{fig:geom-support2-dataset} apresenta as projeções bidimensionais dos sete canais fisiológicos nos três braços do cenário 000008.
+As projeções selecionadas do SUPPORT2 mostram regiões mais compatíveis com aproximações elipsoidais do que o Occupancy, ainda que as classes permaneçam fortemente sobrepostas. Essa combinação --- forma aproximadamente regular e baixa separabilidade --- é relevante para distinguir a dificuldade de classificar pacientes da capacidade de preservar relações relativas entre subconjuntos; o resultado do Random Forest, discutido no Capítulo~5, torna essa distinção especialmente clara. A Figura~\ref{fig:geom-support2-dataset} apresenta as projeções bidimensionais dos sete canais fisiológicos nos três braços do cenário 000008.
 
 \begin{figure}[H]
   \centering
@@ -255,3 +240,112 @@ A Tabela \ref{tab:datasets-comparison} resume as diferenças que condicionam a i
   \end{tabularx}
   \sourcebelow{elaboração própria}
 \end{table}
+
+\section{Desenho experimental de três braços}
+
+\subsection{Notação}
+
+Considere um vetor padronizado de $d$ canais de informação, $X=(X_1,\ldots,X_d)$, e um alvo binário $Y\in\{0,1\}$. Um conjunto de índices $I\subseteq\{1,\ldots,d\}$ determina o subconjunto de canais $S_I=\{X_i:i\in I\}$; a coleção de todos os subconjuntos não vazios é denotada por $\mathcal{S}$, com $|\mathcal{S}|=2^d-1$. O classificador é indicado por $f$, o braço experimental por $g$, o número de amostras de treinamento por classe por $n$ e a replicação Monte Carlo por $r$.
+
+Para uma observação de teste $(x_t,y_t)$, a perda utilizada é o erro de classificação. Se o teste fixo possui $m$ observações, a perda da replicação é
+\begin{equation}
+  \widehat{L}^{(g)}_{S_I,f,r}(n)
+  =\frac{1}{m}\sum_{t=1}^{m}
+  \mathbf{1}\!\left\{\widehat{Y}^{(g,S_I,f)}_{t,r}(n)\neq y_t\right\}.
+  \label{eq:replication-loss}
+\end{equation}
+Após $R_n$ replicações concluídas para aquele tamanho amostral, a estimativa principal é
+\begin{equation}
+  \overline{L}^{(g)}_{S_I,f}(n)
+  =\frac{1}{R_n}\sum_{r=1}^{R_n}\widehat{L}^{(g)}_{S_I,f,r}(n).
+  \label{eq:mean-loss}
+\end{equation}
+O simulador calcula perda empírica no teste; não estima erro de treinamento, erro de Bayes ou perda teórica.
+
+\subsection{Padronização e prevenção de vazamento de informação}
+
+Para cada canal $j$, a média $\widehat{\mu}_j$ e o desvio-padrão $\widehat{\sigma}_j$ são calculados somente nos dados reais de treinamento. As observações são transformadas por
+\begin{equation}
+  Z_j=\frac{X_j-\widehat{\mu}_j}{\widehat{\sigma}_j}.
+  \label{eq:zscore}
+\end{equation}
+O mesmo par de parâmetros é aplicado ao teste real, o que impede que estatísticas do teste influenciem o treinamento dos classificadores, a parametrização dos geradores ou a calibração, além de evitar que canais com escalas numericamente maiores dominem classificadores sensíveis à escala, como SVM linear e Regressão Logística \cite{pedregosa2011}. Os modelos geradores são parametrizados no mesmo espaço padronizado e produzem as amostras sintéticas nesse espaço: médias, covariâncias e componentes não representam diretamente unidades físicas como graus Celsius, \textit{ppm} ou miligramas por decilitro, mas descrevem a geometria relativa dos canais após a transformação definida no treinamento.
+
+O protocolo separa seis operações --- definição ou derivação do alvo; seleção do conjunto analítico elegível; construção dos dados reais de treinamento e do teste real fixo; estimação dos parâmetros de padronização somente no treinamento; parametrização dos modelos geradores e eventual calibração do classificador somente no treinamento; e avaliação de todos os braços no mesmo teste real fixo --- de modo que nenhuma informação produzida a partir do teste participe da construção do classificador ou de suas entradas. No Air Quality, por exemplo, o percentil que define o alvo é calculado apenas na parte cronologicamente anterior; no SUPPORT2, o alvo é derivado antes do particionamento, mas suas variáveis-fonte são excluídas dos preditores. Esse cuidado responde ao problema de vazamento descrito por \textcite{Kaufman2012} e às limitações de validação aleatória em observações dependentes \cite{Roberts2017,Bergmeir2012}; a Seção~\ref{sec:provenance} mostra como a proveniência registrada torna essa separação auditável.
+
+\subsection{Três braços e teste real compartilhado}
+
+O desenho ancorado em datasets possui três braços:
+\begin{align}
+  &\RealToReal,\label{eq:method-arm-real}\\
+  &\GaussianToReal,\label{eq:method-arm-gaussian}\\
+  &\GMMToReal.\label{eq:method-arm-gmm}
+\end{align}
+No braço \RealToReal, amostras balanceadas são retiradas dos dados reais de treinamento padronizados. Nos dois braços sintéticos, os dois modelos geradores descritos no Apêndice~C, ajustados a partir desses mesmos dados reais de treinamento, produzem as amostras sintéticas usadas para treinar os classificadores. Em todos os casos, a avaliação ocorre no mesmo teste real fixo: essa assimetria é intencional, pois o gerador não é avaliado por produzir um teste artificial fácil para si próprio, mas por sustentar classificadores capazes de reproduzir relações que emergem quando o treinamento usa dados reais.
+
+A Figura~\ref{fig:conceito-pipeline} resume o fluxo completo. Os três braços partem dos mesmos dados reais de treinamento, divergem apenas na origem das amostras de treinamento e convergem novamente na avaliação, realizada sempre sobre o mesmo conjunto de teste real fixo. As perdas resultantes alimentam os indicadores de preservação do perfil definidos no Capítulo~4.
+
+\begin{figure}[H]
+  \centering
+  \caption{Fluxo experimental do \CoInfoSim{} com os três braços e o teste real compartilhado}
+  \label{fig:conceito-pipeline}
+  \includegraphics[width=\textwidth]{figures/conceptual/pipeline_condicoes.pdf}
+  \sourcebelow{elaboração própria}
+\end{figure}
+
+\subsection{Enumeração de subconjuntos, amostragem balanceada e grade de \texorpdfstring{$n$}{n}}
+
+Todos os subconjuntos não vazios são enumerados: para Occupancy e Air Quality, $d=5$ e $|\mathcal{S}|=31$; para SUPPORT2, $d=7$ e $|\mathcal{S}|=127$. Diferentemente do \SLACGS, que acompanhava uma sequência incremental prefixada de dimensões, o \CoInfoSim{} compara combinações arbitrárias e pode detectar redundância ou complementaridade que não apareceria em uma única ordem de adição.
+
+Em cada replicação, o treinamento contém exatamente $n$ observações de cada classe, o que controla a quantidade de evidência disponível por classe e evita que mudanças na prevalência de treinamento sejam confundidas com o efeito de $n$; essa escolha não afirma que o balanceamento seja universalmente superior nem altera a prevalência do teste real, que permanece própria de cada cenário \cite{He2009}. A grade principal usa potências de dois, de 2 até 512 amostras por classe nos cenários \textit{full}; o cenário \textit{full-scale} do Air Quality (000006) estende essa grade até a maior potência de dois que não excede a classe minoritária do treinamento. Para cada classe e replicação, é gerada uma ordem determinística de observações, de modo que o conjunto usado em um tamanho menor seja sempre prefixo do conjunto usado em qualquer tamanho maior:
+\begin{equation}
+  D^{(r,c)}_{2}\subset D^{(r,c)}_{4}\subset D^{(r,c)}_{8}\subset\cdots.
+  \label{eq:nested-samples}
+\end{equation}
+Esse pareamento não remove a incerteza Monte Carlo, mas reduz a variação irrelevante entre pontos consecutivos ao passar de $n$ para $2n$, mantendo as observações anteriores e adicionando apenas as novas --- estratégia relacionada ao princípio de números aleatórios comuns \cite{Kahn1953}, aqui usada para isolar melhor o efeito do crescimento amostral.
+
+\subsection{Réplicas Monte Carlo e critério de parada}
+
+As replicações são executadas em lotes; após cada lote e somente quando o mínimo de replicações foi alcançado, a execução para um dado $n$ termina por convergência quando a maior meia-largura observada do intervalo de confiança de 95\% da perda média, entre todas as células $(S_I,f)$, atinge uma tolerância $\varepsilon$,
+\begin{equation}
+  h_{\max}(n)\leq\varepsilon,
+  \label{eq:stopping}
+\end{equation}
+ou por orçamento quando o número máximo de replicações é alcançado. Os cenários de escala completa usam tolerância $\varepsilon=0{,}01$, mínimo de 100 e máximo de 2.000 replicações por lotes de 20 --- os demais modos de execução (\textit{smoke}, \textit{fast}, \textit{strict}) e o detalhamento completo do critério adaptativo são descritos no Apêndice~B. A carga aproximada de treinamentos de classificadores cresce com
+\begin{equation}
+  |\mathcal{N}|\times R\times(2^d-1)\times|\mathcal{F}|\times|\mathcal{G}|,
+  \label{eq:computational-load}
+\end{equation}
+o que torna a paralelização por processos uma condição prática para as execuções completas, especialmente no SUPPORT2; o mecanismo de paralelização, a política de sementes e a calibração do Random Forest são detalhados no Apêndice~B e no Apêndice~C.
+
+\section{Proveniência e rastreabilidade experimental}
+\label{sec:provenance}
+
+A proveniência não é, neste trabalho, um registro acessório de execução: é o mecanismo que torna auditável a separação entre dados usados para parametrizar treinamento e geradores e dados reservados à avaliação, e que permite rastrear qualquer número reportado até o resultado bruto, a atividade computacional e a versão de software que o produziram. Por isso ela é tratada aqui como parte do desenho experimental, e não apenas como material de reprodutibilidade. O \CoInfoSim{} distingue duas camadas, com escopos e formatos diferentes.
+
+\subsection{Rastreabilidade experimental}
+
+Cada execução persiste, junto dos resultados, os metadados necessários para reconstruir e auditar o experimento: origem e hash SHA-256 do arquivo de dados bruto; definição do alvo e seleção do conjunto analítico elegível; impressão digital da partição treino/teste; parâmetros de padronização; parâmetros dos modelos geradores e critério de seleção do GMM; classificadores e hiperparâmetros resolvidos, incluindo o artefato de calibração do Random Forest; sementes e sua política de derivação; grade efetiva de $n$, número de replicações e motivo de parada por $n$; e os resultados brutos por replicação, compactados, que permitem regenerar relatórios e figuras sem repetir a simulação de Monte Carlo. Essa camada é o que possibilita, por exemplo, verificar que a padronização e o ajuste dos geradores de um cenário usaram exclusivamente o conjunto de treinamento correspondente.
+
+\subsection{Proveniência formal do artefato científico}
+
+Além da rastreabilidade experimental, cada regeneração de cenário emite um grafo de proveniência formal, compatível com o vocabulário do \emph{W3C PROV Ontology} (PROV-O) \cite{provo2013}: um \texttt{prov:Entity} para cada artefato de dados ou resultado, um \texttt{prov:Activity} para cada atividade computacional, e um único \texttt{prov:SoftwareAgent} --- o próprio \CoInfoSim{} --- associado às atividades. A granularidade é por cenário/braço, não por replicação: uma atividade de preparação de dataset, até duas atividades de ajuste de gerador, três atividades de simulação (uma por braço), uma atividade de recomputação do perfil e uma atividade de geração de relatório, ligadas pelas relações \texttt{prov:used}, \texttt{prov:wasGeneratedBy} e \texttt{prov:wasAssociatedWith}, conforme o mapeamento completo em \texttt{docs/semantics/provenance\_mapping.md}. A cadeia central, comum a todo cenário, é
+\begin{center}
+\texttt{SourceDataset} $\to$ \texttt{DatasetPreparation} $\to$ \texttt{PreparedDataset} $\to$ \{\texttt{TrainingReservoir}, \texttt{FixedRealTestSet}\} $\to$ \{ajuste dos geradores, três execuções de simulação\} $\to$ \texttt{ResultData} $\to$ \texttt{ProfileComputation} $\to$ \texttt{PredictiveCooperationProfile} $\to$ \texttt{ReportGeneration} $\to$ \texttt{ReportArtifact},
+\end{center}
+ilustrada, com os tipos e relações efetivamente emitidos pelo código atual, na Figura~\ref{fig:prov-profile-derivation}. O Apêndice~E formaliza essa camada em detalhe, incluindo a tabela completa de tipos PROV-O, os formatos de serialização emitidos (PROV-JSON, PROV-N, PROV-O/Turtle e, quando disponível, um grafo Graphviz) e os limites explícitos do que a exportação atual modela.
+
+\begin{figure}[H]
+  \centering
+  \caption{Grafo de proveniência experimental formal: do dataset de origem ao artefato de relatório}
+  \label{fig:prov-profile-derivation}
+  \includegraphics[width=\textwidth]{figures/provenance/prov_profile_derivation.pdf}
+  \sourcebelow{elaboração própria; cadeia central simplificada, com os mesmos tipos e relações do grafo real (\texttt{provenance.provn}) emitido pelo código atual; ver Apêndice~E}
+  \notailustracao{A figura seleciona a cadeia central da proveniência \emph{experimental} e omite metadados de regeneração de relatório sem relevância científica direta (revisão de código, ambiente de execução); a lista completa de entidades e atividades do cenário está no Apêndice~E}
+\end{figure}
+
+O grafo formal, em conjunto com os metadados de rastreabilidade experimental, torna auditável --- para qualquer cenário regenerado --- que os dados usados para parametrizar treinamento e geradores (\texttt{TrainingReservoir}) e os dados reservados à avaliação (\texttt{FixedRealTestSet}) permaneceram entidades distintas ao longo de todo o pipeline, e que o mesmo conjunto de teste foi \texttt{prov:used} pelos três braços. Essa auditabilidade não prova a ausência absoluta de qualquer vazamento de informação; ela documenta e torna verificáveis os controles de separação de treino e teste descritos na seção anterior, testados automaticamente no código (\texttt{tests/test\_provenance\_model.py}).
+
+\begin{sloppypar}
+O vocabulário semântico subjacente --- termos como \texttt{PredictiveCooperationProfile}, \texttt{ReversalMatrix} ou \texttt{WinnerAgreement} ---, cada um com um identificador estável e rótulos em português e inglês, é formalizado em uma pequena ontologia OWL~2 que especializa a PROV-O (\texttt{ontology/coinfosim.owl.ttl}). Essa formalização declara uma taxonomia de classes e suas relações com PROV-O, mas não implementa raciocínio automático nem opera sobre um \emph{triple store}: não deve ser lida como uma ontologia de domínio completa no sentido de uma base de conhecimento com inferência, e sim como o vocabulário canônico do projeto, expresso em uma sintaxe formal auditável.
+\end{sloppypar}

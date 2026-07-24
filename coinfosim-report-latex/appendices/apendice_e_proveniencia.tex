@@ -1,0 +1,127 @@
+\chapter{PROVENIÊNCIA FORMAL E CAMADA SEMÂNTICA}
+\label{ap:proveniencia}
+
+O Capítulo~3 (Seção~\ref{sec:provenance}) apresenta a proveniência como componente do desenho experimental e mostra a cadeia central do grafo formal. Este apêndice detalha a formalização completa --- o mapeamento de tipos, as relações emitidas, os formatos de serialização e os limites explícitos do que a exportação atual modela --- para que qualquer afirmação numérica do relatório possa ser auditada até seu artefato de origem.
+
+\section{Escopo da camada formal}
+
+A proveniência formal do \CoInfoSim{} é compatível com o vocabulário do \emph{W3C PROV Ontology} (PROV-O) \cite{provo2013}: cada objeto do experimento é modelado como \texttt{prov:Entity} (um dado ou artefato), \texttt{prov:Activity} (uma computação) ou \texttt{prov:Agent} --- neste caso, especificamente \texttt{prov:SoftwareAgent}, papel do próprio \CoInfoSim{}. Uma execução de simulação é sempre uma atividade, nunca uma entidade. A granularidade é por cenário e por braço experimental, não por replicação Monte Carlo: não há nó de proveniência por réplica, tamanho amostral, subconjunto de canais, ajuste de classificador, célula de matriz ou estimativa de perda individual.
+
+A exportação é construída, para cada cenário regenerado, a partir de um único modelo canônico da biblioteca Python \texttt{prov} (\texttt{ProvDocument}), montado a partir de evidências normalizadas de proveniência. Desse modelo derivam, deterministicamente, todos os artefatos serializados listados na Tabela~\ref{tab:prov-artifacts}; nenhum deles é produzido de forma independente ou pode divergir dos demais.
+
+\begin{table}[H]
+  \centering
+  \small
+  \caption{Artefatos de proveniência emitidos por cenário regenerado}
+  \label{tab:prov-artifacts}
+  \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{4.3cm}>{\raggedright\arraybackslash}p{2.6cm}X}
+    \toprule
+    Arquivo & Formato & Condição de emissão \\
+    \midrule
+    \texttt{semantic\_\allowbreak manifest.json} & JSON & sempre \\
+    \texttt{provenance.provjson} & PROV-JSON & sempre \\
+    \texttt{provenance.provn} & PROV-N & sempre \\
+    \texttt{provenance.ttl} & PROV-O / Turtle & sempre \\
+    \texttt{provenance.png}, \texttt{provenance.pdf} & grafo Graphviz & somente quando \texttt{dot} está disponível no ambiente \\
+    \texttt{provenance.jsonld} & JSON-LD (legado) & mantido apenas como \emph{fallback} de compatibilidade \\
+    \bottomrule
+  \end{tabularx}
+  \sourcebelow{elaboração própria a partir de \texttt{docs/semantics/provenance\_mapping.md} e \texttt{src/coinfosim/provenance/export.py}}
+\end{table}
+
+O módulo \texttt{coinfosim.provenance.jsonld}, que produz \texttt{provenance.jsonld}, é mantido apenas como compatibilidade legada: ele modelava incorretamente uma execução de simulação como \texttt{prov:Entity} em vez de \texttt{prov:Activity}, inconsistência corrigida pelo modelo canônico atual. Nenhuma execução ou regeneração nova o utiliza como construtor de referência; publicações antigas do arquivo permanecem acessíveis, e a página inicial publicada aponta para os artefatos canônicos quando presentes, recorrendo ao JSON-LD apenas para cenários publicados antes desta camada existir. As figuras e o texto deste relatório referem-se sempre ao modelo canônico (PROV-JSON/PROV-N/Turtle), nunca ao JSON-LD legado.
+
+\section{Mapeamento de tipos}
+
+\begin{sloppypar}
+A Tabela~\ref{tab:prov-roles} resume o mapeamento entre objetos do \CoInfoSim{} e papéis PROV-O, na granularidade efetivamente emitida (mapeamento completo em \texttt{docs/semantics/provenance\_mapping.md}).
+\end{sloppypar}
+
+\begin{table}[H]
+  \centering
+  \small
+  \caption{Mapeamento CoInfoSim \texorpdfstring{$\to$}{->} PROV-O (seleção)}
+  \label{tab:prov-roles}
+  \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{3.6cm}>{\raggedright\arraybackslash}p{3.3cm}X}
+    \toprule
+    Objeto do CoInfoSim & Papel PROV-O & Tipo CoInfoSim \\
+    \midrule
+    Conjunto de dados fonte & \texttt{prov:Entity} & \texttt{coinfosim:\allowbreak SourceDataset} \\
+    Reservatório de treinamento & \texttt{prov:Entity} & \texttt{coinfosim:\allowbreak TrainingReservoir} \\
+    Teste real fixo & \texttt{prov:Entity} & \texttt{coinfosim:\allowbreak FixedRealTestSet} \\
+    Resultado bruto por braço & \texttt{prov:Entity} & \texttt{coinfosim:\allowbreak ResultData} \\
+    Perfil de cooperação preditiva & \texttt{prov:Entity} & \texttt{coinfosim:\allowbreak PredictiveCooperationProfile} \\
+    Artefato de relatório & \texttt{prov:Entity} & \texttt{coinfosim:\allowbreak ReportArtifact} \\
+    Preparação do dataset & \texttt{prov:Activity} & \texttt{coinfosim:\allowbreak DatasetPreparation} \\
+    Ajuste de gerador (Gaussiana única/GMM) & \texttt{prov:Activity} & \texttt{coinfosim:\allowbreak Fit\{SingleGaussian,\allowbreak GMM\}} \\
+    Execução de simulação (por braço) & \texttt{prov:Activity} & \texttt{coinfosim:\allowbreak\{Real,\allowbreak SingleGaussian,\allowbreak GMM\}\allowbreak SimulationRun} \\
+    Recomputação do perfil & \texttt{prov:Activity} & \texttt{coinfosim:\allowbreak ProfileComputation} \\
+    Geração do relatório & \texttt{prov:Activity} & \texttt{coinfosim:\allowbreak ReportGeneration} \\
+    O próprio \CoInfoSim{} & \texttt{prov:\allowbreak SoftwareAgent} & \texttt{coinfosim:\allowbreak CoInfoSimSoftwareAgent} \\
+    \bottomrule
+  \end{tabularx}
+  \sourcebelow{elaboração própria a partir de \texttt{docs/semantics/provenance\_mapping.md}}
+\end{table}
+
+\begin{sloppypar}
+As relações efetivamente emitidas são \texttt{prov:used} (uma atividade usa uma entidade), \texttt{prov:wasGeneratedBy} (uma entidade é produzida por uma atividade), \texttt{prov:wasDerivedFrom} (uma entidade deriva de outra) e \texttt{prov:wasAssociatedWith} (uma atividade é associada ao agente de software).
+\end{sloppypar}
+A cadeia causal completa, da preparação do dataset ao artefato de relatório, é
+
+\begin{center}
+\scriptsize
+\begin{verbatim}
+SourceDataset -> DatasetPreparation -> PreparedDataset, TrainingReservoir,
+                                        FixedRealTestSet
+TrainingReservoir -> Fit{SingleGaussian,GMM}
+                   -> Fitted{SingleGaussian,GMM}Generator
+TrainingReservoir/FittedGenerator, FixedRealTestSet
+                   -> {Real,...}SimulationRun -> ResultData
+ResultData (3 braços) -> ProfileComputation -> PredictiveCooperationProfile
+PredictiveCooperationProfile -> ReportGeneration -> ReportArtifact(s)
+\end{verbatim}
+\end{center}
+
+\noindent com as três atividades de simulação usando (\texttt{prov:used}) sempre a \emph{mesma} entidade \texttt{FixedRealTestSet} --- a base do invariante de não vazamento testado automaticamente em \texttt{tests/test\_provenance\_model.py} e discutido na Seção~\ref{sec:provenance}: é obrigatório que \texttt{TrainingReservoir} seja usado pelas atividades de ajuste dos geradores, e é proibido que \texttt{FixedRealTestSet} seja usado por qualquer uma delas.
+
+\section{Semantic manifest e vocabulário}
+
+Ao lado do grafo de proveniência, cada cenário regenerado emite \texttt{semantic\_manifest.json}, que registra a versão do vocabulário semântico utilizado, o tipo semântico do objeto central (\texttt{PredictiveCooperationProfile}), os identificadores canônicos das métricas presentes (por exemplo, \texttt{ReversalExistenceAgreement}), o hash SHA-256 e o caminho relativo de cada resultado bruto de origem, o hash de cada artefato de relatório produzido, e os identificadores de cenário e de simulação envolvidos. Um trecho ilustrativo do manifesto do cenário SUPPORT2 000008 é:
+
+\begin{quote}
+\scriptsize
+\begin{verbatim}
+"dataset_id": "support2",
+"scenario_run_id": "000008",
+"source_result_data": [
+  {"path": "output/reports/simulations/000024_.../"
+           "result_data_full_000024.json.gz",
+   "sha256": "175a5e6a7a35a4cee2299449497699797a8a732fb..."},
+  ...
+]
+\end{verbatim}
+\end{quote}
+
+Todos os caminhos persistidos são relativos ao repositório; nenhum caminho absoluto de máquina, usuário ou diretório temporário é gravado. Todos os hashes usam SHA-256. O grafo regenerado para cada cenário de escala completa contém uma preparação de dataset, até dois ajustes de gerador, três execuções de simulação, uma recomputação de perfil e uma geração de relatório, mais as entidades correspondentes de dados e artefatos de relatório --- números compatíveis com a granularidade descrita. Os manifestos e grafos persistidos registram também metadados internos de engenharia (revisão de código, ambiente de execução e, quando aplicável, origem de artefatos recuperados de uma publicação anterior) que apoiam a auditoria de regeneração do relatório, mas não fazem parte da proveniência \emph{científica} do experimento descrita neste apêndice e por isso não são detalhados aqui.
+
+O vocabulário semântico subjacente tem cada termo identificado por um ID estável (namespace \url{https://paulorenatoaz.github.io/coinfosim/ns#}), independente de mudanças posteriores no rótulo em português ou inglês; código e grafos de proveniência referenciam sempre o ID, nunca o texto do rótulo. Entre os termos centrais estão:
+
+\begin{center}
+\small
+\texttt{PredictiveCooperationProfile} \textbullet{} \texttt{WinnerMatrix} \textbullet{} \texttt{ReversalMatrix} \textbullet{} \texttt{WinnerAgreement} \textbullet{} \texttt{ReversalExistenceAgreement} \textbullet{} \texttt{ReversalSampleSizeSimilarity}
+\end{center}
+
+\noindent todos sob o prefixo \texttt{coinfosim:}. Esse vocabulário é formalizado em uma pequena ontologia OWL~2 (\texttt{ontology/coinfosim.owl.ttl}) que declara a taxonomia de classes do domínio, especializa as classes de PROV-O relevantes (por exemplo, \texttt{coinfosim:ResultData} como subclasse de \texttt{prov:Entity}) e reexporta, para cada conceito compartilhado, exatamente os mesmos rótulos e definições do vocabulário JSON canônico --- nunca uma paráfrase independente.
+
+\section{Não-objetivos}
+
+Para evitar sobreinterpretação, ficam registrados explicitamente os limites desta camada:
+
+\begin{itemize}
+  \item a ontologia OWL~2 declara uma taxonomia de classes com rótulos e comentários bilíngues; ela \textbf{não} implementa raciocínio automático, não é servida por um motor de inferência e não é consultável por um \emph{endpoint} SPARQL;
+  \item não há implantação de um \emph{triple store}; os artefatos são arquivos versionados junto de cada cenário, não um banco de grafos consultável em tempo real;
+  \item a proveniência é de escopo cenário/braço, não por replicação, subconjunto de canais ou célula de matriz --- perguntas nesse nível de granularidade devem ser respondidas pelos resultados brutos persistidos (Apêndice~A), não pelo grafo formal;
+  \item o grafo documenta e torna auditáveis os controles de separação entre dados de treinamento e dados de teste efetivamente implementados; ele não constitui, por si só, uma prova formal de ausência de vazamento de informação.
+\end{itemize}
+
+Essas correções não alteram os resultados numéricos deste relatório: elas garantem apenas que a leitura da camada de proveniência não seja generalizada além do que a exportação atual efetivamente modela.
