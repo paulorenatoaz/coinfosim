@@ -33,7 +33,7 @@
 
   \node[nota, text width=3.0cm, above=2mm of trainres] {\texttt{datatraining.txt}: reserva finita de treino};
   \node[nota, text width=3.4cm, below=2mm of fixedtest] {\texttt{datatest.txt}\,+\,\texttt{datatest2.txt}: partição original do doador, não um novo sorteio};
-  \node[nota, text width=3.0cm, below=2mm of dataprep] {padronização por canal: média/desvio estimados só no treino};
+  \node[nota, text width=3.0cm, below=2mm of dataprep] {padronização por atributo: média/desvio estimados só no treino};
 
   \node[atividade,minimum width=2.6cm] (fitgauss) at (3.2, 1.5) {\textbf{FitSingleGaussian}};
   \node[atividade,minimum width=2.6cm] (fitgmm)   at (3.2, -3.7) {\textbf{FitGMM}};

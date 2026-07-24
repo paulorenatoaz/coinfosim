@@ -36,7 +36,7 @@
 
   \node[nota, text width=4.0cm, above=2mm of trainres] {80/20 fixo, semente 0, estratificado por alvo $\times$ \texttt{dzgroup} (7\,098 pacientes)};
   \node[nota, text width=4.0cm, below=2mm of fixedtest] {teste real fixo (1\,775 pacientes), mesma estratificação conjunta};
-  \node[nota, text width=5.0cm, anchor=south west] at (-5.6, 4.3) {\texttt{death\_180d}: mortalidade em até 180 dias; \texttt{death}, \texttt{d.time}, \texttt{hospdead}, \texttt{surv2m}, \texttt{surv6m} excluídas dos preditores; casos completos nos 7 canais + alvo + \texttt{dzgroup} (8\,873 pacientes); \texttt{dzgroup} só estratifica/audita, não é canal preditor};
+  \node[nota, text width=5.0cm, anchor=south west] at (-5.6, 4.3) {\texttt{death\_180d}: mortalidade em até 180 dias; \texttt{death}, \texttt{d.time}, \texttt{hospdead}, \texttt{surv2m}, \texttt{surv6m} excluídas dos preditores; casos completos nos 7 atributos + alvo + \texttt{dzgroup} (8\,873 pacientes); \texttt{dzgroup} só estratifica/audita, não é atributo preditor};
 
   \node[atividade,minimum width=2.6cm] (fitgauss) at (3.2, 1.5) {\textbf{FitSingleGaussian}};
   \node[atividade,minimum width=2.6cm] (fitgmm)   at (3.2, -3.7) {\textbf{FitGMM}};
