@@ -113,6 +113,56 @@ O vocabulário semântico subjacente tem cada termo identificado por um ID está
 
 \noindent todos sob o prefixo \texttt{coinfosim:}. Esse vocabulário é formalizado em uma pequena ontologia OWL~2 (\texttt{ontology/coinfosim.owl.ttl}) que declara a taxonomia de classes do domínio, especializa as classes de PROV-O relevantes (por exemplo, \texttt{coinfosim:ResultData} como subclasse de \texttt{prov:Entity}) e reexporta, para cada conceito compartilhado, exatamente os mesmos rótulos e definições do vocabulário JSON canônico --- nunca uma paráfrase independente.
 
+\section{Tabela de rastreabilidade completa}
+\label{sec:tabela-rastreabilidade}
+
+A Tabela~\ref{tab:traceability} responde, para cada requisito de auditoria do experimento, o que precisou ser rastreado, como foi rastreado e onde a evidência está localizada.
+
+\begin{footnotesize}
+\begin{longtable}{>{\raggedright\arraybackslash}p{2.6cm}>{\raggedright\arraybackslash}p{3.6cm}>{\raggedright\arraybackslash}p{3.6cm}>{\raggedright\arraybackslash}p{3.4cm}}
+\caption{Rastreabilidade experimental completa}\label{tab:traceability}\\
+\toprule
+\textbf{Requisito} & \textbf{Evidência registrada} & \textbf{Representação PROV} & \textbf{Artefato / local} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Requisito} & \textbf{Evidência registrada} & \textbf{Representação PROV} & \textbf{Artefato / local} \\
+\midrule
+\endhead
+Origem do dataset & fonte pública (UCI/ICPSR) e DOI/identificador do estudo & \texttt{prov:Entity SourceDataset} & dataset bruto; Apêndice~A \\
+\addlinespace
+Integridade & hash SHA-256 do arquivo bruto & \texttt{used(DatasetPreparation, SourceDataset)} & \texttt{scenario.json} \\
+\addlinespace
+Seleção do conjunto analítico & critério de elegibilidade e observações completas retidas & \texttt{prov:Activity DatasetPreparation} & \texttt{scenario.json}, \texttt{preprocessing\_metadata.json} \\
+\addlinespace
+Construção do alvo & definição/limiar do alvo, calculado só no treino & \texttt{prov:Entity TargetSpecification} & \texttt{target\_metadata.json} \\
+\addlinespace
+Partição treino/teste & impressão digital da partição & \texttt{TrainingReservoir}, \texttt{FixedRealTestSet} \texttt{wasGeneratedBy DatasetPreparation} & \texttt{split\_manifest.json} \\
+\addlinespace
+Padronização & parâmetros de padronização, estimados só no treino ($\mathrm{ddof}=0$) & \texttt{prov:Entity PreprocessingSpecification} & \texttt{preprocessing\_metadata.json} \\
+\addlinespace
+Tipo/parâmetros do gerador & especificação de Gaussiana única e GMM (Apêndice~C) & \texttt{FitSingleGaussian}/\texttt{FitGMM} \texttt{wasGeneratedBy} \texttt{Fitted\{\ldots\}Generator} & \texttt{scenario.json}; Apêndice~C \\
+\addlinespace
+Origem do ajuste do gerador & uso exclusivo da reserva de treino & \texttt{used(Fit\{\ldots\}, TrainingReservoir)} & \texttt{provenance.provn}/\texttt{.ttl} \\
+\addlinespace
+Origem da avaliação & mesmo teste real fixo nos três braços & \texttt{used(\{Real,\ldots\}SimulationRun, FixedRealTestSet)} & \texttt{provenance.provn}/\texttt{.ttl} \\
+\addlinespace
+Execução por classificador/braço/$n$ & classificadores e hiperparâmetros resolvidos, grade de $n$ & \texttt{prov:Activity \{Real,SingleGaussian,GMM\}\allowbreak SimulationRun} & \texttt{scenario.json}, \texttt{simulation.json} \\
+\addlinespace
+Sementes, replicações e parada Monte Carlo & semente-base, política de derivação, nº de replicações e motivo de parada & metadados de \texttt{ExperimentConfiguration}, usados pelas execuções de simulação & \texttt{scenario.json}; Apêndice~B \\
+\addlinespace
+Resultados de perda & perda média e erro-padrão por $n$, ranking & \texttt{prov:Entity ResultData} \texttt{wasGeneratedBy SimulationRun} & \texttt{result\_data\_full\_*.json.gz} \\
+\addlinespace
+Perfil preditivo $\Wmat$/$\Rmat$/$\rankrho$/$\AW$/$\AR$/$\DR$/$\SR$ & valores computados por \texttt{coinfosim.\allowbreak results.\allowbreak predictive\_profile} & \texttt{PredictiveCooperationProfile} \texttt{wasGeneratedBy ProfileComputation} & \texttt{scenario.json}, \texttt{semantic\_manifest.json} \\
+\addlinespace
+Versão do software & \CoInfoSim{} \CoInfoSimVersion{} & \texttt{prov:SoftwareAgent} \texttt{wasAssociatedWith} as atividades de derivação & \texttt{CITATION.cff}; \cite{azevedo2026coinfosim} \\
+\addlinespace
+Derivação do relatório & artefatos HTML e figuras derivados do perfil & \texttt{prov:Entity ReportArtifact} \texttt{wasGeneratedBy ReportGeneration} & relatório publicado; Apêndice~A \\
+\bottomrule
+\sourcebelow{elaboração própria a partir de \texttt{docs/semantics/provenance\_mapping.md} e dos metadados persistidos por cenário}
+\end{longtable}
+\end{footnotesize}
+
 \section{Não-objetivos}
 
 Para evitar sobreinterpretação, ficam registrados explicitamente os limites desta camada:
