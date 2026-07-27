@@ -2634,7 +2634,14 @@
       "graph_structural_reversal_random_forest_gmm_to_real_n512": "output/reports/scenarios/000008_support2_baseline_full/graph_structural_reversal_random_forest_gmm_to_real_n512_full_000008.png"
     },
     "semantic_manifest": "output/reports/scenarios/000008_support2_baseline_full/semantic_manifest.json",
-    "provenance": "output/reports/scenarios/000008_support2_baseline_full/provenance.jsonld"
+    "provenance": "output/reports/scenarios/000008_support2_baseline_full/provenance.provjson",
+    "provenance_artifacts": {
+      "provjson": "output/reports/scenarios/000008_support2_baseline_full/provenance.provjson",
+      "provn": "output/reports/scenarios/000008_support2_baseline_full/provenance.provn",
+      "ttl": "output/reports/scenarios/000008_support2_baseline_full/provenance.ttl",
+      "png": "output/reports/scenarios/000008_support2_baseline_full/provenance.png",
+      "pdf": "output/reports/scenarios/000008_support2_baseline_full/provenance.pdf"
+    }
   },
   "report_data": {
     "channel_names": [
@@ -59538,11 +59545,18 @@
       "graph_structural_reversal_random_forest_gmm_to_real_n512": "graph_structural_reversal_random_forest_gmm_to_real_n512_full_000008.png"
     },
     "semantic_manifest_path": "output/reports/scenarios/000008_support2_baseline_full/semantic_manifest.json",
-    "provenance_path": "output/reports/scenarios/000008_support2_baseline_full/provenance.jsonld"
+    "provenance_path": "output/reports/scenarios/000008_support2_baseline_full/provenance.provjson"
   },
   "error": null,
-  "semantic_schema_version": "1.0.0",
+  "semantic_schema_version": "1.1.0",
   "semantic_manifest_path": "output/reports/scenarios/000008_support2_baseline_full/semantic_manifest.json",
-  "provenance_path": "output/reports/scenarios/000008_support2_baseline_full/provenance.jsonld",
-  "scientific_object_type": "coinfosim:PredictiveCooperationProfile"
+  "provenance_path": "output/reports/scenarios/000008_support2_baseline_full/provenance.provjson",
+  "scientific_object_type": "coinfosim:PredictiveCooperationProfile",
+  "provenance_artifacts": {
+    "provjson": "output/reports/scenarios/000008_support2_baseline_full/provenance.provjson",
+    "provn": "output/reports/scenarios/000008_support2_baseline_full/provenance.provn",
+    "ttl": "output/reports/scenarios/000008_support2_baseline_full/provenance.ttl",
+    "png": "output/reports/scenarios/000008_support2_baseline_full/provenance.png",
+    "pdf": "output/reports/scenarios/000008_support2_baseline_full/provenance.pdf"
+  }
 }

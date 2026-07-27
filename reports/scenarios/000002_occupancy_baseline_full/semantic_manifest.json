@@ -11,14 +11,18 @@
     "linear_svm",
     "logistic_regression"
   ],
-  "code_commit_sha": "ac73e95bd67dafda44529f99a85961bdf6ec9b04",
-  "dataset_id": "Occupancy Detection",
+  "code_commit_sha": "fc06772cbd1501bf62832eeb93aa92a88d5a9403",
+  "dataset_id": "occupancy_baseline",
   "fixed_real_test_set_statement": "All training conditions (real, single-Gaussian synthetic, GMM synthetic) are evaluated on the same fixed real evaluation split; the predictive cooperation profile compares training conditions, never test data.",
   "jsonld_context_path": "coinfosim/resources/coinfosim-context.jsonld",
   "original_simulation_commit_sha": null,
   "recovered_source_commit_sha": "c8f210458109a54a5268f1998683ff57802d2c09",
   "report_artifact_hashes": {
-    "output/reports/scenarios/000002_occupancy_baseline_full/occupancy_baseline_scenario_report_full_000002.html": "d6aaeaa4b829ae157a66be2bf01f8595e47f43817d410fedaaa197fba5aa1fb7"
+    "output/reports/scenarios/000002_occupancy_baseline_full/occupancy_baseline_scenario_report_full_000002.html": "69246707cf2591aafbb59ae04f82887dc4285a23b01259646250c4aa6027c458",
+    "output/reports/scenarios/000002_occupancy_baseline_full/occupancy_dataset_report_full_000002.html": "b15d5057f9045ceb48370e818fece4f95260d780f2266915425f9e87e859e2c8",
+    "output/reports/simulations/000006_occupancy_real_data_full/occupancy_real_data_monte_carlo_report_full_000006.html": "99de0979fb552f7921a781f47a7de711d01bbb468915f80b117314463cee68f3",
+    "output/reports/simulations/000007_occupancy_single_gaussian_to_real_full/occupancy_single_gaussian_to_real_monte_carlo_report_full_000007.html": "8173b1eb3a8ef7aba4fb875cb107935f98d4c9c06ce9876b0dca3e7db2b65462",
+    "output/reports/simulations/000008_occupancy_gmm_to_real_full/occupancy_gmm_to_real_monte_carlo_report_full_000008.html": "dd499e13acdbafa1e39bc23840f624b47d2f9558c039263eaacacde4eed25f49"
   },
   "sample_sizes": [
     2,
@@ -34,7 +38,7 @@
   "scenario_run_id": "000002",
   "scenario_slug": "occupancy_baseline",
   "semantic_type": "coinfosim:PredictiveCooperationProfile",
-  "semantic_vocabulary_version": "1.0.0",
+  "semantic_vocabulary_version": "1.1.0",
   "source_result_data": [
     {
       "path": "output/reports/simulations/000006_occupancy_real_data_full/result_data_full_000006.json.gz",

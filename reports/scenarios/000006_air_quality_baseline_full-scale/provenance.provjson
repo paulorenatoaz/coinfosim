@@ -1,0 +1,449 @@
+{
+  "activity": {
+    "cfurn:scenario:000006:artifact-recovery": {
+      "prov:label": "UCI Air Quality historical artifact recovery",
+      "prov:type": {
+        "$": "coinfosim:ArtifactRecovery",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:scenario:000006:dataset-preparation": {
+      "prov:label": "UCI Air Quality dataset preparation",
+      "prov:type": {
+        "$": "coinfosim:DatasetPreparation",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:scenario:000006:fit-gmm": {
+      "prov:label": "UCI Air Quality GMM fitting",
+      "prov:type": {
+        "$": "coinfosim:FitGMM",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:scenario:000006:fit-single-gaussian": {
+      "prov:label": "UCI Air Quality single Gaussian fitting",
+      "prov:type": {
+        "$": "coinfosim:FitSingleGaussian",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:scenario:000006:profile-computation": {
+      "prov:label": "UCI Air Quality predictive cooperation profile computation",
+      "prov:type": {
+        "$": "coinfosim:ProfileComputation",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:scenario:000006:report-generation": {
+      "prov:label": "UCI Air Quality report generation",
+      "prov:type": {
+        "$": "coinfosim:ReportGeneration",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:simulation:000018:real_to_real": {
+      "prov:label": "UCI Air Quality real_to_real simulation run",
+      "prov:type": {
+        "$": "coinfosim:RealSimulationRun",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:simulation:000019:single_gaussian_to_real": {
+      "prov:label": "UCI Air Quality single_gaussian_to_real simulation run",
+      "prov:type": {
+        "$": "coinfosim:SingleGaussianSimulationRun",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:simulation:000020:gmm_to_real": {
+      "prov:label": "UCI Air Quality gmm_to_real simulation run",
+      "prov:type": {
+        "$": "coinfosim:GMMSimulationRun",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    }
+  },
+  "agent": {
+    "cfurn:software:coinfosim": {
+      "prov:label": "CoInfoSim",
+      "prov:type": "prov:SoftwareAgent"
+    }
+  },
+  "entity": {
+    "cfurn:artifact:192d4e235b619b34:result-data:gmm_to_real": {
+      "prov:label": "UCI Air Quality gmm_to_real result data",
+      "prov:type": {
+        "$": "coinfosim:ResultData",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:artifact:31c0bfffeed7439f:real-arm-report": {
+      "prov:label": "UCI Air Quality real-arm-report",
+      "prov:type": {
+        "$": "coinfosim:ReportArtifact",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:artifact:7a35174fc49809cc:result-data:single_gaussian_to_real": {
+      "prov:label": "UCI Air Quality single_gaussian_to_real result data",
+      "prov:type": {
+        "$": "coinfosim:ResultData",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:artifact:7f5136ea9119779d:single-gaussian-arm-report": {
+      "prov:label": "UCI Air Quality single-gaussian-arm-report",
+      "prov:type": {
+        "$": "coinfosim:ReportArtifact",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:artifact:b992654a6ea3e764:result-data:real_to_real": {
+      "prov:label": "UCI Air Quality real_to_real result data",
+      "prov:type": {
+        "$": "coinfosim:ResultData",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:artifact:bd8cff27842e43b2:gmm-arm-report": {
+      "prov:label": "UCI Air Quality gmm-arm-report",
+      "prov:type": {
+        "$": "coinfosim:ReportArtifact",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:artifact:ec0cf00a7ac20ecf:scenario-report": {
+      "prov:label": "UCI Air Quality scenario-report",
+      "prov:type": {
+        "$": "coinfosim:ReportArtifact",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:artifact:f307de94ac078e8c:dataset-report": {
+      "prov:label": "UCI Air Quality dataset-report",
+      "prov:type": {
+        "$": "coinfosim:ReportArtifact",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:environment:39a7864cf4a60888": {
+      "prov:label": "Python 3.12.3 on Linux-x86_64",
+      "prov:type": {
+        "$": "coinfosim:ExecutionEnvironment",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:revision:c8f210458109a54a5268f1998683ff57802d2c09": {
+      "prov:label": "Git commit c8f210458109a54a5268f1998683ff57802d2c09",
+      "prov:type": {
+        "$": "coinfosim:CodeRevision",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:revision:fc06772cbd1501bf62832eeb93aa92a88d5a9403": {
+      "prov:label": "Git commit fc06772cbd1501bf62832eeb93aa92a88d5a9403",
+      "prov:type": {
+        "$": "coinfosim:CodeRevision",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:scenario:000006:experiment-configuration": {
+      "prov:label": "UCI Air Quality experiment configuration",
+      "prov:type": {
+        "$": "coinfosim:ExperimentConfiguration",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:scenario:000006:fitted-gmm-generator": {
+      "prov:label": "UCI Air Quality fitted GMM generator",
+      "prov:type": {
+        "$": "coinfosim:FittedGMMGenerator",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:scenario:000006:fitted-single-gaussian-generator": {
+      "prov:label": "UCI Air Quality fitted single Gaussian generator",
+      "prov:type": {
+        "$": "coinfosim:FittedSingleGaussianGenerator",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:scenario:000006:fixed-real-test-set": {
+      "prov:label": "UCI Air Quality fixed real test set",
+      "prov:type": {
+        "$": "coinfosim:FixedRealTestSet",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:scenario:000006:predictive-cooperation-profile": {
+      "prov:label": "UCI Air Quality predictive cooperation profile",
+      "prov:type": {
+        "$": "coinfosim:PredictiveCooperationProfile",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:scenario:000006:prepared-dataset": {
+      "prov:label": "UCI Air Quality prepared dataset",
+      "prov:type": {
+        "$": "coinfosim:PreparedDataset",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:scenario:000006:preprocessing-specification": {
+      "prov:label": "UCI Air Quality preprocessing specification",
+      "prov:type": {
+        "$": "coinfosim:PreprocessingSpecification",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:scenario:000006:recovered-artifact-set": {
+      "prov:label": "UCI Air Quality recovered gh-pages artifact set",
+      "prov:type": {
+        "$": "coinfosim:RecoveredArtifactSet",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:scenario:000006:source-dataset": {
+      "prov:label": "UCI Air Quality source dataset",
+      "prov:type": {
+        "$": "coinfosim:SourceDataset",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:scenario:000006:target-specification": {
+      "prov:label": "UCI Air Quality target specification",
+      "prov:type": {
+        "$": "coinfosim:TargetSpecification",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:scenario:000006:training-reservoir": {
+      "prov:label": "UCI Air Quality training reservoir",
+      "prov:type": {
+        "$": "coinfosim:TrainingReservoir",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    }
+  },
+  "prefix": {
+    "cfurn": "urn:coinfosim:",
+    "coinfosim": "https://paulorenatoaz.github.io/coinfosim/ns#"
+  },
+  "used": {
+    "_:id12": {
+      "prov:activity": "cfurn:scenario:000006:fit-gmm",
+      "prov:entity": "cfurn:scenario:000006:training-reservoir"
+    },
+    "_:id15": {
+      "prov:activity": "cfurn:simulation:000018:real_to_real",
+      "prov:entity": "cfurn:scenario:000006:training-reservoir"
+    },
+    "_:id16": {
+      "prov:activity": "cfurn:simulation:000018:real_to_real",
+      "prov:entity": "cfurn:scenario:000006:fixed-real-test-set"
+    },
+    "_:id17": {
+      "prov:activity": "cfurn:simulation:000018:real_to_real",
+      "prov:entity": "cfurn:scenario:000006:experiment-configuration"
+    },
+    "_:id2": {
+      "prov:activity": "cfurn:scenario:000006:dataset-preparation",
+      "prov:entity": "cfurn:scenario:000006:source-dataset"
+    },
+    "_:id20": {
+      "prov:activity": "cfurn:simulation:000019:single_gaussian_to_real",
+      "prov:entity": "cfurn:scenario:000006:fitted-single-gaussian-generator"
+    },
+    "_:id21": {
+      "prov:activity": "cfurn:simulation:000019:single_gaussian_to_real",
+      "prov:entity": "cfurn:scenario:000006:fixed-real-test-set"
+    },
+    "_:id22": {
+      "prov:activity": "cfurn:simulation:000019:single_gaussian_to_real",
+      "prov:entity": "cfurn:scenario:000006:experiment-configuration"
+    },
+    "_:id25": {
+      "prov:activity": "cfurn:simulation:000020:gmm_to_real",
+      "prov:entity": "cfurn:scenario:000006:fitted-gmm-generator"
+    },
+    "_:id26": {
+      "prov:activity": "cfurn:simulation:000020:gmm_to_real",
+      "prov:entity": "cfurn:scenario:000006:fixed-real-test-set"
+    },
+    "_:id27": {
+      "prov:activity": "cfurn:simulation:000020:gmm_to_real",
+      "prov:entity": "cfurn:scenario:000006:experiment-configuration"
+    },
+    "_:id3": {
+      "prov:activity": "cfurn:scenario:000006:dataset-preparation",
+      "prov:entity": "cfurn:scenario:000006:target-specification"
+    },
+    "_:id30": {
+      "prov:activity": "cfurn:scenario:000006:profile-computation",
+      "prov:entity": "cfurn:revision:fc06772cbd1501bf62832eeb93aa92a88d5a9403"
+    },
+    "_:id31": {
+      "prov:activity": "cfurn:scenario:000006:profile-computation",
+      "prov:entity": "cfurn:environment:39a7864cf4a60888"
+    },
+    "_:id32": {
+      "prov:activity": "cfurn:scenario:000006:profile-computation",
+      "prov:entity": "cfurn:artifact:b992654a6ea3e764:result-data:real_to_real"
+    },
+    "_:id33": {
+      "prov:activity": "cfurn:scenario:000006:profile-computation",
+      "prov:entity": "cfurn:artifact:7a35174fc49809cc:result-data:single_gaussian_to_real"
+    },
+    "_:id34": {
+      "prov:activity": "cfurn:scenario:000006:profile-computation",
+      "prov:entity": "cfurn:artifact:192d4e235b619b34:result-data:gmm_to_real"
+    },
+    "_:id37": {
+      "prov:activity": "cfurn:scenario:000006:report-generation",
+      "prov:entity": "cfurn:revision:fc06772cbd1501bf62832eeb93aa92a88d5a9403"
+    },
+    "_:id38": {
+      "prov:activity": "cfurn:scenario:000006:report-generation",
+      "prov:entity": "cfurn:environment:39a7864cf4a60888"
+    },
+    "_:id39": {
+      "prov:activity": "cfurn:scenario:000006:report-generation",
+      "prov:entity": "cfurn:scenario:000006:predictive-cooperation-profile"
+    },
+    "_:id4": {
+      "prov:activity": "cfurn:scenario:000006:dataset-preparation",
+      "prov:entity": "cfurn:scenario:000006:preprocessing-specification"
+    },
+    "_:id46": {
+      "prov:activity": "cfurn:scenario:000006:artifact-recovery",
+      "prov:entity": "cfurn:revision:fc06772cbd1501bf62832eeb93aa92a88d5a9403"
+    },
+    "_:id47": {
+      "prov:activity": "cfurn:scenario:000006:artifact-recovery",
+      "prov:entity": "cfurn:environment:39a7864cf4a60888"
+    },
+    "_:id48": {
+      "prov:activity": "cfurn:scenario:000006:artifact-recovery",
+      "prov:entity": "cfurn:revision:c8f210458109a54a5268f1998683ff57802d2c09"
+    },
+    "_:id9": {
+      "prov:activity": "cfurn:scenario:000006:fit-single-gaussian",
+      "prov:entity": "cfurn:scenario:000006:training-reservoir"
+    }
+  },
+  "wasAssociatedWith": {
+    "_:id1": {
+      "prov:activity": "cfurn:scenario:000006:dataset-preparation",
+      "prov:agent": "cfurn:software:coinfosim"
+    },
+    "_:id11": {
+      "prov:activity": "cfurn:scenario:000006:fit-gmm",
+      "prov:agent": "cfurn:software:coinfosim"
+    },
+    "_:id14": {
+      "prov:activity": "cfurn:simulation:000018:real_to_real",
+      "prov:agent": "cfurn:software:coinfosim"
+    },
+    "_:id19": {
+      "prov:activity": "cfurn:simulation:000019:single_gaussian_to_real",
+      "prov:agent": "cfurn:software:coinfosim"
+    },
+    "_:id24": {
+      "prov:activity": "cfurn:simulation:000020:gmm_to_real",
+      "prov:agent": "cfurn:software:coinfosim"
+    },
+    "_:id29": {
+      "prov:activity": "cfurn:scenario:000006:profile-computation",
+      "prov:agent": "cfurn:software:coinfosim"
+    },
+    "_:id36": {
+      "prov:activity": "cfurn:scenario:000006:report-generation",
+      "prov:agent": "cfurn:software:coinfosim"
+    },
+    "_:id45": {
+      "prov:activity": "cfurn:scenario:000006:artifact-recovery",
+      "prov:agent": "cfurn:software:coinfosim"
+    },
+    "_:id8": {
+      "prov:activity": "cfurn:scenario:000006:fit-single-gaussian",
+      "prov:agent": "cfurn:software:coinfosim"
+    }
+  },
+  "wasDerivedFrom": {
+    "_:id50": {
+      "prov:generatedEntity": "cfurn:artifact:b992654a6ea3e764:result-data:real_to_real",
+      "prov:usedEntity": "cfurn:scenario:000006:recovered-artifact-set"
+    },
+    "_:id51": {
+      "prov:generatedEntity": "cfurn:artifact:7a35174fc49809cc:result-data:single_gaussian_to_real",
+      "prov:usedEntity": "cfurn:scenario:000006:recovered-artifact-set"
+    },
+    "_:id52": {
+      "prov:generatedEntity": "cfurn:artifact:192d4e235b619b34:result-data:gmm_to_real",
+      "prov:usedEntity": "cfurn:scenario:000006:recovered-artifact-set"
+    }
+  },
+  "wasGeneratedBy": {
+    "_:id10": {
+      "prov:activity": "cfurn:scenario:000006:fit-single-gaussian",
+      "prov:entity": "cfurn:scenario:000006:fitted-single-gaussian-generator"
+    },
+    "_:id13": {
+      "prov:activity": "cfurn:scenario:000006:fit-gmm",
+      "prov:entity": "cfurn:scenario:000006:fitted-gmm-generator"
+    },
+    "_:id18": {
+      "prov:activity": "cfurn:simulation:000018:real_to_real",
+      "prov:entity": "cfurn:artifact:b992654a6ea3e764:result-data:real_to_real"
+    },
+    "_:id23": {
+      "prov:activity": "cfurn:simulation:000019:single_gaussian_to_real",
+      "prov:entity": "cfurn:artifact:7a35174fc49809cc:result-data:single_gaussian_to_real"
+    },
+    "_:id28": {
+      "prov:activity": "cfurn:simulation:000020:gmm_to_real",
+      "prov:entity": "cfurn:artifact:192d4e235b619b34:result-data:gmm_to_real"
+    },
+    "_:id35": {
+      "prov:activity": "cfurn:scenario:000006:profile-computation",
+      "prov:entity": "cfurn:scenario:000006:predictive-cooperation-profile"
+    },
+    "_:id40": {
+      "prov:activity": "cfurn:scenario:000006:report-generation",
+      "prov:entity": "cfurn:artifact:f307de94ac078e8c:dataset-report"
+    },
+    "_:id41": {
+      "prov:activity": "cfurn:scenario:000006:report-generation",
+      "prov:entity": "cfurn:artifact:31c0bfffeed7439f:real-arm-report"
+    },
+    "_:id42": {
+      "prov:activity": "cfurn:scenario:000006:report-generation",
+      "prov:entity": "cfurn:artifact:7f5136ea9119779d:single-gaussian-arm-report"
+    },
+    "_:id43": {
+      "prov:activity": "cfurn:scenario:000006:report-generation",
+      "prov:entity": "cfurn:artifact:bd8cff27842e43b2:gmm-arm-report"
+    },
+    "_:id44": {
+      "prov:activity": "cfurn:scenario:000006:report-generation",
+      "prov:entity": "cfurn:artifact:ec0cf00a7ac20ecf:scenario-report"
+    },
+    "_:id49": {
+      "prov:activity": "cfurn:scenario:000006:artifact-recovery",
+      "prov:entity": "cfurn:scenario:000006:recovered-artifact-set"
+    },
+    "_:id5": {
+      "prov:activity": "cfurn:scenario:000006:dataset-preparation",
+      "prov:entity": "cfurn:scenario:000006:prepared-dataset"
+    },
+    "_:id6": {
+      "prov:activity": "cfurn:scenario:000006:dataset-preparation",
+      "prov:entity": "cfurn:scenario:000006:training-reservoir"
+    },
+    "_:id7": {
+      "prov:activity": "cfurn:scenario:000006:dataset-preparation",
+      "prov:entity": "cfurn:scenario:000006:fixed-real-test-set"
+    }
+  }
+}

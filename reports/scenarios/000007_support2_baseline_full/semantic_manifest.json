@@ -11,14 +11,18 @@
     "linear_svm",
     "logistic_regression"
   ],
-  "code_commit_sha": "254b4acb0fb5acfcb7b02d0e723f740d40b2c6d3",
-  "dataset_id": "SUPPORT2",
+  "code_commit_sha": "fc06772cbd1501bf62832eeb93aa92a88d5a9403",
+  "dataset_id": "support2",
   "fixed_real_test_set_statement": "All training conditions (real, single-Gaussian synthetic, GMM synthetic) are evaluated on the same fixed real evaluation split; the predictive cooperation profile compares training conditions, never test data.",
   "jsonld_context_path": "coinfosim/resources/coinfosim-context.jsonld",
   "original_simulation_commit_sha": null,
   "recovered_source_commit_sha": "c8f210458109a54a5268f1998683ff57802d2c09",
   "report_artifact_hashes": {
-    "output/reports/scenarios/000007_support2_baseline_full/support2_scenario_report_full_000007.html": "10716b34cc05bf8960c5f010e937553e6db187b2e1e10586dcb54844d5799011"
+    "output/reports/scenarios/000007_support2_baseline_full/support2_dataset_report_full_000007.html": "1c2c3a51f95ff4d352208583a1f9a1cbebc4dc74d1b919855826489a57c4ad2e",
+    "output/reports/scenarios/000007_support2_baseline_full/support2_scenario_report_full_000007.html": "4fd916409e2412a0807bc6d81a0adb29c90a6ca81b53787bc17adbe5924acd7e",
+    "output/reports/simulations/000021_support2_real_data_full/support2_real_data_monte_carlo_report_full_000021.html": "a87a18b1f242eeed29fd3e213d78e8689ef243faf73bfb67dfffcf0c447cbb6d",
+    "output/reports/simulations/000022_support2_single_gaussian_to_real_full/support2_single_gaussian_to_real_monte_carlo_report_full_000022.html": "4867edb09ac6266138e8c2db787fae8052cf51ef98d4b1abab1e6d2aafcb4548",
+    "output/reports/simulations/000023_support2_gmm_to_real_full/support2_gmm_to_real_monte_carlo_report_full_000023.html": "dbd18cc6f1eddf4edc0c8eebc59e18ddc5d4eb0c85494ef0865271e5f608875d"
   },
   "sample_sizes": [
     2,
@@ -34,7 +38,7 @@
   "scenario_run_id": "000007",
   "scenario_slug": "support2_baseline",
   "semantic_type": "coinfosim:PredictiveCooperationProfile",
-  "semantic_vocabulary_version": "1.0.0",
+  "semantic_vocabulary_version": "1.1.0",
   "source_result_data": [
     {
       "path": "output/reports/simulations/000021_support2_real_data_full/result_data_full_000021.json.gz",

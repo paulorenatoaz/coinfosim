@@ -11,14 +11,18 @@
     "linear_svm",
     "logistic_regression"
   ],
-  "code_commit_sha": "254b4acb0fb5acfcb7b02d0e723f740d40b2c6d3",
-  "dataset_id": "UCI Air Quality",
+  "code_commit_sha": "fc06772cbd1501bf62832eeb93aa92a88d5a9403",
+  "dataset_id": "air_quality",
   "fixed_real_test_set_statement": "All training conditions (real, single-Gaussian synthetic, GMM synthetic) are evaluated on the same fixed real evaluation split; the predictive cooperation profile compares training conditions, never test data.",
   "jsonld_context_path": "coinfosim/resources/coinfosim-context.jsonld",
   "original_simulation_commit_sha": null,
   "recovered_source_commit_sha": "c8f210458109a54a5268f1998683ff57802d2c09",
   "report_artifact_hashes": {
-    "output/reports/scenarios/000006_air_quality_baseline_full-scale/air_quality_scenario_report_full-scale_000006.html": "61b1dc3bb57e766ee735413a9409ecca030c74e408e340f2931d2b5153ff7fa1"
+    "output/reports/scenarios/000006_air_quality_baseline_full-scale/air_quality_dataset_report_full-scale_000006.html": "f307de94ac078e8c1a4910f705a3af05fc8fa8a64683b7c023e109b7c3d2b4b2",
+    "output/reports/scenarios/000006_air_quality_baseline_full-scale/air_quality_scenario_report_full-scale_000006.html": "ec0cf00a7ac20ecf0c92bcd574231c9eaeb1a033951d003460f14624f6999cb4",
+    "output/reports/simulations/000018_air_quality_real_data_full-scale/air_quality_real_data_monte_carlo_report_full-scale_000018.html": "31c0bfffeed7439f267543d1db65a360a2273acc0c1a49e84081f85d8efda8be",
+    "output/reports/simulations/000019_air_quality_single_gaussian_to_real_full-scale/air_quality_single_gaussian_to_real_monte_carlo_report_full-scale_000019.html": "7f5136ea9119779ddc67b29c0837436c5a128b8750b265cf1e048a6c0b65a7f4",
+    "output/reports/simulations/000020_air_quality_gmm_to_real_full-scale/air_quality_gmm_to_real_monte_carlo_report_full-scale_000020.html": "bd8cff27842e43b245abcad21a36732c5e41b8cefdc8e98157d98be3b25aa0f5"
   },
   "sample_sizes": [
     2,
@@ -35,7 +39,7 @@
   "scenario_run_id": "000006",
   "scenario_slug": "air_quality_baseline",
   "semantic_type": "coinfosim:PredictiveCooperationProfile",
-  "semantic_vocabulary_version": "1.0.0",
+  "semantic_vocabulary_version": "1.1.0",
   "source_result_data": [
     {
       "path": "output/reports/simulations/000018_air_quality_real_data_full-scale/result_data_full-scale_000018.json.gz",

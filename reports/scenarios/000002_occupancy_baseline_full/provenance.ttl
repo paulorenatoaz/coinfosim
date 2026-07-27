@@ -1,0 +1,185 @@
+@prefix coinfosim: <https://paulorenatoaz.github.io/coinfosim/ns#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<urn:coinfosim:artifact:69246707cf2591aa:scenario-report> a prov:Entity,
+        coinfosim:ReportArtifact ;
+    rdfs:label "occupancy_baseline scenario-report"^^xsd:string ;
+    prov:wasGeneratedBy <urn:coinfosim:scenario:000002:report-generation> .
+
+<urn:coinfosim:artifact:8173b1eb3a8ef7ab:single-gaussian-arm-report> a prov:Entity,
+        coinfosim:ReportArtifact ;
+    rdfs:label "occupancy_baseline single-gaussian-arm-report"^^xsd:string ;
+    prov:wasGeneratedBy <urn:coinfosim:scenario:000002:report-generation> .
+
+<urn:coinfosim:artifact:99de0979fb552f79:real-arm-report> a prov:Entity,
+        coinfosim:ReportArtifact ;
+    rdfs:label "occupancy_baseline real-arm-report"^^xsd:string ;
+    prov:wasGeneratedBy <urn:coinfosim:scenario:000002:report-generation> .
+
+<urn:coinfosim:artifact:b15d5057f9045ceb:dataset-report> a prov:Entity,
+        coinfosim:ReportArtifact ;
+    rdfs:label "occupancy_baseline dataset-report"^^xsd:string ;
+    prov:wasGeneratedBy <urn:coinfosim:scenario:000002:report-generation> .
+
+<urn:coinfosim:artifact:dd499e13acdbafa1:gmm-arm-report> a prov:Entity,
+        coinfosim:ReportArtifact ;
+    rdfs:label "occupancy_baseline gmm-arm-report"^^xsd:string ;
+    prov:wasGeneratedBy <urn:coinfosim:scenario:000002:report-generation> .
+
+<urn:coinfosim:scenario:000002:prepared-dataset> a prov:Entity,
+        coinfosim:PreparedDataset ;
+    rdfs:label "occupancy_baseline prepared dataset"^^xsd:string ;
+    prov:wasGeneratedBy <urn:coinfosim:scenario:000002:dataset-preparation> .
+
+<urn:coinfosim:artifact:2bb46b4fe2aff6e4:result-data:real_to_real> a prov:Entity,
+        coinfosim:ResultData ;
+    rdfs:label "occupancy_baseline real_to_real result data"^^xsd:string ;
+    prov:wasDerivedFrom <urn:coinfosim:scenario:000002:recovered-artifact-set> ;
+    prov:wasGeneratedBy <urn:coinfosim:simulation:000006:real_to_real> .
+
+<urn:coinfosim:artifact:bc4aacf4a34ac520:result-data:gmm_to_real> a prov:Entity,
+        coinfosim:ResultData ;
+    rdfs:label "occupancy_baseline gmm_to_real result data"^^xsd:string ;
+    prov:wasDerivedFrom <urn:coinfosim:scenario:000002:recovered-artifact-set> ;
+    prov:wasGeneratedBy <urn:coinfosim:simulation:000008:gmm_to_real> .
+
+<urn:coinfosim:artifact:d62f830916ad0eab:result-data:single_gaussian_to_real> a prov:Entity,
+        coinfosim:ResultData ;
+    rdfs:label "occupancy_baseline single_gaussian_to_real result data"^^xsd:string ;
+    prov:wasDerivedFrom <urn:coinfosim:scenario:000002:recovered-artifact-set> ;
+    prov:wasGeneratedBy <urn:coinfosim:simulation:000007:single_gaussian_to_real> .
+
+<urn:coinfosim:revision:c8f210458109a54a5268f1998683ff57802d2c09> a prov:Entity,
+        coinfosim:CodeRevision ;
+    rdfs:label "Git commit c8f210458109a54a5268f1998683ff57802d2c09"^^xsd:string .
+
+<urn:coinfosim:scenario:000002:artifact-recovery> a prov:Activity,
+        coinfosim:ArtifactRecovery ;
+    rdfs:label "occupancy_baseline historical artifact recovery"^^xsd:string ;
+    prov:used <urn:coinfosim:environment:39a7864cf4a60888>,
+        <urn:coinfosim:revision:c8f210458109a54a5268f1998683ff57802d2c09>,
+        <urn:coinfosim:revision:fc06772cbd1501bf62832eeb93aa92a88d5a9403> ;
+    prov:wasAssociatedWith <urn:coinfosim:software:coinfosim> .
+
+<urn:coinfosim:scenario:000002:fit-gmm> a prov:Activity,
+        coinfosim:FitGMM ;
+    rdfs:label "occupancy_baseline GMM fitting"^^xsd:string ;
+    prov:used <urn:coinfosim:scenario:000002:training-reservoir> ;
+    prov:wasAssociatedWith <urn:coinfosim:software:coinfosim> .
+
+<urn:coinfosim:scenario:000002:fit-single-gaussian> a prov:Activity,
+        coinfosim:FitSingleGaussian ;
+    rdfs:label "occupancy_baseline single Gaussian fitting"^^xsd:string ;
+    prov:used <urn:coinfosim:scenario:000002:training-reservoir> ;
+    prov:wasAssociatedWith <urn:coinfosim:software:coinfosim> .
+
+<urn:coinfosim:scenario:000002:fitted-gmm-generator> a prov:Entity,
+        coinfosim:FittedGMMGenerator ;
+    rdfs:label "occupancy_baseline fitted GMM generator"^^xsd:string ;
+    prov:wasGeneratedBy <urn:coinfosim:scenario:000002:fit-gmm> .
+
+<urn:coinfosim:scenario:000002:fitted-single-gaussian-generator> a prov:Entity,
+        coinfosim:FittedSingleGaussianGenerator ;
+    rdfs:label "occupancy_baseline fitted single Gaussian generator"^^xsd:string ;
+    prov:wasGeneratedBy <urn:coinfosim:scenario:000002:fit-single-gaussian> .
+
+<urn:coinfosim:scenario:000002:predictive-cooperation-profile> a prov:Entity,
+        coinfosim:PredictiveCooperationProfile ;
+    rdfs:label "occupancy_baseline predictive cooperation profile"^^xsd:string ;
+    prov:wasGeneratedBy <urn:coinfosim:scenario:000002:profile-computation> .
+
+<urn:coinfosim:scenario:000002:preprocessing-specification> a prov:Entity,
+        coinfosim:PreprocessingSpecification ;
+    rdfs:label "occupancy_baseline preprocessing specification"^^xsd:string .
+
+<urn:coinfosim:scenario:000002:profile-computation> a prov:Activity,
+        coinfosim:ProfileComputation ;
+    rdfs:label "occupancy_baseline predictive cooperation profile computation"^^xsd:string ;
+    prov:used <urn:coinfosim:artifact:2bb46b4fe2aff6e4:result-data:real_to_real>,
+        <urn:coinfosim:artifact:bc4aacf4a34ac520:result-data:gmm_to_real>,
+        <urn:coinfosim:artifact:d62f830916ad0eab:result-data:single_gaussian_to_real>,
+        <urn:coinfosim:environment:39a7864cf4a60888>,
+        <urn:coinfosim:revision:fc06772cbd1501bf62832eeb93aa92a88d5a9403> ;
+    prov:wasAssociatedWith <urn:coinfosim:software:coinfosim> .
+
+<urn:coinfosim:scenario:000002:source-dataset> a prov:Entity,
+        coinfosim:SourceDataset ;
+    rdfs:label "occupancy_baseline source dataset"^^xsd:string .
+
+<urn:coinfosim:scenario:000002:target-specification> a prov:Entity,
+        coinfosim:TargetSpecification ;
+    rdfs:label "occupancy_baseline target specification"^^xsd:string .
+
+<urn:coinfosim:simulation:000006:real_to_real> a prov:Activity,
+        coinfosim:RealSimulationRun ;
+    rdfs:label "occupancy_baseline real_to_real simulation run"^^xsd:string ;
+    prov:used <urn:coinfosim:scenario:000002:experiment-configuration>,
+        <urn:coinfosim:scenario:000002:fixed-real-test-set>,
+        <urn:coinfosim:scenario:000002:training-reservoir> ;
+    prov:wasAssociatedWith <urn:coinfosim:software:coinfosim> .
+
+<urn:coinfosim:simulation:000007:single_gaussian_to_real> a prov:Activity,
+        coinfosim:SingleGaussianSimulationRun ;
+    rdfs:label "occupancy_baseline single_gaussian_to_real simulation run"^^xsd:string ;
+    prov:used <urn:coinfosim:scenario:000002:experiment-configuration>,
+        <urn:coinfosim:scenario:000002:fitted-single-gaussian-generator>,
+        <urn:coinfosim:scenario:000002:fixed-real-test-set> ;
+    prov:wasAssociatedWith <urn:coinfosim:software:coinfosim> .
+
+<urn:coinfosim:simulation:000008:gmm_to_real> a prov:Activity,
+        coinfosim:GMMSimulationRun ;
+    rdfs:label "occupancy_baseline gmm_to_real simulation run"^^xsd:string ;
+    prov:used <urn:coinfosim:scenario:000002:experiment-configuration>,
+        <urn:coinfosim:scenario:000002:fitted-gmm-generator>,
+        <urn:coinfosim:scenario:000002:fixed-real-test-set> ;
+    prov:wasAssociatedWith <urn:coinfosim:software:coinfosim> .
+
+<urn:coinfosim:environment:39a7864cf4a60888> a prov:Entity,
+        coinfosim:ExecutionEnvironment ;
+    rdfs:label "Python 3.12.3 on Linux-x86_64"^^xsd:string .
+
+<urn:coinfosim:revision:fc06772cbd1501bf62832eeb93aa92a88d5a9403> a prov:Entity,
+        coinfosim:CodeRevision ;
+    rdfs:label "Git commit fc06772cbd1501bf62832eeb93aa92a88d5a9403"^^xsd:string .
+
+<urn:coinfosim:scenario:000002:dataset-preparation> a prov:Activity,
+        coinfosim:DatasetPreparation ;
+    rdfs:label "occupancy_baseline dataset preparation"^^xsd:string ;
+    prov:used <urn:coinfosim:scenario:000002:preprocessing-specification>,
+        <urn:coinfosim:scenario:000002:source-dataset>,
+        <urn:coinfosim:scenario:000002:target-specification> ;
+    prov:wasAssociatedWith <urn:coinfosim:software:coinfosim> .
+
+<urn:coinfosim:scenario:000002:experiment-configuration> a prov:Entity,
+        coinfosim:ExperimentConfiguration ;
+    rdfs:label "occupancy_baseline experiment configuration"^^xsd:string .
+
+<urn:coinfosim:scenario:000002:fixed-real-test-set> a prov:Entity,
+        coinfosim:FixedRealTestSet ;
+    rdfs:label "occupancy_baseline fixed real test set"^^xsd:string ;
+    prov:wasGeneratedBy <urn:coinfosim:scenario:000002:dataset-preparation> .
+
+<urn:coinfosim:scenario:000002:recovered-artifact-set> a prov:Entity,
+        coinfosim:RecoveredArtifactSet ;
+    rdfs:label "occupancy_baseline recovered gh-pages artifact set"^^xsd:string ;
+    prov:wasGeneratedBy <urn:coinfosim:scenario:000002:artifact-recovery> .
+
+<urn:coinfosim:scenario:000002:training-reservoir> a prov:Entity,
+        coinfosim:TrainingReservoir ;
+    rdfs:label "occupancy_baseline training reservoir"^^xsd:string ;
+    prov:wasGeneratedBy <urn:coinfosim:scenario:000002:dataset-preparation> .
+
+<urn:coinfosim:scenario:000002:report-generation> a prov:Activity,
+        coinfosim:ReportGeneration ;
+    rdfs:label "occupancy_baseline report generation"^^xsd:string ;
+    prov:used <urn:coinfosim:environment:39a7864cf4a60888>,
+        <urn:coinfosim:revision:fc06772cbd1501bf62832eeb93aa92a88d5a9403>,
+        <urn:coinfosim:scenario:000002:predictive-cooperation-profile> ;
+    prov:wasAssociatedWith <urn:coinfosim:software:coinfosim> .
+
+<urn:coinfosim:software:coinfosim> a prov:Agent,
+        "prov:SoftwareAgent"^^xsd:string ;
+    rdfs:label "CoInfoSim"^^xsd:string .
+

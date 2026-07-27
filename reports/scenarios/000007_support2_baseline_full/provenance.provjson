@@ -1,0 +1,449 @@
+{
+  "activity": {
+    "cfurn:scenario:000007:artifact-recovery": {
+      "prov:label": "SUPPORT2 historical artifact recovery",
+      "prov:type": {
+        "$": "coinfosim:ArtifactRecovery",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:scenario:000007:dataset-preparation": {
+      "prov:label": "SUPPORT2 dataset preparation",
+      "prov:type": {
+        "$": "coinfosim:DatasetPreparation",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:scenario:000007:fit-gmm": {
+      "prov:label": "SUPPORT2 GMM fitting",
+      "prov:type": {
+        "$": "coinfosim:FitGMM",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:scenario:000007:fit-single-gaussian": {
+      "prov:label": "SUPPORT2 single Gaussian fitting",
+      "prov:type": {
+        "$": "coinfosim:FitSingleGaussian",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:scenario:000007:profile-computation": {
+      "prov:label": "SUPPORT2 predictive cooperation profile computation",
+      "prov:type": {
+        "$": "coinfosim:ProfileComputation",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:scenario:000007:report-generation": {
+      "prov:label": "SUPPORT2 report generation",
+      "prov:type": {
+        "$": "coinfosim:ReportGeneration",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:simulation:000021:real_to_real": {
+      "prov:label": "SUPPORT2 real_to_real simulation run",
+      "prov:type": {
+        "$": "coinfosim:RealSimulationRun",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:simulation:000022:single_gaussian_to_real": {
+      "prov:label": "SUPPORT2 single_gaussian_to_real simulation run",
+      "prov:type": {
+        "$": "coinfosim:SingleGaussianSimulationRun",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:simulation:000023:gmm_to_real": {
+      "prov:label": "SUPPORT2 gmm_to_real simulation run",
+      "prov:type": {
+        "$": "coinfosim:GMMSimulationRun",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    }
+  },
+  "agent": {
+    "cfurn:software:coinfosim": {
+      "prov:label": "CoInfoSim",
+      "prov:type": "prov:SoftwareAgent"
+    }
+  },
+  "entity": {
+    "cfurn:artifact:1c2c3a51f95ff4d3:dataset-report": {
+      "prov:label": "SUPPORT2 dataset-report",
+      "prov:type": {
+        "$": "coinfosim:ReportArtifact",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:artifact:4867edb09ac62661:single-gaussian-arm-report": {
+      "prov:label": "SUPPORT2 single-gaussian-arm-report",
+      "prov:type": {
+        "$": "coinfosim:ReportArtifact",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:artifact:4fd916409e2412a0:scenario-report": {
+      "prov:label": "SUPPORT2 scenario-report",
+      "prov:type": {
+        "$": "coinfosim:ReportArtifact",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:artifact:97194b29b6cc3fd9:result-data:gmm_to_real": {
+      "prov:label": "SUPPORT2 gmm_to_real result data",
+      "prov:type": {
+        "$": "coinfosim:ResultData",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:artifact:a87a18b1f242eeed:real-arm-report": {
+      "prov:label": "SUPPORT2 real-arm-report",
+      "prov:type": {
+        "$": "coinfosim:ReportArtifact",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:artifact:c35ecf4da6476e40:result-data:real_to_real": {
+      "prov:label": "SUPPORT2 real_to_real result data",
+      "prov:type": {
+        "$": "coinfosim:ResultData",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:artifact:dbd18cc6f1eddf4e:gmm-arm-report": {
+      "prov:label": "SUPPORT2 gmm-arm-report",
+      "prov:type": {
+        "$": "coinfosim:ReportArtifact",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:artifact:ec181887df5b5332:result-data:single_gaussian_to_real": {
+      "prov:label": "SUPPORT2 single_gaussian_to_real result data",
+      "prov:type": {
+        "$": "coinfosim:ResultData",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:environment:39a7864cf4a60888": {
+      "prov:label": "Python 3.12.3 on Linux-x86_64",
+      "prov:type": {
+        "$": "coinfosim:ExecutionEnvironment",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:revision:c8f210458109a54a5268f1998683ff57802d2c09": {
+      "prov:label": "Git commit c8f210458109a54a5268f1998683ff57802d2c09",
+      "prov:type": {
+        "$": "coinfosim:CodeRevision",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:revision:fc06772cbd1501bf62832eeb93aa92a88d5a9403": {
+      "prov:label": "Git commit fc06772cbd1501bf62832eeb93aa92a88d5a9403",
+      "prov:type": {
+        "$": "coinfosim:CodeRevision",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:scenario:000007:experiment-configuration": {
+      "prov:label": "SUPPORT2 experiment configuration",
+      "prov:type": {
+        "$": "coinfosim:ExperimentConfiguration",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:scenario:000007:fitted-gmm-generator": {
+      "prov:label": "SUPPORT2 fitted GMM generator",
+      "prov:type": {
+        "$": "coinfosim:FittedGMMGenerator",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:scenario:000007:fitted-single-gaussian-generator": {
+      "prov:label": "SUPPORT2 fitted single Gaussian generator",
+      "prov:type": {
+        "$": "coinfosim:FittedSingleGaussianGenerator",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:scenario:000007:fixed-real-test-set": {
+      "prov:label": "SUPPORT2 fixed real test set",
+      "prov:type": {
+        "$": "coinfosim:FixedRealTestSet",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:scenario:000007:predictive-cooperation-profile": {
+      "prov:label": "SUPPORT2 predictive cooperation profile",
+      "prov:type": {
+        "$": "coinfosim:PredictiveCooperationProfile",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:scenario:000007:prepared-dataset": {
+      "prov:label": "SUPPORT2 prepared dataset",
+      "prov:type": {
+        "$": "coinfosim:PreparedDataset",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:scenario:000007:preprocessing-specification": {
+      "prov:label": "SUPPORT2 preprocessing specification",
+      "prov:type": {
+        "$": "coinfosim:PreprocessingSpecification",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:scenario:000007:recovered-artifact-set": {
+      "prov:label": "SUPPORT2 recovered gh-pages artifact set",
+      "prov:type": {
+        "$": "coinfosim:RecoveredArtifactSet",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:scenario:000007:source-dataset": {
+      "prov:label": "SUPPORT2 source dataset",
+      "prov:type": {
+        "$": "coinfosim:SourceDataset",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:scenario:000007:target-specification": {
+      "prov:label": "SUPPORT2 target specification",
+      "prov:type": {
+        "$": "coinfosim:TargetSpecification",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    },
+    "cfurn:scenario:000007:training-reservoir": {
+      "prov:label": "SUPPORT2 training reservoir",
+      "prov:type": {
+        "$": "coinfosim:TrainingReservoir",
+        "type": "prov:QUALIFIED_NAME"
+      }
+    }
+  },
+  "prefix": {
+    "cfurn": "urn:coinfosim:",
+    "coinfosim": "https://paulorenatoaz.github.io/coinfosim/ns#"
+  },
+  "used": {
+    "_:id12": {
+      "prov:activity": "cfurn:scenario:000007:fit-gmm",
+      "prov:entity": "cfurn:scenario:000007:training-reservoir"
+    },
+    "_:id15": {
+      "prov:activity": "cfurn:simulation:000021:real_to_real",
+      "prov:entity": "cfurn:scenario:000007:training-reservoir"
+    },
+    "_:id16": {
+      "prov:activity": "cfurn:simulation:000021:real_to_real",
+      "prov:entity": "cfurn:scenario:000007:fixed-real-test-set"
+    },
+    "_:id17": {
+      "prov:activity": "cfurn:simulation:000021:real_to_real",
+      "prov:entity": "cfurn:scenario:000007:experiment-configuration"
+    },
+    "_:id2": {
+      "prov:activity": "cfurn:scenario:000007:dataset-preparation",
+      "prov:entity": "cfurn:scenario:000007:source-dataset"
+    },
+    "_:id20": {
+      "prov:activity": "cfurn:simulation:000022:single_gaussian_to_real",
+      "prov:entity": "cfurn:scenario:000007:fitted-single-gaussian-generator"
+    },
+    "_:id21": {
+      "prov:activity": "cfurn:simulation:000022:single_gaussian_to_real",
+      "prov:entity": "cfurn:scenario:000007:fixed-real-test-set"
+    },
+    "_:id22": {
+      "prov:activity": "cfurn:simulation:000022:single_gaussian_to_real",
+      "prov:entity": "cfurn:scenario:000007:experiment-configuration"
+    },
+    "_:id25": {
+      "prov:activity": "cfurn:simulation:000023:gmm_to_real",
+      "prov:entity": "cfurn:scenario:000007:fitted-gmm-generator"
+    },
+    "_:id26": {
+      "prov:activity": "cfurn:simulation:000023:gmm_to_real",
+      "prov:entity": "cfurn:scenario:000007:fixed-real-test-set"
+    },
+    "_:id27": {
+      "prov:activity": "cfurn:simulation:000023:gmm_to_real",
+      "prov:entity": "cfurn:scenario:000007:experiment-configuration"
+    },
+    "_:id3": {
+      "prov:activity": "cfurn:scenario:000007:dataset-preparation",
+      "prov:entity": "cfurn:scenario:000007:target-specification"
+    },
+    "_:id30": {
+      "prov:activity": "cfurn:scenario:000007:profile-computation",
+      "prov:entity": "cfurn:revision:fc06772cbd1501bf62832eeb93aa92a88d5a9403"
+    },
+    "_:id31": {
+      "prov:activity": "cfurn:scenario:000007:profile-computation",
+      "prov:entity": "cfurn:environment:39a7864cf4a60888"
+    },
+    "_:id32": {
+      "prov:activity": "cfurn:scenario:000007:profile-computation",
+      "prov:entity": "cfurn:artifact:c35ecf4da6476e40:result-data:real_to_real"
+    },
+    "_:id33": {
+      "prov:activity": "cfurn:scenario:000007:profile-computation",
+      "prov:entity": "cfurn:artifact:ec181887df5b5332:result-data:single_gaussian_to_real"
+    },
+    "_:id34": {
+      "prov:activity": "cfurn:scenario:000007:profile-computation",
+      "prov:entity": "cfurn:artifact:97194b29b6cc3fd9:result-data:gmm_to_real"
+    },
+    "_:id37": {
+      "prov:activity": "cfurn:scenario:000007:report-generation",
+      "prov:entity": "cfurn:revision:fc06772cbd1501bf62832eeb93aa92a88d5a9403"
+    },
+    "_:id38": {
+      "prov:activity": "cfurn:scenario:000007:report-generation",
+      "prov:entity": "cfurn:environment:39a7864cf4a60888"
+    },
+    "_:id39": {
+      "prov:activity": "cfurn:scenario:000007:report-generation",
+      "prov:entity": "cfurn:scenario:000007:predictive-cooperation-profile"
+    },
+    "_:id4": {
+      "prov:activity": "cfurn:scenario:000007:dataset-preparation",
+      "prov:entity": "cfurn:scenario:000007:preprocessing-specification"
+    },
+    "_:id46": {
+      "prov:activity": "cfurn:scenario:000007:artifact-recovery",
+      "prov:entity": "cfurn:revision:fc06772cbd1501bf62832eeb93aa92a88d5a9403"
+    },
+    "_:id47": {
+      "prov:activity": "cfurn:scenario:000007:artifact-recovery",
+      "prov:entity": "cfurn:environment:39a7864cf4a60888"
+    },
+    "_:id48": {
+      "prov:activity": "cfurn:scenario:000007:artifact-recovery",
+      "prov:entity": "cfurn:revision:c8f210458109a54a5268f1998683ff57802d2c09"
+    },
+    "_:id9": {
+      "prov:activity": "cfurn:scenario:000007:fit-single-gaussian",
+      "prov:entity": "cfurn:scenario:000007:training-reservoir"
+    }
+  },
+  "wasAssociatedWith": {
+    "_:id1": {
+      "prov:activity": "cfurn:scenario:000007:dataset-preparation",
+      "prov:agent": "cfurn:software:coinfosim"
+    },
+    "_:id11": {
+      "prov:activity": "cfurn:scenario:000007:fit-gmm",
+      "prov:agent": "cfurn:software:coinfosim"
+    },
+    "_:id14": {
+      "prov:activity": "cfurn:simulation:000021:real_to_real",
+      "prov:agent": "cfurn:software:coinfosim"
+    },
+    "_:id19": {
+      "prov:activity": "cfurn:simulation:000022:single_gaussian_to_real",
+      "prov:agent": "cfurn:software:coinfosim"
+    },
+    "_:id24": {
+      "prov:activity": "cfurn:simulation:000023:gmm_to_real",
+      "prov:agent": "cfurn:software:coinfosim"
+    },
+    "_:id29": {
+      "prov:activity": "cfurn:scenario:000007:profile-computation",
+      "prov:agent": "cfurn:software:coinfosim"
+    },
+    "_:id36": {
+      "prov:activity": "cfurn:scenario:000007:report-generation",
+      "prov:agent": "cfurn:software:coinfosim"
+    },
+    "_:id45": {
+      "prov:activity": "cfurn:scenario:000007:artifact-recovery",
+      "prov:agent": "cfurn:software:coinfosim"
+    },
+    "_:id8": {
+      "prov:activity": "cfurn:scenario:000007:fit-single-gaussian",
+      "prov:agent": "cfurn:software:coinfosim"
+    }
+  },
+  "wasDerivedFrom": {
+    "_:id50": {
+      "prov:generatedEntity": "cfurn:artifact:c35ecf4da6476e40:result-data:real_to_real",
+      "prov:usedEntity": "cfurn:scenario:000007:recovered-artifact-set"
+    },
+    "_:id51": {
+      "prov:generatedEntity": "cfurn:artifact:ec181887df5b5332:result-data:single_gaussian_to_real",
+      "prov:usedEntity": "cfurn:scenario:000007:recovered-artifact-set"
+    },
+    "_:id52": {
+      "prov:generatedEntity": "cfurn:artifact:97194b29b6cc3fd9:result-data:gmm_to_real",
+      "prov:usedEntity": "cfurn:scenario:000007:recovered-artifact-set"
+    }
+  },
+  "wasGeneratedBy": {
+    "_:id10": {
+      "prov:activity": "cfurn:scenario:000007:fit-single-gaussian",
+      "prov:entity": "cfurn:scenario:000007:fitted-single-gaussian-generator"
+    },
+    "_:id13": {
+      "prov:activity": "cfurn:scenario:000007:fit-gmm",
+      "prov:entity": "cfurn:scenario:000007:fitted-gmm-generator"
+    },
+    "_:id18": {
+      "prov:activity": "cfurn:simulation:000021:real_to_real",
+      "prov:entity": "cfurn:artifact:c35ecf4da6476e40:result-data:real_to_real"
+    },
+    "_:id23": {
+      "prov:activity": "cfurn:simulation:000022:single_gaussian_to_real",
+      "prov:entity": "cfurn:artifact:ec181887df5b5332:result-data:single_gaussian_to_real"
+    },
+    "_:id28": {
+      "prov:activity": "cfurn:simulation:000023:gmm_to_real",
+      "prov:entity": "cfurn:artifact:97194b29b6cc3fd9:result-data:gmm_to_real"
+    },
+    "_:id35": {
+      "prov:activity": "cfurn:scenario:000007:profile-computation",
+      "prov:entity": "cfurn:scenario:000007:predictive-cooperation-profile"
+    },
+    "_:id40": {
+      "prov:activity": "cfurn:scenario:000007:report-generation",
+      "prov:entity": "cfurn:artifact:1c2c3a51f95ff4d3:dataset-report"
+    },
+    "_:id41": {
+      "prov:activity": "cfurn:scenario:000007:report-generation",
+      "prov:entity": "cfurn:artifact:a87a18b1f242eeed:real-arm-report"
+    },
+    "_:id42": {
+      "prov:activity": "cfurn:scenario:000007:report-generation",
+      "prov:entity": "cfurn:artifact:4867edb09ac62661:single-gaussian-arm-report"
+    },
+    "_:id43": {
+      "prov:activity": "cfurn:scenario:000007:report-generation",
+      "prov:entity": "cfurn:artifact:dbd18cc6f1eddf4e:gmm-arm-report"
+    },
+    "_:id44": {
+      "prov:activity": "cfurn:scenario:000007:report-generation",
+      "prov:entity": "cfurn:artifact:4fd916409e2412a0:scenario-report"
+    },
+    "_:id49": {
+      "prov:activity": "cfurn:scenario:000007:artifact-recovery",
+      "prov:entity": "cfurn:scenario:000007:recovered-artifact-set"
+    },
+    "_:id5": {
+      "prov:activity": "cfurn:scenario:000007:dataset-preparation",
+      "prov:entity": "cfurn:scenario:000007:prepared-dataset"
+    },
+    "_:id6": {
+      "prov:activity": "cfurn:scenario:000007:dataset-preparation",
+      "prov:entity": "cfurn:scenario:000007:training-reservoir"
+    },
+    "_:id7": {
+      "prov:activity": "cfurn:scenario:000007:dataset-preparation",
+      "prov:entity": "cfurn:scenario:000007:fixed-real-test-set"
+    }
+  }
+}

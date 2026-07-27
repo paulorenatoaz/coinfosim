@@ -12873,7 +12873,7 @@
     ],
     "pairwise_profile_dynamics": {
       "schema_version": 3,
-      "semantic_vocabulary_version": "1.0.0",
+      "semantic_vocabulary_version": "1.1.0",
       "semantic_type": "coinfosim:PairwiseProfileDynamics",
       "subset_catalog": [
         [

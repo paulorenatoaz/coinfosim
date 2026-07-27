@@ -1,0 +1,192 @@
+@prefix coinfosim: <https://paulorenatoaz.github.io/coinfosim/ns#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<urn:coinfosim:artifact:1c2c3a51f95ff4d3:dataset-report> a prov:Entity,
+        coinfosim:ReportArtifact ;
+    rdfs:label "SUPPORT2 dataset-report"^^xsd:string ;
+    prov:wasGeneratedBy <urn:coinfosim:scenario:000008:report-generation> .
+
+<urn:coinfosim:artifact:3cbf37546fdaaccd:scenario-report> a prov:Entity,
+        coinfosim:ReportArtifact ;
+    rdfs:label "SUPPORT2 scenario-report"^^xsd:string ;
+    prov:wasGeneratedBy <urn:coinfosim:scenario:000008:report-generation> .
+
+<urn:coinfosim:artifact:4aa69a107217d7da:single-gaussian-arm-report> a prov:Entity,
+        coinfosim:ReportArtifact ;
+    rdfs:label "SUPPORT2 single-gaussian-arm-report"^^xsd:string ;
+    prov:wasGeneratedBy <urn:coinfosim:scenario:000008:report-generation> .
+
+<urn:coinfosim:artifact:833789142eb7690f:gmm-arm-report> a prov:Entity,
+        coinfosim:ReportArtifact ;
+    rdfs:label "SUPPORT2 gmm-arm-report"^^xsd:string ;
+    prov:wasGeneratedBy <urn:coinfosim:scenario:000008:report-generation> .
+
+<urn:coinfosim:artifact:b64aa02b4693984c:real-arm-report> a prov:Entity,
+        coinfosim:ReportArtifact ;
+    rdfs:label "SUPPORT2 real-arm-report"^^xsd:string ;
+    prov:wasGeneratedBy <urn:coinfosim:scenario:000008:report-generation> .
+
+<urn:coinfosim:scenario:000008:prepared-dataset> a prov:Entity,
+        coinfosim:PreparedDataset ;
+    rdfs:label "SUPPORT2 prepared dataset"^^xsd:string ;
+    prov:wasGeneratedBy <urn:coinfosim:scenario:000008:dataset-preparation> .
+
+<urn:coinfosim:artifact:175a5e6a7a35a4ce:result-data:real_to_real> a prov:Entity,
+        coinfosim:ResultData ;
+    rdfs:label "SUPPORT2 real_to_real result data"^^xsd:string ;
+    prov:wasDerivedFrom <urn:coinfosim:scenario:000008:recovered-artifact-set> ;
+    prov:wasGeneratedBy <urn:coinfosim:simulation:000024:real_to_real> .
+
+<urn:coinfosim:artifact:a54b450181a993c8:result-data:single_gaussian_to_real> a prov:Entity,
+        coinfosim:ResultData ;
+    rdfs:label "SUPPORT2 single_gaussian_to_real result data"^^xsd:string ;
+    prov:wasDerivedFrom <urn:coinfosim:scenario:000008:recovered-artifact-set> ;
+    prov:wasGeneratedBy <urn:coinfosim:simulation:000025:single_gaussian_to_real> .
+
+<urn:coinfosim:artifact:c9c8321773a76b45:result-data:gmm_to_real> a prov:Entity,
+        coinfosim:ResultData ;
+    rdfs:label "SUPPORT2 gmm_to_real result data"^^xsd:string ;
+    prov:wasDerivedFrom <urn:coinfosim:scenario:000008:recovered-artifact-set> ;
+    prov:wasGeneratedBy <urn:coinfosim:simulation:000026:gmm_to_real> .
+
+<urn:coinfosim:revision:c8f210458109a54a5268f1998683ff57802d2c09> a prov:Entity,
+        coinfosim:CodeRevision ;
+    rdfs:label "Git commit c8f210458109a54a5268f1998683ff57802d2c09"^^xsd:string .
+
+<urn:coinfosim:scenario:000008:artifact-recovery> a prov:Activity,
+        coinfosim:ArtifactRecovery ;
+    rdfs:label "SUPPORT2 historical artifact recovery"^^xsd:string ;
+    prov:used <urn:coinfosim:environment:39a7864cf4a60888>,
+        <urn:coinfosim:revision:c8f210458109a54a5268f1998683ff57802d2c09>,
+        <urn:coinfosim:revision:fc06772cbd1501bf62832eeb93aa92a88d5a9403> ;
+    prov:wasAssociatedWith <urn:coinfosim:software:coinfosim> .
+
+<urn:coinfosim:scenario:000008:fit-gmm> a prov:Activity,
+        coinfosim:FitGMM ;
+    rdfs:label "SUPPORT2 GMM fitting"^^xsd:string ;
+    prov:used <urn:coinfosim:scenario:000008:training-reservoir> ;
+    prov:wasAssociatedWith <urn:coinfosim:software:coinfosim> .
+
+<urn:coinfosim:scenario:000008:fit-single-gaussian> a prov:Activity,
+        coinfosim:FitSingleGaussian ;
+    rdfs:label "SUPPORT2 single Gaussian fitting"^^xsd:string ;
+    prov:used <urn:coinfosim:scenario:000008:training-reservoir> ;
+    prov:wasAssociatedWith <urn:coinfosim:software:coinfosim> .
+
+<urn:coinfosim:scenario:000008:fitted-gmm-generator> a prov:Entity,
+        coinfosim:FittedGMMGenerator ;
+    rdfs:label "SUPPORT2 fitted GMM generator"^^xsd:string ;
+    prov:wasGeneratedBy <urn:coinfosim:scenario:000008:fit-gmm> .
+
+<urn:coinfosim:scenario:000008:fitted-single-gaussian-generator> a prov:Entity,
+        coinfosim:FittedSingleGaussianGenerator ;
+    rdfs:label "SUPPORT2 fitted single Gaussian generator"^^xsd:string ;
+    prov:wasGeneratedBy <urn:coinfosim:scenario:000008:fit-single-gaussian> .
+
+<urn:coinfosim:scenario:000008:predictive-cooperation-profile> a prov:Entity,
+        coinfosim:PredictiveCooperationProfile ;
+    rdfs:label "SUPPORT2 predictive cooperation profile"^^xsd:string ;
+    prov:wasGeneratedBy <urn:coinfosim:scenario:000008:profile-computation> .
+
+<urn:coinfosim:scenario:000008:preprocessing-specification> a prov:Entity,
+        coinfosim:PreprocessingSpecification ;
+    rdfs:label "SUPPORT2 preprocessing specification"^^xsd:string .
+
+<urn:coinfosim:scenario:000008:profile-computation> a prov:Activity,
+        coinfosim:ProfileComputation ;
+    rdfs:label "SUPPORT2 predictive cooperation profile computation"^^xsd:string ;
+    prov:used <urn:coinfosim:artifact:175a5e6a7a35a4ce:result-data:real_to_real>,
+        <urn:coinfosim:artifact:a54b450181a993c8:result-data:single_gaussian_to_real>,
+        <urn:coinfosim:artifact:c9c8321773a76b45:result-data:gmm_to_real>,
+        <urn:coinfosim:environment:39a7864cf4a60888>,
+        <urn:coinfosim:revision:fc06772cbd1501bf62832eeb93aa92a88d5a9403> ;
+    prov:wasAssociatedWith <urn:coinfosim:software:coinfosim> .
+
+<urn:coinfosim:scenario:000008:source-dataset> a prov:Entity,
+        coinfosim:SourceDataset ;
+    rdfs:label "SUPPORT2 source dataset"^^xsd:string .
+
+<urn:coinfosim:scenario:000008:target-specification> a prov:Entity,
+        coinfosim:TargetSpecification ;
+    rdfs:label "SUPPORT2 target specification"^^xsd:string .
+
+<urn:coinfosim:simulation:000024:real_to_real> a prov:Activity,
+        coinfosim:RealSimulationRun ;
+    rdfs:label "SUPPORT2 real_to_real simulation run"^^xsd:string ;
+    prov:used <urn:coinfosim:artifact:1bd651eca4f2ccbe:random-forest-calibration>,
+        <urn:coinfosim:scenario:000008:experiment-configuration>,
+        <urn:coinfosim:scenario:000008:fixed-real-test-set>,
+        <urn:coinfosim:scenario:000008:training-reservoir> ;
+    prov:wasAssociatedWith <urn:coinfosim:software:coinfosim> .
+
+<urn:coinfosim:simulation:000025:single_gaussian_to_real> a prov:Activity,
+        coinfosim:SingleGaussianSimulationRun ;
+    rdfs:label "SUPPORT2 single_gaussian_to_real simulation run"^^xsd:string ;
+    prov:used <urn:coinfosim:artifact:1bd651eca4f2ccbe:random-forest-calibration>,
+        <urn:coinfosim:scenario:000008:experiment-configuration>,
+        <urn:coinfosim:scenario:000008:fitted-single-gaussian-generator>,
+        <urn:coinfosim:scenario:000008:fixed-real-test-set> ;
+    prov:wasAssociatedWith <urn:coinfosim:software:coinfosim> .
+
+<urn:coinfosim:simulation:000026:gmm_to_real> a prov:Activity,
+        coinfosim:GMMSimulationRun ;
+    rdfs:label "SUPPORT2 gmm_to_real simulation run"^^xsd:string ;
+    prov:used <urn:coinfosim:artifact:1bd651eca4f2ccbe:random-forest-calibration>,
+        <urn:coinfosim:scenario:000008:experiment-configuration>,
+        <urn:coinfosim:scenario:000008:fitted-gmm-generator>,
+        <urn:coinfosim:scenario:000008:fixed-real-test-set> ;
+    prov:wasAssociatedWith <urn:coinfosim:software:coinfosim> .
+
+<urn:coinfosim:artifact:1bd651eca4f2ccbe:random-forest-calibration> a prov:Entity,
+        coinfosim:RandomForestCalibrationArtifact ;
+    rdfs:label "Random Forest calibration artifact"^^xsd:string .
+
+<urn:coinfosim:environment:39a7864cf4a60888> a prov:Entity,
+        coinfosim:ExecutionEnvironment ;
+    rdfs:label "Python 3.12.3 on Linux-x86_64"^^xsd:string .
+
+<urn:coinfosim:revision:fc06772cbd1501bf62832eeb93aa92a88d5a9403> a prov:Entity,
+        coinfosim:CodeRevision ;
+    rdfs:label "Git commit fc06772cbd1501bf62832eeb93aa92a88d5a9403"^^xsd:string .
+
+<urn:coinfosim:scenario:000008:dataset-preparation> a prov:Activity,
+        coinfosim:DatasetPreparation ;
+    rdfs:label "SUPPORT2 dataset preparation"^^xsd:string ;
+    prov:used <urn:coinfosim:scenario:000008:preprocessing-specification>,
+        <urn:coinfosim:scenario:000008:source-dataset>,
+        <urn:coinfosim:scenario:000008:target-specification> ;
+    prov:wasAssociatedWith <urn:coinfosim:software:coinfosim> .
+
+<urn:coinfosim:scenario:000008:experiment-configuration> a prov:Entity,
+        coinfosim:ExperimentConfiguration ;
+    rdfs:label "SUPPORT2 experiment configuration"^^xsd:string .
+
+<urn:coinfosim:scenario:000008:fixed-real-test-set> a prov:Entity,
+        coinfosim:FixedRealTestSet ;
+    rdfs:label "SUPPORT2 fixed real test set"^^xsd:string ;
+    prov:wasGeneratedBy <urn:coinfosim:scenario:000008:dataset-preparation> .
+
+<urn:coinfosim:scenario:000008:recovered-artifact-set> a prov:Entity,
+        coinfosim:RecoveredArtifactSet ;
+    rdfs:label "SUPPORT2 recovered gh-pages artifact set"^^xsd:string ;
+    prov:wasGeneratedBy <urn:coinfosim:scenario:000008:artifact-recovery> .
+
+<urn:coinfosim:scenario:000008:training-reservoir> a prov:Entity,
+        coinfosim:TrainingReservoir ;
+    rdfs:label "SUPPORT2 training reservoir"^^xsd:string ;
+    prov:wasGeneratedBy <urn:coinfosim:scenario:000008:dataset-preparation> .
+
+<urn:coinfosim:scenario:000008:report-generation> a prov:Activity,
+        coinfosim:ReportGeneration ;
+    rdfs:label "SUPPORT2 report generation"^^xsd:string ;
+    prov:used <urn:coinfosim:environment:39a7864cf4a60888>,
+        <urn:coinfosim:revision:fc06772cbd1501bf62832eeb93aa92a88d5a9403>,
+        <urn:coinfosim:scenario:000008:predictive-cooperation-profile> ;
+    prov:wasAssociatedWith <urn:coinfosim:software:coinfosim> .
+
+<urn:coinfosim:software:coinfosim> a prov:Agent,
+        "prov:SoftwareAgent"^^xsd:string ;
+    rdfs:label "CoInfoSim"^^xsd:string .
+

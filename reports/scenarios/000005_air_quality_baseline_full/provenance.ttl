@@ -1,0 +1,185 @@
+@prefix coinfosim: <https://paulorenatoaz.github.io/coinfosim/ns#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<urn:coinfosim:artifact:986b34fcd2db8596:scenario-report> a prov:Entity,
+        coinfosim:ReportArtifact ;
+    rdfs:label "UCI Air Quality scenario-report"^^xsd:string ;
+    prov:wasGeneratedBy <urn:coinfosim:scenario:000005:report-generation> .
+
+<urn:coinfosim:artifact:9bc600faa9a18e31:gmm-arm-report> a prov:Entity,
+        coinfosim:ReportArtifact ;
+    rdfs:label "UCI Air Quality gmm-arm-report"^^xsd:string ;
+    prov:wasGeneratedBy <urn:coinfosim:scenario:000005:report-generation> .
+
+<urn:coinfosim:artifact:b4294746825aadee:single-gaussian-arm-report> a prov:Entity,
+        coinfosim:ReportArtifact ;
+    rdfs:label "UCI Air Quality single-gaussian-arm-report"^^xsd:string ;
+    prov:wasGeneratedBy <urn:coinfosim:scenario:000005:report-generation> .
+
+<urn:coinfosim:artifact:e2ac1cf7b98476f0:real-arm-report> a prov:Entity,
+        coinfosim:ReportArtifact ;
+    rdfs:label "UCI Air Quality real-arm-report"^^xsd:string ;
+    prov:wasGeneratedBy <urn:coinfosim:scenario:000005:report-generation> .
+
+<urn:coinfosim:artifact:f307de94ac078e8c:dataset-report> a prov:Entity,
+        coinfosim:ReportArtifact ;
+    rdfs:label "UCI Air Quality dataset-report"^^xsd:string ;
+    prov:wasGeneratedBy <urn:coinfosim:scenario:000005:report-generation> .
+
+<urn:coinfosim:scenario:000005:prepared-dataset> a prov:Entity,
+        coinfosim:PreparedDataset ;
+    rdfs:label "UCI Air Quality prepared dataset"^^xsd:string ;
+    prov:wasGeneratedBy <urn:coinfosim:scenario:000005:dataset-preparation> .
+
+<urn:coinfosim:artifact:26a0594c60f001b9:result-data:gmm_to_real> a prov:Entity,
+        coinfosim:ResultData ;
+    rdfs:label "UCI Air Quality gmm_to_real result data"^^xsd:string ;
+    prov:wasDerivedFrom <urn:coinfosim:scenario:000005:recovered-artifact-set> ;
+    prov:wasGeneratedBy <urn:coinfosim:simulation:000017:gmm_to_real> .
+
+<urn:coinfosim:artifact:3baeb4db887352db:result-data:single_gaussian_to_real> a prov:Entity,
+        coinfosim:ResultData ;
+    rdfs:label "UCI Air Quality single_gaussian_to_real result data"^^xsd:string ;
+    prov:wasDerivedFrom <urn:coinfosim:scenario:000005:recovered-artifact-set> ;
+    prov:wasGeneratedBy <urn:coinfosim:simulation:000016:single_gaussian_to_real> .
+
+<urn:coinfosim:artifact:e171622756cf5874:result-data:real_to_real> a prov:Entity,
+        coinfosim:ResultData ;
+    rdfs:label "UCI Air Quality real_to_real result data"^^xsd:string ;
+    prov:wasDerivedFrom <urn:coinfosim:scenario:000005:recovered-artifact-set> ;
+    prov:wasGeneratedBy <urn:coinfosim:simulation:000015:real_to_real> .
+
+<urn:coinfosim:revision:c8f210458109a54a5268f1998683ff57802d2c09> a prov:Entity,
+        coinfosim:CodeRevision ;
+    rdfs:label "Git commit c8f210458109a54a5268f1998683ff57802d2c09"^^xsd:string .
+
+<urn:coinfosim:scenario:000005:artifact-recovery> a prov:Activity,
+        coinfosim:ArtifactRecovery ;
+    rdfs:label "UCI Air Quality historical artifact recovery"^^xsd:string ;
+    prov:used <urn:coinfosim:environment:39a7864cf4a60888>,
+        <urn:coinfosim:revision:c8f210458109a54a5268f1998683ff57802d2c09>,
+        <urn:coinfosim:revision:fc06772cbd1501bf62832eeb93aa92a88d5a9403> ;
+    prov:wasAssociatedWith <urn:coinfosim:software:coinfosim> .
+
+<urn:coinfosim:scenario:000005:fit-gmm> a prov:Activity,
+        coinfosim:FitGMM ;
+    rdfs:label "UCI Air Quality GMM fitting"^^xsd:string ;
+    prov:used <urn:coinfosim:scenario:000005:training-reservoir> ;
+    prov:wasAssociatedWith <urn:coinfosim:software:coinfosim> .
+
+<urn:coinfosim:scenario:000005:fit-single-gaussian> a prov:Activity,
+        coinfosim:FitSingleGaussian ;
+    rdfs:label "UCI Air Quality single Gaussian fitting"^^xsd:string ;
+    prov:used <urn:coinfosim:scenario:000005:training-reservoir> ;
+    prov:wasAssociatedWith <urn:coinfosim:software:coinfosim> .
+
+<urn:coinfosim:scenario:000005:fitted-gmm-generator> a prov:Entity,
+        coinfosim:FittedGMMGenerator ;
+    rdfs:label "UCI Air Quality fitted GMM generator"^^xsd:string ;
+    prov:wasGeneratedBy <urn:coinfosim:scenario:000005:fit-gmm> .
+
+<urn:coinfosim:scenario:000005:fitted-single-gaussian-generator> a prov:Entity,
+        coinfosim:FittedSingleGaussianGenerator ;
+    rdfs:label "UCI Air Quality fitted single Gaussian generator"^^xsd:string ;
+    prov:wasGeneratedBy <urn:coinfosim:scenario:000005:fit-single-gaussian> .
+
+<urn:coinfosim:scenario:000005:predictive-cooperation-profile> a prov:Entity,
+        coinfosim:PredictiveCooperationProfile ;
+    rdfs:label "UCI Air Quality predictive cooperation profile"^^xsd:string ;
+    prov:wasGeneratedBy <urn:coinfosim:scenario:000005:profile-computation> .
+
+<urn:coinfosim:scenario:000005:preprocessing-specification> a prov:Entity,
+        coinfosim:PreprocessingSpecification ;
+    rdfs:label "UCI Air Quality preprocessing specification"^^xsd:string .
+
+<urn:coinfosim:scenario:000005:profile-computation> a prov:Activity,
+        coinfosim:ProfileComputation ;
+    rdfs:label "UCI Air Quality predictive cooperation profile computation"^^xsd:string ;
+    prov:used <urn:coinfosim:artifact:26a0594c60f001b9:result-data:gmm_to_real>,
+        <urn:coinfosim:artifact:3baeb4db887352db:result-data:single_gaussian_to_real>,
+        <urn:coinfosim:artifact:e171622756cf5874:result-data:real_to_real>,
+        <urn:coinfosim:environment:39a7864cf4a60888>,
+        <urn:coinfosim:revision:fc06772cbd1501bf62832eeb93aa92a88d5a9403> ;
+    prov:wasAssociatedWith <urn:coinfosim:software:coinfosim> .
+
+<urn:coinfosim:scenario:000005:source-dataset> a prov:Entity,
+        coinfosim:SourceDataset ;
+    rdfs:label "UCI Air Quality source dataset"^^xsd:string .
+
+<urn:coinfosim:scenario:000005:target-specification> a prov:Entity,
+        coinfosim:TargetSpecification ;
+    rdfs:label "UCI Air Quality target specification"^^xsd:string .
+
+<urn:coinfosim:simulation:000015:real_to_real> a prov:Activity,
+        coinfosim:RealSimulationRun ;
+    rdfs:label "UCI Air Quality real_to_real simulation run"^^xsd:string ;
+    prov:used <urn:coinfosim:scenario:000005:experiment-configuration>,
+        <urn:coinfosim:scenario:000005:fixed-real-test-set>,
+        <urn:coinfosim:scenario:000005:training-reservoir> ;
+    prov:wasAssociatedWith <urn:coinfosim:software:coinfosim> .
+
+<urn:coinfosim:simulation:000016:single_gaussian_to_real> a prov:Activity,
+        coinfosim:SingleGaussianSimulationRun ;
+    rdfs:label "UCI Air Quality single_gaussian_to_real simulation run"^^xsd:string ;
+    prov:used <urn:coinfosim:scenario:000005:experiment-configuration>,
+        <urn:coinfosim:scenario:000005:fitted-single-gaussian-generator>,
+        <urn:coinfosim:scenario:000005:fixed-real-test-set> ;
+    prov:wasAssociatedWith <urn:coinfosim:software:coinfosim> .
+
+<urn:coinfosim:simulation:000017:gmm_to_real> a prov:Activity,
+        coinfosim:GMMSimulationRun ;
+    rdfs:label "UCI Air Quality gmm_to_real simulation run"^^xsd:string ;
+    prov:used <urn:coinfosim:scenario:000005:experiment-configuration>,
+        <urn:coinfosim:scenario:000005:fitted-gmm-generator>,
+        <urn:coinfosim:scenario:000005:fixed-real-test-set> ;
+    prov:wasAssociatedWith <urn:coinfosim:software:coinfosim> .
+
+<urn:coinfosim:environment:39a7864cf4a60888> a prov:Entity,
+        coinfosim:ExecutionEnvironment ;
+    rdfs:label "Python 3.12.3 on Linux-x86_64"^^xsd:string .
+
+<urn:coinfosim:revision:fc06772cbd1501bf62832eeb93aa92a88d5a9403> a prov:Entity,
+        coinfosim:CodeRevision ;
+    rdfs:label "Git commit fc06772cbd1501bf62832eeb93aa92a88d5a9403"^^xsd:string .
+
+<urn:coinfosim:scenario:000005:dataset-preparation> a prov:Activity,
+        coinfosim:DatasetPreparation ;
+    rdfs:label "UCI Air Quality dataset preparation"^^xsd:string ;
+    prov:used <urn:coinfosim:scenario:000005:preprocessing-specification>,
+        <urn:coinfosim:scenario:000005:source-dataset>,
+        <urn:coinfosim:scenario:000005:target-specification> ;
+    prov:wasAssociatedWith <urn:coinfosim:software:coinfosim> .
+
+<urn:coinfosim:scenario:000005:experiment-configuration> a prov:Entity,
+        coinfosim:ExperimentConfiguration ;
+    rdfs:label "UCI Air Quality experiment configuration"^^xsd:string .
+
+<urn:coinfosim:scenario:000005:fixed-real-test-set> a prov:Entity,
+        coinfosim:FixedRealTestSet ;
+    rdfs:label "UCI Air Quality fixed real test set"^^xsd:string ;
+    prov:wasGeneratedBy <urn:coinfosim:scenario:000005:dataset-preparation> .
+
+<urn:coinfosim:scenario:000005:recovered-artifact-set> a prov:Entity,
+        coinfosim:RecoveredArtifactSet ;
+    rdfs:label "UCI Air Quality recovered gh-pages artifact set"^^xsd:string ;
+    prov:wasGeneratedBy <urn:coinfosim:scenario:000005:artifact-recovery> .
+
+<urn:coinfosim:scenario:000005:training-reservoir> a prov:Entity,
+        coinfosim:TrainingReservoir ;
+    rdfs:label "UCI Air Quality training reservoir"^^xsd:string ;
+    prov:wasGeneratedBy <urn:coinfosim:scenario:000005:dataset-preparation> .
+
+<urn:coinfosim:scenario:000005:report-generation> a prov:Activity,
+        coinfosim:ReportGeneration ;
+    rdfs:label "UCI Air Quality report generation"^^xsd:string ;
+    prov:used <urn:coinfosim:environment:39a7864cf4a60888>,
+        <urn:coinfosim:revision:fc06772cbd1501bf62832eeb93aa92a88d5a9403>,
+        <urn:coinfosim:scenario:000005:predictive-cooperation-profile> ;
+    prov:wasAssociatedWith <urn:coinfosim:software:coinfosim> .
+
+<urn:coinfosim:software:coinfosim> a prov:Agent,
+        "prov:SoftwareAgent"^^xsd:string ;
+    rdfs:label "CoInfoSim"^^xsd:string .
+
